@@ -61,7 +61,7 @@ class exports.Gatekeeper
     return @
 
   configureModels: ( ) ->
-    @._model or= { }
+    @.models or= { }
 
     for modelPath in @_modelList( )
       current = require( modelPath )
@@ -76,12 +76,12 @@ class exports.Gatekeeper
           # models take an instance of this class as an argument to the
           # constructor. This gives us something like
           # `gatekeeper.models.metaCache`.
-          @._model[ modelName ] = new func @
+          @.models[ modelName ] = new func @
 
     return @
 
   model: ( name ) ->
-    @._model[ name ] or null
+    @.models[ name ] or null
 
   _modelList: ( ) ->
     list = [ ]

@@ -53,3 +53,16 @@ class exports.GatekeeperTest extends TwerpTest
     spy.restore( ) for spy in @stubs
 
     done( )
+
+  "setup": ( done ) ->
+    tasks = [ ]
+
+    if @constructor.empty_db_on_setup
+      for name, model of @gatekeeper.models
+        do ( model ) ->
+          tasks.push ( cb ) ->
+            model.flush cb
+
+      async.parallel tasks, done
+    else
+      done()
