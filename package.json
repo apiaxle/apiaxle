@@ -1,0 +1,26 @@
+{
+  "author": "Phil Jackson <phil@shellarchive.co.uk>",
+  "name": "gatekeeper",
+  "description": "API gateway",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://philjackson@bitbucket.org/philjackson/gatekeeper.git"
+  },
+  "scripts": {
+    "test": "cake test"
+  },
+  "engines": {
+    "node": "~0.4.8"
+  },
+  "dependencies": {
+    "async": "~0.1.9",
+    "coffee-script": "~1.1.2",
+    "express": "~2.4.7",
+    "underscore": "~1.1.7"
+  },
+  "devDependencies": {
+    "twerp":         "~1.0.5",
+    "sinon":         "~1.1.1"
+  }
+}
