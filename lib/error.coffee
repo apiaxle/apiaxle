@@ -18,5 +18,13 @@ class exports.RedisError extends exports.GatekeeperError
 class exports.QpsExceededError extends exports.GatekeeperError
   @status = 429
 
+  constructor: ( msg, @options ) ->
+    super
+    @message = "Queries per second exceeded: #{ msg }"
+
 class exports.QpdExceededError extends exports.GatekeeperError
   @status = 429
+
+  constructor: ( msg, @options ) ->
+    super
+    @message = "Queries per day exceeded: #{ msg }"

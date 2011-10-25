@@ -6,6 +6,18 @@ async = require "async"
 class exports.ApiLimits extends Redis
   @instantiateOnStartup = true
 
+  withinQps: ( user, apiKey, qps, cb ) ->
+    @_withinLimit @qpsKey( user, apiKey ), 1, qps, QpsExceededError, cb
+
+  withinQpd: ( user, apiKey, qpd, cb ) ->
+    @_withinLimit @qpdKey( user, apiKey ), 86000, qpd, QpdExceededError, cb
+
+  qpsKey: ( user, apiKey ) ->
+    return [ "qps", user, apiKey ]
+
+  qpdKey: ( user, apiKey ) ->
+    return [ "qpd", @_dayString(), user, apiKey ]
+
   _setInitialQp: ( key, qp, expires, cb ) ->
     @set [ key ], qp, ( err, res ) =>
       return cb err if err
@@ -16,13 +28,7 @@ class exports.ApiLimits extends Redis
 
         return cb null, qp
 
-  withinQps: ( user, apiKey, qps, cb ) ->
-    @_withinLimit @qpsKey( user, apiKey ), 1, qps, cb
-
-  withinQpd: ( user, apiKey, qpd, cb ) ->
-    @_withinLimit @qpdKey( user, apiKey ), 86000, qpd, cb
-
-  _withinLimit: ( key, expires, qpLimit, cb ) ->
+  _withinLimit: ( key, expires, qpLimit, exceedErrorClass, cb ) ->
     # join the key here to save cycles
     key = key.join ":"
 
@@ -36,12 +42,6 @@ class exports.ApiLimits extends Redis
 
       # no more calls left
       if callsLeft <= 0
-        return cb new QpsExceededError "#{ qpLimit} allowed per second."
+        return cb new exceedErrorClass "#{ qpLimit} allowed."
 
       return cb null, callsLeft
-
-  qpsKey: ( user, apiKey ) ->
-    return [ "qps", user, apiKey ]
-
-  qpdKey: ( user, apiKey ) ->
-    return [ "qpd", @_dayString(), user, apiKey ]

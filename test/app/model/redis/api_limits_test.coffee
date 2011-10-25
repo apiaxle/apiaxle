@@ -1,5 +1,6 @@
 async = require "async"
 
+{ QpsExceededError, QpdExceededError } = require "../../../../lib/error"
 { GatekeeperTest } = require "../../../gatekeeper"
 
 class exports.QpdTest extends GatekeeperTest
@@ -50,7 +51,12 @@ class exports.QpdTest extends GatekeeperTest
           @ok err
           @isUndefined result
 
-          done 5
+          @ok err instanceof QpdExceededError
+
+          @equal err.constructor.status, 429
+          @equal err.message, "Queries per day exceeded: 2 allowed."
+
+          done 8
 
 class exports.QpsTest extends GatekeeperTest
   @empty_db_on_setup = true
@@ -100,4 +106,9 @@ class exports.QpsTest extends GatekeeperTest
           @ok err
           @isUndefined result
 
-          done 5
+          @ok err instanceof QpsExceededError
+
+          @equal err.constructor.status, 429
+          @equal err.message, "Queries per second exceeded: 2 allowed."
+
+          done 8
