@@ -1,5 +1,6 @@
 class exports.Redis
   @commands = [
+    "expire"
     "set"
     "get"
     "incr"

@@ -14,7 +14,7 @@ class exports.CountersTest extends GatekeeperTest
     done 3
 
   "test #apiHit": ( done ) ->
-    model = @gatekeeper.model( "counters" )
+    model = @gatekeeper.model "counters"
 
     hits = for i in [ 1..100 ]
       ( cb ) -> model.apiHit "bob", "1234", cb

@@ -36,6 +36,8 @@ class exports.GatekeeperTest extends TwerpTest
       chain.push ( cb ) =>
         @startWebserver cb
 
+    chain.push @gatekeeper.redisConnect
+
     # chain this as it's possible the parent class will implement
     # functionality in `start`
     async.parallel chain, done

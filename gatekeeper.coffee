@@ -20,14 +20,17 @@ class exports.Gatekeeper
   @env = ( process.env.NODE_ENV or "development" )
 
   constructor: ( ) ->
+    app = module.exports = express.createServer( )
+
+    @_configure app
+
+  redisConnect: ( cb ) =>
     @redisClient = redis.createClient()
 
     @redisClient.on "error", ( err ) ->
       throw new RedisError err
 
-    app = module.exports = express.createServer( )
-
-    @_configure app
+    @redisClient.on "ready", cb
 
   run: ( binding_host, port, callback ) ->
     @app.listen port, binding_host, callback
@@ -176,7 +179,7 @@ if not module.parent
 
   gatekeeper = new exports.Gatekeeper( )
 
-  gatekeeper.redisClient.on "ready", ( ) ->
+  gatekeeper.redisConnect ( ) ->
     gatekeeper.run host, port, ( ) ->
       gatekeeper.configureModels()
       gatekeeper.configureControllers()
