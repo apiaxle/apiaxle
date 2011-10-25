@@ -162,14 +162,14 @@ class exports.Gatekeeper
   onError: ( err, req, res, next ) ->
     output =
       error:
-        status: err.jsonStatus
+        status: err.constructor.status
         message: err.message
 
     if @debug
       output.error.details = err.details
       output.error.stack = err.stack
 
-    res.json output, err.jsonStatus
+    res.json output, err.constructor.status
 
 if not module.parent
   # taking a port from the commandline makes it much easier to cluster

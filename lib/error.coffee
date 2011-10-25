@@ -1,4 +1,6 @@
 class exports.GatekeeperError extends Error
+  @status = 400
+
   constructor: ( msg, @options ) ->
     @name = arguments.callee.name
     @message = msg
@@ -8,12 +10,10 @@ class exports.GatekeeperError extends Error
     Error.captureStackTrace @, arguments.callee
 
 class exports.NotFoundError extends exports.GatekeeperError
-  constructor: ( msg, @options ) ->
-    super
-    @jsonStatus = 404
-    @htmlStatus = 404
+  @status = 404
 
 class exports.RedisError extends exports.GatekeeperError
-  constructor: ( msg, @options ) ->
-    super
-    @jsonStatus = 500
+  @status = 500
+
+class exports.QpsExceeded extends exports.GatekeeperError
+  @status = 429

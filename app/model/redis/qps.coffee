@@ -1,5 +1,6 @@
 async = require "async"
 
+{ QpsError } = require "../../../lib/error"
 { Redis } = require "../redis"
 
 class exports.Qps extends Redis
@@ -9,7 +10,8 @@ class exports.Qps extends Redis
     @set [ key ], options.qps, ( err, res ) =>
       return cb err if err
 
-      @expire [ key ], options.qps, ( err, result ) =>
+      # expires in a second
+      @expire [ key ], 1, ( err, result ) =>
         return cb err if err
 
         return cb null, options.qps
@@ -27,4 +29,9 @@ class exports.Qps extends Redis
       return cb err if err
 
       # no key set yet (or it expired)
-      return @_setInitialCps key, options, cb if not callsLeft?
+      if not callsLeft?
+        return @_setInitialCps key, options, cb
+
+      # no more calls left
+      if callsLeft <= 0
+        return cb new QpsError "Queries per second exceeded (#{ options.qps} allocated)."

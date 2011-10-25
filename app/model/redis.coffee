@@ -6,6 +6,7 @@ class exports.Redis
     "incr"
     "del"
     "keys"
+    "ttl"
   ]
 
   constructor: ( @gatekeeper ) ->
@@ -20,9 +21,11 @@ class exports.Redis
     for command in @constructor.commands
       do ( command ) =>
         @[ command ] = ( key, rest... ) =>
-          key.unshift @ns
+          @gatekeeper.redisClient[ command ]( @getKey( key ), rest... )
 
-          @gatekeeper.redisClient[ command ]( key.join( ":" ), rest... )
+  getKey: ( parts ) ->
+    parts.unshift @ns
+    return parts.join ":"
 
   # Clear the keys associated with this model (taking into account the
   # namespace). It's for tests, not for use in production code.
