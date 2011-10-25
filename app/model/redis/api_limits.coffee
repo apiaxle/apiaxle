@@ -17,8 +17,14 @@ class exports.ApiLimits extends Redis
         return cb null, qps
 
   withinQps: ( user, apiKey, qps, cb ) ->
+    @withinLimit @qpsKey( user, apiKey ), qps, cb
+
+  withinQpd: ( user, apiKey, qpd, cb ) ->
+    @withinLimit @qpdKey( user, apiKey ), qpd, cb
+
+  _withinLimit: ( key, qpLimit, cb ) ->
     # join the key here to save cycles
-    key = @qpsKey( user, apiKey ).join ":"
+    key = key.join ":"
 
     # how many calls have we got left (if any)?
     @get [ key ], ( err, callsLeft ) =>
@@ -26,11 +32,11 @@ class exports.ApiLimits extends Redis
 
       # no key set yet (or it expired)
       if not callsLeft?
-        return @_setInitialQps key, qps, cb
+        return @_setInitialQps key, qpLimit, cb
 
       # no more calls left
       if callsLeft <= 0
-        return cb new QpsExceededError "#{ qps} allowed per second."
+        return cb new QpsExceededError "#{ qpLimit} allowed per second."
 
       return cb null, callsLeft
 
@@ -49,21 +55,3 @@ class exports.ApiLimits extends Redis
         return cb err if err
 
         return cb null, qpd
-
-  withinQpd: ( user, apiKey, qpd, cb ) ->
-    # join the key here to save cycles
-    key = @qpdKey( user, apiKey ).join ":"
-
-    # how many calls have we got left (if any)?
-    @get [ key ], ( err, callsLeft ) =>
-      return cb err if err
-
-      # no key set yet (or it expired)
-      if not callsLeft?
-        return @_setInitialQpd key, qpd, cb
-
-      # no more calls left
-      if callsLeft <= 0
-        return cb new QpdExceededError "#{ qpd} allowed per day."
-
-      return cb null, callsLeft
