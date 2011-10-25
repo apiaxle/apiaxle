@@ -2,6 +2,56 @@ async = require "async"
 
 { GatekeeperTest } = require "../../../gatekeeper"
 
+class exports.QpdTest extends GatekeeperTest
+  @empty_db_on_setup = true
+
+  "test initialisation": ( done ) ->
+    @ok @gatekeeper
+    @ok model = @gatekeeper.model "apiLimits"
+
+    @equal model.ns, "gk:test:apilimits:"
+
+    done 3
+
+  "test #withinQpd with two qpd": ( done ) ->
+    model = @gatekeeper.model "apiLimits"
+
+    model.withinQpd "fred", "1234", 20, ( err, result ) =>
+      @isNull err
+      @equal result, 20
+
+      # check the key was set
+      model.get model.qpdKey( "fred", "1234" ), ( err, value ) =>
+        @isNull err
+        @equal value, 20
+
+        # this makes the bold assumption that the tests are quick
+        # enough to get here before ttl expires
+        model.ttl model.qpdKey( "fred", "1234" ), ( err, ttl ) =>
+          @isNull err
+          @ok ttl > 0
+
+          done 6
+
+  "test #withinQpd with zero qpd": ( done ) ->
+    model = @gatekeeper.model "apiLimits"
+
+    # set the initial qpd
+    model.withinQpd "fred", "1234", 2, ( err, result ) =>
+      @isNull err
+      @equal result, 2
+
+      # then zero the qpd to check we get an error
+      model.set model.qpdKey( "fred", "1234" ), 0, ( err, result ) =>
+        @isNull err
+
+        # this time should error
+        model.withinQpd "fred", "1234", 2, ( err, result ) =>
+          @ok err
+          @isUndefined result
+
+          done 5
+
 class exports.QpsTest extends GatekeeperTest
   @empty_db_on_setup = true
 

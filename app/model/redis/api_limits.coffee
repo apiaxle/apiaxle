@@ -37,22 +37,14 @@ class exports.ApiLimits extends Redis
   qpsKey: ( user, apiKey ) ->
     return [ "qps", user, apiKey ]
 
-
-
-
-
-
-
-
-
   qpdKey: ( user, apiKey ) ->
-    return [ "qps", @_dayString(), user, apiKey ]
+    return [ "qpd", @_dayString(), user, apiKey ]
 
   _setInitialQpd: ( key, qpd, cb ) ->
     @set [ key ], qpd, ( err, res ) =>
       return cb err if err
 
-      # expires in a second
+      # expires in a day
       @expire [ key ], 86400, ( err, result ) =>
         return cb err if err
 
@@ -60,7 +52,7 @@ class exports.ApiLimits extends Redis
 
   withinQpd: ( user, apiKey, qpd, cb ) ->
     # join the key here to save cycles
-    key = @qpdKey().join ":"
+    key = @qpdKey( user, apiKey ).join ":"
 
     # how many calls have we got left (if any)?
     @get [ key ], ( err, callsLeft ) =>
