@@ -8,17 +8,23 @@ walkTreeSync    = require "./lib/walktree"
 sys             = require "sys"
 fs              = require "fs"
 signedCookies   = require "./vendor/signedCookies"
+redis           = require "redis"
 
 { StreamLogger  } = require "./vendor/streamlogger"
 { StdoutLogger  } = require "./lib/stderrlogger"
 { Controller    } = require "./app/controller"
 
-{ GatekeeperError, NotFoundError } = require "./lib/error"
+{ GatekeeperError, RedisError, NotFoundError } = require "./lib/error"
 
 class exports.Gatekeeper
   @env = ( process.env.NODE_ENV or "development" )
 
   constructor: ( ) ->
+    @redisClient = redis.createClient()
+
+    @redisClient.on "error", ( err ) ->
+      throw new RedisError err
+
     app = module.exports = express.createServer( )
 
     @_configure app
@@ -175,8 +181,10 @@ if not module.parent
 
   gatekeeper = new exports.Gatekeeper( )
 
-  gatekeeper.run host, port, ( ) ->
-    gatekeeper.configureModels()
-    gatekeeper.configureControllers()
-    gatekeeper.configureMiddleware()
-    console.log "Express server listening on port #{port}"
+  gatekeeper.redisClient.on "ready", ( ) ->
+    gatekeeper.run host, port, ( ) ->
+      gatekeeper.configureModels()
+      gatekeeper.configureControllers()
+      gatekeeper.configureMiddleware()
+
+      console.log "Express server listening on port #{port}"
