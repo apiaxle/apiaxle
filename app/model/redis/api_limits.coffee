@@ -6,23 +6,23 @@ async = require "async"
 class exports.ApiLimits extends Redis
   @instantiateOnStartup = true
 
-  _setInitialQps: ( key, qps, cb ) ->
-    @set [ key ], qps, ( err, res ) =>
+  _setInitialQp: ( key, qp, expires, cb ) ->
+    @set [ key ], qp, ( err, res ) =>
       return cb err if err
 
       # expires in a second
-      @expire [ key ], 1, ( err, result ) =>
+      @expire [ key ], expires, ( err, result ) =>
         return cb err if err
 
-        return cb null, qps
+        return cb null, qp
 
   withinQps: ( user, apiKey, qps, cb ) ->
-    @withinLimit @qpsKey( user, apiKey ), qps, cb
+    @_withinLimit @qpsKey( user, apiKey ), 1, qps, cb
 
   withinQpd: ( user, apiKey, qpd, cb ) ->
-    @withinLimit @qpdKey( user, apiKey ), qpd, cb
+    @_withinLimit @qpdKey( user, apiKey ), 86000, qpd, cb
 
-  _withinLimit: ( key, qpLimit, cb ) ->
+  _withinLimit: ( key, expires, qpLimit, cb ) ->
     # join the key here to save cycles
     key = key.join ":"
 
@@ -32,7 +32,7 @@ class exports.ApiLimits extends Redis
 
       # no key set yet (or it expired)
       if not callsLeft?
-        return @_setInitialQps key, qpLimit, cb
+        return @_setInitialQp key, qpLimit, expires, cb
 
       # no more calls left
       if callsLeft <= 0
@@ -45,13 +45,3 @@ class exports.ApiLimits extends Redis
 
   qpdKey: ( user, apiKey ) ->
     return [ "qpd", @_dayString(), user, apiKey ]
-
-  _setInitialQpd: ( key, qpd, cb ) ->
-    @set [ key ], qpd, ( err, res ) =>
-      return cb err if err
-
-      # expires in a day
-      @expire [ key ], 86400, ( err, result ) =>
-        return cb err if err
-
-        return cb null, qpd
