@@ -5,18 +5,6 @@ async = require "async"
 class exports.Counters extends Redis
   @instantiateOnStartup = true
 
-  _hourString: ->
-    now = new Date()
-    return "#{ now.getFullYear()}#{ now.getMonth() }#{ now.getDay() }#{ now.getHour() }"
-
-  _dayString: ->
-    now = new Date()
-    return "#{ now.getFullYear()}#{ now.getMonth() }#{ now.getDay() }"
-
-  _MonthString: ->
-    now = new Date()
-    return "#{ now.getFullYear()}#{ now.getMonth() }"
-
   callsToday: ( user, apiKey, cb ) ->
     @get [ "counts", @_dayString(), user, apiKey ], cb
 

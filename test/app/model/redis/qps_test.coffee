@@ -13,10 +13,10 @@ class exports.QpsTest extends GatekeeperTest
 
     done 3
 
-  "test #apiHit with two qps": ( done ) ->
+  "test #withinQps with two qps": ( done ) ->
     model = @gatekeeper.model "qps"
 
-    model.apiHit "bob", "1234", qps: 2, ( err, result ) =>
+    model.withinQps "bob", "1234", qps: 2, ( err, result ) =>
       @isNull err
       @equal result, 2
 
@@ -33,11 +33,11 @@ class exports.QpsTest extends GatekeeperTest
 
           done 6
 
-  "test #apiHit with zero qps": ( done ) ->
+  "test #withinQps with zero qps": ( done ) ->
     model = @gatekeeper.model "qps"
 
     # set the initial qps
-    model.apiHit "bob", "1234", qps: 2, ( err, result ) =>
+    model.withinQps "bob", "1234", qps: 2, ( err, result ) =>
       @isNull err
       @equal result, 2
 
@@ -46,7 +46,7 @@ class exports.QpsTest extends GatekeeperTest
         @isNull err
 
         # this time should error
-        model.apiHit "bob", "1234", qps: 2, ( err, result ) =>
+        model.withinQps "bob", "1234", qps: 2, ( err, result ) =>
           @ok err
           @isUndefined result
 

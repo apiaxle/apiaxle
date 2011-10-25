@@ -19,8 +19,7 @@ class exports.Qps extends Redis
   # Register an API hit, by:
   # `options` can contain:
   # * qps - Queries per second (integer).
-  # * cpd - Calls per day.
-  apiHit: ( user, apiKey, options, cb ) ->
+  withinQps: ( user, apiKey, options, cb ) ->
     # join the key here to save cycles
     key = [ user, apiKey ].join ":"
 

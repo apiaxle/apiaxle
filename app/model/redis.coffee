@@ -41,3 +41,15 @@ class exports.Redis
           return cb err if err
 
       multi.exec cb
+
+  _hourString: ->
+    now = new Date()
+    return "#{ now.getFullYear()}#{ now.getMonth() }#{ now.getDay() }#{ now.getHour() }"
+
+  _dayString: ->
+    now = new Date()
+    return "#{ now.getFullYear()}#{ now.getMonth() }#{ now.getDay() }"
+
+  _MonthString: ->
+    now = new Date()
+    return "#{ now.getFullYear()}#{ now.getMonth() }"
