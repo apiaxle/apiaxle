@@ -3,12 +3,12 @@
 # extends Date
 _ = require "underscore"
 
-express         = require "express"
-walkTreeSync    = require "./lib/walktree"
-sys             = require "sys"
-fs              = require "fs"
-signedCookies   = require "./vendor/signedCookies"
-redis           = require "redis"
+subdomain    = require "./lib/subdomain"
+express      = require "express"
+walkTreeSync = require "./lib/walktree"
+sys          = require "sys"
+fs           = require "fs"
+redis        = require "redis"
 
 { StreamLogger  } = require "./vendor/streamlogger"
 { StdoutLogger  } = require "./lib/stderrlogger"
@@ -33,6 +33,7 @@ class exports.Gatekeeper
     @app.listen port, binding_host, callback
 
   configureMiddleware: ( ) ->
+    return @
 
   configureControllers: ( ) ->
     @controllers = [ ]
@@ -79,6 +80,9 @@ class exports.Gatekeeper
 
     return @
 
+  model: ( name ) ->
+    @._model[ name ] or null
+
   _modelList: ( ) ->
     list = [ ]
 
@@ -112,7 +116,6 @@ class exports.Gatekeeper
       # load up /our/ configuration (from the files in /config)
       @config = require( "./lib/app_config" )( Gatekeeper.env )
 
-      @_configureSessions app
       @_configureGeneral app
 
       app.enable "jsonp callback"
@@ -125,18 +128,10 @@ class exports.Gatekeeper
       # now let the rest of the class know about app
       @app = app
 
-  _configureSessions: ( app ) ->
-    # cookies and sessions
-    app.use express.cookieParser( )
-
-    # we need signed cookies for the facebook login flow
-    sc = signedCookies.init @config.cookieSecret
-    app.use sc.decode()
-    app.use sc.encode()
-
   _configureGeneral: ( app ) ->
-    app.use express.bodyParser( )
-    app.use express.methodOverride( )
+    app.use subdomain( @ )
+    app.use express.bodyParser()
+    app.use express.methodOverride()
     app.use app.router
 
     # offload any errors to onError

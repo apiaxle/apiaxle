@@ -2,38 +2,48 @@
 
 _ = require "underscore"
 
-assetMap =
-  follow:
-    js: [ "follow.js" ]
-    css: [ ]
-    templates: [ ]
-
-  posts:
-    js: [ "post.js" ]
-    css: [ ]
-    templates: [ "post-and-comment-templates" ]
-
-  comments:
-    js: [ "comment.js" ]
-    css: [ ]
-    templates: [ "post-and-comment-templates" ]
-
 class exports.Controller
-  constructor: ( @gatekeeper, @cleanPath ) ->
+  @assetMap =
+    follow:
+      js: [ "follow.js" ]
+      css: [ ]
+      templates: [ ]
+
+    posts:
+      js: [ "post.js" ]
+      css: [ ]
+      templates: [ "post-and-comment-templates" ]
+
+    comments:
+      js: [ "comment.js" ]
+      css: [ ]
+      templates: [ "post-and-comment-templates" ]
+
+  constructor: ( @thebox, @cleanPath ) ->
     if not verb = @constructor.verb
       throw new Error "'#{ @constructor.name } needs a http verb."
 
-    @locals = { }
-    @locals.assets = @_buildAssets()
+    assets = @_buildAssets()
 
-    @gatekeeper.app[ verb ] @path(), @middleware(), ( @req, @res, next ) =>
-      @execute next
+    @thebox.app[ verb ] @path(), @middleware(), ( req, res, next ) =>
+      # append the required assets to the locals so that every
+      # instance of this controller has them
+      res.local "assets", assets
+
+      @execute req, res, next
 
   middleware: ( ) -> [ ]
 
   assets: ( ) -> [ ]
 
   path: ( ) -> "/#{ @cleanPath }"
+
+  apiJson: ( res, structure, rest... ) ->
+    if structure?._id
+      structure.id = structure._id
+      delete structure._id
+
+    res.json structure, rest...
 
   _buildAssets: ( ) ->
     assets =
@@ -44,24 +54,11 @@ class exports.Controller
     # now let the view know which assets it needs
     for asset in @assets()
       for type in [ "js", "css", "templates" ]
-        if assetMap[ asset ]?[ type ]?
-          for file in assetMap[ asset ][ type ]
+        if @constructor.assetMap[ asset ]?[ type ]?
+          for file in @constructor.assetMap[ asset ][ type ]
             assets[ type ].push file
 
     return assets
-
-  render: ( template, options, rest... ) ->
-    # merge in the locals
-    _.extend options.locals, @locals
-
-    @res.render template, options, rest...
-
-  json: ( structure, rest... ) ->
-    if structure?._id
-      structure.id = structure._id
-      delete structure._id
-
-    @res.json structure, rest...
 
   # middleware
 
@@ -103,7 +100,7 @@ class exports.Controller
       return cb null, req.user
 
     # valid signed cookie. Do the lookup
-    model = @gatekeeper.model( "users" )
+    model = @thebox.model( "users" )
     model.findOneById model.stringToId( lu ), cb
 
   # Append the currently loggedin user (if there is one) to `req`.
@@ -140,7 +137,7 @@ class exports.Controller
         if not otherUser = req.user
           return next()
 
-        model = @gatekeeper.model "relationships"
+        model = @thebox.model "relationships"
         model.isRelated req.loggedinUser, otherUser, ( err, dbRel ) ->
           return next err if err
 
