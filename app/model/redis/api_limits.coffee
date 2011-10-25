@@ -3,7 +3,7 @@ async = require "async"
 { QpsExceededError } = require "../../../lib/error"
 { Redis } = require "../redis"
 
-class exports.Qps extends Redis
+class exports.ApiLimits extends Redis
   @instantiateOnStartup = true
 
   _setInitialCps: ( key, options, cb ) ->
@@ -34,3 +34,9 @@ class exports.Qps extends Redis
       # no more calls left
       if callsLeft <= 0
         return cb new QpsExceededError "#{ options.qps} allowed per second."
+
+   decrQps: ( user, apiKey, options, cb ) ->
+     # decrement the number of calls left
+     @decr [ user, apiKey ], ( err, callsLeft ) ->
+       return cb err if err
+       return cb null, callsLeft

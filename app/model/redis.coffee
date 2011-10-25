@@ -4,6 +4,7 @@ class exports.Redis
     "set"
     "get"
     "incr"
+    "decr"
     "del"
     "keys"
     "ttl"

@@ -7,14 +7,14 @@ class exports.QpsTest extends GatekeeperTest
 
   "test initialisation": ( done ) ->
     @ok @gatekeeper
-    @ok model = @gatekeeper.model "qps"
+    @ok model = @gatekeeper.model "apiLimits"
 
-    @equal model.ns, "gk:test:qps:"
+    @equal model.ns, "gk:test:apilimits:"
 
     done 3
 
   "test #withinQps with two qps": ( done ) ->
-    model = @gatekeeper.model "qps"
+    model = @gatekeeper.model "apiLimits"
 
     model.withinQps "bob", "1234", qps: 2, ( err, result ) =>
       @isNull err
@@ -34,7 +34,7 @@ class exports.QpsTest extends GatekeeperTest
           done 6
 
   "test #withinQps with zero qps": ( done ) ->
-    model = @gatekeeper.model "qps"
+    model = @gatekeeper.model "apiLimits"
 
     # set the initial qps
     model.withinQps "bob", "1234", qps: 2, ( err, result ) =>
