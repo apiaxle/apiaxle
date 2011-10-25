@@ -2,19 +2,19 @@ async = require "async"
 
 { GatekeeperTest } = require "../../../gatekeeper"
 
-class exports.UserTest extends GatekeeperTest
+class exports.CountersTest extends GatekeeperTest
   @empty_db_on_setup = true
 
-  "test initialisation happened": ( done ) ->
+  "test initialisation": ( done ) ->
     @ok @gatekeeper
-    @ok model = @gatekeeper.model "user"
+    @ok model = @gatekeeper.model "counters"
 
-    @equal model.ns, "gk:test:user:"
+    @equal model.ns, "gk:test:counters:"
 
     done 3
 
   "test #apiHit": ( done ) ->
-    model = @gatekeeper.model( "user" )
+    model = @gatekeeper.model( "counters" )
 
     hits = for i in [ 1..100 ]
       ( cb ) -> model.apiHit "bob", "1234", cb

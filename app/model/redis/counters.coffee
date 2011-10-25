@@ -2,7 +2,7 @@ async = require "async"
 
 { Redis } = require "../redis"
 
-class exports.User extends Redis
+class exports.Counters extends Redis
   @instantiateOnStartup = true
 
   _hourString: ->
@@ -18,7 +18,8 @@ class exports.User extends Redis
     return "#{ now.getFullYear()}#{ now.getMonth() }"
 
   callsToday: ( user, apiKey, cb ) ->
-    @get "#{ @_dayString() }:#{ user }:#{ apiKey }", cb
+    @get [ "counts", @_dayString(), user, apiKey ], cb
 
   apiHit: ( user, apiKey, cb ) ->
-    @incr "#{ @_dayString() }:#{ user }:#{ apiKey }", cb
+    # gk:test:counts:20111102:bob:api_key => hit count
+    @incr [ "counts", @_dayString(), user, apiKey ], cb
