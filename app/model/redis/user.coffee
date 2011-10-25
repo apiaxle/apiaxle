@@ -1,14 +1,24 @@
+async = require "async"
+
 { Redis } = require "../redis"
 
 class exports.User extends Redis
   @instantiateOnStartup = true
 
-  _dateString: ->
+  _hourString: ->
+    now = new Date()
+    return "#{ now.getFullYear()}#{ now.getMonth() }#{ now.getDay() }#{ now.getHour() }"
+
+  _dayString: ->
     now = new Date()
     return "#{ now.getFullYear()}#{ now.getMonth() }#{ now.getDay() }"
 
-  callsToday: ( apiKey, cb ) ->
-    @get "#{ @_dateString() }:#{ apiKey }", cb
+  _MonthString: ->
+    now = new Date()
+    return "#{ now.getFullYear()}#{ now.getMonth() }"
 
-  apiHit: ( apiKey, cb ) ->
-    @incr "#{ @_dateString() }:#{ apiKey }", cb
+  callsToday: ( user, apiKey, cb ) ->
+    @get "#{ @_dayString() }:#{ user }:#{ apiKey }", cb
+
+  apiHit: ( user, apiKey, cb ) ->
+    @incr "#{ @_dayString() }:#{ user }:#{ apiKey }", cb

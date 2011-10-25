@@ -16,17 +16,14 @@ class exports.UserTest extends GatekeeperTest
   "test #apiHit": ( done ) ->
     model = @gatekeeper.model( "user" )
 
-    hits = [ ]
-
-    for i in [ 1..100 ]
-      hits.push ( cb ) ->
-        model.apiHit "1234", cb
+    hits = for i in [ 1..100 ]
+      ( cb ) -> model.apiHit "bob", "1234", cb
 
     async.parallel hits, ( err, results ) =>
       @isUndefined err
       @equal results.length, 100
 
-      model.callsToday "1234", ( err, value ) =>
+      model.callsToday "bob", "1234", ( err, value ) =>
         @isNull err
         @equal 100, value
 
