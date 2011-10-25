@@ -18,7 +18,7 @@ class exports.ApiLimits extends Redis
 
   withinQps: ( user, apiKey, qps, cb ) ->
     # join the key here to save cycles
-    key = [ "qps", user, apiKey ].join ":"
+    key = @qpsKey( user, apiKey ).join ":"
 
     # how many calls have we got left (if any)?
     @get [ key ], ( err, callsLeft ) =>
@@ -34,8 +34,19 @@ class exports.ApiLimits extends Redis
 
       return cb null, callsLeft
 
+  qpsKey: ( user, apiKey ) ->
+    return [ "qps", user, apiKey ]
+
+
+
+
+
+
+
+
+
   qpdKey: ( user, apiKey ) ->
-    return [ "qpd", @_dayString(), user, apiKey ]
+    return [ "qps", @_dayString(), user, apiKey ]
 
   _setInitialQpd: ( key, qpd, cb ) ->
     @set [ key ], qpd, ( err, res ) =>
