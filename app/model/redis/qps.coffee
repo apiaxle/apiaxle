@@ -1,6 +1,6 @@
 async = require "async"
 
-{ QpsError } = require "../../../lib/error"
+{ QpsExceededError } = require "../../../lib/error"
 { Redis } = require "../redis"
 
 class exports.Qps extends Redis
@@ -34,4 +34,4 @@ class exports.Qps extends Redis
 
       # no more calls left
       if callsLeft <= 0
-        return cb new QpsError "Queries per second exceeded (#{ options.qps} allocated)."
+        return cb new QpsExceededError "#{ options.qps} allowed per second."

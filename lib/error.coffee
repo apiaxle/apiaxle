@@ -15,5 +15,5 @@ class exports.NotFoundError extends exports.GatekeeperError
 class exports.RedisError extends exports.GatekeeperError
   @status = 500
 
-class exports.QpsExceeded extends exports.GatekeeperError
+class exports.QpsExceededError extends exports.GatekeeperError
   @status = 429

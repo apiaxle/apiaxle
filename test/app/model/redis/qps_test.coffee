@@ -31,11 +31,23 @@ class exports.QpsTest extends GatekeeperTest
           @isNull err
           @ok ttl > 0
 
-          done 2
+          done 6
 
   "test #apiHit with zero qps": ( done ) ->
     model = @gatekeeper.model "qps"
 
-    @ok 1
+    # set the initial qps
+    model.apiHit "bob", "1234", qps: 2, ( err, result ) =>
+      @isNull err
+      @equal result, 2
 
-    done()
+      # then zero the qps to check we get an error
+      model.set [ "bob", "1234" ], 0, ( err, result ) =>
+        @isNull err
+
+        # this time should error
+        model.apiHit "bob", "1234", qps: 2, ( err, result ) =>
+          @ok err
+          @isUndefined result
+
+          done 5
