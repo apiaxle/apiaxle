@@ -1,27 +1,24 @@
 async = require "async"
 
-{ QpsExceededError } = require "../../../lib/error"
+{ QpsExceededError, QpdExceededError } = require "../../../lib/error"
 { Redis } = require "../redis"
 
 class exports.ApiLimits extends Redis
   @instantiateOnStartup = true
 
-  _setInitialCps: ( key, options, cb ) ->
-    @set [ key ], options.qps, ( err, res ) =>
+  _setInitialQps: ( key, qps, cb ) ->
+    @set [ key ], qps, ( err, res ) =>
       return cb err if err
 
       # expires in a second
       @expire [ key ], 1, ( err, result ) =>
         return cb err if err
 
-        return cb null, options.qps
+        return cb null, qps
 
-  # Register an API hit, by:
-  # `options` can contain:
-  # * qps - Queries per second (integer).
-  withinQps: ( user, apiKey, options, cb ) ->
+  withinQps: ( user, apiKey, qps, cb ) ->
     # join the key here to save cycles
-    key = [ user, apiKey ].join ":"
+    key = [ "qps", user, apiKey ].join ":"
 
     # how many calls have we got left (if any)?
     @get [ key ], ( err, callsLeft ) =>
@@ -29,14 +26,41 @@ class exports.ApiLimits extends Redis
 
       # no key set yet (or it expired)
       if not callsLeft?
-        return @_setInitialCps key, options, cb
+        return @_setInitialQps key, qps, cb
 
       # no more calls left
       if callsLeft <= 0
-        return cb new QpsExceededError "#{ options.qps} allowed per second."
+        return cb new QpsExceededError "#{ qps} allowed per second."
 
-   decrQps: ( user, apiKey, options, cb ) ->
-     # decrement the number of calls left
-     @decr [ user, apiKey ], ( err, callsLeft ) ->
-       return cb err if err
-       return cb null, callsLeft
+      return cb null, callsLeft
+
+  qpdKey: ( user, apiKey ) ->
+    return [ "qpd", @_dayString(), user, apiKey ]
+
+  _setInitialQpd: ( key, qpd, cb ) ->
+    @set [ key ], qpd, ( err, res ) =>
+      return cb err if err
+
+      # expires in a second
+      @expire [ key ], 86400, ( err, result ) =>
+        return cb err if err
+
+        return cb null, qpd
+
+  withinQpd: ( user, apiKey, qpd, cb ) ->
+    # join the key here to save cycles
+    key = @qpdKey().join ":"
+
+    # how many calls have we got left (if any)?
+    @get [ key ], ( err, callsLeft ) =>
+      return cb err if err
+
+      # no key set yet (or it expired)
+      if not callsLeft?
+        return @_setInitialQpd key, qpd, cb
+
+      # no more calls left
+      if callsLeft <= 0
+        return cb new QpdExceededError "#{ qpd} allowed per day."
+
+      return cb null, callsLeft
