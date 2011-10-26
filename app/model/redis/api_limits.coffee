@@ -12,11 +12,13 @@ class exports.ApiLimits extends Redis
   withinLimits: ( user, apiKey, limits, cb ) ->
     checks = [ ]
 
-    checks.push ( innerCb ) =>
-      @withinQps user, apiKey, limits.qps, innerCb
+    if limits.qps
+      checks.push ( cb ) =>
+        @withinQps user, apiKey, limits.qps, cb
 
-    checks.push ( innerCb ) =>
-      @withinQpd user, apiKey, limits.qpd, innerCb
+    if limits.qpd
+      checks.push ( cb ) =>
+        @withinQpd user, apiKey, limits.qpd, cb
 
     async.series checks, cb
 
