@@ -118,23 +118,48 @@ class exports.ApiLimitsTest extends GatekeeperTest
     model = @gatekeeper.model "apiLimits"
 
     limits =
+      qps: 3
+      qpd: 40
+
+    model.withinLimits "dave", "4321", limits, ( err, results ) =>
+      @isUndefined err
+
+      @deepEqual results, [ 3, 40 ]
+
+      # set to no more qps
+      model.set model.qpsKey( "dave", "4321" ), 0, ( err, value ) =>
+        @isNull err
+
+        # testing again should yeild an error
+        model.withinLimits "dave", "4321", limits, ( err, results ) =>
+          @ok err
+
+          @ok err instanceof QpsExceededError
+
+          @equal err.constructor.status, 429
+          @equal err.message, "Queries per second exceeded: 3 allowed."
+
+          done 7
+
+  "test #withinLimits on qpd failure": ( done ) ->
+    model = @gatekeeper.model "apiLimits"
+
+    limits =
       qps: 2
       qpd: 20
 
     model.withinLimits "paul", "4321", limits, ( err, results ) =>
-      @isNull err
+      @isUndefined err
 
-      @deepEqual results,
-        remainingQps: 2
-        remainingQpd: 20
+      @deepEqual results, [ 2, 20 ]
 
       # set to no more qpd
       model.set model.qpdKey( "paul", "4321" ), 0, ( err, value ) =>
+        @isNull err
 
         # testing again should yeild an error
         model.withinLimits "paul", "4321", limits, ( err, results ) =>
           @ok err
-          @isUndefined results
 
           @ok err instanceof QpdExceededError
 
