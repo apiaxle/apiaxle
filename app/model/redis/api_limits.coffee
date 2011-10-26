@@ -6,6 +6,25 @@ async = require "async"
 class exports.ApiLimits extends Redis
   @instantiateOnStartup = true
 
+  # Where `limits` might contain:
+  # * qps - queries per second
+  # * qpd - queries per day
+  withinLimits: ( user, apiKey, limits, cb ) ->
+    checks = [ ]
+
+    checks.push ( cb ) =>
+      @withinQps user, apiKey, limits.qps, cb
+
+    checks.push ( cb ) =>
+      @withinQpd user, apiKey, limits.qpd, cb
+
+    async.series checks, ( err, [ remainingQps, remainingQpd ] ) ->
+      return cb err if err
+
+      return cb null,
+        remainingQps: remainingQps
+        remainingQpd: remainingQpd
+
   withinQps: ( user, apiKey, qps, cb ) ->
     @_withinLimit @qpsKey( user, apiKey ), 1, qps, QpsExceededError, cb
 
