@@ -52,12 +52,18 @@ class exports.ApiLimits extends Redis
     @get [ key ], ( err, callsLeft ) =>
       return cb err if err
 
-      # no key set yet (or it expired)
+      # no key set yet (or it expired).
       if not callsLeft?
         return @_setInitialQp key, qpLimit, expires, cb
 
+      # If the value is -1 that means we've possibly decremented a key
+      # just as it expired so we just build a new one. So make a new
+      # key and subtract the hit they owe us from it.
+      if callsLeft is "-1"
+        return @_setInitialQp key, ( qpLimit - 1 ), expires, cb
+
       # no more calls left
-      if callsLeft <= 0
+      if callsLeft is "0"
         return cb new exceedErrorClass "#{ qpLimit} allowed."
 
       return cb null, callsLeft
