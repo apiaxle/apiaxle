@@ -23,6 +23,12 @@ class exports.ApiLimits extends Redis
     async.series checks, cb
 
   apiHit: ( user, apiKey, cb ) ->
+    multi = @multi()
+
+    multi.decr @qpsKey( user, apiKey )
+    multi.decr @qpdKey( user, apiKey )
+
+    multi.exec cb
 
   withinQps: ( user, apiKey, qps, cb ) ->
     @_withinLimit @qpsKey( user, apiKey ), 1, qps, QpsExceededError, cb
@@ -37,21 +43,18 @@ class exports.ApiLimits extends Redis
     return [ "qpd", @_dayString(), user, apiKey ]
 
   _setInitialQp: ( key, qp, expires, cb ) ->
-    @set [ key ], qp, ( err, res ) =>
+    @set key, qp, ( err, res ) =>
       return cb err if err
 
       # expires in a second
-      @expire [ key ], expires, ( err, result ) =>
+      @expire key, expires, ( err, result ) =>
         return cb err if err
 
         return cb null, qp
 
   _withinLimit: ( key, expires, qpLimit, exceedErrorClass, cb ) ->
-    # join the key here to save cycles
-    key = key.join ":"
-
     # how many calls have we got left (if any)?
-    @get [ key ], ( err, callsLeft ) =>
+    @get key, ( err, callsLeft ) =>
       return cb err if err
 
       # no key set yet (or it expired).

@@ -114,6 +114,8 @@ class exports.QpsTest extends GatekeeperTest
           done 8
 
 class exports.ApiLimitsTest extends GatekeeperTest
+  @empty_db_on_setup = true
+
   "test #withinLimits on qps failure": ( done ) ->
     model = @gatekeeper.model "apiLimits"
 
@@ -167,4 +169,25 @@ class exports.ApiLimitsTest extends GatekeeperTest
           @equal err.constructor.status, 429
           @equal err.message, "Queries per day exceeded: 20 allowed."
 
-          done 7
+          done 8
+
+  "test #apiHit": ( done ) ->
+    model = @gatekeeper.model "apiLimits"
+
+    limits =
+      qps: 2
+      qpd: 20
+
+    model.withinLimits "dave", "987", limits, ( err, [ currentQps, currentQpd ] ) =>
+      @isUndefined err
+
+      @equal currentQps, 2, "current qps is correct (#{ currentQps })"
+      @equal currentQpd, 20, "current qpd is correct (#{ currentQpd })"
+
+      model.apiHit "dave", "987", ( err, [ newQps, newQpd ] ) =>
+        @isNull err
+
+        @equal newQps, 1, "new qps is correct (#{ newQps })"
+        @equal newQpd, 19, "new qps is correct (#{ newQpd })"
+
+        done 6

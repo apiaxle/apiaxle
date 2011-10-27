@@ -50,9 +50,7 @@ class exports.Redis
     return new RedisMulti( @ns, @gatekeeper.redisClient, args )
 
   getKey: ( parts ) ->
-    key = [ ]
-
-    key.unshift @ns
+    key = [ @ns ]
     key = key.concat parts
 
     return key.join ":"
