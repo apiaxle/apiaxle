@@ -148,10 +148,11 @@ class exports.ApiLimitsTest extends GatekeeperTest
       qps: 2
       qpd: 20
 
-    model.withinLimits "paul", "4321", limits, ( err, results ) =>
+    model.withinLimits "paul", "4321", limits, ( err, [ currentQps, currentQpd ] ) =>
       @isUndefined err
 
-      @deepEqual results, [ 2, 20 ]
+      @equal currentQps, 2
+      @equal currentQpd, 20
 
       # set to no more qpd
       model.set model.qpdKey( "paul", "4321" ), 0, ( err, value ) =>
