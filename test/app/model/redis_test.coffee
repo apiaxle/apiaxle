@@ -5,7 +5,27 @@ async = require "async"
 class exports.RedisTest extends GatekeeperTest
   @empty_db_on_setup = true
 
-  "test multi": ( done ) ->
+  "test multi incr/decr": ( done ) ->
+    @ok model = @gatekeeper.model "counters"
+    @ok multi = model.multi()
+
+    model.set [ "test" ], 20, ( err, value ) =>
+      @isNull err
+
+      multi.decr [ "test" ]
+      multi.incr [ "test" ]
+      multi.incr [ "test" ]
+
+      multi.exec ( err, results ) =>
+        @isNull err
+        @deepEqual results, [ 19, 20, 21 ]
+
+        model.get [ "test" ], ( err, value ) =>
+          @equal value, 21
+
+          done 6
+
+  "test multi set/get": ( done ) ->
     @ok model = @gatekeeper.model "counters"
     @ok multi = model.multi()
 
