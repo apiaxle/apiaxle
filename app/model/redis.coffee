@@ -50,8 +50,12 @@ class exports.Redis
     return new RedisMulti( @ns, @gatekeeper.redisClient, args )
 
   getKey: ( parts ) ->
-    parts.unshift @ns
-    return parts.join ":"
+    key = [ ]
+
+    key.unshift @ns
+    key = key.concat parts
+
+    return key.join ":"
 
   # Clear the keys associated with this model (taking into account the
   # namespace). It's for tests, not for use in production code.
