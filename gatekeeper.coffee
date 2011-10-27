@@ -32,6 +32,13 @@ class exports.Gatekeeper
 
     @redisClient.on "ready", cb
 
+  script: ( cb ) ->
+    @configureModels()
+
+    @redisConnect ( err ) =>
+      throw err if err
+      cb ( ) => @redisClient.quit()
+
   run: ( binding_host, port, callback ) ->
     @app.listen port, binding_host, callback
 
