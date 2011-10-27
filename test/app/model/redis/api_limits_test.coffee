@@ -10,7 +10,7 @@ class exports.QpdTest extends GatekeeperTest
     @ok @gatekeeper
     @ok model = @gatekeeper.model "apiLimits"
 
-    @equal model.ns, "gk:test:apilimits:"
+    @equal model.ns, "gk:test:apilimits"
 
     done 3
 
@@ -65,7 +65,7 @@ class exports.QpsTest extends GatekeeperTest
     @ok @gatekeeper
     @ok model = @gatekeeper.model "apiLimits"
 
-    @equal model.ns, "gk:test:apilimits:"
+    @equal model.ns, "gk:test:apilimits"
 
     done 3
 

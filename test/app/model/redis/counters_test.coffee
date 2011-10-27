@@ -9,7 +9,7 @@ class exports.CountersTest extends GatekeeperTest
     @ok @gatekeeper
     @ok model = @gatekeeper.model "counters"
 
-    @equal model.ns, "gk:test:counters:"
+    @equal model.ns, "gk:test:counters"
 
     done 3
 

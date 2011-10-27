@@ -22,6 +22,8 @@ class exports.ApiLimits extends Redis
 
     async.series checks, cb
 
+  apiHit: ( user, apiKey, cb ) ->
+
   withinQps: ( user, apiKey, qps, cb ) ->
     @_withinLimit @qpsKey( user, apiKey ), 1, qps, QpsExceededError, cb
 
