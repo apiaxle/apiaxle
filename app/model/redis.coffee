@@ -25,8 +25,12 @@ class RedisMulti extends redis.Multi
   ttl: ( key, args... ) ->
     super @getKey( key ), args...
 
+  setex: ( key, args... ) ->
+    super @getKey( key ), args...
+
 class exports.Redis
   @commands = [
+    "hexists"
     "expire"
     "set"
     "get"
@@ -84,6 +88,10 @@ class exports.Redis
     now = new Date()
     return "#{ now.getFullYear()}#{ now.getMonth() }#{ now.getDay() }"
 
-  _MonthString: ->
+  _monthString: ->
     now = new Date()
     return "#{ now.getFullYear()}#{ now.getMonth() }"
+
+  _yearString: ->
+    now = new Date()
+    return "#{ now.getFullYear() }"

@@ -5,7 +5,6 @@ async = require "async"
 
 class exports.ApiLimits extends Redis
   @instantiateOnStartup = true
-
   @smallKeyName = "al"
 
   # Where `limits` might contain:
