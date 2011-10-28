@@ -32,7 +32,7 @@ gk.script ( finish ) ->
         if err
           results.failed += 1
 
-          return setTimeout f, 200
+          return setTimeout f, 1
 
         model.apiHit "bob", "1234", ( err, [ newQps, newQpd ] ) ->
           throw err if err
@@ -42,6 +42,6 @@ gk.script ( finish ) ->
           results.success += 1
           results.persecond[ timeStr ] += 1
 
-          return setTimeout f, 200
+          return setTimeout f, 1
 
   f()

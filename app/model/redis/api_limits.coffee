@@ -43,14 +43,7 @@ class exports.ApiLimits extends Redis
     return [ "qpd", @_dayString(), user, apiKey ]
 
   _setInitialQp: ( key, qp, expires, cb ) ->
-    @set key, qp, ( err, res ) =>
-      return cb err if err
-
-      # expires in a second
-      @expire key, expires, ( err, result ) =>
-        return cb err if err
-
-        return cb null, qp
+    @setex key, expires, qp, cb
 
   _withinLimit: ( key, expires, qpLimit, exceedErrorClass, cb ) ->
     multi = @multi()

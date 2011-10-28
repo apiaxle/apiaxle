@@ -35,6 +35,7 @@ class exports.Redis
     "del"
     "keys"
     "ttl"
+    "setex"
   ]
 
   constructor: ( @gatekeeper ) ->
