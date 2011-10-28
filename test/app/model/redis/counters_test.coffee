@@ -16,15 +16,15 @@ class exports.CountersTest extends GatekeeperTest
   "test #apiHit": ( done ) ->
     model = @gatekeeper.model "counters"
 
-    hits = for i in [ 1..100 ]
+    hits = for i in [ 1..25 ]
       ( cb ) -> model.apiHit "1234", cb
 
     async.parallel hits, ( err, results ) =>
       @isUndefined err
-      @equal results.length, 100
+      @equal results.length, 25
 
       model.callsToday "1234", ( err, value ) =>
         @isNull err
-        @equal 100, value
+        @equal 25, value
 
         done 4
