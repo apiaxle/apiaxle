@@ -53,19 +53,19 @@ class exports.ApiLimits extends Redis
         return cb null, qp
 
   _withinLimit: ( key, expires, qpLimit, exceedErrorClass, cb ) ->
-    # how many calls have we got left (if any)?
-    @get key, ( err, callsLeft ) =>
+    multi = @multi()
+
+    multi.get key
+    multi.ttl key
+
+    multi.exec ( err, [ callsLeft, ttl ] ) =>
       return cb err if err
 
-      # no key set yet (or it expired).
-      if not callsLeft?
+      # no key set yet (or it expired). We have to check for ttl being
+      # 0 here because there's a bug in redis which means a key lives
+      # whilst its ttl is 0
+      if not callsLeft? or ttl is 0
         return @_setInitialQp key, qpLimit, expires, cb
-
-      # If the value is -1 that means we've possibly decremented a key
-      # just as it expired so we just build a new one. So make a new
-      # key and subtract the hit they owe us from it.
-      if callsLeft is "-1"
-        return @_setInitialQp key, ( qpLimit - 1 ), expires, cb
 
       # no more calls left
       if callsLeft is "0"

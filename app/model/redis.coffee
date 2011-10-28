@@ -5,8 +5,10 @@ class RedisMulti extends redis.Multi
     super client, args
 
   getKey: ( parts ) ->
-    parts.unshift @ns
-    return parts.join ":"
+    key = [ @ns ]
+    key = key.concat parts
+
+    return key.join ":"
 
   set: ( key, args... ) ->
     super @getKey( key ), args...
@@ -18,6 +20,9 @@ class RedisMulti extends redis.Multi
     super @getKey( key ), args...
 
   incr: ( key, args... ) ->
+    super @getKey( key ), args...
+
+  ttl: ( key, args... ) ->
     super @getKey( key ), args...
 
 class exports.Redis
@@ -72,7 +77,7 @@ class exports.Redis
 
   _hourString: ->
     now = new Date()
-    return "#{ now.getFullYear()}#{ now.getMonth() }#{ now.getDay() }#{ now.getHour() }"
+    return "#{ now.getFullYear()}#{ now.getMonth() }#{ now.getDay() }#{ now.getHours() }"
 
   _dayString: ->
     now = new Date()
