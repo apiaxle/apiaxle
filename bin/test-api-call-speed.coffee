@@ -27,14 +27,14 @@ gk.script ( finish ) ->
     timeStr = "#{ now.getMinutes() }-#{ now.getSeconds() }"
     results.persecond[ timeStr ] or= 0
 
-    model.ttl [ "qps", "bob", "1234" ], ( err, ttl ) ->
-      model.withinLimits "bob", "1234", limits, ( err, [ currentQps, currentQpd ] ) ->
+    model.ttl [ "qps", "1234" ], ( err, ttl ) ->
+      model.withinLimits "1234", limits, ( err, [ currentQps, currentQpd ] ) ->
         if err
           results.failed += 1
 
           return setTimeout f, 1
 
-        model.apiHit "bob", "1234", ( err, [ newQps, newQpd ] ) ->
+        model.apiHit "1234", ( err, [ newQps, newQpd ] ) ->
           throw err if err
 
           sys.print "#{ ttl }.#{ newQps }.#{ newQpd } "
