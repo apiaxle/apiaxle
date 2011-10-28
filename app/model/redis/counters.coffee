@@ -4,6 +4,7 @@ async = require "async"
 
 class exports.Counters extends Redis
   @instantiateOnStartup = true
+  @smallKeyName = "ct"
 
   callsToday: ( apiKey, cb ) ->
     @get [ "counts", @_dayString(), apiKey ], cb
