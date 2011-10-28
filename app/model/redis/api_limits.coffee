@@ -64,7 +64,7 @@ class exports.ApiLimits extends Redis
         return @_setInitialQp key, qpLimit, expires, cb
 
       # no more calls left
-      if callsLeft is "0"
+      if callsLeft <= "0"
         return cb new exceedErrorClass "#{ qpLimit} allowed."
 
       return cb null, callsLeft
