@@ -9,41 +9,44 @@ class exports.ApiLimits extends Redis
   # Where `limits` might contain:
   # * qps - queries per second
   # * qpd - queries per day
-  withinLimits: ( user, apiKey, limits, cb ) ->
+  withinLimits: ( apiKey, limits, cb ) ->
     checks = [ ]
 
     if limits.qps
       checks.push ( cb ) =>
-        @withinQps user, apiKey, limits.qps, cb
+        @withinQps apiKey, limits.qps, cb
 
     if limits.qpd
       checks.push ( cb ) =>
-        @withinQpd user, apiKey, limits.qpd, cb
+        @withinQpd apiKey, limits.qpd, cb
 
     async.series checks, cb
 
-  apiHit: ( user, apiKey, cb ) ->
+  apiHit: ( apiKey, cb ) ->
     multi = @multi()
 
-    multi.decr @qpsKey( user, apiKey )
-    multi.decr @qpdKey( user, apiKey )
+    multi.decr @qpsKey( apiKey )
+    multi.decr @qpdKey( apiKey )
 
     multi.exec cb
 
-  withinQps: ( user, apiKey, qps, cb ) ->
-    @_withinLimit @qpsKey( user, apiKey ), 1, qps, QpsExceededError, cb
+  withinQps: ( apiKey, qps, cb ) ->
+    @_withinLimit @qpsKey( apiKey ), 1, qps, QpsExceededError, cb
 
-  withinQpd: ( user, apiKey, qpd, cb ) ->
-    @_withinLimit @qpdKey( user, apiKey ), 86000, qpd, QpdExceededError, cb
+  withinQpd: ( apiKey, qpd, cb ) ->
+    @_withinLimit @qpdKey( apiKey ), 86000, qpd, QpdExceededError, cb
 
-  qpsKey: ( user, apiKey ) ->
-    return [ "qps", user, apiKey ]
+  qpsKey: ( apiKey ) ->
+    return [ "qps", apiKey ]
 
-  qpdKey: ( user, apiKey ) ->
-    return [ "qpd", @_dayString(), user, apiKey ]
+  qpdKey: ( apiKey ) ->
+    return [ "qpd", @_dayString(), apiKey ]
 
   _setInitialQp: ( key, qp, expires, cb ) ->
-    @setex key, expires, qp, cb
+    @setex key, expires, qp, ( err ) ->
+      return cb err if err
+
+      cb null, qp
 
   _withinLimit: ( key, expires, qpLimit, exceedErrorClass, cb ) ->
     multi = @multi()

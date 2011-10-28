@@ -17,18 +17,18 @@ class exports.QpdTest extends GatekeeperTest
   "test #withinQpd with two qpd": ( done ) ->
     model = @gatekeeper.model "apiLimits"
 
-    model.withinQpd "fred", "1234", 20, ( err, result ) =>
+    model.withinQpd "1234", 20, ( err, result ) =>
       @isNull err
       @equal result, 20
 
       # check the key was set
-      model.get model.qpdKey( "fred", "1234" ), ( err, value ) =>
+      model.get model.qpdKey( "1234" ), ( err, value ) =>
         @isNull err
         @equal value, 20
 
         # this makes the bold assumption that the tests are quick
         # enough to get here before ttl expires
-        model.ttl model.qpdKey( "fred", "1234" ), ( err, ttl ) =>
+        model.ttl model.qpdKey( "1234" ), ( err, ttl ) =>
           @isNull err
           @ok ttl > 0
 
@@ -38,16 +38,16 @@ class exports.QpdTest extends GatekeeperTest
     model = @gatekeeper.model "apiLimits"
 
     # set the initial qpd
-    model.withinQpd "fred", "1234", 2, ( err, result ) =>
+    model.withinQpd "1234", 2, ( err, result ) =>
       @isNull err
       @equal result, 2
 
       # then zero the qpd to check we get an error
-      model.set model.qpdKey( "fred", "1234" ), 0, ( err, result ) =>
+      model.set model.qpdKey( "1234" ), 0, ( err, result ) =>
         @isNull err
 
         # this time should error
-        model.withinQpd "fred", "1234", 2, ( err, result ) =>
+        model.withinQpd "1234", 2, ( err, result ) =>
           @ok err
           @isUndefined result
 
@@ -72,18 +72,18 @@ class exports.QpsTest extends GatekeeperTest
   "test #withinQps with two qps": ( done ) ->
     model = @gatekeeper.model "apiLimits"
 
-    model.withinQps "bob", "1234", 2, ( err, result ) =>
+    model.withinQps "1234", 2, ( err, result ) =>
       @isNull err
       @equal result, 2
 
       # check the key was set
-      model.get model.qpsKey( "bob", "1234" ), ( err, value ) =>
+      model.get model.qpsKey( "1234" ), ( err, value ) =>
         @isNull err
         @equal value, 2
 
         # this makes the bold assumption that the tests are quick
         # enough to get here before ttl expires
-        model.ttl model.qpsKey( "bob", "1234" ), ( err, ttl ) =>
+        model.ttl model.qpsKey( "1234" ), ( err, ttl ) =>
           @isNull err
           @ok ttl > 0
 
@@ -93,16 +93,16 @@ class exports.QpsTest extends GatekeeperTest
     model = @gatekeeper.model "apiLimits"
 
     # set the initial qps
-    model.withinQps "bob", "1234", 2, ( err, result ) =>
+    model.withinQps "1234", 2, ( err, result ) =>
       @isNull err
       @equal result, 2
 
       # then zero the qps to check we get an error
-      model.set model.qpsKey( "bob", "1234" ), 0, ( err, result ) =>
+      model.set model.qpsKey( "1234" ), 0, ( err, result ) =>
         @isNull err
 
         # this time should error
-        model.withinQps "bob", "1234", 2, ( err, result ) =>
+        model.withinQps "1234", 2, ( err, result ) =>
           @ok err
           @isUndefined result
 
@@ -123,17 +123,17 @@ class exports.ApiLimitsTest extends GatekeeperTest
       qps: 3
       qpd: 40
 
-    model.withinLimits "dave", "4321", limits, ( err, results ) =>
+    model.withinLimits "4321", limits, ( err, results ) =>
       @isUndefined err
 
       @deepEqual results, [ 3, 40 ]
 
       # set to no more qps
-      model.set model.qpsKey( "dave", "4321" ), 0, ( err, value ) =>
+      model.set model.qpsKey( "4321" ), 0, ( err, value ) =>
         @isNull err
 
         # testing again should yeild an error
-        model.withinLimits "dave", "4321", limits, ( err, results ) =>
+        model.withinLimits "4321", limits, ( err, results ) =>
           @ok err
 
           @ok err instanceof QpsExceededError
@@ -150,18 +150,18 @@ class exports.ApiLimitsTest extends GatekeeperTest
       qps: 2
       qpd: 20
 
-    model.withinLimits "paul", "4321", limits, ( err, [ currentQps, currentQpd ] ) =>
+    model.withinLimits "4321", limits, ( err, [ currentQps, currentQpd ] ) =>
       @isUndefined err
 
       @equal currentQps, 2
       @equal currentQpd, 20
 
       # set to no more qpd
-      model.set model.qpdKey( "paul", "4321" ), 0, ( err, value ) =>
+      model.set model.qpdKey( "4321" ), 0, ( err, value ) =>
         @isNull err
 
         # testing again should yeild an error
-        model.withinLimits "paul", "4321", limits, ( err, results ) =>
+        model.withinLimits "4321", limits, ( err, results ) =>
           @ok err
 
           @ok err instanceof QpdExceededError
@@ -178,13 +178,13 @@ class exports.ApiLimitsTest extends GatekeeperTest
       qps: 2
       qpd: 20
 
-    model.withinLimits "dave", "987", limits, ( err, [ currentQps, currentQpd ] ) =>
+    model.withinLimits "987", limits, ( err, [ currentQps, currentQpd ] ) =>
       @isUndefined err
 
       @equal currentQps, 2, "current qps is correct (#{ currentQps })"
       @equal currentQpd, 20, "current qpd is correct (#{ currentQpd })"
 
-      model.apiHit "dave", "987", ( err, [ newQps, newQpd ] ) =>
+      model.apiHit "987", ( err, [ newQps, newQpd ] ) =>
         @isNull err
 
         @equal newQps, 1, "new qps is correct (#{ newQps })"
