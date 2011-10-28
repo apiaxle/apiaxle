@@ -6,6 +6,8 @@ async = require "async"
 class exports.ApiLimits extends Redis
   @instantiateOnStartup = true
 
+  @smallKeyName = "al"
+
   # Where `limits` might contain:
   # * qps - queries per second
   # * qpd - queries per day

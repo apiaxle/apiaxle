@@ -40,7 +40,7 @@ class exports.Redis
 
   constructor: ( @gatekeeper ) ->
     env = @gatekeeper.constructor.env
-    name = @constructor.name.toLowerCase()
+    name = @constructor.smallKeyName or @constructor.name.toLowerCase()
 
     @ns = "gk:#{ env }:#{ name }"
 
