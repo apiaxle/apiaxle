@@ -28,3 +28,6 @@ class exports.QpdExceededError extends exports.GatekeeperError
   constructor: ( msg, @options ) ->
     super
     @message = "Queries per day exceeded: #{ msg }"
+
+class exports.CompanyUnknown extends exports.GatekeeperError
+  @status = 404

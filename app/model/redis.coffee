@@ -30,6 +30,7 @@ class RedisMulti extends redis.Multi
 
 class exports.Redis
   @commands = [
+    "hgetall"
     "hexists"
     "expire"
     "set"

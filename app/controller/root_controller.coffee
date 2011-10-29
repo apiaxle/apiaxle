@@ -5,8 +5,8 @@ class exports.RootController extends Controller
 
   path: ( ) -> "/"
 
-  execute: ( req, res, next ) ->
-    console.log( req.subdomain )
+  middleware: -> [ @company ]
 
+  execute: ( req, res, next ) ->
     res.json
       one: req.subdomain

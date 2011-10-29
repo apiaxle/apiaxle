@@ -1,10 +1,7 @@
 module.exports = ( gatekeeper ) ->
   ( req, res, next ) ->
     # if we're called from a subdomain then let req know
-    if parts = /^(.+?)\./.exec req.headers.host
-      subdomain = parts[0]
-
-      gatekeeper.redisClient.hgetall subdomain[0]
-
+    if parts = /^(.+?)\.api\./.exec req.headers.host
+      req.subdomain = parts[1]
 
     next()
