@@ -10,9 +10,9 @@ parser = new OptionParser
   strings:
     arguments: "KEY"
 
-parser.add "--for-company",
+parser.add "--for-api",
   type: "string"
-  help: "The company this key works with."
+  help: "The api this key works with."
   required: true
 
 try

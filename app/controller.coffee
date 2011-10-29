@@ -1,4 +1,4 @@
-{ CompanyUnknown, ApiKeyError } = require "../lib/error"
+{ ApiUnknown, ApiKeyError } = require "../lib/error"
 
 _ = require "underscore"
 
@@ -41,20 +41,20 @@ class exports.Controller
 
   # middleware
 
-  company: ( req, res, next ) =>
-    # no subdomain means no company
+  api: ( req, res, next ) =>
+    # no subdomain means no api
     if not req.subdomain
-      return next new CompanyUnknown "No company specified (via subdomain)"
+      return next new ApiUnknown "No api specified (via subdomain)"
 
-    @gatekeeper.model( "company" ).find req.subdomain, ( err, company ) ->
+    @gatekeeper.model( "api" ).find req.subdomain, ( err, api ) ->
       return next err if err
 
-      if company
-        req.company = company
+      if api
+        req.api = api
         return next()
 
-      # no company found
-      return next new CompanyUnknown "'#{ req.subdomain }' is not known to us."
+      # no api found
+      return next new ApiUnknown "'#{ req.subdomain }' is not known to us."
 
   apiKey: ( req, res, next ) =>
     key = req.query.api_key
@@ -65,7 +65,7 @@ class exports.Controller
     @gatekeeper.model( "apiKey" ).find key, ( err, keyDetails ) ->
       return next err if err
 
-      if keyDetails?.forCompany isnt req.subdomain
+      if keyDetails?.forApi isnt req.subdomain
         return next new ApiKeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
 
       req.key = keyDetails

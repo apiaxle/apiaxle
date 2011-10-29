@@ -12,7 +12,7 @@ parser = new OptionParser
 
 parser.add "--endpoint",
   type: "string"
-  help: "The endpoint (url) this company's api will listen at."
+  help: "The endpoint (url) this api's api will listen at."
   required: true
 
 parser.add "--api-format",
@@ -31,14 +31,14 @@ catch e
 
 gk = new Gatekeeper()
 gk.script ( finish ) ->
-  model = gk.model "company"
+  model = gk.model "api"
 
   model.new name, options.options, ( err ) ->
     throw err if err
 
-    model.find name, ( err, newCompany ) ->
+    model.find name, ( err, newApi ) ->
       throw err if err
 
-      console.log newCompany
+      console.log newApi
 
       finish()

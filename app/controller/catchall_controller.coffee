@@ -8,7 +8,7 @@ class exports.RootController extends Controller
 
   path: ( ) -> "*"
 
-  middleware: -> [ @company, @apiKey ]
+  middleware: -> [ @api, @apiKey ]
 
   execute: ( req, res, next ) ->
     { pathname } = url.parse req.url
@@ -18,7 +18,7 @@ class exports.RootController extends Controller
     delete headers.host
 
     options =
-      host: req.company.endpoint
+      host: req.api.endpoint
       path: pathname
       headers: headers
 

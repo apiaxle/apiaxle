@@ -1,10 +1,10 @@
 _ = require "underscore"
 
-{ CompanyUnknown } = require "../../../lib/error"
+{ ApiUnknown } = require "../../../lib/error"
 
 { Redis } = require "../redis"
 
-class exports.Company extends Redis
+class exports.Api extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "cmp"
 
