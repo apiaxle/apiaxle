@@ -51,7 +51,7 @@ class exports.Controller
 
       if company
         req.company = company
-        next()
+        return next()
 
       # no company found
       return next new CompanyUnknown "'#{ req.subdomain }' is not a company known to us."

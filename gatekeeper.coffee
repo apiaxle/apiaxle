@@ -64,10 +64,6 @@ class exports.Gatekeeper
       catch e
         throw new Error( "Failed to load controller #{abs}: #{e}" )
 
-    # catch-all for the error handler (404)
-    @app.get '*', ( res, req, next ) ->
-      return next new NotFoundError( "Not found." )
-
     return @
 
   configureModels: ( ) ->
@@ -169,11 +165,12 @@ class exports.Gatekeeper
   onError: ( err, req, res, next ) ->
     output =
       error:
+        type: err.constructor.name
         status: err.constructor.status
         message: err.message
 
     if @debug
-      output.error.details = err.details
+      output.error.details = err.details if err.details
       output.error.stack = err.stack
 
     res.json output, err.constructor.status

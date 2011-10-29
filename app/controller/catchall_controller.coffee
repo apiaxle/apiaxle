@@ -3,7 +3,7 @@
 class exports.RootController extends Controller
   @verb: "get"
 
-  path: ( ) -> "/"
+  path: ( ) -> "*"
 
   middleware: -> [ @company ]
 
