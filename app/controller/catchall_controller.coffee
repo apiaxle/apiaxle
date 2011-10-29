@@ -22,7 +22,7 @@ class exports.RootController extends Controller
       path: pathname
       headers: headers
 
-    model = @gatekeeper.model( "apiLimits" )
+    model = @gatekeeper.model "apiLimits"
 
     { qps, qpd, key } = req.apiKey
 
