@@ -1,6 +1,7 @@
 url = require "url"
-http = require "http"
+request = require "request"
 
+{ TimeoutError } = require "../../lib/error"
 { Controller } = require "../controller"
 
 class exports.RootController extends Controller
@@ -13,15 +14,6 @@ class exports.RootController extends Controller
   execute: ( req, res, next ) ->
     { pathname } = url.parse req.url
 
-    # copy the headers
-    headers = req.headers
-    delete headers.host
-
-    options =
-      host: req.api.endpoint
-      path: pathname
-      headers: headers
-
     model = @gatekeeper.model "apiLimits"
 
     { qps, qpd, key } = req.apiKey
@@ -32,15 +24,17 @@ class exports.RootController extends Controller
       model.apiHit key, ( err, [ newQps, newQpd ] ) ->
         return next err if err
 
-        request = http.request options, ( apiRes ) ->
-          data = ""
+        # copy the headers
+        headers = req.headers
+        delete headers.host
 
-          apiRes.on "data", ( chunk ) -> data += chunk
-          apiRes.on "error", console.log
-          apiRes.on "end", ( ) ->
-            res.header "X-gatekeeper-qps-left", newQps
-            res.header "X-gatekeeper-qpd-left", newQpd
+        options =
+          url: "http://#{ req.api.endpoint }/#{ pathname }"
+          timeout: req.api.endpointTimeout
+          headers: headers
 
-            res.send data, apiRes.statusCode
+        request.get options, ( err, apiRes, body ) ->
+          if err?.code is "ETIMEDOUT"
+            return next new TimeoutError "API endpoint timed out."
 
-        request.end()
+          res.send body, apiRes.statusCode

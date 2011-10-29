@@ -14,6 +14,8 @@
     "node": "~0.4.8"
   },
   "dependencies": {
+    "request": "~2.1.1",
+    "parseopt": "1.0.0",
     "async": "~0.1.9",
     "coffee-script": "~1.1.2",
     "express": "~2.4.7",

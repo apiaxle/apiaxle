@@ -34,3 +34,6 @@ class exports.ApiUnknown extends exports.GatekeeperError
 
 class exports.ApiKeyError extends exports.GatekeeperError
   @status = 403
+
+class exports.TimeoutError extends exports.GatekeeperError
+  @status = 504

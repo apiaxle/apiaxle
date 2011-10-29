@@ -19,4 +19,6 @@ class exports.Api extends Redis
 
       return cb null, null unless _.size( details )
 
+      details.endpointTimeout or= 2000
+
       return cb null, details
