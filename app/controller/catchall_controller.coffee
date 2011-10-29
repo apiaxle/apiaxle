@@ -33,10 +33,18 @@ class CatchAll extends Controller
           timeout: req.api.endpointTimeout
           headers: headers
 
+        options.body = req.body if req.body?
+
         request[ @constructor.verb ] options, ( err, apiRes, body ) ->
+          # if we timeout then throw an error
           if err?.code is "ETIMEDOUT"
             return next new TimeoutError "API endpoint timed out."
 
+          # copy headers from the endpoint
+          for header, value of apiRes.headers
+            res.header header, value
+
+          # response with the same code as the endpoint
           res.send body, apiRes.statusCode
 
 class exports.GetController extends CatchAll
