@@ -8,7 +8,7 @@ class exports.RootController extends Controller
 
   path: ( ) -> "*"
 
-  middleware: -> [ @company ]
+  middleware: -> [ @company, @apiKey ]
 
   execute: ( req, res, next ) ->
     { pathname } = url.parse req.url
@@ -27,6 +27,6 @@ class exports.RootController extends Controller
 
       apiRes.on "data", ( chunk ) -> data += chunk
       apiRes.on "error", console.log
-      apiRes.on "end", ( ) -> res.send data
+      apiRes.on "end", ( ) -> res.send data, apiRes.statusCode
 
     request.end()

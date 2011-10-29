@@ -1,4 +1,4 @@
-{ CompanyUnknown } = require "../lib/error"
+{ CompanyUnknown, ApiKeyError } = require "../lib/error"
 
 _ = require "underscore"
 
@@ -55,3 +55,19 @@ class exports.Controller
 
       # no company found
       return next new CompanyUnknown "'#{ req.subdomain }' is not known to us."
+
+  apiKey: ( req, res, next ) =>
+    key = req.query.api_key
+
+    if not key
+      return next new Error "No api_key specified."
+
+    @gatekeeper.model( "apiKey" ).find key, ( err, keyDetails ) ->
+      return next err if err
+
+      if keyDetails?.forCompany isnt req.subdomain
+        return next new ApiKeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
+
+      req.key = keyDetails
+
+      next()

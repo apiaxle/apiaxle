@@ -31,3 +31,6 @@ class exports.QpdExceededError extends exports.GatekeeperError
 
 class exports.CompanyUnknown extends exports.GatekeeperError
   @status = 404
+
+class exports.ApiKeyError extends exports.GatekeeperError
+  @status = 403
