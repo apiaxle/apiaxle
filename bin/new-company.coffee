@@ -15,6 +15,12 @@ parser.add "--endpoint",
   help: "The endpoint (url) this company's api will listen at."
   required: true
 
+parser.add "--api-format",
+  type: "enum"
+  values: [ "json", "xml" ]
+  default: "json"
+  help: "Format of the api."
+
 try
   options = parser.parse( )
 catch e
