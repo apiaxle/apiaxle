@@ -10,6 +10,16 @@ parser = new OptionParser
   strings:
     arguments: "KEY"
 
+parser.add "--qpd",
+  type: "integer"
+  help: "Queries per day."
+  default: 86400
+
+parser.add "--qps",
+  type: "integer"
+  help: "Queries per second."
+  default: 1
+
 parser.add "--for-api",
   type: "string"
   help: "The api this key works with."

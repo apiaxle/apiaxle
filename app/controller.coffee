@@ -65,9 +65,11 @@ class exports.Controller
     @gatekeeper.model( "apiKey" ).find key, ( err, keyDetails ) ->
       return next err if err
 
+      # check the key is for this api
       if keyDetails?.forApi isnt req.subdomain
         return next new ApiKeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
 
-      req.key = keyDetails
+      keyDetails.key = key
+      req.apiKey = keyDetails
 
       next()
