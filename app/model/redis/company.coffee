@@ -11,7 +11,6 @@ class exports.Company extends Redis
   new: ( name, details, cb ) ->
     # TODO: http://davidwalsh.name/json-validation
     details.created_at = new Date().getTime()
-
     @hmset name, details, cb
 
   find: ( name, cb ) ->

@@ -54,4 +54,4 @@ class exports.Controller
         return next()
 
       # no company found
-      return next new CompanyUnknown "'#{ req.subdomain }' is not a company known to us."
+      return next new CompanyUnknown "'#{ req.subdomain }' is not known to us."
