@@ -37,3 +37,5 @@ class exports.ApiKeyError extends exports.GatekeeperError
 
 class exports.TimeoutError extends exports.GatekeeperError
   @status = 504
+
+class exports.ValidationError extends exports.GatekeeperError

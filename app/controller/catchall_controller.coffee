@@ -15,7 +15,6 @@ class CatchAll extends Controller
     model = @gatekeeper.model "apiLimits"
 
     { qps, qpd, key } = req.apiKey
-
     model.withinLimits key, { qps, qpd }, ( err, [ currentQps, currentQpd ] ) =>
       return next err if err
 
