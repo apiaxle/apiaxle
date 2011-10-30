@@ -55,9 +55,7 @@ class exports.ApiLimits extends Redis
     @get key, ( err, callsLeft ) =>
       return cb err if err
 
-      # no key set yet (or it expired). We have to check for ttl being
-      # 0 here because there's a bug in redis which means a key lives
-      # whilst its ttl is 0
+      # no key set yet (or it expired).
       if not callsLeft?
         return @_setInitialQp key, qpLimit, expires, cb
 

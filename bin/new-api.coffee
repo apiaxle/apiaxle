@@ -33,7 +33,7 @@ gk = new Gatekeeper()
 gk.script ( finish ) ->
   model = gk.model "api"
 
-  model.new name, options.options, ( err ) ->
+  model.create name, options.options, ( err ) ->
     throw err if err
 
     model.find name, ( err, newApi ) ->

@@ -39,3 +39,15 @@ class exports.ApiKeyTest extends GatekeeperTest
       @equal err.message, "API '987654321' doesn't exist."
 
       done 2
+
+  "test #create with an existant api": ( done ) ->
+    createObj =
+      qps: 1
+      qpd: 3
+      forApi: "twitter"
+
+    @gatekeeper.model( "api" ).create "twitter", endpoint: "api.twitter.com", ( err, newApi ) =>
+      @model.create "987654321", createObj, ( err ) =>
+        @isNull err
+
+        done 1

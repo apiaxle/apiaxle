@@ -37,7 +37,7 @@ gk = new Gatekeeper()
 gk.script ( finish ) ->
   model = gk.model "apiKey"
 
-  model.new name, options.options, ( err ) ->
+  model.create name, options.options, ( err ) ->
     throw err if err
 
     model.find name, ( err, newKey ) ->

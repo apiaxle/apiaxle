@@ -1,4 +1,5 @@
 _ = require "underscore"
+
 { Redis } = require "../redis"
 { ValidationError } = require "../../../lib/error"
 
@@ -11,7 +12,7 @@ class exports.ApiKey extends Redis
     properties:
       qpd:
         type: "integer"
-        default: 1:  172800
+        default: 172800
       qps:
         type: "integer"
         default: 2
@@ -22,12 +23,12 @@ class exports.ApiKey extends Redis
     # if there isn't a forApi field then `super` will take care of
     # that
     if details.forApi
-      @gatekeeper.model( "api" ).find details.forApi, ( err, apiDetails ) ->
+      @gatekeeper.model( "api" ).find details.forApi, ( err, apiDetails ) =>
         return cb err if err
 
         if not apiDetails
           return cb new ValidationError "API '#{ name }' doesn't exist."
 
-        @constructor.create name, details, cb
+        ApiKey.__super__.create.apply @, [ name, details, cb ]
     else
       super
