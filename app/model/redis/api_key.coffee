@@ -5,15 +5,14 @@ class exports.ApiKey extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "key"
 
-  new: ( name, details, cb ) ->
-    # TODO: http://davidwalsh.name/json-validation
-    details.created_at = new Date().getTime()
-    @hmset name, details, cb
-
-  find: ( key, cb ) ->
-    @hgetall key, ( err, details ) ->
-      return cb err, null if err
-
-      return cb null, null unless _.size( details )
-
-      return cb null, details
+  @structure =
+    type: "object"
+    properties:
+      qpd:
+        type: "integer"
+        default: 1:  172800
+      qps:
+        type: "integer"
+        default: 2
+      forApi:
+        type: "string"

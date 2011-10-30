@@ -1,3 +1,6 @@
+_ = require "underscore"
+validate = require "../../lib/validate"
+
 redis = require "redis"
 
 class RedisMulti extends redis.Multi
@@ -57,6 +60,21 @@ class exports.Redis
       do ( command ) =>
         @[ command ] = ( key, rest... ) =>
           @gatekeeper.redisClient[ command ]( @getKey( key ), rest... )
+
+  new: ( name, details, cb ) ->
+    validate @constructor.structure, details, ( err ) =>
+      return cb err if err
+
+      details.createdAt = new Date().getTime()
+      @hmset name, details, cb
+
+  find: ( key, cb ) ->
+    @hgetall key, ( err, details ) ->
+      return cb err, null if err
+
+      return cb null, null unless _.size( details )
+
+      return cb null, details
 
   multi: ( args ) ->
     return new RedisMulti( @ns, @gatekeeper.redisClient, args )
