@@ -33,6 +33,7 @@ class CatchAll extends Controller
           timeout: req.api.endpointTimeout
           headers: headers
 
+        # add a body for PUTs and POSTs
         options.body = req.body if req.body?
 
         request[ @constructor.verb ] options, ( err, apiRes, body ) ->
