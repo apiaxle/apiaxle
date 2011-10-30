@@ -16,3 +16,15 @@ class exports.ApiKey extends Redis
         default: 2
       forApi:
         type: "string"
+
+  new: ( name, details, cb ) ->
+    # if there isn't a forApi field then `super` will take care of
+    # that
+    if details.forApi
+      @gatekeeper.model( "api" ).find details.forApi, ( err, apiDetails ) ->
+        return cb err if err
+
+        if not apiDetails
+          return cb new ValidationError "API '#{ name }' doesn't exist."
+    else
+      super
