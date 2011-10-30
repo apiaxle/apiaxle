@@ -38,7 +38,9 @@ class exports.ApiLimits extends Redis
     @_withinLimit @qpdKey( apiKey ), 86000, qpd, QpdExceededError, cb
 
   qpsKey: ( apiKey ) ->
-    return [ "qps", apiKey ]
+    seconds = Math.round( new Date().getTime() / 1000 )
+
+    return [ "qps", seconds, apiKey ]
 
   qpdKey: ( apiKey ) ->
     return [ "qpd", @_dayString(), apiKey ]
@@ -50,18 +52,13 @@ class exports.ApiLimits extends Redis
       cb null, qp
 
   _withinLimit: ( key, expires, qpLimit, exceedErrorClass, cb ) ->
-    multi = @multi()
-
-    multi.get key
-    multi.ttl key
-
-    multi.exec ( err, [ callsLeft, ttl ] ) =>
+    @get key, ( err, callsLeft ) =>
       return cb err if err
 
       # no key set yet (or it expired). We have to check for ttl being
       # 0 here because there's a bug in redis which means a key lives
       # whilst its ttl is 0
-      if not callsLeft? or ttl is 0
+      if not callsLeft?
         return @_setInitialQp key, qpLimit, expires, cb
 
       # no more calls left
