@@ -7,7 +7,9 @@ class exports.QpdTest extends GatekeeperTest
   @empty_db_on_setup = true
 
   "test initialisation": ( done ) ->
-    @ok @gatekeeper
+    @ok @gatekeeper,
+      "gatekeeper is defined"
+
     @ok model = @gatekeeper.model "apiLimits"
 
     @equal model.ns, "gk:test:al"

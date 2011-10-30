@@ -19,21 +19,21 @@ class exports.ApiTest extends GatekeeperTest
 
     done 3
 
-  "test #new with bad structure": ( done ) ->
+  "test #create with bad structure": ( done ) ->
     newObj =
       apiFormat: "text"
 
-    @model.new "twitter", newObj, ( err ) =>
+    @model.create "twitter", newObj, ( err ) =>
       @ok err
 
       done 1
 
-  "test #new with good structure": ( done ) ->
+  "test #create with good structure": ( done ) ->
     newObj =
       apiFormat: "xml"
       endpoint: "api.twitter.com"
 
-    @model.new "twitter", newObj, ( err ) =>
+    @model.create "twitter", newObj, ( err ) =>
       @isNull err
 
       @model.find "twitter", ( err, details ) =>

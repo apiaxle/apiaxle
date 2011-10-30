@@ -1,5 +1,6 @@
 _ = require "underscore"
 { Redis } = require "../redis"
+{ ValidationError } = require "../../../lib/error"
 
 class exports.ApiKey extends Redis
   @instantiateOnStartup = true
@@ -17,7 +18,7 @@ class exports.ApiKey extends Redis
       forApi:
         type: "string"
 
-  new: ( name, details, cb ) ->
+  create: ( name, details, cb ) ->
     # if there isn't a forApi field then `super` will take care of
     # that
     if details.forApi
@@ -26,5 +27,7 @@ class exports.ApiKey extends Redis
 
         if not apiDetails
           return cb new ValidationError "API '#{ name }' doesn't exist."
+
+        @constructor.create name, details, cb
     else
       super

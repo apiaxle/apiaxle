@@ -61,7 +61,7 @@ class exports.Redis
         @[ command ] = ( key, rest... ) =>
           @gatekeeper.redisClient[ command ]( @getKey( key ), rest... )
 
-  new: ( name, details, cb ) ->
+  create: ( name, details, cb ) ->
     validate @constructor.structure, details, ( err ) =>
       return cb err if err
 
