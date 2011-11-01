@@ -1,41 +1,32 @@
-class exports.GatekeeperError extends Error
-  @status = 400
+{ AppError } = require "app.coffee"
 
-  constructor: ( msg, @options ) ->
-    @name = arguments.callee.name
-    @message = msg
-
-    @details = @options?.details
-
-    Error.captureStackTrace @, arguments.callee
-
-class exports.NotFoundError extends exports.GatekeeperError
+class exports.NotFoundError extends AppError
   @status = 404
 
-class exports.RedisError extends exports.GatekeeperError
+class exports.RedisError extends AppError
   @status = 500
 
-class exports.QpsExceededError extends exports.GatekeeperError
+class exports.QpsExceededError extends AppError
   @status = 429
 
   constructor: ( msg, @options ) ->
     super
     @message = "Queries per second exceeded: #{ msg }"
 
-class exports.QpdExceededError extends exports.GatekeeperError
+class exports.QpdExceededError extends AppError
   @status = 429
 
   constructor: ( msg, @options ) ->
     super
     @message = "Queries per day exceeded: #{ msg }"
 
-class exports.ApiUnknown extends exports.GatekeeperError
+class exports.ApiUnknown extends AppError
   @status = 404
 
-class exports.ApiKeyError extends exports.GatekeeperError
+class exports.ApiKeyError extends AppError
   @status = 403
 
-class exports.TimeoutError extends exports.GatekeeperError
+class exports.TimeoutError extends AppError
   @status = 504
 
-class exports.ValidationError extends exports.GatekeeperError
+class exports.ValidationError extends AppError
