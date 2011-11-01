@@ -1,6 +1,5 @@
 async = require "async"
 
-{ QpsExceededError, QpdExceededError } = require "../../../../lib/error"
 { GatekeeperTest } = require "../../../gatekeeper"
 
 class exports.QpdTest extends GatekeeperTest
@@ -53,12 +52,10 @@ class exports.QpdTest extends GatekeeperTest
           @ok err
           @isUndefined result
 
-          @ok err instanceof QpdExceededError
-
           @equal err.constructor.status, 429
           @equal err.message, "Queries per day exceeded: 2 allowed."
 
-          done 8
+          done 7
 
 class exports.QpsTest extends GatekeeperTest
   @empty_db_on_setup = true
@@ -108,12 +105,10 @@ class exports.QpsTest extends GatekeeperTest
           @ok err
           @isUndefined result
 
-          @ok err instanceof QpsExceededError
-
           @equal err.constructor.status, 429
           @equal err.message, "Queries per second exceeded: 2 allowed."
 
-          done 8
+          done 7
 
 class exports.ApiLimitsTest extends GatekeeperTest
   @empty_db_on_setup = true
@@ -138,12 +133,10 @@ class exports.ApiLimitsTest extends GatekeeperTest
         model.withinLimits "4321", limits, ( err, results ) =>
           @ok err
 
-          @ok err instanceof QpsExceededError
-
           @equal err.constructor.status, 429
           @equal err.message, "Queries per second exceeded: 3 allowed."
 
-          done 7
+          done 6
 
   "test #withinLimits on qpd failure": ( done ) ->
     model = @gatekeeper.model "apiLimits"
@@ -166,12 +159,10 @@ class exports.ApiLimitsTest extends GatekeeperTest
         model.withinLimits "4321", limits, ( err, results ) =>
           @ok err
 
-          @ok err instanceof QpdExceededError
-
           @equal err.constructor.status, 429
           @equal err.message, "Queries per day exceeded: 20 allowed."
 
-          done 8
+          done 7
 
   "test #apiHit": ( done ) ->
     model = @gatekeeper.model "apiLimits"
