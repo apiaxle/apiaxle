@@ -2,19 +2,20 @@ url = require "url"
 request = require "request"
 
 { TimeoutError } = require "../../lib/error"
-{ Controller } = require "../controller"
+{ GatekeeperController } = require "./controller"
 
-class CatchAll extends Controller
+class CatchAll extends GatekeeperController
   path: ( ) -> "*"
 
-  middleware: -> [ @api, @apiKey ]
+  middleware: -> [ @subdomain, @api, @apiKey ]
 
   execute: ( req, res, next ) ->
     { pathname } = url.parse req.url
 
-    model = @gatekeeper.model "apiLimits"
+    model = @app.model "apiLimits"
 
     { qps, qpd, key } = req.apiKey
+
     model.withinLimits key, { qps, qpd }, ( err, [ currentQps, currentQpd ] ) =>
       return next err if err
 

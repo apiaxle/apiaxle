@@ -3,7 +3,7 @@
 sys = require "sys"
 
 { OptionParser } = require "parseopt"
-{ GatekeeperProxy } = require "../gatekeeper"
+{ GatekeeperProxy } = require "../gatekeeper_proxy"
 
 parser = new OptionParser
   minargs: 1
