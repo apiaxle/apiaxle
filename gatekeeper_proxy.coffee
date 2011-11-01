@@ -16,7 +16,7 @@ redis        = require "redis"
 
 { GatekeeperError, RedisError, NotFoundError } = require "./lib/error"
 
-class exports.Gatekeeper
+class exports.GatekeeperProxy
   @env = ( process.env.NODE_ENV or "development" )
 
   constructor: ( ) ->
@@ -120,7 +120,7 @@ class exports.Gatekeeper
   _configure: ( app ) ->
     app.configure ( ) =>
       # load up /our/ configuration (from the files in /config)
-      @config = require( "./lib/app_config" )( Gatekeeper.env )
+      @config = require( "./lib/app_config" )( GatekeeperProxy.env )
 
       @_configureGeneral app
 
@@ -181,12 +181,12 @@ if not module.parent
   port = ( process.argv[2] or 3000 )
   host = "127.0.0.1"
 
-  gatekeeper = new exports.Gatekeeper( )
+  proxy = new exports.GatekeeperProxy( )
 
-  gatekeeper.redisConnect ( ) ->
-    gatekeeper.run host, port, ( ) ->
-      gatekeeper.configureModels()
-      gatekeeper.configureControllers()
-      gatekeeper.configureMiddleware()
+  proxy.redisConnect ( ) ->
+    proxy.run host, port, ( ) ->
+      proxy.configureModels()
+      proxy.configureControllers()
+      proxy.configureMiddleware()
 
       console.log "Express server listening on port #{port}"

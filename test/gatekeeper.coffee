@@ -7,7 +7,7 @@ path          = require "path"
 sinon         = require "sinon"
 async         = require "async"
 
-{ Gatekeeper } = require "../gatekeeper"
+{ GatekeeperProxy } = require "../gatekeeper_proxy"
 { TwerpTest }  = require "twerp"
 
 gatekeeper_mem = null
@@ -19,7 +19,7 @@ class exports.GatekeeperTest extends TwerpTest
     @gatekeeper = if gatekeeper_mem
       gatekeeper_mem
     else
-      gatekeeper_mem = new Gatekeeper().configureModels()
+      gatekeeper_mem = new GatekeeperProxy().configureModels()
 
     @stubs = [ ]
     @spies  = [ ]

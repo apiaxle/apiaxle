@@ -3,7 +3,7 @@ fs     = require "fs"
 sys    = require "sys"
 util   = require "util"
 
-{ Gatekeeper } = require "./gatekeeper"
+{ Gatekeeper } = require "./gatekeeper_proxy"
 { spawn }  = require "child_process"
 
 task "test", "Run the tests.", ( options ) ->

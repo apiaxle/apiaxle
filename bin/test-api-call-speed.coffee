@@ -2,7 +2,7 @@
 
 sys = require "sys"
 
-{ Gatekeeper } = require "../gatekeeper"
+{ GatekeeperProxy } = require "../gatekeeper"
 
 results =
   success: 0
@@ -17,7 +17,7 @@ process.on "SIGINT", ( ) ->
   console.log( results )
   process.exit 1
 
-gk = new Gatekeeper()
+gk = new GatekeeperProxy()
 gk.script ( finish ) ->
   model = gk.model( "apiLimits" )
   model.flush()

@@ -44,8 +44,9 @@ class CatchAll extends Controller
           for header, value of apiRes.headers
             res.header header, value
 
-          res.header "X-gatekeeper-qps-left", newQps
-          res.header "X-gatekeeper-qpd-left", newQpd
+          # let the user know what they've got left
+          res.header "X-GatekeeperProxy-Qps-Left", newQps
+          res.header "X-GatekeeperProxy-Qpd-Left", newQpd
 
           # response with the same code as the endpoint
           res.send body, apiRes.statusCode

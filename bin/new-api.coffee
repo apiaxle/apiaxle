@@ -3,7 +3,7 @@
 sys = require "sys"
 
 { OptionParser } = require "parseopt"
-{ Gatekeeper } = require "../gatekeeper"
+{ GatekeeperProxy } = require "../gatekeeper"
 
 parser = new OptionParser
   minargs: 1
@@ -29,7 +29,7 @@ catch e
 
 [ name ] = options.arguments
 
-gk = new Gatekeeper()
+gk = new GatekeeperProxy()
 gk.script ( finish ) ->
   model = gk.model "api"
 
