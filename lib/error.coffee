@@ -1,4 +1,4 @@
-{ AppError } = require "app.coffee"
+{ AppError } = require "gatekeeper.base"
 
 class exports.NotFoundError extends AppError
   @status = 404

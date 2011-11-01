@@ -8,7 +8,7 @@ sys          = require "sys"
 fs           = require "fs"
 redis        = require "redis"
 
-{ Application } = require "app.coffee"
+{ Application } = require "gatekeeper.base"
 
 { StdoutLogger  } = require "./lib/stderrlogger"
 

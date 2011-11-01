@@ -1,4 +1,4 @@
-{ Controller } = require "app.coffee"
+{ Controller } = require "gatekeeper.base"
 { ApiUnknown } = require "../../lib/error"
 
 class exports.GatekeeperController extends Controller
