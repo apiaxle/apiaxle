@@ -9,9 +9,7 @@ fs           = require "fs"
 redis        = require "redis"
 
 { Application } = require "gatekeeper.base"
-
 { StdoutLogger  } = require "./lib/stderrlogger"
-
 { GatekeeperError, RedisError, NotFoundError } = require "./lib/error"
 
 class exports.GatekeeperProxy extends Application
