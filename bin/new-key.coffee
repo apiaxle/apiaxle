@@ -31,16 +31,16 @@ catch e
   parser.usage()
   process.exit 1
 
-[ name ] = options.arguments
+[ key ] = options.arguments
 
 gk = new GatekeeperProxy()
 gk.script ( finish ) ->
   model = gk.model "apiKey"
 
-  model.create name, options.options, ( err ) ->
+  model.create key, options.options, ( err ) ->
     throw err if err
 
-    model.find name, ( err, newKey ) ->
+    model.find key, ( err, newKey ) ->
       throw err if err
 
       console.log newKey
