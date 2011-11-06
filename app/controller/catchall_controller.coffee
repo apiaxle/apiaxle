@@ -9,6 +9,15 @@ class CatchAll extends GatekeeperController
 
   middleware: -> [ @subdomain, @api, @apiKey ]
 
+  _httpRequest: ( options, cb) ->
+    request[ @constructor.verb ] options, ( err, apiRes, body ) ->
+      # if we timeout then throw an error
+      if err?.code is "ETIMEDOUT"
+        return next new TimeoutError "API endpoint timed out."
+
+      # response with the same code as the endpoint
+      return cb err, apiRes, body
+
   execute: ( req, res, next ) ->
     { pathname } = url.parse req.url
 
@@ -36,11 +45,7 @@ class CatchAll extends GatekeeperController
         # add a body for PUTs and POSTs
         options.body = req.body if req.body?
 
-        request[ @constructor.verb ] options, ( err, apiRes, body ) ->
-          # if we timeout then throw an error
-          if err?.code is "ETIMEDOUT"
-            return next new TimeoutError "API endpoint timed out."
-
+        @_httpRequest options, ( err, apiRes, body ) =>
           # copy headers from the endpoint
           for header, value of apiRes.headers
             res.header header, value
@@ -49,7 +54,6 @@ class CatchAll extends GatekeeperController
           res.header "X-GatekeeperProxy-Qps-Left", newQps
           res.header "X-GatekeeperProxy-Qpd-Left", newQpd
 
-          # response with the same code as the endpoint
           res.send body, apiRes.statusCode
 
 class exports.GetCatchall extends CatchAll
