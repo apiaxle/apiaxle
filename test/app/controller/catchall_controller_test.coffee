@@ -1,7 +1,6 @@
 async = require "async"
 
 { GatekeeperTest } = require "../../gatekeeper"
-{ GetCatchall } = require "../../../app/controller/catchall_controller"
 
 class exports.CatchallTest extends GatekeeperTest
   @start_webserver = true
@@ -112,10 +111,19 @@ class exports.CatchallTest extends GatekeeperTest
       @application.model( "apiKey" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
-        # stub out the http request in the controller that we do
-        #@getStub GetCatchall::, "_request", ( options, cb ) -> cb "{ }", 200
+        # make sure we don't actually hit facebook
+        @stubCatchall 200, JSON.stringify
+          one: 1
+          two: 2
 
-        @GET { path: "/cock.bastard?api_key=1234", host: "facebook.api.localhost" }, ( err, response ) =>
-          console.log( response.data )
+        requestOptions =
+          path: "/cock.bastard?api_key=1234"
+          host: "facebook.api.localhost"
 
-          done 3
+        @GET requestOptions, ( err, response ) =>
+          @isNull err
+
+          response.parseJson ( json ) =>
+            @equal json.one, 1
+
+            done 4
