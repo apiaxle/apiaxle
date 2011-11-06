@@ -112,9 +112,12 @@ class exports.CatchallTest extends GatekeeperTest
         @isNull err
 
         # make sure we don't actually hit facebook
-        @stubCatchall 200, JSON.stringify
+        data = JSON.stringify
           one: 1
           two: 2
+
+        @stubCatchall 200, data,
+          "Content-Type": "application/json"
 
         requestOptions =
           path: "/cock.bastard?api_key=1234"
@@ -122,8 +125,12 @@ class exports.CatchallTest extends GatekeeperTest
 
         @GET requestOptions, ( err, response ) =>
           @isNull err
+          @equal response.contentType, "application/json"
+
+          @ok response.headers[ "x-gatekeeperproxy-qps-left" ]
+          @ok response.headers[ "x-gatekeeperproxy-qpd-left" ]
 
           response.parseJson ( json ) =>
             @equal json.one, 1
 
-            done 4
+            done 7
