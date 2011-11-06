@@ -1,5 +1,5 @@
 { Controller } = require "gatekeeper.base"
-{ ApiUnknown } = require "../../lib/error"
+{ ApiUnknown, ApiKeyError } = require "../../lib/error"
 
 class exports.GatekeeperController extends Controller
   subdomain: ( req, res, next ) ->
@@ -28,7 +28,7 @@ class exports.GatekeeperController extends Controller
     key = req.query.api_key
 
     if not key
-      return next new Error "No api_key specified."
+      return next new ApiKeyError "No api_key specified."
 
     @app.model( "apiKey" ).find key, ( err, keyDetails ) ->
       return next err if err

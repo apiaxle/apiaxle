@@ -9,6 +9,23 @@ class CatchAll extends GatekeeperController
 
   middleware: -> [ @subdomain, @api, @apiKey ]
 
+  _request: ( options, cb ) ->
+    request[ @constructor.verb ] options, ( err, apiRes, body ) ->
+      # if we timeout then throw an error
+      if err?.code is "ETIMEDOUT"
+        return next new TimeoutError "API endpoint timed out."
+
+      # copy headers from the endpoint
+      for header, value of apiRes.headers
+        res.header header, value
+
+      # let the user know what they've got left
+      res.header "X-GatekeeperProxy-Qps-Left", newQps
+      res.header "X-GatekeeperProxy-Qpd-Left", newQpd
+
+      # response with the same code as the endpoint
+      return cb body, apiRes.statusCode
+
   execute: ( req, res, next ) ->
     { pathname } = url.parse req.url
 
@@ -36,30 +53,16 @@ class CatchAll extends GatekeeperController
         # add a body for PUTs and POSTs
         options.body = req.body if req.body?
 
-        request[ @constructor.verb ] options, ( err, apiRes, body ) ->
-          # if we timeout then throw an error
-          if err?.code is "ETIMEDOUT"
-            return next new TimeoutError "API endpoint timed out."
+        @_request options, res.send
 
-          # copy headers from the endpoint
-          for header, value of apiRes.headers
-            res.header header, value
-
-          # let the user know what they've got left
-          res.header "X-GatekeeperProxy-Qps-Left", newQps
-          res.header "X-GatekeeperProxy-Qpd-Left", newQpd
-
-          # response with the same code as the endpoint
-          res.send body, apiRes.statusCode
-
-class exports.GetController extends CatchAll
+class exports.GetCatchall extends CatchAll
   @verb: "get"
 
-class exports.PostController extends CatchAll
+class exports.PostCatchall extends CatchAll
   @verb: "post"
 
-class exports.PutController extends CatchAll
+class exports.PutCatchall extends CatchAll
   @verb: "put"
 
-class exports.DeleteController extends CatchAll
+class exports.DeleteCatchall extends CatchAll
   @verb: "delete"
