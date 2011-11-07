@@ -13,7 +13,6 @@ redis        = require "redis"
 { GatekeeperError, RedisError, NotFoundError } = require "./lib/error"
 
 class exports.GatekeeperProxy extends Application
-  @modelsPath = "#{ __dirname }/app/model"
   @controllersPath = "#{ __dirname }/app/controller"
 
 if not module.parent

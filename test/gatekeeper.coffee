@@ -1,3 +1,6 @@
+# always run as test
+process.env.NODE_ENV = "test"
+
 { GatekeeperProxy } = require "../gatekeeper_proxy"
 { AppTest } = require "gatekeeper.base"
 
