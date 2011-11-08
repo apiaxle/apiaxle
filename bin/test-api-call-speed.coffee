@@ -2,7 +2,7 @@
 
 sys = require "sys"
 
-{ GatekeeperProxy } = require "../gatekeeper"
+{ GatekeeperProxy } = require "../gatekeeper_proxy"
 
 results =
   success: 0
@@ -27,21 +27,20 @@ gk.script ( finish ) ->
     timeStr = "#{ now.getMinutes() }-#{ now.getSeconds() }"
     results.persecond[ timeStr ] or= 0
 
-    model.ttl [ "qps", "1234" ], ( err, ttl ) ->
-      model.withinLimits "1234", limits, ( err, [ currentQps, currentQpd ] ) ->
-        if err
-          results.failed += 1
+    model.withinLimits "1234", limits, ( err, [ currentQps, currentQpd ] ) ->
+      if err
+        results.failed += 1
 
-          return setTimeout f, 1
+        return setTimeout f, 1
 
-        model.apiHit "1234", ( err, [ newQps, newQpd ] ) ->
-          throw err if err
+      model.apiHit "1234", ( err, [ newQps, newQpd ] ) ->
+        throw err if err
 
-          sys.print "#{ ttl }.#{ newQps }.#{ newQpd } "
+        sys.print "#{ newQps }.#{ newQpd } "
 
-          results.success += 1
-          results.persecond[ timeStr ] += 1
+        results.success += 1
+        results.persecond[ timeStr ] += 1
 
-          return setTimeout f, 1
+        return setTimeout f, 1
 
   f()

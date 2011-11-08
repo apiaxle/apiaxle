@@ -43,6 +43,12 @@ gk.script ( finish ) ->
     model.find key, ( err, newKey ) ->
       throw err if err
 
-      console.log newKey
+      apiLimits = gk.model( "apiLimits" )
 
-      finish()
+      multi = apiLimits.multi()
+      multi.del apiLimits.qpsKey( key )
+      multi.del apiLimits.qpdKey( key )
+
+      multi.exec ( ) ->
+        console.log newKey
+        finish()
