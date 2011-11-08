@@ -25,36 +25,33 @@ class CatchAll extends GatekeeperController
 
     { qps, qpd, key } = req.apiKey
 
-    model.withinLimits key, { qps, qpd }, ( err, [ currentQps, currentQpd ] ) =>
+    model.apiHit key, qps, qpd, ( err, [ newQps, newQpd ] ) =>
       return next err if err
 
-      model.apiHit key, ( err, [ newQps, newQpd ] ) =>
-        return next err if err
+      # copy the headers
+      headers = req.headers
+      delete headers.host
 
-        # copy the headers
-        headers = req.headers
-        delete headers.host
+      options =
+        url: "http://#{ req.api.endpoint }/#{ pathname }"
+        followRedirects: true
+        maxRedirects: req.api.maxRedirects
+        timeout: req.api.endpointTimeout
+        headers: headers
 
-        options =
-          url: "http://#{ req.api.endpoint }/#{ pathname }"
-          followRedirects: true
-          maxRedirects: req.api.maxRedirects
-          timeout: req.api.endpointTimeout
-          headers: headers
+      # add a body for PUTs and POSTs
+      options.body = req.body if req.body?
 
-        # add a body for PUTs and POSTs
-        options.body = req.body if req.body?
+      @_httpRequest options, ( err, apiRes, body ) =>
+        # copy headers from the endpoint
+        for header, value of apiRes.headers
+          res.header header, value
 
-        @_httpRequest options, ( err, apiRes, body ) =>
-          # copy headers from the endpoint
-          for header, value of apiRes.headers
-            res.header header, value
+        # let the user know what they've got left
+        res.header "X-GatekeeperProxy-Qps-Left", newQps
+        res.header "X-GatekeeperProxy-Qpd-Left", newQpd
 
-          # let the user know what they've got left
-          res.header "X-GatekeeperProxy-Qps-Left", newQps
-          res.header "X-GatekeeperProxy-Qpd-Left", newQpd
-
-          res.send body, apiRes.statusCode
+        res.send body, apiRes.statusCode
 
 class exports.GetCatchall extends CatchAll
   @verb: "get"
