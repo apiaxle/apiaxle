@@ -64,7 +64,7 @@ class exports.CatchallTest extends GatekeeperTest
 
   "test GET with registered domain but no key": ( done ) ->
     apiOptions =
-      endpoint: "graph.facebook.com"
+      endPoint: "graph.facebook.com"
       apiFormat: "json"
 
     # we create the API
@@ -81,7 +81,7 @@ class exports.CatchallTest extends GatekeeperTest
 
   "test GET with registered domain but invalid key": ( done ) ->
     apiOptions =
-      endpoint: "graph.facebook.com"
+      endPoint: "graph.facebook.com"
       apiFormat: "json"
 
     # we create the API
@@ -98,7 +98,7 @@ class exports.CatchallTest extends GatekeeperTest
 
   "test GET with registered domain and valid key": ( done ) ->
     apiOptions =
-      endpoint: "graph.facebook.com"
+      endPoint: "graph.facebook.com"
       apiFormat: "json"
 
     # we create the API

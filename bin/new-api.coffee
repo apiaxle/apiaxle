@@ -10,7 +10,7 @@ parser = new OptionParser
   strings:
     arguments: "COMPANY NAME"
 
-parser.add "--endpoint",
+parser.add "--end-point",
   type: "string"
   help: "The endpoint (url) this api's api will listen at."
   required: true

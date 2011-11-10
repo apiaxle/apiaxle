@@ -33,7 +33,7 @@ class CatchAll extends GatekeeperController
       delete headers.host
 
       options =
-        url: "http://#{ req.api.endpoint }/#{ pathname }"
+        url: "http://#{ req.api.endPoint }/#{ pathname }"
         followRedirects: true
         maxRedirects: req.api.maxRedirects
         timeout: req.api.endpointTimeout
