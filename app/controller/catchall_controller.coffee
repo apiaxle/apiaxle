@@ -11,8 +11,6 @@ class CatchAll extends GatekeeperController
 
   _httpRequest: ( options, cb) ->
     request[ @constructor.verb ] options, ( err, apiRes, body ) ->
-      console.log( err )
-
       if err
         # if we timeout then throw an error
         if err?.code is "ETIMEDOUT"
