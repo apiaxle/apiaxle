@@ -11,9 +11,15 @@ class CatchAll extends GatekeeperController
 
   _httpRequest: ( options, cb) ->
     request[ @constructor.verb ] options, ( err, apiRes, body ) ->
-      # if we timeout then throw an error
-      if err?.code is "ETIMEDOUT"
-        return next new TimeoutError "API endpoint timed out."
+      console.log( err )
+
+      if err
+        # if we timeout then throw an error
+        if err?.code is "ETIMEDOUT"
+          return next new TimeoutError "API endpoint timed out."
+
+        error = new Error "'#{ options.url }' yielded '#{ err.message }'"
+        return cb error, null
 
       # response with the same code as the endpoint
       return cb err, apiRes, body
@@ -43,6 +49,8 @@ class CatchAll extends GatekeeperController
       options.body = req.body if req.body?
 
       @_httpRequest options, ( err, apiRes, body ) =>
+        return next err if err
+
         # copy headers from the endpoint
         for header, value of apiRes.headers
           res.header header, value
