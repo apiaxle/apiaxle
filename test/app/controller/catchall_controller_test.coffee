@@ -133,3 +133,37 @@ class exports.CatchallTest extends GatekeeperTest
             @equal json.one, 1
 
             done 7
+
+  "test GET with gatekeeper_key, rather than api_key": ( done ) ->
+    apiOptions =
+      endPoint: "graph.facebook.com"
+      apiFormat: "json"
+
+    # we create the API
+    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+      @isNull err
+
+      keyOptions =
+        forApi: "facebook"
+
+      @application.model( "apiKey" ).create "1234", keyOptions, ( err ) =>
+        @isNull err
+
+        # make sure we don't actually hit facebook
+        data = JSON.stringify
+          one: 1
+
+        @stubCatchall 200, data,
+          "Content-Type": "application/json"
+
+        requestOptions =
+          path: "/cock.bastard?gatekeeper_key=1234&api_key=5678"
+          host: "facebook.api.localhost"
+
+        @GET requestOptions, ( err, response ) =>
+          @isNull err
+
+          response.parseJson ( json ) =>
+            @equal json.one, 1
+
+            done 4
