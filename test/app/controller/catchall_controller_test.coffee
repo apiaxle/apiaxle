@@ -28,7 +28,7 @@ class exports.CatchallTest extends GatekeeperTest
       @isUndefined err
       @equal results.length, 4
 
-      done 22
+      done 26
 
   # TODO: http socket hangup, why?
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
@@ -59,7 +59,7 @@ class exports.CatchallTest extends GatekeeperTest
       @isUndefined err
       @equal results.length, 4
 
-      done 22
+      done 26
 
   "test GET with registered domain but no key": ( done ) ->
     apiOptions =
