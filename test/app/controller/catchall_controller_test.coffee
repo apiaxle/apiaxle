@@ -4,6 +4,7 @@ async = require "async"
 
 class exports.CatchallTest extends GatekeeperTest
   @start_webserver = true
+  @empty_db_on_setup = true
 
   "test POST,GET,PUT and DELETE with no subdomain": ( done ) ->
     all = [ ]
@@ -30,37 +31,35 @@ class exports.CatchallTest extends GatekeeperTest
       done 22
 
   # TODO: http socket hangup, why?
-  # "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
-  #   all = [ ]
+  "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
+    all = [ ]
 
-  #   for method in [ "POST" , "GET", "PUT", "DELETE" ]
-  #     do ( method ) =>
-  #       all.push ( cb ) =>
-  #         options =
-  #           host: "twitter.api.localhost"
-  #           method: method
-  #           path: "/"
-  #           data: "something"
+    for method in [ "POST", "GET", "PUT", "DELETE" ]
+      do ( method ) =>
+        all.push ( cb ) =>
+          options =
+            method: method
+            hostname: "twitter.api.localhost"
+            path: "/?api_key=1234"
+            data: "something"
 
-  #         @httpRequest options, ( err, response ) =>
-  #           console.log( options )
+          @httpRequest options, ( err, response ) =>
+            @isNull err
+            @ok response
+            @equal response.statusCode, 404
 
-  #           @isNull err
-  #           @ok response
-  #           @equal response.statusCode, 404
+            response.parseJson ( json ) =>
+              @ok json.error
+              @equal json.error.type, "ApiUnknown"
+              @equal json.error.status, "404"
 
-  #           response.parseJson ( json ) =>
-  #             @ok json.error
-  #             @equal json.error.type, "ApiUnknown"
-  #             @equal json.error.status, "404"
+              cb()
 
-  #             cb()
+    async.parallel all, ( err, results ) =>
+      @isUndefined err
+      @equal results.length, 4
 
-  #   async.parallel all, ( err, results ) =>
-  #     @isUndefined err
-  #     @equal results.length, 4
-
-  #     done 26
+      done 22
 
   "test GET with registered domain but no key": ( done ) ->
     apiOptions =

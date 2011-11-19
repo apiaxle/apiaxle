@@ -7,7 +7,7 @@ class exports.GatekeeperController extends Controller
     if parts = /^(.+?)\.api\./.exec req.headers.host
       req.subdomain = parts[1]
 
-    next()
+    return next()
 
   api: ( req, res, next ) =>
     # no subdomain means no api
@@ -17,7 +17,7 @@ class exports.GatekeeperController extends Controller
     @app.model( "api" ).find req.subdomain, ( err, api ) ->
       return next err if err
 
-      if api
+      if api?
         req.api = api
         return next()
 
@@ -40,4 +40,4 @@ class exports.GatekeeperController extends Controller
       keyDetails.key = key
       req.apiKey = keyDetails
 
-      next()
+      return next()
