@@ -25,7 +25,7 @@ class exports.GatekeeperController extends Controller
       return next new ApiUnknown "'#{ req.subdomain }' is not known to us."
 
   apiKey: ( req, res, next ) =>
-    key = req.query.api_key
+    key = ( req.query.api_key or req.query.gatekeeper_key )
 
     if not key
       return next new ApiKeyError "No api_key specified."
