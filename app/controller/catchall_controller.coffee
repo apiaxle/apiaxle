@@ -23,7 +23,13 @@ class CatchAll extends GatekeeperController
       return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
-    { pathname } = url.parse req.url
+    { pathname, query } = url.parse req.url, true
+
+    # we should make this optional
+    if query.gatekeeper_key?
+      delete query.gatekeeper_key
+    else
+      delete query.api_key
 
     model = @app.model "apiLimits"
 
@@ -36,8 +42,14 @@ class CatchAll extends GatekeeperController
       headers = req.headers
       delete headers.host
 
+      endpointUrl = "http://#{ req.api.endPoint }/#{ pathname }"
+      if query
+        endpointUrl += "?"
+        newStrings = ( "#{ key }=#{ value }" for key, value of query )
+        endpointUrl += newStrings.join( "&" )
+
       options =
-        url: "http://#{ req.api.endPoint }/#{ pathname }"
+        url: endpointUrl
         followRedirects: true
         maxRedirects: req.api.maxRedirects
         timeout: req.api.endpointTimeout
