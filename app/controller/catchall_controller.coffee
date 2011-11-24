@@ -51,8 +51,8 @@ class CatchAll extends GatekeeperController
       options =
         url: endpointUrl
         followRedirects: true
-        maxRedirects: req.api.maxRedirects
-        timeout: req.api.endpointTimeout
+        maxRedirects: req.api.endPointMaxRedirects
+        timeout: req.api.endPointTimeout
         headers: headers
 
       # add a body for PUTs and POSTs

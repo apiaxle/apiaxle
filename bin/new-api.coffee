@@ -10,6 +10,16 @@ parser = new OptionParser
   strings:
     arguments: "COMPANY NAME"
 
+parser.add "--end-point-timeout",
+  type: "integer"
+  help: "The request will timeout after n seconds."
+  default: 5
+
+parser.add "--end-point-max-redirects",
+  type: "integer"
+  help: "The maximum number of re-directs allowed for endpoint"
+  default: 2
+
 parser.add "--end-point",
   type: "string"
   help: "The endpoint (url) this api's api will listen at."
