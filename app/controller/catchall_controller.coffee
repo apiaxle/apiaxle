@@ -2,9 +2,9 @@ url = require "url"
 request = require "request"
 
 { TimeoutError } = require "../../lib/error"
-{ GatekeeperController } = require "./controller"
+{ ApiaxleController } = require "./controller"
 
-class CatchAll extends GatekeeperController
+class CatchAll extends ApiaxleController
   path: ( ) -> "*"
 
   middleware: -> [ @subdomain, @api, @apiKey ]
@@ -31,8 +31,8 @@ class CatchAll extends GatekeeperController
     { pathname, query } = url.parse req.url, true
 
     # we should make this optional
-    if query.gatekeeper_key?
-      delete query.gatekeeper_key
+    if query.apiaxle_key?
+      delete query.apiaxle_key
     else
       delete query.api_key
 
@@ -71,8 +71,8 @@ class CatchAll extends GatekeeperController
           res.header header, value
 
         # let the user know what they've got left
-        res.header "X-GatekeeperProxy-Qps-Left", newQps
-        res.header "X-GatekeeperProxy-Qpd-Left", newQpd
+        res.header "X-ApiaxleProxy-Qps-Left", newQps
+        res.header "X-ApiaxleProxy-Qpd-Left", newQpd
 
         res.send body, apiRes.statusCode
 

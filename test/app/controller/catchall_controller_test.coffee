@@ -1,8 +1,8 @@
 async = require "async"
 
-{ GatekeeperTest } = require "../../gatekeeper"
+{ ApiaxleTest } = require "../../apiaxle"
 
-class exports.CatchallTest extends GatekeeperTest
+class exports.CatchallTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
@@ -126,15 +126,15 @@ class exports.CatchallTest extends GatekeeperTest
           @isNull err
           @equal response.contentType, "application/json"
 
-          @ok response.headers[ "x-gatekeeperproxy-qps-left" ]
-          @ok response.headers[ "x-gatekeeperproxy-qpd-left" ]
+          @ok response.headers[ "x-apiaxleproxy-qps-left" ]
+          @ok response.headers[ "x-apiaxleproxy-qpd-left" ]
 
           response.parseJson ( json ) =>
             @equal json.one, 1
 
             done 7
 
-  "test GET with gatekeeper_key, rather than api_key": ( done ) ->
+  "test GET with apiaxle_key, rather than api_key": ( done ) ->
     apiOptions =
       endPoint: "graph.facebook.com"
       apiFormat: "json"
@@ -157,7 +157,7 @@ class exports.CatchallTest extends GatekeeperTest
           "Content-Type": "application/json"
 
         requestOptions =
-          path: "/cock.bastard?gatekeeper_key=1234&api_key=5678"
+          path: "/cock.bastard?apiaxle_key=1234&api_key=5678"
           host: "facebook.api.localhost"
 
         @GET requestOptions, ( err, response ) =>

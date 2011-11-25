@@ -8,11 +8,11 @@ sys          = require "sys"
 fs           = require "fs"
 redis        = require "redis"
 
-{ Application } = require "gatekeeper.base"
+{ Application } = require "apiaxle.base"
 { StdoutLogger  } = require "./lib/stderrlogger"
-{ GatekeeperError, RedisError, NotFoundError } = require "./lib/error"
+{ ApiaxleError, RedisError, NotFoundError } = require "./lib/error"
 
-class exports.GatekeeperProxy extends Application
+class exports.ApiaxleProxy extends Application
   @controllersPath = "#{ __dirname }/app/controller"
 
 if not module.parent
@@ -21,7 +21,7 @@ if not module.parent
   port = ( process.argv[2] or 3000 )
   host = "127.0.0.1"
 
-  proxy = new exports.GatekeeperProxy( )
+  proxy = new exports.ApiaxleProxy( )
 
   proxy.redisConnect ( ) ->
     proxy.run host, port, ( ) ->

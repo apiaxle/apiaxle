@@ -1,7 +1,7 @@
-{ Controller } = require "gatekeeper.base"
+{ Controller } = require "apiaxle.base"
 { ApiUnknown, ApiKeyError } = require "../../lib/error"
 
-class exports.GatekeeperController extends Controller
+class exports.ApiaxleController extends Controller
   subdomain: ( req, res, next ) ->
     # if we're called from a subdomain then let req know
     if parts = /^(.+?)\.api\./.exec req.headers.host
@@ -25,7 +25,7 @@ class exports.GatekeeperController extends Controller
       return next new ApiUnknown "'#{ req.subdomain }' is not known to us."
 
   apiKey: ( req, res, next ) =>
-    key = ( req.query.gatekeeper_key or req.query.api_key )
+    key = ( req.query.apiaxle_key or req.query.api_key )
 
     if not key
       return next new ApiKeyError "No api_key specified."

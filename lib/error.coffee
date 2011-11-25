@@ -1,4 +1,4 @@
-{ AppError } = require "gatekeeper.base"
+{ AppError } = require "apiaxle.base"
 
 class exports.ApiUnknown extends AppError
   @status = 404
