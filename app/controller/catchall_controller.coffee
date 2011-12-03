@@ -61,10 +61,7 @@ class CatchAll extends ApiaxleController
         headers: headers
 
       # add a body for PUTs and POSTs
-      options.body = if req.body.constructor is String
-        options.body
-      else
-        ""
+      options.body = req.body
 
       @_httpRequest options, req.apiKey, ( err, apiRes, body ) =>
         return next err if err
