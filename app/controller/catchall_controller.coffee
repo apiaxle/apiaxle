@@ -19,10 +19,10 @@ class CatchAll extends ApiaxleController
           counterModel.apiHit key, "timeout", ( counterErr, res ) ->
             return cb counterErr if counterErr
             return cb new TimeoutError( "API endpoint timed out." )
+        else
+          error = new Error "'#{ options.url }' yielded '#{ err.message }'"
+          return cb error, null
       else
-        error = new Error "'#{ options.url }' yielded '#{ err.message }'"
-        return cb error, null
-
         # response with the same code as the endpoint
         counterModel.apiHit key, apiRes, ( err, res ) ->
           return cb err, apiRes, body
@@ -57,7 +57,7 @@ class CatchAll extends ApiaxleController
         url: endpointUrl
         followRedirects: true
         maxRedirects: req.api.endPointMaxRedirects
-        timeout: req.api.endPointTimeout
+        timeout: req.api.endPointTimeout * 1000
         headers: headers
 
       # add a body for PUTs and POSTs
