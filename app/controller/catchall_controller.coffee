@@ -15,17 +15,17 @@ class CatchAll extends ApiaxleController
     request[ @constructor.verb ] options, ( err, apiRes, body ) ->
       if err
         # if we timeout then throw an error
-        if err?.code is "ETIMEDOUT"
-          counterModel.apiHit key, "timeout", ( err, res ) ->
-            return next err if err
-            return next new TimeoutError "API endpoint timed out."
-
+        if err.code is "ETIMEDOUT"
+          counterModel.apiHit key, "timeout", ( counterErr, res ) ->
+            return cb counterErr if counterErr
+            return cb new TimeoutError( "API endpoint timed out." )
+      else
         error = new Error "'#{ options.url }' yielded '#{ err.message }'"
         return cb error, null
 
-      # response with the same code as the endpoint
-      counterModel.apiHit key, apiRes, ( err, res ) ->
-        return cb err, apiRes, body
+        # response with the same code as the endpoint
+        counterModel.apiHit key, apiRes, ( err, res ) ->
+          return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
     { pathname, query } = url.parse req.url, true
@@ -61,7 +61,10 @@ class CatchAll extends ApiaxleController
         headers: headers
 
       # add a body for PUTs and POSTs
-      options.body = req.body if req.body?
+      options.body = if req.body.constructor is String
+        options.body
+      else
+        ""
 
       @_httpRequest options, req.apiKey, ( err, apiRes, body ) =>
         return next err if err
