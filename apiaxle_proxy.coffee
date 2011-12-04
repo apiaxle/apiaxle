@@ -15,6 +15,15 @@ redis        = require "redis"
 class exports.ApiaxleProxy extends Application
   @controllersPath = "#{ __dirname }/app/controller"
 
+  configureGeneral: ( app ) ->
+    # use the body parser, but just pass strings straight through
+    app.use express.bodyParser()
+    express.bodyParser.parse =
+      "application/x-www-form-urlencoded": ( x ) -> x,
+      "application/json": ( x ) -> x
+
+    super
+
 if not module.parent
   # taking a port from the commandline makes it much easier to cluster
   # the app

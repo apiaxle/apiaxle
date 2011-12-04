@@ -3,14 +3,21 @@
 express = require "express"
 
 app = express.createServer()
+app.configure ( ) ->
+  express.bodyParser.parse =
+    "application/x-www-form-urlencoded": ( x ) -> x,
+    "application/json": ( x ) -> x
 
-app.get "*", ( req, res, next ) ->
+  app.use express.bodyParser()
+
+app.all "*", ( req, res, next ) ->
   { seconds, data } = req.query
 
   seconds or= Math.floor( Math.random() * 11 )
   data or= JSON.stringify
     time: seconds
     query: req.query
+    body: req.body
 
   done = () ->
     try
