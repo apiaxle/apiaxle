@@ -7,7 +7,7 @@ request = require "request"
 class CatchAll extends ApiaxleController
   path: ( ) -> "*"
 
-  middleware: -> [ @subdomain, @api, @apiKey ]
+  middleware: -> [ @simpleBodyParser, @subdomain, @api, @apiKey ]
 
   _httpRequest: ( options, key, cb) ->
     counterModel = @app.model "counters"
@@ -60,7 +60,6 @@ class CatchAll extends ApiaxleController
         timeout: req.api.endPointTimeout * 1000
         headers: headers
 
-      # add a body for PUTs and POSTs
       options.body = req.body
 
       @_httpRequest options, req.apiKey, ( err, apiRes, body ) =>

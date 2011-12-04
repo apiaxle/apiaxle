@@ -2,6 +2,15 @@
 { ApiUnknown, ApiKeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
+  simpleBodyParser: ( req, res, next ) ->
+    req.body = ""
+
+    # add a body for PUTs and POSTs
+    return next() if req.method in [ "HEAD", "GET" ]
+
+    req.on "data", ( c ) -> req.body += c
+    req.on "end", next
+
   subdomain: ( req, res, next ) ->
     # if we're called from a subdomain then let req know
     if parts = /^(.+?)\.api\./.exec req.headers.host
