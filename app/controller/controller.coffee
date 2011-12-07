@@ -26,12 +26,12 @@ class exports.ApiaxleController extends Controller
     @app.model( "api" ).find req.subdomain, ( err, api ) ->
       return next err if err
 
-      if api?
-        req.api = api
-        return next()
+      if not api?
+        # no api found
+        return next new ApiUnknown "'#{ req.subdomain }' is not known to us."
 
-      # no api found
-      return next new ApiUnknown "'#{ req.subdomain }' is not known to us."
+      req.api = api
+      return next()
 
   apiKey: ( req, res, next ) =>
     key = ( req.query.apiaxle_key or req.query.api_key )
