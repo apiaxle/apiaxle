@@ -2,13 +2,34 @@
 
 set -e
 
-MAIN="git://github.com/philjackson/apiaxle.git"
-BASE="git://github.com/philjackson/apiaxle.base.git"
-API="git://github.com/philjackson/apiaxle.api.git"
+DEVELOPER=0
+while getopts :d OPT; do
+  case $OPT in
+    d|+d)
+      DEVELOPER=1
+      ;;
+    *)
+      echo "usage: ${0##*/} [+-d}"
+      exit 2
+  esac
+done
+shift $(( OPTIND - 1 ))
+OPTIND=1
 
-MAIN_NAME="$(basename ${MAIN%%.git})"
-BASE_NAME="$(basename ${BASE%%.git})"
-API_NAME="$(basename ${API%%.git})"
+# allow a develope to setup and be ready to hack
+if [[ "${DEVELOPER}" ]]; then
+  main="git@github.com:philjackson/apiaxle.git"
+  base="git@github.com:philjackson/apiaxle.base.git"
+  api="git@github.com:philjackson/apiaxle.api.git"
+else
+  main="git://github.com/philjackson/apiaxle.git"
+  base="git://github.com/philjackson/apiaxle.base.git"
+  api="git://github.com/philjackson/apiaxle.api.git"
+fi
+
+main_name="$(basename ${main%%.git})"
+base_name="$(basename ${base%%.git})"
+api_name="$(basename ${api%%.git})"
 
 function which-or-die {
   for command in "${@}"; do
@@ -31,16 +52,16 @@ function save-excurstion {
 which-or-die node npm
 
 # clone the repos
-for f in "${BASE}" "${MAIN}" "${API}"; do
+for f in "${base}" "${main}" "${api}"; do
   git clone "${f}"
 done
 
 # have npm do its thing
-for d in "${MAIN_NAME}" "${API_NAME}" "${BASE_NAME}"; do
+for d in "${main_name}" "${api_name}" "${base_name}"; do
   save-excurstion "${d}" npm install
 done
 
 # link the base library to api and main
-for d in "${MAIN_NAME}" "${API_NAME}"; do
-  save-excurstion "${d}" npm link "../${BASE_NAME}"
+for d in "${main_name}" "${api_name}"; do
+  save-excurstion "${d}" npm link "../${base_name}"
 done
