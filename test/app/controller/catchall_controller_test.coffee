@@ -12,7 +12,12 @@ class exports.CatchallTest extends ApiaxleTest
     for method in [ "POST", "GET", "PUT", "DELETE" ]
       do ( method ) =>
         all.push ( cb ) =>
-          @httpRequest { method: method, path: "/", data: "something" }, ( err, response ) =>
+          options =
+            method: method
+            path: "/"
+            data: "something"
+
+          @httpRequest options, ( err, response ) =>
             @isNull err
             @ok response
             @equal response.statusCode, 404
@@ -71,6 +76,8 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
 
       @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
+        @isNull err
+
         response.parseJson ( json ) =>
           @ok err = json.error
           @equal err.type, "ApiKeyError"
