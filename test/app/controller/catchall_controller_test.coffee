@@ -49,6 +49,11 @@ class exports.CatchallTest extends ApiaxleTest
             data: "something"
 
           @httpRequest options, ( err, response ) =>
+            if err and err.code is "ENOTFOUND"
+              # this usually means missing host entries
+              console.log "WARNING: You might need to put facebook.api.localhost" +
+                " and twitter.api.localhost into your hosts file."
+
             @isNull err
             @ok response
             @equal response.statusCode, 404
