@@ -24,7 +24,7 @@ class CatchAll extends ApiaxleController
           return cb error, null
       else
         # response with the same code as the endpoint
-        counterModel.apiHit key, apiRes, ( err, res ) ->
+        counterModel.apiHit key, apiRes.statusCode, ( err, res ) ->
           return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
@@ -62,7 +62,7 @@ class CatchAll extends ApiaxleController
 
       options.body = req.body
 
-      @_httpRequest options, req.apiKey, ( err, apiRes, body ) =>
+      @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
         return next err if err
 
         # copy headers from the endpoint
