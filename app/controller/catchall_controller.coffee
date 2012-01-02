@@ -41,7 +41,15 @@ class CatchAll extends ApiaxleController
     { qps, qpd, key } = req.apiKey
 
     model.apiHit key, qps, qpd, ( err, [ newQps, newQpd ] ) =>
-      return next err if err
+      if err
+        counterModel = @app.model "counters"
+
+        # collect the type of error (QpsExceededError or
+        # QpdExceededError at the moment)
+        type = err.constructor.type
+        return counterModel.apiHit req.apiKey.key, type, ( counterErr, res ) ->
+          return next counterErr if counterErr
+          return next err
 
       # copy the headers
       headers = req.headers
