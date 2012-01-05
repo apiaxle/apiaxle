@@ -33,12 +33,7 @@ class exports.ApiaxleController extends Controller
       req.api = api
       return next()
 
-  apiKey: ( req, res, next ) =>
-    key = ( req.query.apiaxle_key or req.query.api_key )
-
-    if not key
-      return next new ApiKeyError "No api_key specified."
-
+  authenticateWithKey: ( key, req, next ) ->
     @app.model( "apiKey" ).find key, ( err, keyDetails ) ->
       return next err if err
 
@@ -50,3 +45,11 @@ class exports.ApiaxleController extends Controller
       req.apiKey = keyDetails
 
       return next()
+
+  apiKey: ( req, res, next ) =>
+    key = ( req.query.apiaxle_key or req.query.api_key )
+
+    if not key
+      return next new ApiKeyError "No api_key specified."
+
+    @authenticateWithKey( key, req, next )
