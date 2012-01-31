@@ -22,7 +22,8 @@ function save-excurstion {
 
 which-or-die node npm
 
-git clone git@github.com:philjackson/apiaxle.git
+#git clone git@github.com:philjackson/apiaxle.git
+git clone ~/apiaxle
 
 cd apiaxle
 
@@ -35,3 +36,7 @@ done
 for d in proxy api; do
   save-excurstion "${d}" npm link "../base"
 done
+
+echo -e "\n\nHopefully you're done. Have a look at the documentation:" >&2
+echo    "  http://apiaxle.com/docs/try-it-now/" >&2
+echo    "to see how to proceed." >&2
