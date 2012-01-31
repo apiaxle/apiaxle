@@ -1,0 +1,28 @@
+{
+  "author": "Phil Jackson <phil@shellarchive.co.uk>",
+  "name": "apiaxle.api",
+  "description": "Provisioning API for apiaxle",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://philjackson@bitbucket.org/philjackson/apiaxle.api.git"
+  },
+  "scripts": {
+    "test": "cake test"
+  },
+  "engines": {
+    "node": "~0.4.8"
+  },
+  "dependencies": {
+    "async": "~0.1.9",
+    "coffee-script": "~1.1.2",
+    "express": "~2.5",
+    "underscore": "~1.1.7",
+    "redis": "0.6.7",
+    "hiredis": "0.1.12"
+  },
+  "devDependencies": {
+    "twerp":         "=1.0.5",
+    "sinon":         "~1.1.1"
+  }
+}

@@ -1,0 +1,13 @@
+async  = require "async"
+fs     = require "fs"
+sys    = require "sys"
+util   = require "util"
+
+{ spawn }  = require "child_process"
+
+task "test", "Run the tests.", ( options ) ->
+  script = spawn "./bin/run-tests.bash"
+
+  script.stdout.on "data", sys.print
+  script.stderr.on "data", sys.print
+  script.on "exit", ( code, signal ) -> process.exit code

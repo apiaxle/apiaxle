@@ -1,5 +1,3 @@
 _site/
-/node_modules
-/log
-*.swp
-*.swo
+/*/node_modules
+/*/log

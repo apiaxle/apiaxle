@@ -1,0 +1,31 @@
+{
+  "author": "Phil Jackson <phil@shellarchive.co.uk>",
+  "name": "apiaxle.base",
+  "description": "Basic Application class for coffeescript/express apps.",
+  "version": "0.0.0",
+  "main": "index",
+  "repository": {
+    "type": "git",
+    "url": "https://philjackson@bitbucket.org/philjackson/apiaxle.base.git"
+  },
+  "scripts": {
+    "test": "cake test"
+  },
+  "engines": {
+    "node": "~0.4.8"
+  },
+  "dependencies": {
+    "coffee-script": "~1.1.2",
+    "async": "~0.1.9",
+    "express": "~2.5",
+    "underscore": "~1.1.7",
+    "redis": "0.6.7",
+    "schema": "0.2.0",
+    "hiredis": "0.1.12",
+    "date-utils": "1.2.5"
+  },
+  "devDependencies": {
+    "twerp":         "=1.0.5",
+    "sinon":         "~1.1.1"
+  }
+}
