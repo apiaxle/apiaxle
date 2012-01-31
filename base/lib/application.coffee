@@ -22,7 +22,10 @@ class exports.Application
     @_configure app
 
   redisConnect: ( cb ) =>
-    @redisClient = redis.createClient()
+    # grab the redis config
+    { port, host } = @config.redis
+
+    @redisClient = redis.createClient( port, host )
 
     @redisClient.on "error", ( err ) ->
       throw new RedisError err
