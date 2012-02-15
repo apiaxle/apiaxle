@@ -1,6 +1,8 @@
 async = require "async"
 _ = require "underscore"
 validate = require "../../lib/validate"
+events = require "events"
+
 
 redis = require "redis"
 
@@ -8,6 +10,8 @@ class Redis
   constructor: ( @application ) ->
     env = @application.constructor.env
     name = @constructor.smallKeyName or @constructor.name.toLowerCase()
+
+    @ee = new events.EventEmitter()
 
     @ns = "gk:#{ env }:#{ name }"
 
@@ -97,34 +101,34 @@ class RedisMulti extends redis.Multi
   getKey: Redis::getKey
 
 # adding a command here will make it usable in Redis and RedisMulti
-redisCommands = [
-  "hset"
-  "hget"
-  "hmset"
-  "hincrby"
-  "hgetall"
-  "hexists"
-  "expire"
-  "set"
-  "get"
-  "incr"
-  "decr"
-  "del"
-  "keys"
-  "ttl"
-  "setex"
-  "sadd"
-  "smembers"
-  "scard"
-  "linsert"
-  "lrange"
-  "rpush"
-  "lpush"
-]
+redisCommands = {
+  "hset": "write"
+  "hget": "read"
+  "hmset": "write"
+  "hincrby": "write"
+  "hgetall": "read"
+  "hexists": "read"
+  "expire": "read"
+  "set": "write"
+  "get": "read"
+  "incr": "write"
+  "decr": "write"
+  "del": "write"
+  "keys": "read"
+  "ttl": "write"
+  "setex": "write"
+  "sadd": "write"
+  "smembers": "read"
+  "scard": "read"
+  "linsert": "write"
+  "lrange": "read"
+  "rpush": "write"
+  "lpush": "write"
+}
 
 # build up the redis multi commands
-for command in redisCommands
-  do ( command ) ->
+for command, access of redisCommands
+  do ( command, access ) ->
     # make sure we don't try to add something that doesn't exist
     if not RedisMulti.__super__[ command ]?
       throw new Error "No such redis commmand '#{ command }'"
@@ -135,6 +139,8 @@ for command in redisCommands
     # Redis just offloads to the attached redis client. Perhaps we
     # should inherit from redis as RedisMulti does
     Redis::[ command ] = ( key, args... ) ->
-      @application.redisClient[ command ]( @getKey( key ), args... )
+      fullKey = @getKey( key )
+      @ee.emit access, command, fullKey
+      @application.redisClient[ command ]( fullKey, args... )
 
 exports.Redis = Redis
