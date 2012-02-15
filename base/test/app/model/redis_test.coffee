@@ -42,13 +42,13 @@ class exports.RedisTest extends FakeAppTest
   "test key emitter": ( done ) ->
     @ok model = @application.model "counters"
 
-    model.ee.on "write", ( command, key ) =>
+    model.ee.once "write", ( command, key ) =>
       @equal command, "set"
       @equal key, "gk:test:ct:blah"
 
     # we rely on the read happening last - if the tests get stuck it
     # might mean the write didn't fire.
-    model.ee.on "read", ( command, key ) =>
+    model.ee.once "read", ( command, key ) =>
       @equal command, "get"
       @equal key, "gk:test:ct:blah"
 
@@ -58,3 +58,27 @@ class exports.RedisTest extends FakeAppTest
       model.get "blah", ( err, value ) =>
         @isNull err
         @equal value, "hello"
+
+  "test multi key emitter": ( done ) ->
+    @ok model = @application.model "counters"
+
+    multi = model.multi()
+
+    multi.ee.once "write", ( command, key ) =>
+      @equal command, "set"
+      @equal key, "gk:test:ct:blah"
+
+    # we rely on the read happening last - if the tests get stuck it
+    # might mean the write didn't fire.
+    multi.ee.once "read", ( command, key ) =>
+      @equal command, "get"
+      @equal key, "gk:test:ct:blah"
+
+    multi.set "blah", "hello"
+    multi.get "blah"
+
+    multi.exec ( err, results ) =>
+      @isNull err
+      @ok results
+
+      done 7
