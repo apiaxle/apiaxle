@@ -96,6 +96,8 @@ class Redis
 
 class RedisMulti extends redis.Multi
   constructor: ( @ns, client, args ) ->
+    @ee = new events.EventEmitter()
+
     super client, args
 
   getKey: Redis::getKey
@@ -134,13 +136,17 @@ for command, access of redisCommands
       throw new Error "No such redis commmand '#{ command }'"
 
     RedisMulti::[ command ] = ( key, args... ) ->
-      RedisMulti.__super__[ command ].apply @, [ @getKey( key ), args... ]
+      fullKey = @getKey( key )
+      @ee.emit access, command, fullKey
+
+      RedisMulti.__super__[ command ].apply @, [ fullKey, args... ]
 
     # Redis just offloads to the attached redis client. Perhaps we
     # should inherit from redis as RedisMulti does
     Redis::[ command ] = ( key, args... ) ->
       fullKey = @getKey( key )
       @ee.emit access, command, fullKey
+
       @application.redisClient[ command ]( fullKey, args... )
 
 exports.Redis = Redis
