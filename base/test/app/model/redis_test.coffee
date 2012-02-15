@@ -38,3 +38,16 @@ class exports.RedisTest extends FakeAppTest
         @equal value, 1
 
         done 4
+
+  "test key emitter": ( done ) ->
+    @ok model = @application.model "counters"
+
+    model.ee.on "read", ( command, key ) =>
+      @equal command, "get"
+      @equal key, "gk:test:ct:blah"
+
+      done 3
+
+    model.get "blah", ( err, value ) =>
+      @isNull err
+      @isNull value
