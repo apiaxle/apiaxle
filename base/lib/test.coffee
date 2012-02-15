@@ -180,9 +180,7 @@ class exports.AppTest extends TwerpTest
           tasks.push ( cb ) ->
             model.flush cb
 
-      async.parallel tasks, done
-    else
-      done()
+    async.parallel tasks, done
 
   fakeIncomingMessage: ( status, data, headers, callback ) ->
     res = new http.IncomingMessage( )
