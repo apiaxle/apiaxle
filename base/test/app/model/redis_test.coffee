@@ -42,12 +42,19 @@ class exports.RedisTest extends FakeAppTest
   "test key emitter": ( done ) ->
     @ok model = @application.model "counters"
 
+    model.ee.on "write", ( command, key ) =>
+      @equal command, "set"
+      @equal key, "gk:test:ct:blah"
+
+    # we rely on the read happening last - if the tests get stuck it
+    # might mean the write didn't fire.
     model.ee.on "read", ( command, key ) =>
       @equal command, "get"
       @equal key, "gk:test:ct:blah"
 
-      done 3
+      done 7
 
-    model.get "blah", ( err, value ) =>
-      @isNull err
-      @isNull value
+    model.set "blah", "hello", ( err ) =>
+      model.get "blah", ( err, value ) =>
+        @isNull err
+        @equal value, "hello"
