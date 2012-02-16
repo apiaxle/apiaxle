@@ -71,7 +71,6 @@ class exports.RedisTest extends FakeAppTest
           ( ) -> done 7
         )
 
-
   "test multi key emitter": ( done ) ->
     @ok model = @application.model "counters"
 
