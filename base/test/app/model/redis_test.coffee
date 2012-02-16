@@ -42,9 +42,14 @@ class exports.RedisTest extends FakeAppTest
   "test key emitter": ( done ) ->
     @ok model = @application.model "counters"
 
+    writeCalled = false
+    readCalled = false
+
     model.ee.once "write", ( command, key ) =>
       @equal command, "set"
       @equal key, "gk:test:ct:blah"
+
+      writeCalled = true
 
     # we rely on the read happening last - if the tests get stuck it
     # might mean the write didn't fire.
@@ -52,27 +57,42 @@ class exports.RedisTest extends FakeAppTest
       @equal command, "get"
       @equal key, "gk:test:ct:blah"
 
-      done 7
+      readCalled = true
 
     model.set "blah", "hello", ( err ) =>
       model.get "blah", ( err, value ) =>
         @isNull err
         @equal value, "hello"
 
+        # make sure we've called read and write before we go on.
+        async.until(
+          ( ) -> ( readCalled and writeCalled ),
+          ( cb ) -> setTimeout cb, 100,
+          ( ) -> done 7
+        )
+
+
   "test multi key emitter": ( done ) ->
     @ok model = @application.model "counters"
 
     multi = model.multi()
 
+    writeCalled = false
+    readCalled = false
+
     multi.ee.once "write", ( command, key ) =>
       @equal command, "set"
       @equal key, "gk:test:ct:blah"
+
+      writeCalled = true
 
     # we rely on the read happening last - if the tests get stuck it
     # might mean the write didn't fire.
     multi.ee.once "read", ( command, key ) =>
       @equal command, "get"
       @equal key, "gk:test:ct:blah"
+
+      readCalled = true
 
     multi.set "blah", "hello"
     multi.get "blah"
@@ -81,4 +101,9 @@ class exports.RedisTest extends FakeAppTest
       @isNull err
       @ok results
 
-      done 7
+      # make sure we've called read and write before we go on.
+      async.until(
+        ( ) -> ( readCalled and writeCalled ),
+        ( cb ) -> setTimeout cb, 100,
+        ( ) -> done 7
+      )
