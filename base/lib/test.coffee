@@ -153,8 +153,8 @@ class exports.AppTest extends TwerpTest
     chain.push @application.redisConnect
 
     wrapCommand = ( access, model, command, fullkey ) ->
-      access: "read"
-      model: name
+      access: access
+      model: model
       command: command
       key: fullkey
 
@@ -163,10 +163,10 @@ class exports.AppTest extends TwerpTest
     for name, model of @application.models
       do( name, model ) =>
         model.ee.on "read", ( command, fullkey ) =>
-          @runRedisCommands.push wrapCommand "read", model, command, fullkey
+          @runRedisCommands.push wrapCommand( "read", name, command, fullkey )
 
         model.ee.on "write", ( command, fullkey ) =>
-          @runRedisCommands.push wrapCommand "write", model, command, fullkey
+          @runRedisCommands.push wrapCommand( "write", name, command, fullkey )
 
     # chain this as it's possible the parent class will implement
     # functionality in `start`
@@ -177,6 +177,7 @@ class exports.AppTest extends TwerpTest
     @application.app.close( ) if @constructor.start_webserver
     @application.redisClient.quit( )
 
+    # remove the redis emitters
     for name, model of @application.models
       do( name, model ) =>
         model.ee.removeAllListeners "read"
