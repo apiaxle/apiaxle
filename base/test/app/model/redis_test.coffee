@@ -117,13 +117,29 @@ class exports.RedisTest extends FakeAppTest
       model.get "isThisEmitted?", ( err, value ) =>
         @isNull err
 
-        # something in rediscommands
-        @equal @runRedisCommands.length, 2
+        @application.model( "users" ).get "anotherKeyName", ( err, value ) =>
+          @isNull err
+          @isNull value
 
-        @deepEqual @runRedisCommands[0],
-          access: "read"
-          model: "counters"
-          command: "set"
-          key: "isThisEmitted?"
+          # something in rediscommands
+          @equal @runRedisCommands.length, 3
 
-        done 3
+          @deepEqual @runRedisCommands[0],
+            access: "write"
+            command: "set"
+            key: "isThisEmitted?"
+            model: "counters"
+
+          @deepEqual @runRedisCommands[1],
+            access: "read"
+            command: "get"
+            key: "isThisEmitted?"
+            model: "counters"
+
+          @deepEqual @runRedisCommands[2],
+            access: "read"
+            command: "get"
+            key: "anotherKeyName"
+            model: "users"
+
+          done 9
