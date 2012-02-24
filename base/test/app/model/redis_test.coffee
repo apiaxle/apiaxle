@@ -47,7 +47,7 @@ class exports.RedisTest extends FakeAppTest
 
     model.ee.once "write", ( command, key ) =>
       @equal command, "set"
-      @equal key, "gk:test:ct:blah"
+      @equal key, "blah"
 
       writeCalled = true
 
@@ -55,7 +55,7 @@ class exports.RedisTest extends FakeAppTest
     # might mean the write didn't fire.
     model.ee.once "read", ( command, key ) =>
       @equal command, "get"
-      @equal key, "gk:test:ct:blah"
+      @equal key, "blah"
 
       readCalled = true
 
@@ -81,7 +81,7 @@ class exports.RedisTest extends FakeAppTest
 
     multi.ee.once "write", ( command, key ) =>
       @equal command, "set"
-      @equal key, "gk:test:ct:blah"
+      @equal key, "blah"
 
       writeCalled = true
 
@@ -89,7 +89,7 @@ class exports.RedisTest extends FakeAppTest
     # might mean the write didn't fire.
     multi.ee.once "read", ( command, key ) =>
       @equal command, "get"
-      @equal key, "gk:test:ct:blah"
+      @equal key, "blah"
 
       readCalled = true
 
@@ -106,3 +106,24 @@ class exports.RedisTest extends FakeAppTest
         ( cb ) -> setTimeout cb, 100,
         ( ) -> done 7
       )
+
+  "test the test framework captures redis commands": ( done ) ->
+    # none thanks to setup having run
+    @deepEqual @runRedisCommands, [ ]
+
+    @ok model = @application.model "counters"
+
+    model.set "isThisEmitted?", "hello", ( err ) =>
+      model.get "isThisEmitted?", ( err, value ) =>
+        @isNull err
+
+        # something in rediscommands
+        @equal @runRedisCommands.length, 2
+
+        @deepEqual @runRedisCommands[0],
+          access: "read"
+          model: "counters"
+          command: "set"
+          key: "isThisEmitted?"
+
+        done 3
