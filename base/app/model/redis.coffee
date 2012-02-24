@@ -136,17 +136,13 @@ for command, access of redisCommands
       throw new Error "No such redis commmand '#{ command }'"
 
     RedisMulti::[ command ] = ( key, args... ) ->
-      fullKey = @getKey( key )
-      @ee.emit access, command, fullKey
-
-      RedisMulti.__super__[ command ].apply @, [ fullKey, args... ]
+      @ee.emit access, command, key
+      RedisMulti.__super__[ command ].apply @, [ @getKey( key ), args... ]
 
     # Redis just offloads to the attached redis client. Perhaps we
     # should inherit from redis as RedisMulti does
     Redis::[ command ] = ( key, args... ) ->
-      fullKey = @getKey( key )
-      @ee.emit access, command, fullKey
-
-      @application.redisClient[ command ]( fullKey, args... )
+      @ee.emit access, command, key
+      @application.redisClient[ command ]( @getKey( key ), args... )
 
 exports.Redis = Redis
