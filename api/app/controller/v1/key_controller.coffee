@@ -88,7 +88,7 @@ class exports.ViewKey extends ApiaxleController
 
     ### Returns:
 
-    * The key object (including timestamps and the owning user).
+    * The key object (including timestamps).
     """
 
   middleware: -> [ keyRequired( @app ) ]
