@@ -144,11 +144,29 @@ class exports.AppTest extends TwerpTest
   start: ( done ) ->
     chain = [ ]
 
+    @runRedisCommands = [ ]
+
     if @constructor.start_webserver
       chain.push ( cb ) =>
         @startWebserver cb
 
     chain.push @application.redisConnect
+
+    wrapCommand = ( access, model, command, fullkey ) ->
+      access: access
+      model: model
+      command: command
+      key: fullkey
+
+    # capture each redis event as it happens so that we can see what
+    # we've been running
+    for name, model of @application.models
+      do( name, model ) =>
+        model.ee.on "read", ( command, fullkey ) =>
+          @runRedisCommands.push wrapCommand( "read", name, command, fullkey )
+
+        model.ee.on "write", ( command, fullkey ) =>
+          @runRedisCommands.push wrapCommand( "write", name, command, fullkey )
 
     # chain this as it's possible the parent class will implement
     # functionality in `start`
@@ -158,6 +176,12 @@ class exports.AppTest extends TwerpTest
     # this is synchronous
     @application.app.close( ) if @constructor.start_webserver
     @application.redisClient.quit( )
+
+    # remove the redis emitters
+    for name, model of @application.models
+      do( name, model ) =>
+        model.ee.removeAllListeners "read"
+        model.ee.removeAllListeners "write"
 
     super done
 
@@ -174,15 +198,18 @@ class exports.AppTest extends TwerpTest
     # sanbox for sinon
     @sandbox = sinon.sandbox.create()
 
+    # flush the database first
     if @constructor.empty_db_on_setup
       for name, model of @application.models
         do ( model ) ->
           tasks.push ( cb ) ->
             model.flush cb
 
-      async.parallel tasks, done
-    else
-      done()
+    tasks.push ( cb ) =>
+      @runRedisCommands = [ ]
+      cb()
+
+    async.series tasks, done
 
   fakeIncomingMessage: ( status, data, headers, callback ) ->
     res = new http.IncomingMessage( )
