@@ -5,7 +5,7 @@ set -e
 function which-or-die {
   for command in "${@}"; do
     if ! which "${command}"; then
-      echo "The '${command}' program is missing please install and try again!"
+      echo "The '${command}' program is missing please install and try again!" >&2
       exit 1
     fi
   done
@@ -14,7 +14,6 @@ function which-or-die {
 function save-excurstion {
   dir="${1}"; shift
 
-  pwd
   pushd "${dir}"
   ${@}
   popd
@@ -22,8 +21,7 @@ function save-excurstion {
 
 which-or-die node npm
 
-#git clone git@github.com:philjackson/apiaxle.git
-git clone ~/apiaxle
+git clone git@github.com:philjackson/apiaxle.git
 
 cd apiaxle
 
