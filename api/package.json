@@ -11,7 +11,7 @@
     "test": "cake test"
   },
   "engines": {
-    "node": "~0.4.8"
+    "node": ">0.4.8"
   },
   "dependencies": {
     "async": "~0.1.9",
