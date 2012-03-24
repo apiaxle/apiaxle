@@ -18,3 +18,16 @@ class exports.ApiTest extends FakeAppTest
 
     done 3
 
+  "test adding a page": ( done ) ->
+    @model.add "29834IUHOIUHOIHO234", 20, "hello", ( err ) =>
+      @isNull err
+
+      @model.ttl "29834IUHOIUHOIHO234", ( err, ttl ) =>
+        @isNull err
+        @ok ( ttl <= 20 and ttl > 0 )
+
+        @model.get "29834IUHOIUHOIHO234", ( err, content ) =>
+          @isNull err
+          @equal content, "hello"
+
+          done 5
