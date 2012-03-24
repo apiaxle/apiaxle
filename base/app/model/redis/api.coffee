@@ -10,6 +10,10 @@ class exports.Api extends Redis
     type: "object"
     additionalProperties: false
     properties:
+      caching:
+        type: "integer"
+        required: false
+        docs: "The time in seconds that every call under this API should be cached."
       endPoint:
         type: "string"
         required: true

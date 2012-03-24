@@ -2,11 +2,5 @@
   "redis": {
     "host": "localhost",
     "port": 6379
-  },
-  "caching": {
-    "global": {
-      "active": true,
-      "ttl": 20
-    }
   }
 }
