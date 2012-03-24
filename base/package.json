@@ -12,7 +12,7 @@
     "test": "cake test"
   },
   "engines": {
-    "node": "~0.4.8"
+    "node": ">0.4.8"
   },
   "dependencies": {
     "coffee-script": "~1.1.2",
