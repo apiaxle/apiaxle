@@ -128,7 +128,7 @@ class exports.CatchallTest extends ApiaxleTest
           two: 2
 
         @stubCatchall 200, data,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json; charset=utf-8"
 
         requestOptions =
           path: "/cock.bastard?api_key=1234"
@@ -136,7 +136,7 @@ class exports.CatchallTest extends ApiaxleTest
 
         @GET requestOptions, ( err, response ) =>
           @isNull err
-          @equal response.contentType, "application/json"
+          @equal response.contentType, "application/json; charset=utf-8"
 
           @ok response.headers[ "x-apiaxleproxy-qps-left" ]
           @ok response.headers[ "x-apiaxleproxy-qpd-left" ]
