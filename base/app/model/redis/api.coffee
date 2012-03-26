@@ -10,7 +10,7 @@ class exports.Api extends Redis
     type: "object"
     additionalProperties: false
     properties:
-      caching:
+      globalCaching:
         type: "integer"
         docs: "The time in seconds that every call under this API should be cached."
         default: 0

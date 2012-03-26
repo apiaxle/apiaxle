@@ -9,7 +9,17 @@ class CatchAll extends ApiaxleController
 
   middleware: -> [ @simpleBodyParser, @subdomain, @api, @apiKey ]
 
-  _httpRequest: ( options, key, cb) ->
+  _fetch: ( cacheTtl, options, api_key, cb ) ->
+    @_httpRequest options, api_key, cb
+
+  _cacheHash: ( url ) ->
+    md5 = crypto.createHash "md5"
+    console.log( @app.constructor.env )
+
+    md5.update @app.constructor.env
+    md5.update url
+
+    return md5.digest "hex"
 
   _httpRequest: ( options, api_key, cb) ->
     counterModel = @app.model "counters"
@@ -73,7 +83,7 @@ class CatchAll extends ApiaxleController
 
       options.body = req.body
 
-      @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
+      @_fetch req.globalCaching, options, req.apiKey.key, ( err, apiRes, body ) =>
         return next err if err
 
         # copy headers from the endpoint
