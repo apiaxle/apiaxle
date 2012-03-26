@@ -10,13 +10,15 @@ class CatchAll extends ApiaxleController
   middleware: -> [ @simpleBodyParser, @subdomain, @api, @apiKey ]
 
   _httpRequest: ( options, key, cb) ->
+
+  _httpRequest: ( options, api_key, cb) ->
     counterModel = @app.model "counters"
 
     request[ @constructor.verb ] options, ( err, apiRes, body ) ->
       if err
         # if we timeout then throw an error
         if err.code is "ETIMEDOUT"
-          counterModel.apiHit key, "timeout", ( counterErr, res ) ->
+          counterModel.apiHit api_key, "timeout", ( counterErr, res ) ->
             return cb counterErr if counterErr
             return cb new TimeoutError( "API endpoint timed out." )
         else
@@ -24,7 +26,7 @@ class CatchAll extends ApiaxleController
           return cb error, null
       else
         # response with the same code as the endpoint
-        counterModel.apiHit key, apiRes.statusCode, ( err, res ) ->
+        counterModel.apiHit api_key, apiRes.statusCode, ( err, res ) ->
           return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
