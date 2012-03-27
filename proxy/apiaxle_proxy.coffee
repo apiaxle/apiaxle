@@ -4,7 +4,6 @@
 _ = require "underscore"
 
 express      = require "express"
-sys          = require "sys"
 fs           = require "fs"
 redis        = require "redis"
 

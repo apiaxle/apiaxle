@@ -1,6 +1,6 @@
 #!/usr/bin/env coffee
 
-sys = require "sys"
+util = require "util"
 
 { ApiaxleProxy } = require "../apiaxle_proxy"
 
@@ -36,7 +36,7 @@ gk.script ( finish ) ->
       model.apiHit "1234", ( err, [ newQps, newQpd ] ) ->
         throw err if err
 
-        sys.print "#{ newQps }.#{ newQpd } "
+        util.print "#{ newQps }.#{ newQpd } "
 
         results.success += 1
         results.persecond[ timeStr ] += 1

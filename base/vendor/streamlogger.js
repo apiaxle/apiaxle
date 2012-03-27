@@ -1,5 +1,4 @@
 var
-  sys    = require('sys'),
   fs     = require('fs')
   events = require('events'),
   clone = function (obj) {
