@@ -12,20 +12,20 @@
     "test": "cake test"
   },
   "engines": {
-    "node": ">0.4.8"
+    "node": ">=0.4.8"
   },
   "dependencies": {
-    "coffee-script": "~1.1.2",
-    "async": "~0.1.9",
-    "express": "~2.5",
-    "underscore": "~1.1.7",
-    "redis": "0.6.7",
-    "schema": "0.2.0",
-    "hiredis": "0.1.12",
-    "date-utils": "1.2.5"
+    "coffee-script": "~1.2",
+    "async": "~0.1",
+    "express": "~2",
+    "underscore": "~1",
+    "redis": "~0",
+    "schema": "~0",
+    "hiredis": "~0.1",
+    "date-utils": "~1"
   },
   "devDependencies": {
-    "twerp":         "=1.0.5",
-    "sinon":         "~1.1.1"
+    "twerp":         ">=1.0.5",
+    "sinon":         "~1"
   }
 }
