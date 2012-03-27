@@ -22,8 +22,7 @@ function save-excurstion {
 
 which-or-die node npm
 
-#git clone git@github.com:philjackson/apiaxle.git
-git clone ~/apiaxle
+git clone git://github.com/philjackson/apiaxle.git
 
 cd apiaxle
 
