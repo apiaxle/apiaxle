@@ -67,7 +67,7 @@ class exports.AppTest extends TwerpTest
     super options
 
   getClock: ( ) ->
-    new Clock @sandbox.useFakeTimers()
+    new Clock @sandbox.useFakeTimers( new Date().getTime() )
 
   startWebserver: ( done ) ->
     @application.run "127.0.0.1", @constructor.port, done
