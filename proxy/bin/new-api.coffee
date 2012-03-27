@@ -1,7 +1,5 @@
 #!/usr/bin/env coffee
 
-sys = require "sys"
-
 { OptionParser } = require "parseopt"
 { ApiaxleProxy } = require "../apiaxle_proxy"
 
