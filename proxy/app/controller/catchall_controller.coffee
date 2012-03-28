@@ -16,24 +16,31 @@ class CatchAll extends ApiaxleController
     md5.update url
     md5.digest "hex"
 
+  # TODO: make sure to inc counters!
+  # TODO: what if the POST body varies?
+  # TODO: http://stackoverflow.com/questions/626057/is-it-possible-to-cache-post-methods-in-http
   _fetch: ( cacheTtl, options, api_key, outerCb ) ->
-    if cacheTtl > 0
-      cache = @app.model "cache"
-      key = @_cacheHash options.url
+    # check for caching, pass straight through if we don't want a
+    # cache (the 0 is a string because it comes straight from redis).
+    if cacheTtl is "0"
+      return @_httpRequest options, api_key, outerCb
 
-      cache.get key, ( err, body ) =>
+    cache = @app.model "cache"
+    key = @_cacheHash options.url
+
+    cache.get key, ( err, body ) =>
+      return outerCb err if err
+
+      # TODO: does anything need setting in terms of the
+      # apiresponse? Should we have cached the headers?
+      return outerCb null, { }, body if body
+
+      # means we've a cache miss and so need to make a real request
+      @_httpRequest options, api_key, ( err, apiRes, body ) =>
         return outerCb err if err
 
-        # TODO: does anything need setting in terms of the
-        # apiresponse? Should we have cached the headers?
-        return outerCb null, { }, body if body
-
-        # means we've a cache miss and so need to make a real request
-        @_httpRequest options, api_key, ( err, apiRes, body ) =>
-          return outerCb err if err
-
-          cache.add key, cacheTtl, body, ( err ) =>
-            return outerCb err, apiRes, body
+        cache.add key, cacheTtl, body, ( err ) =>
+          return outerCb err, apiRes, body
 
   _httpRequest: ( options, key, cb) ->
     counterModel = @app.model "counters"
