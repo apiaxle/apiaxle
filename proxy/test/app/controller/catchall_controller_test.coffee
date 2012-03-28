@@ -88,7 +88,7 @@ class exports.CatchallTest extends ApiaxleTest
           @equal err.type, "ApiKeyError"
           @equal err.status, 403
 
-          done 4
+          done 5
 
   "test GET with registered domain but invalid key": ( done ) ->
     apiOptions =
@@ -127,7 +127,7 @@ class exports.CatchallTest extends ApiaxleTest
           one: 1
           two: 2
 
-        @stubCatchall 200, data,
+        stub = @stubCatchall 200, data,
           "Content-Type": "application/json"
 
         requestOptions =
@@ -201,13 +201,20 @@ class exports.CatchallTest extends ApiaxleTest
       @GET requestOptions, ( err, response ) =>
         @isNull err
 
+        @ok stub.calledOnce
+
         response.parseJson ( json ) =>
           @isUndefined json.error
           @deepEqual json.two, 2
 
           # now this call should come from cache
           @GET requestOptions, ( err, response ) =>
+            @isNull err
+
+            # we shouldn't have called the http req again
+            @ok stub.calledOnce, "result comes from cache"
+
             @isUndefined json.error
             @deepEqual json.two, 2
 
-            done 6
+            done 9
