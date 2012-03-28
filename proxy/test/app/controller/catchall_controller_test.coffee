@@ -191,7 +191,7 @@ class exports.CatchallTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      @stubCatchall 200, data,
+      stub = @stubCatchall 200, data,
         "Content-Type": "application/json"
 
       requestOptions =

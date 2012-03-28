@@ -24,12 +24,16 @@ class CatchAll extends ApiaxleController
       cache.get key, ( err, body ) =>
         return outerCb err if err
 
-        if not body
-          @_httpRequest options, api_key, ( err, apiRes, body ) =>
-            return outerCb err if err
+        # TODO: does anything need setting in terms of the
+        # apiresponse? Should we have cached the headers?
+        return outerCb null, { }, body if body
 
-            cache.add key, cacheTtl, body, ( err ) =>
-              return outerCb err, apiRes, body
+        # means we've a cache miss and so need to make a real request
+        @_httpRequest options, api_key, ( err, apiRes, body ) =>
+          return outerCb err if err
+
+          cache.add key, cacheTtl, body, ( err ) =>
+            return outerCb err, apiRes, body
 
   _httpRequest: ( options, key, cb) ->
     counterModel = @app.model "counters"
