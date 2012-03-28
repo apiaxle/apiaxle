@@ -7,5 +7,4 @@ class exports.Cache extends Redis
   @smallKeyName = "cache"
 
   add: ( key, ttl, content, cb ) ->
-    @setex key, ttl, content, ( err ) ->
-      cb err, ttl
+    @setex key, ttl, content, cb

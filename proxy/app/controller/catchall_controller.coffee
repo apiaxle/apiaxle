@@ -1,4 +1,5 @@
 url = require "url"
+crypto = require "crypto"
 request = require "request"
 
 { TimeoutError } = require "../../lib/error"
@@ -9,19 +10,28 @@ class CatchAll extends ApiaxleController
 
   middleware: -> [ @simpleBodyParser, @subdomain, @api, @apiKey ]
 
-  _fetch: ( cacheTtl, options, api_key, cb ) ->
-    @_httpRequest options, api_key, cb
-
   _cacheHash: ( url ) ->
     md5 = crypto.createHash "md5"
-    console.log( @app.constructor.env )
-
     md5.update @app.constructor.env
     md5.update url
+    md5.digest "hex"
 
-    return md5.digest "hex"
+  _fetch: ( cacheTtl, options, api_key, outerCb ) ->
+    if cacheTtl > 0
+      cache = @app.model "cache"
+      key = @_cacheHash options.url
 
-  _httpRequest: ( options, api_key, cb) ->
+      cache.get key, ( err, body ) =>
+        return outerCb err if err
+
+        if not body
+          @_httpRequest options, api_key, ( err, apiRes, body ) =>
+            return outerCb err if err
+
+            cache.add key, cacheTtl, body, ( err ) =>
+              return outerCb err, apiRes, body
+
+  _httpRequest: ( options, key, cb) ->
     counterModel = @app.model "counters"
 
     request[ @constructor.verb ] options, ( err, apiRes, body ) ->
@@ -83,7 +93,7 @@ class CatchAll extends ApiaxleController
 
       options.body = req.body
 
-      @_fetch req.globalCaching, options, req.apiKey.key, ( err, apiRes, body ) =>
+      @_fetch req.api.globalCache, options, req.apiKey.key, ( err, apiRes, body ) =>
         return next err if err
 
         # copy headers from the endpoint
