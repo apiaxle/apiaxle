@@ -19,11 +19,11 @@ class CatchAll extends ApiaxleController
     md5.digest "hex"
 
   # TODO: make sure to inc counters!
-  _fetch: ( cacheTtl, options, api_key, outerCb ) ->
+  _fetch: ( req, options, outerCb ) ->
     # check for caching, pass straight through if we don't want a
     # cache (the 0 is a string because it comes straight from redis).
-    if cacheTtl is "0" or not @.constructor.cachable
-      return @_httpRequest options, api_key, outerCb
+    if req.api.globalCache is "0" or not @.constructor.cachable
+      return @_httpRequest options, req.apiKey.key, outerCb
 
     cache = @app.model "cache"
     key = @_cacheHash options.url
@@ -36,10 +36,10 @@ class CatchAll extends ApiaxleController
       return outerCb null, { }, body if body
 
       # means we've a cache miss and so need to make a real request
-      @_httpRequest options, api_key, ( err, apiRes, body ) =>
+      @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
         return outerCb err if err
 
-        cache.add key, cacheTtl, body, ( err ) =>
+        cache.add key, req.api.globalCache, body, ( err ) =>
           return outerCb err, apiRes, body
 
   _httpRequest: ( options, key, cb) ->
@@ -104,7 +104,7 @@ class CatchAll extends ApiaxleController
 
       options.body = req.body
 
-      @_fetch req.api.globalCache, options, req.apiKey.key, ( err, apiRes, body ) =>
+      @_fetch req, options, ( err, apiRes, body ) =>
         return next err if err
 
         # copy headers from the endpoint
