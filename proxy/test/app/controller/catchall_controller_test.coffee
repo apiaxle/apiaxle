@@ -179,6 +179,39 @@ class exports.CatchallTest extends ApiaxleTest
 
             done 4
 
+  "test only get should be cachable": ( done ) ->
+    all = [ ]
+
+    for type in [ "Post", "Put", "Delete" ]
+      controller = @application.controller "#{type}Catchall"
+
+      req =
+        api:
+          globalCache: 20
+
+      all.push ( cb ) =>
+        controller._cacheTtl req, ( err, ttl ) =>
+          @isNull err
+          @equal ttl, 0
+
+          cb()
+
+    async.series all, ( err, res ) =>
+      done 6
+
+  "test #_cacheTtl simple, global cache": ( done ) ->
+    controller = @application.controller "GetCatchall"
+
+    req =
+      api:
+        globalCache: 20
+
+    controller._cacheTtl req, ( err, ttl ) =>
+      @isNull err
+      @equal ttl, 20
+
+      done 2
+
   "test global caching miss": ( done ) ->
     apiOptions =
       apiFormat: "json"

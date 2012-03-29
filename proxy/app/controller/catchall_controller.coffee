@@ -23,6 +23,7 @@ class CatchAll extends ApiaxleController
     if not @.constructor.cachable
       return cb null, 0
 
+    # global caching is enabled
     return cb null, parseInt req.api.globalCache
 
   # TODO: make sure to inc counters!
