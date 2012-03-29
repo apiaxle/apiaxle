@@ -42,7 +42,11 @@ class CatchAll extends ApiaxleController
 
         # TODO: does anything need setting in terms of the
         # apiresponse? Should we have cached the headers?
-        return outerCb null, { }, body if body
+        if body
+          @app.logger.debug "Cache hit: #{options.url}"
+          return outerCb null, { }, body
+
+        @app.logger.debug "Cache miss: #{options.url}"
 
         # means we've a cache miss and so need to make a real request
         @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
@@ -51,7 +55,7 @@ class CatchAll extends ApiaxleController
           cache.add key, cacheTtl, body, ( err ) =>
             return outerCb err, apiRes, body
 
-  _httpRequest: ( options, key, cb) ->
+  _httpRequest: ( options, api_key, cb) ->
     counterModel = @app.model "counters"
 
     request[ @constructor.verb ] options, ( err, apiRes, body ) ->
