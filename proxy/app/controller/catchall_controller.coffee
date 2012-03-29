@@ -18,29 +18,37 @@ class CatchAll extends ApiaxleController
     md5.update url
     md5.digest "hex"
 
+  _cacheTtl: ( req, cb ) ->
+    # no caching
+    if not @.constructor.cachable
+      return cb null, 0
+
+    return cb null, parseInt req.api.globalCache
+
   # TODO: make sure to inc counters!
   _fetch: ( req, options, outerCb ) ->
     # check for caching, pass straight through if we don't want a
     # cache (the 0 is a string because it comes straight from redis).
-    if req.api.globalCache is "0" or not @.constructor.cachable
-      return @_httpRequest options, req.apiKey.key, outerCb
+    @_cacheTtl req, ( err, cacheTtl ) =>
+      if cacheTtl is 0
+        return @_httpRequest options, req.apiKey.key, outerCb
 
-    cache = @app.model "cache"
-    key = @_cacheHash options.url
+      cache = @app.model "cache"
+      key = @_cacheHash options.url
 
-    cache.get key, ( err, body ) =>
-      return outerCb err if err
-
-      # TODO: does anything need setting in terms of the
-      # apiresponse? Should we have cached the headers?
-      return outerCb null, { }, body if body
-
-      # means we've a cache miss and so need to make a real request
-      @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
+      cache.get key, ( err, body ) =>
         return outerCb err if err
 
-        cache.add key, req.api.globalCache, body, ( err ) =>
-          return outerCb err, apiRes, body
+        # TODO: does anything need setting in terms of the
+        # apiresponse? Should we have cached the headers?
+        return outerCb null, { }, body if body
+
+        # means we've a cache miss and so need to make a real request
+        @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
+          return outerCb err if err
+
+          cache.add key, cacheTtl, body, ( err ) =>
+            return outerCb err, apiRes, body
 
   _httpRequest: ( options, key, cb) ->
     counterModel = @app.model "counters"
