@@ -17,7 +17,7 @@ class exports.ApiaxleTest extends AppTest
       @fakeIncomingMessage status, body, headers, ( err, res ) =>
         return cb err, res, body
 
-  newApiAndKey: ( api, apiOptions, key, keyOptions, cb ) ->
+  newApiAndKey: ( api, apiOptions, key, keyOptions={}, cb ) ->
     # make sure there's an endpoint
     apiOptions = _.extend apiOptions,
       endPoint: "graph.facebook.com"

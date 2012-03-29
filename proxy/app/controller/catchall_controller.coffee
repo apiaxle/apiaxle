@@ -1,22 +1,68 @@
 url = require "url"
+crypto = require "crypto"
 request = require "request"
 
 { TimeoutError } = require "../../lib/error"
 { ApiaxleController } = require "./controller"
 
 class CatchAll extends ApiaxleController
+  @cachable: false
+
   path: ( ) -> "*"
 
   middleware: -> [ @simpleBodyParser, @subdomain, @api, @apiKey ]
 
-  _httpRequest: ( options, key, cb) ->
+  _cacheHash: ( url ) ->
+    md5 = crypto.createHash "md5"
+    md5.update @app.constructor.env
+    md5.update url
+    md5.digest "hex"
+
+  _cacheTtl: ( req, cb ) ->
+    # no caching
+    if not @.constructor.cachable
+      return cb null, 0
+
+    # global caching is enabled
+    return cb null, parseInt req.api.globalCache
+
+  # TODO: make sure to inc counters!
+  _fetch: ( req, options, outerCb ) ->
+    # check for caching, pass straight through if we don't want a
+    # cache (the 0 is a string because it comes straight from redis).
+    @_cacheTtl req, ( err, cacheTtl ) =>
+      if cacheTtl is 0
+        return @_httpRequest options, req.apiKey.key, outerCb
+
+      cache = @app.model "cache"
+      key = @_cacheHash options.url
+
+      cache.get key, ( err, body ) =>
+        return outerCb err if err
+
+        # TODO: does anything need setting in terms of the
+        # apiresponse? Should we have cached the headers?
+        if body
+          @app.logger.debug "Cache hit: #{options.url}"
+          return outerCb null, { }, body
+
+        @app.logger.debug "Cache miss: #{options.url}"
+
+        # means we've a cache miss and so need to make a real request
+        @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
+          return outerCb err if err
+
+          cache.add key, cacheTtl, body, ( err ) =>
+            return outerCb err, apiRes, body
+
+  _httpRequest: ( options, api_key, cb) ->
     counterModel = @app.model "counters"
 
     request[ @constructor.verb ] options, ( err, apiRes, body ) ->
       if err
         # if we timeout then throw an error
         if err.code is "ETIMEDOUT"
-          counterModel.apiHit key, "timeout", ( counterErr, res ) ->
+          counterModel.apiHit api_key, "timeout", ( counterErr, res ) ->
             return cb counterErr if counterErr
             return cb new TimeoutError( "API endpoint timed out." )
         else
@@ -24,7 +70,7 @@ class CatchAll extends ApiaxleController
           return cb error, null
       else
         # response with the same code as the endpoint
-        counterModel.apiHit key, apiRes.statusCode, ( err, res ) ->
+        counterModel.apiHit api_key, apiRes.statusCode, ( err, res ) ->
           return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
@@ -71,7 +117,7 @@ class CatchAll extends ApiaxleController
 
       options.body = req.body
 
-      @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
+      @_fetch req, options, ( err, apiRes, body ) =>
         return next err if err
 
         # copy headers from the endpoint
@@ -85,6 +131,8 @@ class CatchAll extends ApiaxleController
         res.send body, apiRes.statusCode
 
 class exports.GetCatchall extends CatchAll
+  @cachable: true
+
   @verb: "get"
 
 class exports.PostCatchall extends CatchAll

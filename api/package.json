@@ -22,7 +22,7 @@
     "hiredis": "0.1.12"
   },
   "devDependencies": {
-    "twerp":         "=1.0.5",
+    "twerp":         "=1.0.7",
     "sinon":         "~1.1.1"
   }
 }
