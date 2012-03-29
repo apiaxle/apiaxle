@@ -20,8 +20,8 @@
     "coffee-script": "~1.1.2",
     "express": "~2.5",
     "underscore": "~1.1.7",
-    "redis": "0.6.7",
-    "hiredis": "0.1.12"
+    "redis": "~0.7",
+    "hiredis": "~0.1"
   },
   "devDependencies": {
     "twerp":         "=1.0.7",

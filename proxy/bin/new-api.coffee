@@ -29,6 +29,11 @@ parser.add "--api-format",
   default: "json"
   help: "Format of the api."
 
+parser.add "--global-cache",
+  type: "int"
+  default: 0
+  help: "Seconds to cache each hit."
+
 try
   options = parser.parse( )
 catch e
