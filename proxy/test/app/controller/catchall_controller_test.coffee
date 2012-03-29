@@ -35,7 +35,6 @@ class exports.CatchallTest extends ApiaxleTest
 
       done 26
 
-  # TODO: http socket hangup, why?
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
     all = [ ]
 

@@ -6,6 +6,8 @@ request = require "request"
 { ApiaxleController } = require "./controller"
 
 class CatchAll extends ApiaxleController
+  @cachable: false
+
   path: ( ) -> "*"
 
   middleware: -> [ @simpleBodyParser, @subdomain, @api, @apiKey ]
@@ -17,12 +19,10 @@ class CatchAll extends ApiaxleController
     md5.digest "hex"
 
   # TODO: make sure to inc counters!
-  # TODO: what if the POST body varies?
-  # TODO: http://stackoverflow.com/questions/626057/is-it-possible-to-cache-post-methods-in-http
   _fetch: ( cacheTtl, options, api_key, outerCb ) ->
     # check for caching, pass straight through if we don't want a
     # cache (the 0 is a string because it comes straight from redis).
-    if cacheTtl is "0"
+    if cacheTtl is "0" or not @.constructor.cachable
       return @_httpRequest options, api_key, outerCb
 
     cache = @app.model "cache"
@@ -118,6 +118,8 @@ class CatchAll extends ApiaxleController
         res.send body, apiRes.statusCode
 
 class exports.GetCatchall extends CatchAll
+  @cachable: true
+
   @verb: "get"
 
 class exports.PostCatchall extends CatchAll
