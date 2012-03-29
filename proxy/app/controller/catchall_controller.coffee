@@ -26,6 +26,29 @@ class CatchAll extends ApiaxleController
     # global caching is enabled
     return cb null, parseInt req.api.globalCache
 
+  # returns an object which looks like this (with all fields being
+  # optional):
+  #
+  # {
+  #   "s-maxage" : <seconds>
+  #   "proxy-revalidate" : true|false
+  #   "no-cache" : true|false
+  # }
+  _parseCacheControl: ( req ) ->
+    if not req.headers["cache-control"]
+      return {}
+
+    res = {}
+    header = req.headers["cache-control"].replace new RegExp( " ", "g" ), ""
+
+    for directive in header.split ","
+      [ key, value ] = directive.split "="
+      value or= true
+
+      res[ key ] = value
+
+    return res
+
   # TODO: make sure to inc counters!
   _fetch: ( req, options, outerCb ) ->
     # check for caching, pass straight through if we don't want a
