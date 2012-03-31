@@ -6,10 +6,11 @@ class exports.Cache extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "cache"
 
-  add: ( key, ttl, status, content, cb ) ->
+  add: ( key, ttl, status, contentType, content, cb ) ->
     cache =
       body: content
       status: status
+      contentType: contentType
 
     @hmset key, cache, ( err ) =>
       return cb err if err
@@ -20,5 +21,5 @@ class exports.Cache extends Redis
     @hgetall key, ( err, cache ) =>
       return cb err if err
 
-      { status, body } = cache
-      return cb null, parseInt( status ), body
+      { status, contentType, body } = cache
+      return cb null, parseInt( status ), contentType, body
