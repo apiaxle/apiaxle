@@ -65,7 +65,8 @@ class CatchAll extends ApiaxleController
 
     return res
 
-  # TODO: make sure to inc counters!
+  # TODO: We need to fix the response code (it should match the
+  # original one).
   _fetch: ( req, options, outerCb ) ->
     # check for caching, pass straight through if we don't want a
     # cache (the 0 is a string because it comes straight from redis).
