@@ -189,6 +189,7 @@ class exports.CatchallTest extends ApiaxleTest
         @ok stub.calledOnce
 
         @equal response.statusCode, 202
+        @equal response.headers[ "content-type" ], "application/json"
 
         response.parseJson ( json ) =>
           @isUndefined json.error
@@ -199,6 +200,7 @@ class exports.CatchallTest extends ApiaxleTest
             @isNull err
 
             @equal response.statusCode, 202
+            @equal response.headers[ "content-type" ], "application/json"
 
             response.parseJson ( json ) =>
               @isUndefined json.error
@@ -209,7 +211,7 @@ class exports.CatchallTest extends ApiaxleTest
               @isUndefined json.error
               @deepEqual json.two, 2
 
-              done 12
+              done 14
 
   "test caching at controller level (no-cache)": ( done ) ->
     apiOptions =
