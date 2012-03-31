@@ -85,7 +85,11 @@ class CatchAll extends ApiaxleController
         if body
           @app.logger.debug "Cache hit: #{options.url}"
           return @app.model( "counters" ).apiHit req.apiKey.key, status, ( err, res ) ->
-            outerCb err, { }, body
+            fakeResponse =
+              statusCode: status
+              headers: { }
+
+            outerCb err, fakeResponse, body
 
         @app.logger.debug "Cache miss: #{options.url}"
 
@@ -93,7 +97,7 @@ class CatchAll extends ApiaxleController
         @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
           return outerCb err if err
 
-          cache.add key, cacheTtl, status, body, ( err ) =>
+          cache.add key, cacheTtl, apiRes.statusCode, body, ( err ) =>
             return outerCb err, apiRes, body
 
   _httpRequest: ( options, api_key, cb) ->

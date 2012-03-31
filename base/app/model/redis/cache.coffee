@@ -21,4 +21,4 @@ class exports.Cache extends Redis
       return cb err if err
 
       { status, body } = cache
-      return cb null, status, body
+      return cb null, parseInt( status ), body
