@@ -111,7 +111,7 @@ class exports.CatchallTest extends ApiaxleTest
     @_runCacheControlTests tests, ( err ) =>
       @ok not err
 
-      done 6
+      done 7
 
   "test global caching miss": ( done ) ->
     apiOptions =
@@ -152,7 +152,7 @@ class exports.CatchallTest extends ApiaxleTest
 
             done 9
 
-  "test #_parseCacheControl": ( done ) =>
+  "test #_parseCacheControl": ( done ) ->
     controller = @application.controller "GetCatchall"
 
     res = controller._parseCacheControl
@@ -164,3 +164,84 @@ class exports.CatchallTest extends ApiaxleTest
       "proxy-revalidate": true
 
     done 1
+
+  "test caching at controller level": ( done ) ->
+    apiOptions =
+      apiFormat: "json"
+
+    @newApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+      @isNull err
+
+      # make sure we don't actually hit facebook
+      data = JSON.stringify { two: 2 }
+
+      stub = @stubCatchall 200, data,
+        "Content-Type": "application/json"
+
+      requestOptions =
+        path: "/cock.bastard?api_key=1234"
+        host: "facebook.api.localhost"
+        headers:
+          "Cache-Control": "s-maxage=30"
+
+      @GET requestOptions, ( err, response ) =>
+        @isNull err
+
+        @ok stub.calledOnce
+
+        response.parseJson ( json ) =>
+          @isUndefined json.error
+          @deepEqual json.two, 2
+
+          # now this call should come from cache
+          @GET requestOptions, ( err, response ) =>
+            @isNull err
+
+            # we shouldn't have called the http req again
+            @ok stub.calledOnce, "result comes from cache"
+
+            @isUndefined json.error
+            @deepEqual json.two, 2
+
+            done 9
+
+  "test caching at controller level (no-cache)": ( done ) ->
+    apiOptions =
+      apiFormat: "json"
+      globalCache: 30
+
+    @newApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+      @isNull err
+
+      # make sure we don't actually hit facebook
+      data = JSON.stringify { two: 2 }
+
+      stub = @stubCatchall 200, data,
+        "Content-Type": "application/json"
+
+      requestOptions =
+        path: "/cock.bastard?api_key=1234"
+        host: "facebook.api.localhost"
+        headers:
+          "Cache-Control": "no-cache"
+
+      @GET requestOptions, ( err, response ) =>
+        @isNull err
+
+        @ok stub.calledOnce
+
+        response.parseJson ( json ) =>
+          @isUndefined json.error
+          @deepEqual json.two, 2
+
+          # now this call should come from cache
+          @GET requestOptions, ( err, response ) =>
+            @isNull err
+
+            # we shouldn't have called the http req again
+            @ok stub.calledTwice, "result comes from http request"
+
+            @isUndefined json.error
+            @deepEqual json.two, 2
+
+            done 9
