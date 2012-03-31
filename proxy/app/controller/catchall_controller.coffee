@@ -83,7 +83,8 @@ class CatchAll extends ApiaxleController
         # apiresponse? Should we have cached the headers?
         if body
           @app.logger.debug "Cache hit: #{options.url}"
-          return outerCb null, { }, body
+          return @app.model( "counters" ).apiHit req.apiKey.key, 200, ( err, res ) ->
+            outerCb err, { }, body
 
         @app.logger.debug "Cache miss: #{options.url}"
 
