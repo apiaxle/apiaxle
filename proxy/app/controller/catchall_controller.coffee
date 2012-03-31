@@ -21,10 +21,27 @@ class CatchAll extends ApiaxleController
   _cacheTtl: ( req, cb ) ->
     # no caching
     if not @.constructor.cachable
-      return cb null, 0
+      return cb null, false, 0
 
-    # global caching is enabled
-    return cb null, parseInt req.api.globalCache
+    mustRevalidate = false
+
+    # cache-control might want us to do something. We only care about
+    # a few of the pragmas
+    if cacheControl = @_parseCacheControl req
+
+      # we might have to revalidate if the client has asked us to
+      mustRevalidate = ( not not cacheControl[ "proxy-revalidate" ] )
+
+      # don't cache anything
+      if cacheControl[ "no-cache" ]
+        return cb null, mustRevalidate, 0
+
+      # explicit ttl
+      if ttl = cacheControl[ "s-maxage" ]
+        return cb null, mustRevalidate, ttl
+
+    # return the global cache
+    return cb null, mustRevalidate, parseInt req.api.globalCache
 
   # returns an object which looks like this (with all fields being
   # optional):
@@ -35,8 +52,7 @@ class CatchAll extends ApiaxleController
   #   "no-cache" : true|false
   # }
   _parseCacheControl: ( req ) ->
-    if not req.headers["cache-control"]
-      return {}
+    return {} unless req.headers["cache-control"]
 
     res = {}
     header = req.headers["cache-control"].replace new RegExp( " ", "g" ), ""
@@ -53,8 +69,8 @@ class CatchAll extends ApiaxleController
   _fetch: ( req, options, outerCb ) ->
     # check for caching, pass straight through if we don't want a
     # cache (the 0 is a string because it comes straight from redis).
-    @_cacheTtl req, ( err, cacheTtl ) =>
-      if cacheTtl is 0
+    @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
+      if cacheTtl is 0 or mustRevalidate
         return @_httpRequest options, req.apiKey.key, outerCb
 
       cache = @app.model "cache"

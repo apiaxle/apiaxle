@@ -18,28 +18,85 @@ class exports.CatchallTest extends ApiaxleTest
           globalCache: 20
 
       all.push ( cb ) =>
-        controller._cacheTtl req, ( err, ttl ) =>
+        controller._cacheTtl req, ( err, mustRevalidate, ttl ) =>
+          @ok not mustRevalidate
           @isNull err
           @equal ttl, 0
 
           cb()
 
     async.series all, ( err, res ) =>
-      done 6
+      done 9
 
-  "test #_cacheTtl simple, global cache": ( done ) ->
+  "test #_cacheControl": ( done ) ->
     controller = @application.controller "GetCatchall"
 
-    req =
-      headers: { }
-      api:
-        globalCache: 20
+    tests = [ ]
 
-    controller._cacheTtl req, ( err, ttl ) =>
-      @isNull err
-      @equal ttl, 20
+    tests.push
+      req:
+        api:
+          globalCache: 20
+        headers:
+          "cache-control": "proxy-revalidate"
+      should:
+        mustRevalidate: true
+        ttl: 20
 
-      done 2
+    tests.push
+      req:
+        api:
+          globalCache: 20
+        headers:
+          "cache-control": "no-cache"
+      should:
+        mustRevalidate: false
+        ttl: 0
+
+    tests.push
+      req:
+        api:
+          globalCache: 50
+        headers: { }
+      should:
+        mustRevalidate: false
+        ttl: 50
+
+    tests.push
+      req:
+        api:
+          globalCache: 0
+        headers: { }
+      should:
+        mustRevalidate: false
+        ttl: 0
+
+    tests.push
+      req:
+        api:
+          globalCache: 10
+        headers:
+          "cache-control": "s-maxage=30"
+      should:
+        mustRevalidate: false
+        ttl: 30
+
+    runnables = [ ]
+
+    for test in tests
+      do ( test ) =>
+        runnables.push ( cb ) =>
+          controller._cacheTtl test.req, ( err, mustRevalidate, ttl ) =>
+            @isNull err
+            @equal ttl, test.should.ttl
+            @equal mustRevalidate, test.should.mustRevalidate
+
+            cb()
+
+    async.series runnables, ( err ) =>
+      @ok not err
+
+      done 6
 
   "test global caching miss": ( done ) ->
     apiOptions =
