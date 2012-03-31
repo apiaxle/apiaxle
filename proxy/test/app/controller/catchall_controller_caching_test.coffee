@@ -28,58 +28,8 @@ class exports.CatchallTest extends ApiaxleTest
     async.series all, ( err, res ) =>
       done 9
 
-  "test #_cacheControl": ( done ) ->
+  _runCacheControlTests: ( tests, cb ) ->
     controller = @application.controller "GetCatchall"
-
-    tests = [ ]
-
-    tests.push
-      req:
-        api:
-          globalCache: 20
-        headers:
-          "cache-control": "proxy-revalidate"
-      should:
-        mustRevalidate: true
-        ttl: 20
-
-    tests.push
-      req:
-        api:
-          globalCache: 20
-        headers:
-          "cache-control": "no-cache"
-      should:
-        mustRevalidate: false
-        ttl: 0
-
-    tests.push
-      req:
-        api:
-          globalCache: 50
-        headers: { }
-      should:
-        mustRevalidate: false
-        ttl: 50
-
-    tests.push
-      req:
-        api:
-          globalCache: 0
-        headers: { }
-      should:
-        mustRevalidate: false
-        ttl: 0
-
-    tests.push
-      req:
-        api:
-          globalCache: 10
-        headers:
-          "cache-control": "s-maxage=30"
-      should:
-        mustRevalidate: false
-        ttl: 30
 
     runnables = [ ]
 
@@ -93,7 +43,72 @@ class exports.CatchallTest extends ApiaxleTest
 
             cb()
 
-    async.series runnables, ( err ) =>
+    async.series runnables, cb
+
+  "test #_cacheControl 'no-cache'": ( done ) ->
+    tests = [ ]
+
+    tests.push
+      req:
+        api:
+          globalCache: 10
+        headers:
+          "cache-control": "no-cache"
+      should:
+        mustRevalidate: false
+        ttl: 0
+
+    tests.push
+      req:
+        api:
+          globalCache: 10
+        headers:
+          "cache-control": "s-maxage=30, no-cache"
+      should:
+        mustRevalidate: false
+        ttl: 0
+
+    tests.push
+      req:
+        api:
+          globalCache: 10
+        headers:
+          "cache-control": "s-maxage=30, proxy-revalidate"
+      should:
+        mustRevalidate: true
+        ttl: 30
+
+    @_runCacheControlTests tests, ( err ) =>
+      @ok not err
+
+      done 10
+
+  "test #_cacheControl 's-maxage'": ( done ) ->
+    tests = [ ]
+
+    # check that s-maxage overrides globalCache
+    tests.push
+      req:
+        api:
+          globalCache: 10
+        headers:
+          "cache-control": "s-maxage=30"
+      should:
+        mustRevalidate: false
+        ttl: 30
+
+    # no-cache overrides s-maxage, which overrides globalCache
+    tests.push
+      req:
+        api:
+          globalCache: 60
+        headers:
+          "cache-control": "s-maxage=30, no-cache"
+      should:
+        mustRevalidate: false
+        ttl: 0
+
+    @_runCacheControlTests tests, ( err ) =>
       @ok not err
 
       done 6
