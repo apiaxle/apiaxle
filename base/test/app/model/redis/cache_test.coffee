@@ -26,7 +26,7 @@ class exports.ApiTest extends FakeAppTest
         @isNull err
         @ok ( ttl <= 20 and ttl > 0 )
 
-        @model.get "29834IUHOIUHOIHO234", ( err, content ) =>
+        @model.get "29834IUHOIUHOIHO234", ( err, status, content ) =>
           @isNull err
           @equal content, "hello"
 

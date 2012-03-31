@@ -77,14 +77,14 @@ class CatchAll extends ApiaxleController
       cache = @app.model "cache"
       key = @_cacheHash options.url
 
-      cache.get key, ( err, body ) =>
+      cache.get key, ( err, status, body ) =>
         return outerCb err if err
 
         # TODO: does anything need setting in terms of the
         # apiresponse? Should we have cached the headers?
         if body
           @app.logger.debug "Cache hit: #{options.url}"
-          return @app.model( "counters" ).apiHit req.apiKey.key, 200, ( err, res ) ->
+          return @app.model( "counters" ).apiHit req.apiKey.key, status, ( err, res ) ->
             outerCb err, { }, body
 
         @app.logger.debug "Cache miss: #{options.url}"
@@ -93,7 +93,7 @@ class CatchAll extends ApiaxleController
         @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
           return outerCb err if err
 
-          cache.add key, cacheTtl, body, ( err ) =>
+          cache.add key, cacheTtl, status, body, ( err ) =>
             return outerCb err, apiRes, body
 
   _httpRequest: ( options, api_key, cb) ->

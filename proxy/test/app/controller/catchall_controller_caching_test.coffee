@@ -197,13 +197,16 @@ class exports.CatchallTest extends ApiaxleTest
           @GET requestOptions, ( err, response ) =>
             @isNull err
 
-            # we shouldn't have called the http req again
-            @ok stub.calledOnce, "result comes from cache"
+            response.parseJson ( json ) =>
+              @isUndefined json.error
 
-            @isUndefined json.error
-            @deepEqual json.two, 2
+              # we shouldn't have called the http req again
+              @ok stub.calledOnce, "result comes from cache"
 
-            done 9
+              @isUndefined json.error
+              @deepEqual json.two, 2
+
+              done 9
 
   "test caching at controller level (no-cache)": ( done ) ->
     apiOptions =
