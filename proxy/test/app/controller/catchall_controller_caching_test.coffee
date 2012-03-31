@@ -245,3 +245,45 @@ class exports.CatchallTest extends ApiaxleTest
             @deepEqual json.two, 2
 
             done 9
+
+
+  "test caching at controller level (revalidate)": ( done ) ->
+    apiOptions =
+      apiFormat: "json"
+      globalCache: 30
+
+    @newApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+      @isNull err
+
+      # make sure we don't actually hit facebook
+      data = JSON.stringify { two: 2 }
+
+      stub = @stubCatchall 200, data,
+        "Content-Type": "application/json"
+
+      requestOptions =
+        path: "/cock.bastard?api_key=1234"
+        host: "facebook.api.localhost"
+        headers:
+          "Cache-Control": "s-maxage=30, proxy-revalidate"
+
+      @GET requestOptions, ( err, response ) =>
+        @isNull err
+
+        @ok stub.calledOnce
+
+        response.parseJson ( json ) =>
+          @isUndefined json.error
+          @deepEqual json.two, 2
+
+          # now this call should come from cache
+          @GET requestOptions, ( err, response ) =>
+            @isNull err
+
+            # we shouldn't have called the http req again
+            @ok stub.calledTwice, "result comes from http request"
+
+            @isUndefined json.error
+            @deepEqual json.two, 2
+
+            done 9
