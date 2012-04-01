@@ -21,30 +21,76 @@ class CatchAll extends ApiaxleController
   _cacheTtl: ( req, cb ) ->
     # no caching
     if not @.constructor.cachable
-      return cb null, 0
+      return cb null, false, 0
 
-    # global caching is enabled
-    return cb null, parseInt req.api.globalCache
+    mustRevalidate = false
 
-  # TODO: make sure to inc counters!
+    # cache-control might want us to do something. We only care about
+    # a few of the pragmas
+    if cacheControl = @_parseCacheControl req
+
+      # we might have to revalidate if the client has asked us to
+      mustRevalidate = ( not not cacheControl[ "proxy-revalidate" ] )
+
+      # don't cache anything
+      if cacheControl[ "no-cache" ]
+        return cb null, mustRevalidate, 0
+
+      # explicit ttl
+      if ttl = cacheControl[ "s-maxage" ]
+        return cb null, mustRevalidate, ttl
+
+    # return the global cache
+    return cb null, mustRevalidate, parseInt req.api.globalCache
+
+  # returns an object which looks like this (with all fields being
+  # optional):
+  #
+  # {
+  #   "s-maxage" : <seconds>
+  #   "proxy-revalidate" : true|false
+  #   "no-cache" : true|false
+  # }
+  _parseCacheControl: ( req ) ->
+    return {} unless req.headers["cache-control"]
+
+    res = {}
+    header = req.headers["cache-control"].replace new RegExp( " ", "g" ), ""
+
+    for directive in header.split ","
+      [ key, value ] = directive.split "="
+      value or= true
+
+      res[ key ] = value
+
+    return res
+
+  # TODO: We need to fix the response code (it should match the
+  # original one).
   _fetch: ( req, options, outerCb ) ->
     # check for caching, pass straight through if we don't want a
     # cache (the 0 is a string because it comes straight from redis).
-    @_cacheTtl req, ( err, cacheTtl ) =>
-      if cacheTtl is 0
+    @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
+      if cacheTtl is 0 or mustRevalidate
         return @_httpRequest options, req.apiKey.key, outerCb
 
       cache = @app.model "cache"
       key = @_cacheHash options.url
 
-      cache.get key, ( err, body ) =>
+      cache.get key, ( err, status, contentType, body ) =>
         return outerCb err if err
 
         # TODO: does anything need setting in terms of the
         # apiresponse? Should we have cached the headers?
         if body
           @app.logger.debug "Cache hit: #{options.url}"
-          return outerCb null, { }, body
+          return @app.model( "counters" ).apiHit req.apiKey.key, status, ( err, res ) ->
+            fakeResponse =
+              statusCode: status
+              headers:
+                "Content-Type": contentType
+
+            outerCb err, fakeResponse, body
 
         @app.logger.debug "Cache miss: #{options.url}"
 
@@ -52,7 +98,10 @@ class CatchAll extends ApiaxleController
         @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
           return outerCb err if err
 
-          cache.add key, cacheTtl, body, ( err ) =>
+          # do I really need to check both?
+          contentType = apiRes.headers["Content-Type"] or apiRes.headers["content-type"]
+
+          cache.add key, cacheTtl, apiRes.statusCode, contentType, body, ( err ) =>
             return outerCb err, apiRes, body
 
   _httpRequest: ( options, api_key, cb) ->
