@@ -175,7 +175,7 @@ class exports.CatchallTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchall 200, data,
+      stub = @stubCatchall 202, data,
         "Content-Type": "application/json"
 
       requestOptions =
@@ -186,8 +186,10 @@ class exports.CatchallTest extends ApiaxleTest
 
       @GET requestOptions, ( err, response ) =>
         @isNull err
-
         @ok stub.calledOnce
+
+        @equal response.statusCode, 202
+        @equal response.headers[ "content-type" ], "application/json"
 
         response.parseJson ( json ) =>
           @isUndefined json.error
@@ -197,13 +199,19 @@ class exports.CatchallTest extends ApiaxleTest
           @GET requestOptions, ( err, response ) =>
             @isNull err
 
-            # we shouldn't have called the http req again
-            @ok stub.calledOnce, "result comes from cache"
+            @equal response.statusCode, 202
+            @equal response.headers[ "content-type" ], "application/json"
 
-            @isUndefined json.error
-            @deepEqual json.two, 2
+            response.parseJson ( json ) =>
+              @isUndefined json.error
 
-            done 9
+              # we shouldn't have called the http req again
+              @ok stub.calledOnce, "result comes from cache"
+
+              @isUndefined json.error
+              @deepEqual json.two, 2
+
+              done 14
 
   "test caching at controller level (no-cache)": ( done ) ->
     apiOptions =
