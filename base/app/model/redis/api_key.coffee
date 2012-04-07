@@ -13,6 +13,10 @@ class exports.ApiKey extends Redis
     type: "object"
     additionalProperties: false
     properties:
+      sharedKey:
+        type: "string"
+        optional: true
+        docs: "A shared secret which is used when signing a call to the api."
       qpd:
         type: "integer"
         default: 172800
