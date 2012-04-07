@@ -23,6 +23,10 @@ parser.add "--for-api",
   help: "The api this key works with."
   required: true
 
+parser.add "--shared-secret",
+  type: "string"
+  help: "The shared secret used to generate the shared key."
+
 try
   options = parser.parse( )
 catch e
