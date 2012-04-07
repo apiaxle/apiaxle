@@ -13,7 +13,7 @@ class exports.ApiKey extends Redis
     type: "object"
     additionalProperties: false
     properties:
-      sharedKey:
+      sharedSecret:
         type: "string"
         optional: true
         docs: "A shared secret which is used when signing a call to the api."
