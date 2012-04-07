@@ -2,6 +2,8 @@
 { ApiUnknown, ApiKeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
+  ERROR_WINDOW = 3000
+
   simpleBodyParser: ( req, res, next ) ->
     req.body = ""
 
@@ -40,6 +42,20 @@ class exports.ApiaxleController extends Controller
       # check the key is for this api
       if keyDetails?.forApi isnt req.subdomain
         return next new ApiKeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
+
+
+      if keyDetails?.sharedSecret
+        # if the signature is missing then we cant go on
+        if not sig = ( req.query.apiaxle_sig or req.query.api_sig )
+          return next new ApiKeyError "A signature is required for this API."
+
+        md5 = crypto.createHash "md5"
+        md5.update keyDetails.sharedKey
+        md5.update ( Date.now() / @.constructor.ERROR_WINDOW )
+        md5.update key
+
+        if not md5.digest "hex" is sig
+          return next new ApiKeyError "Invalid signature."
 
       keyDetails.key = key
       req.apiKey = keyDetails
