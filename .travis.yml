@@ -1,6 +1,3 @@
-script: |
-  cd api && npm install && npm link ../base && npm test \
-  && cd proxy && npm install && npm link ../base && npm test"
 env: "NODE_ENV=test"
 language: "node_js"
 node_js:
