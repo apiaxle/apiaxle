@@ -5,8 +5,9 @@ set -e
 export NODE_ENV=test
 export MY_TWERP_OPTIONS="--exit-on-failure --runner=simple"
 
-# proxy and api
-for project in proxy api; do
+# cant do proxy yet because of the tests that rely on host files being
+# set.
+for project in api; do
   pushd ${project}
 
   npm install
