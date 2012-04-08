@@ -9,8 +9,8 @@ export MY_TWERP_OPTIONS="--exit-on-failure --runner=simple"
 for project in proxy api; do
   pushd ${project}
 
-  npm install &> /dev/null
-  npm link ../base > /dev/null
+  npm install
+  npm link ../base
   cake test
 
   popd &> /dev/null
@@ -18,6 +18,6 @@ done
 
 # now base
 cd base
-npm install &> /dev/null
-npm link ../base > /dev/null
+npm install
+npm link ../base
 cake test
