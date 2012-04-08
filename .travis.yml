@@ -1,2 +1,5 @@
 script: "cd api && npm install && npm link ../base && npm test"
 env: "NODE_ENV=test"
+node_js:
+  - 0.4
+  - 0.6
