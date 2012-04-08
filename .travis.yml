@@ -4,4 +4,5 @@ node_js:
   - 0.4
   - 0.6
 script: |
-  cd api && npm install && npm link ../base && npm test && cd ..
+  cd api && npm install && npm link ../base && npm test && cd .. \
+  cd proxy && npm install && npm link ../base && npm test && cd ..
