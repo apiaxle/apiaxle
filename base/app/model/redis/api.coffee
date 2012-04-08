@@ -31,7 +31,3 @@ class exports.Api extends Redis
         type: "integer"
         default: 2
         docs: "Max redirects that are allowed when endpoint called."
-      useKeyTokenPair:
-        type: "boolean"
-        default: false
-        docs: "Use the more secure key/token authentication."
