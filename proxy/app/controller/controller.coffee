@@ -17,14 +17,11 @@ class exports.ApiaxleController extends Controller
     # if we're called from a subdomain then let req know
     if parts = /^(.+?)\.api\./.exec req.headers.host
       req.subdomain = parts[1]
+      return next()
 
-    return next()
+    return next new ApiUnknown "No api specified (via subdomain)"
 
   api: ( req, res, next ) =>
-    # no subdomain means no api
-    if not req.subdomain
-      return next new ApiUnknown "No api specified (via subdomain)"
-
     @app.model( "api" ).find req.subdomain, ( err, api ) ->
       return next err if err
 
