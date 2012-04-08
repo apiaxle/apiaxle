@@ -41,7 +41,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
 
       multi = model.multi()
 
-      for type in types.sort()
+      for type in types
         do ( type ) ->
           multi.hgetall [ req.params.key, type ]
 
@@ -50,6 +50,8 @@ class exports.ViewAllStatsForKey extends ApiaxleController
 
         # build up the output structure
         output = {}
-        output[ type ] = results.pop() for type in types.sort()
+
+        for type in types
+          output[ type ] = results.shift()
 
         res.json output
