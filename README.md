@@ -23,3 +23,7 @@ components.
 # Installation
 
     $ curl https://raw.github.com/philjackson/apiaxle/master/setup-apiaxle.bash | bash
+
+# Build
+
+[![Build Status](https://secure.travis-ci.org/philjackson/apiaxle.png?branch=master)](http://travis-ci.org/philjackson/apiaxle)
