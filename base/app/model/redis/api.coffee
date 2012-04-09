@@ -22,7 +22,7 @@ class exports.Api extends Redis
         type: "string"
         enum: [ "json", "xml" ]
         default: "json"
-        docs: "The resulting data type of the endpoint."
+        docs: "The resulting data type of the endpoint. This is redundant at the moment but will eventually support both XML too."
       endPointTimeout:
         type: "integer"
         default: 2
