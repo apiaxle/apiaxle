@@ -81,7 +81,8 @@ class exports.AppTest extends TwerpTest
       host: "127.0.0.1"
       port: @constructor.port
 
-    # fill in the defaults (though, why port would change, I don't know)
+    # fill in the defaults (though, why port would change, I don't
+    # know)
     for key, val of defaults
       options[ key ] = val unless options[ key ]
 
