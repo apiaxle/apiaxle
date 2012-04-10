@@ -8,6 +8,7 @@ walkTreeSync = require "./walktree"
 fs           = require "fs"
 redis        = require "redis"
 
+{ Js2Xml }        = require "js2xml"
 { StreamLogger  } = require "../vendor/streamlogger"
 { StdoutLogger  } = require "./stderrlogger"
 
@@ -177,4 +178,11 @@ class exports.Application
       output.error.details = err.details if err.details
       output.error.stack = err.stack
 
-    res.json output, err.constructor.status
+    # json
+    if req.api?.apiFormat isnt "xml"
+      return res.json output, err.constructor.status
+
+    # need xml
+    res.contentType "application/xml"
+    js2xml = new Js2Xml "error", output.error
+    res.send js2xml.toString(), err.constructor.status

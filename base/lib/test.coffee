@@ -1,11 +1,12 @@
-fs            = require "fs"
-http          = require "http"
-path          = require "path"
-sinon         = require "sinon"
-async         = require "async"
+fs     = require "fs"
+http   = require "http"
+path   = require "path"
+sinon  = require "sinon"
+async  = require "async"
+libxml = require "libxmljs"
 
 { Application } = require "./application"
-{ TwerpTest }  = require "twerp"
+{ TwerpTest }   = require "twerp"
 
 class Clock
   constructor: ( @sinonClock ) ->
@@ -46,9 +47,11 @@ class AppResponse
 
       callback jq
 
+  parseXml: ( callback ) ->
+    callback libxml.parseXmlString @data
+
   parseJson: ( callback ) ->
     callback JSON.parse @data, "utf8"
-    application_mem = null
 
 class exports.AppTest extends TwerpTest
   @port = 26100

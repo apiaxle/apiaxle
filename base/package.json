@@ -23,6 +23,7 @@
     "schema": "~0",
     "hiredis": "~0.1",
     "date-utils": "~1",
+    "libxmljs": "~0",
     "js2xml": "~0"
   },
   "devDependencies": {

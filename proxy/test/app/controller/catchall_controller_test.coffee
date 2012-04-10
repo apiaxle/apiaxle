@@ -1,4 +1,5 @@
 async = require "async"
+libxml = require "libxmljs"
 
 { ApiaxleTest } = require "../../apiaxle"
 
@@ -178,3 +179,22 @@ class exports.CatchallTest extends ApiaxleTest
             @equal json.one, 1
 
             done 4
+
+  "test XML error": ( done ) ->
+    apiOptions =
+      endPoint: "graph.facebook.com"
+      apiFormat: "xml"
+
+    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+      @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
+        @isNull err
+
+        @match response.headers[ "content-type" ], /application\/xml/
+
+        response.parseXml ( xmlDoc ) =>
+          @ok xmlDoc.get "/error"
+          @ok xmlDoc.get "/error/type[text()='ApiKeyError']"
+          @ok xmlDoc.get "/error/status[text()='403']"
+          @ok xmlDoc.get "/error/message[text()='No api_key specified.']"
+
+          done 6
