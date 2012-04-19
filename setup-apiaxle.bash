@@ -20,7 +20,24 @@ function save-excurstion {
   popd
 }
 
+function install-ubuntu-packages {
+  for package in "${@}"; do
+    if ! dpkg -s "${package}"; then
+      sudo apt-get install "${@}"
+      return
+    fi
+  done
+}
+
 which-or-die node npm
+
+# try to install ubuntu pre-reqs
+if [[ -f /proc/version ]]; then
+  if grep Ubuntu /proc/version &>/dev/null; then
+    echo "Detected ubuntu, attempting to install pre-reqs:"
+    install-ubuntu-packages "libxml2-dev" "build-essential"
+  fi
+fi
 
 git clone git://github.com/philjackson/apiaxle.git
 
