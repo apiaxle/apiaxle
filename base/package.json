@@ -1,8 +1,8 @@
 {
   "author": "Phil Jackson <phil@shellarchive.co.uk>",
   "name": "apiaxle.base",
-  "description": "Basic Application class for coffeescript/express apps.",
-  "version": "0.0.0",
+  "description": "Basic Application class for apiaxle.",
+  "version": "0.0.2",
   "main": "index",
   "repository": {
     "type": "git",
