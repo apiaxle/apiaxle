@@ -11,7 +11,6 @@ for project in api; do
   pushd ${project}
 
   npm install
-  npm link ../base
   cake test
 
   popd &> /dev/null
