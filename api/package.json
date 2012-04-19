@@ -2,7 +2,7 @@
   "author": "Phil Jackson <phil@shellarchive.co.uk>",
   "name": "apiaxle.api",
   "description": "Provisioning API for apiaxle",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "https://philjackson@bitbucket.org/philjackson/apiaxle.api.git"
@@ -19,7 +19,8 @@
     "express": "~2.5",
     "underscore": "~1.1.7",
     "redis": "0.6.7",
-    "hiredis": "0.1.12"
+    "hiredis": "0.1.12",
+    "apiaxle.base": "~0"
   },
   "devDependencies": {
     "twerp":         "=1.0.7",
