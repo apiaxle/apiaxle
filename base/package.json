@@ -24,7 +24,7 @@
     "hiredis": "~0.1",
     "date-utils": "~1",
     "libxmljs": "~0",
-    "js2xml": "~1"
+    "js2xml": "0.0.2"
   },
   "devDependencies": {
     "twerp":         "=1.0.7",
