@@ -24,7 +24,6 @@ function install-ubuntu-packages {
   for package in "${@}"; do
     if ! dpkg -s "${package}"; then
       sudo apt-get install "${@}"
-      return
     fi
   done
 }
