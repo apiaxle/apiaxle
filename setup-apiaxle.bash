@@ -21,8 +21,9 @@ function save-excurstion {
 
 function install-ubuntu-packages {
   for package in "${@}"; do
-    if ! dpkg -s "${package}"; then
+    if ! dpkg -s "${package}" &>/dev/null; then
       sudo apt-get install "${@}"
+      break
     fi
   done
 }
