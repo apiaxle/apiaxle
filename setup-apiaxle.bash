@@ -47,6 +47,8 @@ for d in base proxy api; do
   save-excurstion "${d}" npm install
 done
 
+npm install -g coffee-script
+
 echo -e "\n\nHopefully you're done. Have a look at the documentation:" >&2
 echo    "  http://apiaxle.com/docs/try-it-now/" >&2
 echo    "to see how to proceed." >&2

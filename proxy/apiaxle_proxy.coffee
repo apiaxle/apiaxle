@@ -3,12 +3,13 @@
 # extends Date
 _ = require "underscore"
 
-express      = require "express"
-fs           = require "fs"
-redis        = require "redis"
+express = require "express"
+fs      = require "fs"
+redis   = require "redis"
 
-{ Application } = require "apiaxle.base"
+{ Application }   = require "apiaxle.base"
 { StdoutLogger  } = require "./lib/stderrlogger"
+
 { ApiaxleError, RedisError, NotFoundError } = require "./lib/error"
 
 class exports.ApiaxleProxy extends Application
