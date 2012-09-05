@@ -1,5 +1,7 @@
 #!/usr/bin/env coffee
 
+async = require "async"
+
 { OptionParser } = require "parseopt"
 { ApiaxleProxy } = require "../apiaxle_proxy"
 
@@ -33,24 +35,33 @@ catch e
   parser.usage()
   process.exit 1
 
-[ key ] = options.arguments
+keys = options.arguments
 
 gk = new ApiaxleProxy()
 gk.script ( finish ) ->
   model = gk.model "apiKey"
 
-  model.create key, options.options, ( err ) ->
+  all = [ ]
+
+  for key in keys
+    do( key ) ->
+      all.push ( cb ) ->
+        model.create key, options.options, ( err ) ->
+          throw err if err
+
+          model.find key, ( err, newKey ) ->
+            throw err if err
+
+            apiLimits = gk.model( "apiLimits" )
+
+            multi = apiLimits.multi()
+            multi.del apiLimits.qpsKey( key )
+            multi.del apiLimits.qpdKey( key )
+
+            multi.exec ( ) ->
+              console.log key, newKey
+              cb()
+
+  async.series all, ( err ) ->
     throw err if err
-
-    model.find key, ( err, newKey ) ->
-      throw err if err
-
-      apiLimits = gk.model( "apiLimits" )
-
-      multi = apiLimits.multi()
-      multi.del apiLimits.qpsKey( key )
-      multi.del apiLimits.qpdKey( key )
-
-      multi.exec ( ) ->
-        console.log newKey
-        finish()
+    finish()
