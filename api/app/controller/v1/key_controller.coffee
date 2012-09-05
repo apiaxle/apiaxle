@@ -38,7 +38,7 @@ class exports.ListKeys extends ListController
 
     * from: Integer for the index of the first key you want to
       see. Starts at zero.
-    * from: Integer for the index of the last key you want to
+    * to: Integer for the index of the last key you want to
       see. Starts at zero.
 
     ### Supported query params:
