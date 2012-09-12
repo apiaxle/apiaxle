@@ -43,9 +43,7 @@ class Redis
   find: ( key, cb ) ->
     @hgetall key, ( err, details ) ->
       return cb err, null if err
-
-      return cb null, null unless _.size( details )
-
+      return cb null, null unless details and _.size details
       return cb null, details
 
   multi: ( args ) ->
