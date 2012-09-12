@@ -167,7 +167,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @apiKeyModel.create "key_#{i}", forApi: "twitter", cb
 
     async.series fixtures, ( err, newKeys ) =>
-      @isUndefined err
+      @isNull err
 
       @GET path: "/v1/key/list/1/12", ( err, response ) =>
         @isNull err
@@ -189,7 +189,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @apiKeyModel.create "key_#{i}", forApi: "twitter", qps: i, qpd: i, cb
 
     async.parallel fixtures, ( err, newKeys ) =>
-      @isUndefined err
+      @isNull err
 
       @GET path: "/v1/key/list/0/12?resolve=true", ( err, response ) =>
         @isNull err

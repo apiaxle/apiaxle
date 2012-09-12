@@ -21,7 +21,7 @@ class exports.QpdTest extends FakeAppTest
     model = @application.model "apiLimits"
 
     model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
-      @isUndefined err
+      @isNull err
       @equal currentQps, 1
       @equal currentQpd, 19
 
@@ -36,7 +36,7 @@ class exports.QpdTest extends FakeAppTest
     qpdKeyStub = @getStub ApiLimits::, "qpdKey", -> "qpdTestKey"
 
     model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
-      @isUndefined err
+      @isNull err
       @equal currentQps, 1
       @equal currentQpd, 19
 
@@ -44,7 +44,7 @@ class exports.QpdTest extends FakeAppTest
       @ok qpdKeyStub.called
 
       model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
-        @isUndefined err
+        @isNull err
         @equal currentQps, 0
         @equal currentQpd, 18
 
@@ -62,7 +62,7 @@ class exports.QpdTest extends FakeAppTest
     qpdKeyStub = @getStub ApiLimits::, "qpdKey", -> "qpdTestKey"
 
     model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
-      @isUndefined err
+      @isNull err
       @equal currentQps, 1
       @equal currentQpd, 19
 
@@ -70,7 +70,7 @@ class exports.QpdTest extends FakeAppTest
       @ok qpdKeyStub.called
 
       model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
-        @isUndefined err
+        @isNull err
         @equal currentQps, 0
         @equal currentQpd, 18
 

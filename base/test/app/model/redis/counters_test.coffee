@@ -113,7 +113,7 @@ class exports.CountersTest extends FakeAppTest
     fixtures.push ( cb ) => @model.apiHit "1234", "QpdExceededError", cb
 
     async.series fixtures, ( err, results ) =>
-      @isUndefined err
+      @isNull err
       @ok results
 
       @model.getPossibleResponseTypes "1234", ( err, types ) =>

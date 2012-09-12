@@ -56,7 +56,7 @@ class exports.ApiLimits extends Redis
       return cb err if err
 
       # if currentQp is null then this is the first time we've used
-      # it. -1 on the limit because this counts as a hit.
+      # it. Decrement the limit because this counts as a hit.
       return @_setInitialQp qpKey, qpExpires, ( qpLimit - 1 ), cb if not currentQp?
 
       # we're allowed the call

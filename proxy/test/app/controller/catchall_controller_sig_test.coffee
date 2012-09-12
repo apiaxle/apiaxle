@@ -69,6 +69,6 @@ class exports.CatchallTest extends ApiaxleTest
             cb()
 
       async.parallel tests, ( err ) =>
-        @isUndefined err
+        @isNull err
 
         done 13

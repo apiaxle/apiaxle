@@ -31,7 +31,7 @@ class exports.CatchallTest extends ApiaxleTest
               cb()
 
     async.parallel all, ( err, results ) =>
-      @isUndefined err
+      @isNull err
       @equal results.length, 4
 
       done 26
@@ -66,7 +66,7 @@ class exports.CatchallTest extends ApiaxleTest
               cb()
 
     async.series all, ( err, results ) =>
-      @isUndefined err
+      @isNull err
       @equal results.length, 4
 
       done 26
