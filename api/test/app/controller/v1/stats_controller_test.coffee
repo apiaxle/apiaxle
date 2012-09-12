@@ -37,7 +37,7 @@ class exports.StatsControllerTest extends ApiaxleTest
     hits.push ( cb ) => model.apiHit "1234", 404, cb
 
     async.parallel hits, ( err, results ) =>
-      @isUndefined err
+      @isNull err
 
       @GET path: "/v1/stats/1234/all", ( err, res ) =>
         @isNull err
@@ -94,4 +94,4 @@ class exports.StatsControllerTest extends ApiaxleTest
                 @ok json
                 @deepEqual json, shouldHave
 
-              done 3
+              done 7
