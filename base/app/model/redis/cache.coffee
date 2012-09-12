@@ -20,6 +20,7 @@ class exports.Cache extends Redis
   get: ( key, cb ) ->
     @hgetall key, ( err, cache ) =>
       return cb err if err
+      return cb null, null if cache is null
 
       { status, contentType, body } = cache
       return cb null, parseInt( status ), contentType, body
