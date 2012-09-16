@@ -12,8 +12,6 @@ class exports.Cache extends Redis
       status: status.toString()
       contentType: contentType
 
-    console.log( cache )
-
     @hmset key, cache, ( err ) =>
       return cb err if err
 
