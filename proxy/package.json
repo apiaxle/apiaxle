@@ -22,8 +22,7 @@
     "underscore": "~1.1.7",
     "redis": "0.8.1",
     "hiredis": "0.1.14",
-    "libxmljs": "*",
-    "apiaxle.base": "~0"
+    "libxmljs": "*"
   },
   "devDependencies": {
     "twerp":         "=1.0.7",
