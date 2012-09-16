@@ -48,6 +48,10 @@ for d in base proxy api; do
   save-excurstion "${d}" npm install
 done
 
+for d in proxy api; do
+  save-excurstion "${d}" npm link ../base
+done
+
 npm install -g coffee-script
 
 echo -e "\n\nHopefully you're done. Have a look at the documentation:" >&2
