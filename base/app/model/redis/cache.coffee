@@ -9,7 +9,7 @@ class exports.Cache extends Redis
   add: ( key, ttl, status, contentType, content, cb ) ->
     cache =
       body: content
-      status: status
+      status: status.toString()
       contentType: contentType
 
     @hmset key, cache, ( err ) =>

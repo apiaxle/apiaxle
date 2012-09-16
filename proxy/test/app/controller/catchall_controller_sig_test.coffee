@@ -18,7 +18,7 @@ class exports.CatchallTest extends ApiaxleTest
     @newApiAndKey "facebook", apiOptions, "1234", keyOptions, ( err ) =>
       @isNull err
 
-      stub = @stubCatchall 200, {},
+      stub = @stubCatchall 200, "{}",
         "Content-Type": "application/json"
 
       tests = []
