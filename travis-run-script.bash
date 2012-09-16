@@ -13,7 +13,7 @@ for project in api base; do
   echo "Installing modules..."
   npm install &>/dev/null
 
-  if ${project} -ne "base"; then
+  if [[ ${project} -ne "base" ]]; then
     echo "Linking base..."
     npm link ../base &>/dev/null
   fi
