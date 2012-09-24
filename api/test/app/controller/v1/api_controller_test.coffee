@@ -38,6 +38,21 @@ class exports.ApiControllerTest extends ApiaxleTest
 
         done 4
 
+  "test POST a valid api but no content-type header": ( done ) ->
+    options =
+      path: "/v1/api/1234"
+      data: JSON.stringify
+        endPoint: "api.example.com"
+
+    @POST options, ( err, res ) =>
+      @isNull err
+
+      res.parseJson ( json ) =>
+        @ok json.error
+        @equal json.error.type, "InvalidContentType"
+
+        done 3
+
   "test POST a valid api": ( done ) ->
     options =
       path: "/v1/api/1234"
