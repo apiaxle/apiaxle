@@ -30,7 +30,7 @@ apiDetailsRequired = ( app ) ->
 
 contentTypeRequired = ( accepted=[ "application/json" ] ) ->
   ( req, res, next ) ->
-    ct = req.get "content-type"
+    ct = req.headers[ "content-type" ]
 
     if not ct
       return next new InvalidContentType "Content-type is a required header."

@@ -63,6 +63,7 @@ class exports.ApiControllerTest extends ApiaxleTest
 
     @POST options, ( err, res ) =>
       res.parseJson ( json ) =>
+        @equal json.error?, false
         @equal json.apiFormat, "json"
 
         # check it went in
@@ -70,7 +71,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal dbApi.apiFormat, "json"
           @ok dbApi.createdAt
 
-          done 3
+          done 4
 
   "test POST with an invalid api": ( done ) ->
     options =
