@@ -77,7 +77,9 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal dbKey.forApi, "twitter"
           @ok dbKey.createdAt
 
-          done 8
+          @application.model("api").get_keys "twitter", 0, 10, (err, keys) =>
+            @equal keys[0], "1234"
+            done 9
 
   "test POST with an invalid key": ( done ) ->
     options =
