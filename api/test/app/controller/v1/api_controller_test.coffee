@@ -50,8 +50,27 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( json ) =>
         @ok json.error
         @equal json.error.type, "InvalidContentType"
+        @equal json.error.message, "Content-type is a required header."
 
-        done 3
+        done 4
+
+  "test POST a valid api but an invalid content-type header": ( done ) ->
+    options =
+      path: "/v1/api/1234"
+      headers:
+        "Content-Type": "text/json"
+      data: JSON.stringify
+        endPoint: "api.example.com"
+
+    @POST options, ( err, res ) =>
+      @isNull err
+
+      res.parseJson ( json ) =>
+        @ok json.error
+        @equal json.error.type, "InvalidContentType"
+        @equal json.error.message, "text/json is not a supported content type."
+
+        done 4
 
   "test POST a valid api": ( done ) ->
     options =
