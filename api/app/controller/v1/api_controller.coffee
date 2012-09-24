@@ -1,7 +1,7 @@
 _ = require "underscore"
 
 { ApiaxleController } = require "../controller"
-{ NotFoundError, AlreadyExists } = require "../../../lib/error"
+{ InvalidContentType, NotFoundError, AlreadyExists } = require "../../../lib/error"
 
 apiDetails = ( app ) ->
   ( req, res, next ) ->
@@ -28,6 +28,18 @@ apiDetailsRequired = ( app ) ->
 
       return next()
 
+contentTypeRequired = ( accepted=[ "application/json" ] ) ->
+  ( req, res, next ) ->
+    ct = req.get "content-type"
+
+    if not ct
+      return next new InvalidContentType "Content-type is a required header."
+
+    if ct not in accepted
+      return next new InvalidContentType "#{ ct } is not a supported content type."
+
+    return next()
+
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
 
@@ -43,7 +55,7 @@ class exports.CreateApi extends ApiaxleController
     * The inserted structure (including the new timestamp fields).
     """
 
-  middleware: -> [ apiDetails( @app ) ]
+  middleware: -> [ contentTypeRequired( ), apiDetails( @app ) ]
 
   path: -> "/v1/api/:api"
 
