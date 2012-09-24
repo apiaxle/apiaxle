@@ -34,3 +34,6 @@ class exports.Api extends Redis
 
   add_key: (api, key) ->
     @lpush "#{ api }:keys", key
+
+  get_keys: (api, start, stop, cb) ->
+    @lrange "#{ api }:keys", start, stop, cb
