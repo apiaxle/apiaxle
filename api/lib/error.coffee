@@ -8,3 +8,6 @@ class exports.AlreadyExists extends AppError
 
 class exports.InvalidDateFormat extends AppError
   @status = 400
+
+class exports.InvalidContentType extends AppError
+  @status = 400
