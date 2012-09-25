@@ -1,5 +1,17 @@
 { Controller } = require "apiaxle.base"
-{ ApiUnknown, ApiKeyError } = require "../../lib/error"
+{ InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
+
+exports.contentTypeRequired = ( accepted=[ "application/json" ] ) ->
+  ( req, res, next ) ->
+    ct = req.headers[ "content-type" ]
+
+    if not ct
+      return next new InvalidContentType "Content-type is a required header."
+
+    if ct not in accepted
+      return next new InvalidContentType "#{ ct } is not a supported content type."
+
+    return next()
 
 class exports.ApiaxleController extends Controller
   docs: -> ""

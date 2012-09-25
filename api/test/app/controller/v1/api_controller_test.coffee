@@ -6,14 +6,6 @@ class exports.ApiControllerTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
-  "test GET a valid api": ( done ) ->
-    # now try and get it
-    @GET path: "/v1/api/1234", ( err, res ) =>
-      res.parseJson ( json ) =>
-        @ok 1
-
-        done 1
-
   "test GET a non-existant api": ( done ) ->
     # now try and get it
     @GET path: "/v1/api/1234", ( err, res ) =>
@@ -35,6 +27,40 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( json ) =>
         @ok json.error
         @equal json.error.type, "NotFoundError"
+
+        done 4
+
+  "test POST a valid api but no content-type header": ( done ) ->
+    options =
+      path: "/v1/api/1234"
+      data: JSON.stringify
+        endPoint: "api.example.com"
+
+    @POST options, ( err, res ) =>
+      @isNull err
+
+      res.parseJson ( json ) =>
+        @ok json.error
+        @equal json.error.type, "InvalidContentType"
+        @equal json.error.message, "Content-type is a required header."
+
+        done 4
+
+  "test POST a valid api but an invalid content-type header": ( done ) ->
+    options =
+      path: "/v1/api/1234"
+      headers:
+        "Content-Type": "text/json"
+      data: JSON.stringify
+        endPoint: "api.example.com"
+
+    @POST options, ( err, res ) =>
+      @isNull err
+
+      res.parseJson ( json ) =>
+        @ok json.error
+        @equal json.error.type, "InvalidContentType"
+        @equal json.error.message, "text/json is not a supported content type."
 
         done 4
 
@@ -47,7 +73,11 @@ class exports.ApiControllerTest extends ApiaxleTest
         endPoint: "api.example.com"
 
     @POST options, ( err, res ) =>
+      @isNull err
+      @equal res.statusCode, 200
+
       res.parseJson ( json ) =>
+        @isUndefined json.error
         @equal json.apiFormat, "json"
 
         # check it went in
@@ -55,7 +85,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal dbApi.apiFormat, "json"
           @ok dbApi.createdAt
 
-          done 3
+          done 5
 
   "test POST with an invalid api": ( done ) ->
     options =
@@ -66,6 +96,9 @@ class exports.ApiControllerTest extends ApiaxleTest
         apiFormat: "json"
 
     @POST options, ( err, res ) =>
+      @isNull err
+      @equal res.statusCode, 400
+
       res.parseJson ( json ) =>
         @ok json.error
         @equal json.error.type, "ValidationError"
@@ -73,7 +106,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         # TODO: this is a terrible message...
         @equal json.error.message, "endPoint: (optional) "
 
-        done 3
+        done 5
 
   "test PUT with an existing api": ( done ) ->
     options =
@@ -89,6 +122,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       @ok origApi
 
       @PUT options, ( err, res ) =>
+        @isNull err
         @equal res.statusCode, 200
 
         @application.model( "api" ).find "1234", ( err, dbApi ) =>
@@ -98,7 +132,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           # we shouldn't have added the superfluous field
           @equal dbApi.doesntExist?, false
 
-          done 6
+          done 7
 
   "test PUT with a bad structure": ( done ) ->
     @application.model( "api" ).create "1234", endPoint: "hi.com", ( err, origApi ) =>
@@ -113,13 +147,14 @@ class exports.ApiControllerTest extends ApiaxleTest
           endPointTimeout: "txt"
 
       @PUT options, ( err, res ) =>
+        @isNull err
         @equal res.statusCode, 400
 
         res.parseJson ( json ) =>
           @ok json
           @equal json.error.type, "ValidationError"
 
-          done 5
+          done 6
 
   "test DELETE": ( done ) ->
     @application.model( "api" ).create "1234", endPoint: "hi.com", ( err, origApi ) =>
@@ -127,10 +162,11 @@ class exports.ApiControllerTest extends ApiaxleTest
       @ok origApi
 
       @DELETE path: "/v1/api/1234", ( err, res ) =>
+        @isNull err
         @equal res.statusCode, 200
 
         @application.model( "api" ).find "1234", ( err, dbApi ) =>
           @isNull err
           @isNull dbApi
 
-          done 5
+          done 6
