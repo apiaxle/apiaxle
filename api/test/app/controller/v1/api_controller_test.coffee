@@ -77,7 +77,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 200
 
       res.parseJson ( json ) =>
-        @equal json.error?, false
+        @isUndefined json.error
         @equal json.apiFormat, "json"
 
         # check it went in
