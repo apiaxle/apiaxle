@@ -1,5 +1,5 @@
 { Controller } = require "apiaxle.base"
-{ ApiUnknown, ApiKeyError } = require "../../lib/error"
+{ ApiUnknown, KeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
   docs: -> ""

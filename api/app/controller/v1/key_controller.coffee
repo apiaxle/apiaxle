@@ -5,7 +5,7 @@ _ = require "underscore"
 
 key = ( app ) ->
   ( req, res, next ) ->
-    app.model( "apiKey" ).find key, ( err, dbKey ) ->
+    app.model( "key" ).find key, ( err, dbKey ) ->
       return next err if err
 
       req.key = dbKey
@@ -16,7 +16,7 @@ keyRequired = ( app ) ->
   ( req, res, next ) ->
     api_key = req.params.key
 
-    app.model( "apiKey" ).find api_key, ( err, dbKey ) ->
+    app.model( "key" ).find api_key, ( err, dbKey ) ->
       return next err if err
 
       if not dbKey?
@@ -55,7 +55,7 @@ class exports.ListKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "apiKey"
+  modelName: -> "key"
 
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
@@ -65,7 +65,7 @@ class exports.CreateKey extends ApiaxleController
 
     ### Fields supported:
 
-    #{ @app.model( 'apiKey' ).getValidationDocs() }
+    #{ @app.model( 'key' ).getValidationDocs() }
 
     ### Returns:
 
@@ -82,7 +82,7 @@ class exports.CreateKey extends ApiaxleController
     if req.key?
       return next new AlreadyExists "#{ key } already exists."
 
-    @app.model( "apiKey" ).create req.params.key, req.body, ( err, newObj ) ->
+    @app.model( "key" ).create req.params.key, req.body, ( err, newObj ) ->
       return next err if err
 
       res.json newObj
@@ -121,7 +121,7 @@ class exports.DeleteKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "apiKey"
+    model = @app.model "key"
 
     model.del req.params.key, ( err, newKey ) ->
       return next err if err
@@ -137,7 +137,7 @@ class exports.ModifyKey extends ApiaxleController
 
     ### Fields supported:
 
-    #{ @app.model( 'apiKey' ).getValidationDocs() }
+    #{ @app.model( 'key' ).getValidationDocs() }
 
     ### Returns:
 
@@ -150,7 +150,7 @@ class exports.ModifyKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "apiKey"
+    model = @app.model "key"
 
     # validate the input
     model.validate req.body, ( err ) =>

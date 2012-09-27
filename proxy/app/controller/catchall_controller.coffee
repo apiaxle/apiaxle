@@ -10,7 +10,7 @@ class CatchAll extends ApiaxleController
 
   path: ( ) -> "*"
 
-  middleware: -> [ @simpleBodyParser, @subdomain, @api, @apiKey ]
+  middleware: -> [ @simpleBodyParser, @subdomain, @api, @key ]
 
   _cacheHash: ( url ) ->
     md5 = crypto.createHash "md5"
@@ -72,7 +72,7 @@ class CatchAll extends ApiaxleController
     # cache (the 0 is a string because it comes straight from redis).
     @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
       if cacheTtl is 0 or mustRevalidate
-        return @_httpRequest options, req.apiKey.key, outerCb
+        return @_httpRequest options, req.key.key, outerCb
 
       cache = @app.model "cache"
       key = @_cacheHash options.url
@@ -84,7 +84,7 @@ class CatchAll extends ApiaxleController
         # apiresponse? Should we have cached the headers?
         if body
           @app.logger.debug "Cache hit: #{options.url}"
-          return @app.model( "counters" ).apiHit req.apiKey.key, status, ( err, res ) ->
+          return @app.model( "counters" ).apiHit req.key.key, status, ( err, res ) ->
             fakeResponse =
               statusCode: status
               headers:
@@ -95,7 +95,7 @@ class CatchAll extends ApiaxleController
         @app.logger.debug "Cache miss: #{options.url}"
 
         # means we've a cache miss and so need to make a real request
-        @_httpRequest options, req.apiKey.key, ( err, apiRes, body ) =>
+        @_httpRequest options, req.key.key, ( err, apiRes, body ) =>
           return outerCb err if err
 
           # do I really need to check both?
@@ -133,7 +133,7 @@ class CatchAll extends ApiaxleController
 
     model = @app.model "apiLimits"
 
-    { qps, qpd, key } = req.apiKey
+    { qps, qpd, key } = req.key
 
     model.apiHit key, qps, qpd, ( err, [ newQps, newQpd ] ) =>
       if err
@@ -143,7 +143,7 @@ class CatchAll extends ApiaxleController
         # QpdExceededError at the moment)
         type = err.constructor.name
 
-        return counterModel.apiHit req.apiKey.key, type, ( counterErr, res ) ->
+        return counterModel.apiHit req.key.key, type, ( counterErr, res ) ->
           return next counterErr if counterErr
           return next err
 

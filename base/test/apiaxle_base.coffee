@@ -28,7 +28,7 @@ class exports.FakeAppTest extends AppTest
 
       # add the new key
       fixtures.push ( cb ) =>
-        apiKeyModel = @application.model "apiKey"
-        apiKeyModel.create key, options, cb
+        keyModel = @application.model "key"
+        keyModel.create key, options, cb
 
       async.series fixtures, cb

@@ -39,7 +39,7 @@ keys = options.arguments
 
 gk = new ApiaxleProxy()
 gk.script ( finish ) ->
-  model = gk.model "apiKey"
+  model = gk.model "key"
 
   all = [ ]
 
