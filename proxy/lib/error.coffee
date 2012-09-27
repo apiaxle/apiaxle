@@ -3,7 +3,7 @@
 class exports.ApiUnknown extends AppError
   @status = 404
 
-class exports.ApiKeyError extends AppError
+class exports.KeyError extends AppError
   @status = 403
 
 class exports.TimeoutError extends AppError

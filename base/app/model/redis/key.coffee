@@ -3,9 +3,9 @@ _ = require "underscore"
 { Redis } = require "../redis"
 { ValidationError } = require "../../../lib/error"
 
-validationEnv = require( "schema" )( "apiKeyEnv" )
+validationEnv = require( "schema" )( "keyEnv" )
 
-class exports.ApiKey extends Redis
+class exports.Key extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "key"
 
@@ -44,6 +44,6 @@ class exports.ApiKey extends Redis
         @application.model("api").add_key details.forApi, name
 
         # why won't coffeescript just let me call super here?
-        ApiKey.__super__.create.apply @, [ name, details, cb ]
+        Key.__super__.create.apply @, [ name, details, cb ]
     else
       super

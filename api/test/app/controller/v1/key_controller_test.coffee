@@ -10,13 +10,13 @@ class exports.KeyControllerTest extends ApiaxleTest
     details =
       endPoint: "api.twitter.com"
 
-    @apiKeyModel = @application.model( "apiKey" )
+    @keyModel = @application.model( "key" )
 
     @application.model( "api" ).create "twitter", details, ( err, @newApi ) ->
       done()
 
   "test GET a valid key": ( done ) ->
-    @apiKeyModel.create "1234", forApi: "twitter", ( err, newKey ) =>
+    @keyModel.create "1234", forApi: "twitter", ( err, newKey ) =>
       @isNull err
       @ok newKey
 
@@ -69,7 +69,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal json.forApi, "twitter"
 
         # check it went in
-        @apiKeyModel.find "1234", ( err, dbKey ) =>
+        @keyModel.find "1234", ( err, dbKey ) =>
           @isNull err
 
           @equal dbKey.qps, "1"
@@ -109,14 +109,14 @@ class exports.KeyControllerTest extends ApiaxleTest
         qps: 30
         qpd: 1000
 
-    @apiKeyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
+    @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
       @PUT options, ( err, res ) =>
         @equal res.statusCode, 200
 
-        @apiKeyModel.find "1234", ( err, dbKey ) =>
+        @keyModel.find "1234", ( err, dbKey ) =>
           @equal dbKey.qps, "30"
           @equal dbKey.qpd, "1000"
 
@@ -132,7 +132,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         qps: "hi"     # invalid
         qpd: 1000
 
-    @apiKeyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
+    @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -146,14 +146,14 @@ class exports.KeyControllerTest extends ApiaxleTest
           done 5
 
   "test DELETE": ( done ) ->
-    @apiKeyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
+    @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
       @DELETE path: "/v1/key/1234", ( err, res ) =>
         @equal res.statusCode, 200
 
-        @apiKeyModel.find "1234", ( err, dbKey ) =>
+        @keyModel.find "1234", ( err, dbKey ) =>
           @isNull err
           @isNull dbKey
 
@@ -166,7 +166,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @apiKeyModel.create "key_#{i}", forApi: "twitter", cb
+          @keyModel.create "key_#{i}", forApi: "twitter", cb
 
     async.series fixtures, ( err, newKeys ) =>
       @isNull err
@@ -188,7 +188,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @apiKeyModel.create "key_#{i}", forApi: "twitter", qps: i, qpd: i, cb
+          @keyModel.create "key_#{i}", forApi: "twitter", qps: i, qpd: i, cb
 
     async.parallel fixtures, ( err, newKeys ) =>
       @isNull err

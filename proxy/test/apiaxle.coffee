@@ -27,7 +27,7 @@ class exports.ApiaxleTest extends AppTest
 
       keyOptions["forApi"] = api
 
-      @application.model( "apiKey" ).create key, keyOptions, ( err, newKey ) =>
+      @application.model( "key" ).create key, keyOptions, ( err, newKey ) =>
         return cb err if err
 
         return cb null, newApi, newKey

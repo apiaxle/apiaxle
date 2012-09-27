@@ -1,7 +1,7 @@
 crypto = require "crypto"
 
 { Controller } = require "apiaxle.base"
-{ ApiUnknown, ApiKeyError } = require "../../lib/error"
+{ ApiUnknown, KeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
   simpleBodyParser: ( req, res, next ) ->
@@ -33,17 +33,17 @@ class exports.ApiaxleController extends Controller
       return next()
 
   authenticateWithKey: ( key, req, next ) ->
-    @app.model( "apiKey" ).find key, ( err, keyDetails ) ->
+    @app.model( "key" ).find key, ( err, keyDetails ) ->
       return next err if err
 
       # check the key is for this api
       if keyDetails?.forApi isnt req.subdomain
-        return next new ApiKeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
+        return next new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
 
       if keyDetails?.sharedSecret
         # if the signature is missing then we cant go on
         if not sig = ( req.query.apiaxle_sig or req.query.api_sig )
-          return next new ApiKeyError "A signature is required for this API."
+          return next new KeyError "A signature is required for this API."
 
         date = Math.floor( Date.now() / 1000 / 3 ).toString()
 
@@ -55,17 +55,17 @@ class exports.ApiaxleController extends Controller
         processed = md5.digest( "hex" )
 
         if processed isnt sig
-          return next new ApiKeyError "Invalid signature (got #{processed})."
+          return next new KeyError "Invalid signature (got #{processed})."
 
       keyDetails.key = key
-      req.apiKey = keyDetails
+      req.key = keyDetails
 
       return next()
 
-  apiKey: ( req, res, next ) =>
+  key: ( req, res, next ) =>
     key = ( req.query.apiaxle_key or req.query.api_key )
 
     if not key
-      return next new ApiKeyError "No api_key specified."
+      return next new KeyError "No api_key specified."
 
     @authenticateWithKey( key, req, next )

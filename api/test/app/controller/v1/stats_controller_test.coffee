@@ -16,7 +16,7 @@ class exports.StatsControllerTest extends ApiaxleTest
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "apiKey" ).create "1234", keyOptions, ( err ) ->
+      @application.model( "key" ).create "1234", keyOptions, ( err ) ->
         done()
 
   "test all counts": ( done ) ->

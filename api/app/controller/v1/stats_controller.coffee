@@ -7,7 +7,7 @@ keyRequired = ( app ) ->
   ( req, res, next ) ->
     api_key = req.params.key
 
-    app.model( "apiKey" ).find api_key, ( err, dbKey ) ->
+    app.model( "key" ).find api_key, ( err, dbKey ) ->
       return next err if err
 
       if not dbKey?

@@ -29,7 +29,7 @@ class exports.CatchallTest extends ApiaxleTest
 
           response.parseJson ( json ) =>
             @ok err = json.error
-            @equal err.type, "ApiKeyError"
+            @equal err.type, "KeyError"
             @equal err.message, "A signature is required for this API."
 
             cb()
@@ -40,7 +40,7 @@ class exports.CatchallTest extends ApiaxleTest
 
           response.parseJson ( json ) =>
             @ok err = json.error
-            @equal err.type, "ApiKeyError"
+            @equal err.type, "KeyError"
             @match err.message, /Invalid signature/
 
             cb()
