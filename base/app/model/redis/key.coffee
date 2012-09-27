@@ -33,17 +33,17 @@ class exports.Key extends Redis
   create: ( name, details, cb ) ->
     # if there isn't a forApi field then `super` will take care of
     # that
-    if details?.forApi?
-      @application.model( "api" ).find details.forApi, ( err, apiDetails ) =>
-        return cb err if err
+    if not details?.forApi?
+      return super
 
-        if not apiDetails
-          return cb new ValidationError "API '#{ details.forApi }' doesn't exist."
+    @application.model( "api" ).find details.forApi, ( err, apiDetails ) =>
+      return cb err if err
 
-        # Save the key
-        @application.model("api").add_key details.forApi, name
+      if not apiDetails
+        return cb new ValidationError "API '#{ details.forApi }' doesn't exist."
 
-        # why won't coffeescript just let me call super here?
-        Key.__super__.create.apply @, [ name, details, cb ]
-    else
-      super
+      # Save the key
+      @application.model("api").add_key details.forApi, name
+
+      # why won't coffeescript just let me call super here?
+      return Key.__super__.create.apply @, [ name, details, cb ]
