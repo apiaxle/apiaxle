@@ -1,6 +1,6 @@
 _ = require "underscore"
 
-{ ApiaxleController } = require "../controller"
+{ ApiaxleController, ListController } = require "../controller"
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
 
 apiDetails = ( app ) ->
@@ -132,3 +132,28 @@ class exports.ModifyApi extends ApiaxleController
         return next err if err
 
         res.json newApi
+
+class exports.ListApiKeys extends ListController
+  @verb = "get"
+
+  docs: ->
+    """Add a new API definition for `:api`.
+
+    ### Fields supported:
+
+    #{ @app.model( 'api' ).getValidationDocs() }
+
+    ### Returns:
+
+    * The inserted structure (including the new timestamp fields).
+    """
+
+  middleware: -> [ apiDetails( @app ) ]
+
+  path: -> "/v1/api/:api/keys"
+
+  execute: ( req, res, next ) ->
+    @app.model( "api" ).get_keys req.params.api, req.body, ( err, newObj ) ->
+      return next err if err
+
+      res.json newObj
