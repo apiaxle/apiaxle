@@ -1,6 +1,6 @@
 _ = require "underscore"
 
-{ contentTypeRequired, ApiaxleController } = require "../controller"
+{ ApiaxleController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
 class exports.CreateApi extends ApiaxleController
@@ -18,7 +18,7 @@ class exports.CreateApi extends ApiaxleController
     * The inserted structure (including the new timestamp fields).
     """
 
-  middleware: -> [ contentTypeRequired(), @mwApiDetails( ) ]
+  middleware: -> [ @mwContentTypeRequired(), @mwApiDetails( ) ]
 
   path: -> "/v1/api/:api"
 
@@ -88,7 +88,7 @@ class exports.ModifyApi extends ApiaxleController
     * The merged structure (including the timestamp fields).
     """
 
-  middleware: -> [ contentTypeRequired( ), @mwApiDetailsRequired( @app ) ]
+  middleware: -> [ @mwContentTypeRequired( ), @mwApiDetailsRequired( @app ) ]
 
   path: -> "/v1/api/:api"
 

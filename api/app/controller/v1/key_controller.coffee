@@ -1,6 +1,6 @@
 _ = require "underscore"
 
-{ contentTypeRequired, ApiaxleController, ListController, CreateController } = require "../controller"
+{ ApiaxleController, ListController, CreateController } = require "../controller"
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
 
 key = ( app ) ->
@@ -73,7 +73,7 @@ class exports.CreateKey extends ApiaxleController
       fields).
     """
 
-  middleware: -> [ contentTypeRequired( ), key( @app ) ]
+  middleware: -> [ @mwContentTypeRequired( ), key( @app ) ]
 
   path: -> "/v1/key/:key"
 
@@ -145,7 +145,7 @@ class exports.ModifyKey extends ApiaxleController
       fields).
     """
 
-  middleware: -> [ contentTypeRequired( ), keyRequired( @app ) ]
+  middleware: -> [ @mwContentTypeRequired( ), keyRequired( @app ) ]
 
   path: -> "/v1/key/:key"
 
