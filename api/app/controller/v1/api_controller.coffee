@@ -3,17 +3,6 @@ _ = require "underscore"
 { contentTypeRequired, ApiaxleController } = require "../controller"
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
 
-apiDetails = ( app ) ->
-  ( req, res, next ) ->
-    api = req.params.api
-
-    app.model( "api" ).find api, ( err, dbApi ) ->
-      return next err if err
-
-      req.api = dbApi
-
-      return next()
-
 apiDetailsRequired = ( app ) ->
   ( req, res, next ) ->
     api = req.params.api
@@ -43,7 +32,7 @@ class exports.CreateApi extends ApiaxleController
     * The inserted structure (including the new timestamp fields).
     """
 
-  middleware: -> [ contentTypeRequired(), apiDetails( @app ) ]
+  middleware: -> [ contentTypeRequired(), @mwApiDetails( ) ]
 
   path: -> "/v1/api/:api"
 
@@ -164,7 +153,7 @@ class exports.ListApiKeys extends ApiaxleController
 
   modelName: -> "api"
 
-  middleware: -> [ apiDetails( @app ) ]
+  middleware: -> [ @mwApiDetails( @app ) ]
 
   execute: ( req, res, next ) ->
     @app.model( "api" ).get_keys req.params.api, req.params.from, req.params.to, ( err, results ) =>

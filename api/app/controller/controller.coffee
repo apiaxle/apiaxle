@@ -14,6 +14,17 @@ exports.contentTypeRequired = ( accepted=[ "application/json" ] ) ->
     return next()
 
 class exports.ApiaxleController extends Controller
+  mwApiDetails: ( ) ->
+    ( req, res, next ) =>
+      api = req.params.api
+
+      @app.model( "api" ).find api, ( err, dbApi ) ->
+        return next err if err
+
+        req.api = dbApi
+
+        return next()
+
   docs: -> ""
 
   resolve: ( model, keys, cb ) ->
