@@ -14,6 +14,14 @@ class exports.ApiControllerTest extends ApiaxleTest
 
         done 1
 
+  "test GET keys for a valid api": ( done ) ->
+    # now try and get it
+    @GET path: "/v1/api/123/keys/0/10", ( err, res ) =>
+      res.parseJson ( json ) =>
+        @ok 1
+
+        done 1
+
   "test GET a non-existant api": ( done ) ->
     # now try and get it
     @GET path: "/v1/api/1234", ( err, res ) =>
