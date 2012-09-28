@@ -1,5 +1,5 @@
 { Controller } = require "apiaxle.base"
-{ InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
+{ NotFoundError, InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
 
 exports.contentTypeRequired = ( accepted=[ "application/json" ] ) ->
   ( req, res, next ) ->
@@ -14,6 +14,21 @@ exports.contentTypeRequired = ( accepted=[ "application/json" ] ) ->
     return next()
 
 class exports.ApiaxleController extends Controller
+  mwApiDetailsRequired: ( ) ->
+    ( req, res, next ) =>
+      api = req.params.api
+
+      @app.model( "api" ).find api, ( err, dbApi ) ->
+        return next err if err
+
+        if not dbApi?
+          return next new NotFoundError "#{ api } not found."
+
+        req.api = dbApi
+
+        return next()
+
+
   mwApiDetails: ( ) ->
     ( req, res, next ) =>
       api = req.params.api

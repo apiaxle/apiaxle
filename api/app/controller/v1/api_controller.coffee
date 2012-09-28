@@ -1,21 +1,7 @@
 _ = require "underscore"
 
 { contentTypeRequired, ApiaxleController } = require "../controller"
-{ NotFoundError, AlreadyExists } = require "../../../lib/error"
-
-apiDetailsRequired = ( app ) ->
-  ( req, res, next ) ->
-    api = req.params.api
-
-    app.model( "api" ).find api, ( err, dbApi ) ->
-      return next err if err
-
-      if not dbApi?
-        return next new NotFoundError "#{ api } not found."
-
-      req.api = dbApi
-
-      return next()
+{ AlreadyExists } = require "../../../lib/error"
 
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
@@ -57,7 +43,7 @@ class exports.ViewApi extends ApiaxleController
     * The API structure (including the timestamp fields).
     """
 
-  middleware: -> [ apiDetailsRequired( @app ) ]
+  middleware: -> [ @mwApiDetailsRequired( @app ) ]
 
   path: -> "/v1/api/:api"
 
@@ -75,7 +61,7 @@ class exports.DeleteApi extends ApiaxleController
     * `true` on success.
     """
 
-  middleware: -> [ apiDetailsRequired( @app ) ]
+  middleware: -> [ @mwApiDetailsRequired( @app ) ]
 
   path: -> "/v1/api/:api"
 
@@ -102,7 +88,7 @@ class exports.ModifyApi extends ApiaxleController
     * The merged structure (including the timestamp fields).
     """
 
-  middleware: -> [ contentTypeRequired( ), apiDetailsRequired( @app ) ]
+  middleware: -> [ contentTypeRequired( ), @mwApiDetailsRequired( @app ) ]
 
   path: -> "/v1/api/:api"
 
