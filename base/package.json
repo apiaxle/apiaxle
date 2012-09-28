@@ -4,15 +4,8 @@
   "description": "Basic Application class for apiaxle.",
   "version": "0.0.2",
   "main": "index",
-  "repository": {
-    "type": "git",
-    "url": "https://philjackson@bitbucket.org/philjackson/apiaxle.base.git"
-  },
   "scripts": {
     "test": "cake test"
-  },
-  "engines": {
-    "node": ">=0.4.8"
   },
   "dependencies": {
     "coffee-script": "~1.2",

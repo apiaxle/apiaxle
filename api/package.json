@@ -3,15 +3,8 @@
   "name": "apiaxle.api",
   "description": "Provisioning API for apiaxle",
   "version": "0.0.2",
-  "repository": {
-    "type": "git",
-    "url": "https://philjackson@bitbucket.org/philjackson/apiaxle.api.git"
-  },
   "scripts": {
     "test": "cake test"
-  },
-  "engines": {
-    "node": ">0.4.8"
   },
   "dependencies": {
     "async": "~0.1.9",
