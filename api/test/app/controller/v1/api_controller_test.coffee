@@ -9,6 +9,7 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test GET a valid api": ( done ) ->
     # now try and get it
     @GET path: "/v1/api/1234", ( err, res ) =>
+      @isNull err
       res.parseJson ( json ) =>
         @ok 1
 
@@ -17,6 +18,7 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test GET keys for a valid api": ( done ) ->
     # now try and get it
     @GET path: "/v1/api/123/keys/0/10", ( err, res ) =>
+      @isNull err
       res.parseJson ( json ) =>
         @ok 1
 
