@@ -2,6 +2,31 @@
 { NotFoundError, InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
+  mwKeyDetails: ( ) ->
+    ( req, res, next ) =>
+      api_key = req.params.key
+
+      @app.model( "key" ).find api_key, ( err, dbKey ) ->
+        return next err if err
+
+        req.key = dbKey
+
+        return next()
+
+  mwKeyDetailsRequired: ( ) ->
+    ( req, res, next ) =>
+      api_key = req.params.key
+
+      @app.model( "key" ).find api_key, ( err, dbKey ) ->
+        return next err if err
+
+        if not dbKey?
+          return next new NotFoundError "#{ api_key } not found."
+
+        req.key = dbKey
+
+        return next()
+
   mwContentTypeRequired: ( accepted=[ "application/json" ] ) ->
     ( req, res, next ) ->
       ct = req.headers[ "content-type" ]
