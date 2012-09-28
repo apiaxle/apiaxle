@@ -133,27 +133,46 @@ class exports.ModifyApi extends ApiaxleController
 
         res.json newApi
 
-class exports.ListApiKeys extends ListController
+class exports.ListApiKeys extends ApiaxleController
   @verb = "get"
 
+  path: -> "/v1/api/:api/keys/:from/:to"
+
   docs: ->
-    """Add a new API definition for `:api`.
+    """List keys belonging to :api
 
-    ### Fields supported:
+    ### Path parameters
 
-    #{ @app.model( 'api' ).getValidationDocs() }
+    * from: Integer for the index of the first key you want to
+      see. Starts at zero.
+    * to: Integer for the index of the last key you want to
+      see. Starts at zero.
+
+    ### Supported query params:
+
+    * resolve: if set to `true` then the details concerning the listed
+      keys will also be printed. Be aware that this will come with a
+      minor performace hit.
 
     ### Returns:
 
-    * The inserted structure (including the new timestamp fields).
+    * Without `resolve` the result will be an array with one key per
+      entry.
+    * If `resolve` is passed then results will be an object with the
+      key name as the key and the details as the value.
     """
+
+  modelName: -> "api"
 
   middleware: -> [ apiDetails( @app ) ]
 
-  path: -> "/v1/api/:api/keys"
-
   execute: ( req, res, next ) ->
-    @app.model( "api" ).get_keys req.params.api, req.body, ( err, newObj ) ->
+    @app.model( "api" ).get_keys req.params.api, req.params.from, req.params.to, ( err, results ) =>
       return next err if err
 
-      res.json newObj
+      if not req.query.resolve?
+        return res.json results
+
+      @resolve @app.model("key"), results, (err, resolved_results) ->
+        return next err if err
+        return res.json resolved_results
