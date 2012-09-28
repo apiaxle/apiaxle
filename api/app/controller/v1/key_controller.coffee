@@ -141,3 +141,42 @@ class exports.ModifyKey extends ApiaxleController
         return next err if err
 
         res.json newKey
+
+class exports.ViewAllStatsForKey extends ApiaxleController
+  @verb = "get"
+
+  docs: ->
+    """Get the statistics for key `:key`.
+
+    ### Returns:
+
+    * Object where the keys represent the HTTP status code of the
+      endpoint or the error returned by apiaxle (QpsExceededError, for
+      example). Each object contains date to hit count pairs.
+    """
+
+  middleware: -> [ keyRequired( @app ) ]
+
+  path: -> "/v1/key/:key/stats"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "counters"
+    model.getPossibleResponseTypes req.params.key, ( err, types ) ->
+      return next err if err
+
+      multi = model.multi()
+
+      for type in types
+        do ( type ) ->
+          multi.hgetall [ req.params.key, type ]
+
+      multi.exec ( err, results ) ->
+        return next err if err
+
+        # build up the output structure
+        output = {}
+
+        for type in types
+          output[ type ] = results.shift()
+
+        res.json output
