@@ -13,7 +13,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( json ) =>
         @ok 1
 
-        done 1
+        done 2
 
   "test GET keys for a valid api": ( done ) ->
     # now try and get it
@@ -22,7 +22,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( json ) =>
         @ok 1
 
-        done 1
+        done 2
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
@@ -103,7 +103,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal dbApi.apiFormat, "json"
           @ok dbApi.createdAt
 
-          done 5
+          done 6
 
   "test POST with an invalid api": ( done ) ->
     options =
