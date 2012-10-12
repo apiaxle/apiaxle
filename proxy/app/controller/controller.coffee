@@ -1,4 +1,5 @@
 crypto = require "crypto"
+async  = require "async"
 
 { Controller } = require "apiaxle.base"
 { ApiUnknown, KeyError } = require "../../lib/error"
@@ -33,34 +34,45 @@ class exports.ApiaxleController extends Controller
       return next()
 
   authenticateWithKey: ( key, req, next ) ->
-    @app.model( "key" ).find key, ( err, keyDetails ) ->
+    @app.model( "key" ).find key, ( err, keyDetails ) =>
       return next err if err
+
+      all = [ ]
 
       # check the key is for this api
       if keyDetails?.forApi isnt req.subdomain
         return next new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
 
       if keyDetails?.sharedSecret
-        # if the signature is missing then we cant go on
-        if not sig = ( req.query.apiaxle_sig or req.query.api_sig )
-          return next new KeyError "A signature is required for this API."
+        all.push ( cb ) =>
+          @validateToken req, key, keyDetails, cb
 
-        date = Math.floor( Date.now() / 1000 / 3 ).toString()
+      async.series all, ( err, results ) ->
+        return next err if err
 
-        md5 = crypto.createHash "md5"
-        md5.update keyDetails.sharedSecret
-        md5.update date
-        md5.update key
+        keyDetails.key = key
+        req.key = keyDetails
 
-        processed = md5.digest( "hex" )
+        return next()
 
-        if processed isnt sig
-          return next new KeyError "Invalid signature (got #{processed})."
+  validateToken: ( req, key, keyDetails, cb ) ->
+    # if the signature is missing then we cant go on
+    if not sig = ( req.query.apiaxle_sig or req.query.api_sig )
+      return cb new KeyError "A signature is required for this API."
 
-      keyDetails.key = key
-      req.key = keyDetails
+    date = Math.floor( Date.now() / 1000 / 3 ).toString()
 
-      return next()
+    md5 = crypto.createHash "md5"
+    md5.update keyDetails.sharedSecret
+    md5.update date
+    md5.update key
+
+    processed = md5.digest( "hex" )
+
+    if processed isnt sig
+      return cb new KeyError "Invalid signature (got #{processed})."
+
+    return cb null, processed
 
   key: ( req, res, next ) =>
     key = ( req.query.apiaxle_key or req.query.api_key )
