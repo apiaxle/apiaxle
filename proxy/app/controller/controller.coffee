@@ -60,19 +60,34 @@ class exports.ApiaxleController extends Controller
     if not sig = ( req.query.apiaxle_sig or req.query.api_sig )
       return cb new KeyError "A signature is required for this API."
 
-    date = Math.floor( Date.now() / 1000 / 3 ).toString()
+    now = Date.now() / 1000
 
-    md5 = crypto.createHash "md5"
-    md5.update keyDetails.sharedSecret
-    md5.update date
-    md5.update key
+    potentials = [
+      now,
 
-    processed = md5.digest( "hex" )
+      now + 1,
+      now - 1,
+      now + 2,
+      now - 2,
+      now + 3,
+      now - 3
+    ]
 
-    if processed isnt sig
-      return cb new KeyError "Invalid signature (got #{processed})."
+    for potential in potentials
+      date = Math.floor( potential ).toString()
 
-    return cb null, processed
+      md5 = crypto.createHash "md5"
+      md5.update keyDetails.sharedSecret
+      md5.update date
+      md5.update key
+
+      processed = md5.digest "hex"
+
+      if processed is sig
+        return cb null, processed
+
+    # none of the potential matches matched
+    return cb new KeyError "Invalid signature (got #{processed})."
 
   key: ( req, res, next ) =>
     key = ( req.query.apiaxle_key or req.query.api_key )

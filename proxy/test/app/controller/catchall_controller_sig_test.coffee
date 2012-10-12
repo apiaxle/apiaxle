@@ -46,7 +46,7 @@ class exports.CatchallTest extends ApiaxleTest
             cb()
 
       tests.push ( cb ) =>
-        date = Math.floor( Date.now() / 1000 / 3 ).toString()
+        date = Math.floor( Date.now() / 1000 ).toString()
 
         md5 = crypto.createHash "md5"
         md5.update "bob-the-builder"
