@@ -7,23 +7,26 @@ class exports.CatchallTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
+  @fixture_api_key = "1234"
+  @fixture_api_secret = "bob-the-builder"
+
   "setup api": ( done ) ->
     apiOptions =
       apiFormat: "json"
       globalCache: 30
 
     keyOptions =
-      sharedSecret: "bob-the-builder"
+      sharedSecret: @constructor.fixture_api_secret
 
-    @newApiAndKey "facebook", apiOptions, "1234", keyOptions, done
+    @newApiAndKey "facebook", apiOptions, @constructor.fixture_api_key, keyOptions, done
 
   generateSig: ( epoch ) ->
     date = Math.floor( epoch ).toString()
 
     md5 = crypto.createHash "md5"
-    md5.update "bob-the-builder"
+    md5.update @constructor.fixture_api_secret
     md5.update Math.floor( epoch ).toString()
-    md5.update "1234"
+    md5.update @constructor.fixture_api_key
 
     return md5.digest "hex"
 
@@ -43,7 +46,7 @@ class exports.CatchallTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          controller.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
+          controller.validateToken token, @constructor.fixture_api_key, @constructor.fixture_api_secret, ( err, token ) =>
             @isNull err, "No error for a token #{ validSeconds } out."
             @ok token
 
@@ -56,7 +59,7 @@ class exports.CatchallTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          controller.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
+          controller.validateToken token, @constructor.fixture_api_key, @constructor.fixture_api_secret, ( err, token ) =>
             @ok err, "Error for a token #{ validSeconds } out."
 
             @match err.message, /Invalid signature/
@@ -101,9 +104,9 @@ class exports.CatchallTest extends ApiaxleTest
       date = Math.floor( Date.now() / 1000 ).toString()
 
       md5 = crypto.createHash "md5"
-      md5.update "bob-the-builder"
+      md5.update @constructor.fixture_api_secret
       md5.update date
-      md5.update "1234"
+      md5.update @constructor.fixture_api_key
 
       validSig = md5.digest "hex"
 
