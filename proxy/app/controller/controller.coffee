@@ -48,7 +48,7 @@ class exports.ApiaxleController extends Controller
           return next new KeyError "A signature is required for this API."
 
         all.push ( cb ) =>
-          @validateToken providedSig, key, keyDetails, cb
+          @validateToken providedSig, key, keyDetails.sharedSecret, cb
 
       async.series all, ( err, results ) ->
         return next err if err
@@ -58,25 +58,22 @@ class exports.ApiaxleController extends Controller
 
         return next()
 
-  validateToken: ( providedSig, key, keyDetails, cb ) ->
+  validateToken: ( providedSig, key, sharedSecret, cb ) ->
     now = Date.now() / 1000
 
     potentials = [
       now,
 
-      now + 1,
-      now - 1,
-      now + 2,
-      now - 2,
-      now + 3,
-      now - 3
+      now + 1, now - 1,
+      now + 2, now - 2,
+      now + 3, now - 3
     ]
 
     for potential in potentials
       date = Math.floor( potential ).toString()
 
       md5 = crypto.createHash "md5"
-      md5.update keyDetails.sharedSecret
+      md5.update sharedSecret
       md5.update date
       md5.update key
 
