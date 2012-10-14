@@ -44,8 +44,11 @@ class exports.ApiaxleController extends Controller
         return next new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
 
       if keyDetails?.sharedSecret
+        if not providedSig = ( req.query.apiaxle_sig or req.query.api_sig )
+          return next new KeyError "A signature is required for this API."
+
         all.push ( cb ) =>
-          @validateToken req, key, keyDetails, cb
+          @validateToken providedSig, key, keyDetails, cb
 
       async.series all, ( err, results ) ->
         return next err if err
@@ -55,11 +58,7 @@ class exports.ApiaxleController extends Controller
 
         return next()
 
-  validateToken: ( req, key, keyDetails, cb ) ->
-    # if the signature is missing then we cant go on
-    if not sig = ( req.query.apiaxle_sig or req.query.api_sig )
-      return cb new KeyError "A signature is required for this API."
-
+  validateToken: ( providedSig, key, keyDetails, cb ) ->
     now = Date.now() / 1000
 
     potentials = [
@@ -83,7 +82,7 @@ class exports.ApiaxleController extends Controller
 
       processed = md5.digest "hex"
 
-      if processed is sig
+      if processed is providedSig
         return cb null, processed
 
     # none of the potential matches matched
