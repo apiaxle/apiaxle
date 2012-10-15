@@ -1,10 +1,9 @@
 fs   = require "fs"
-path = require "path"
 
 module.exports = ( env ) ->
   filename = "config/#{env}.json"
 
-  if not path.existsSync filename
+  if not fs.existsSync filename
     return {}
 
   try
