@@ -7,6 +7,6 @@ module.exports = ( env ) ->
     return {}
 
   try
-    JSON.parse( fs.readFileSync filename, "utf8" )
+    JSON.parse fs.readFileSync( filename ), "utf8"
   catch e
     throw new Error "Problem parsing #{filename}: #{e}"
