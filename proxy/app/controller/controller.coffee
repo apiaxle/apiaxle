@@ -72,12 +72,11 @@ class exports.ApiaxleController extends Controller
     for potential in potentials
       date = Math.floor( potential ).toString()
 
-      md5 = crypto.createHash "md5"
-      md5.update sharedSecret
-      md5.update date
-      md5.update key
+      hmac = crypto.createHmac "sha1", sharedSecret
+      hmac.update date
+      hmac.update key
 
-      processed = md5.digest "hex"
+      processed = hmac.digest "hex"
 
       if processed is providedToken
         return cb null, processed
