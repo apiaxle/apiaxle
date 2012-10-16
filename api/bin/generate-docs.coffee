@@ -35,10 +35,9 @@ gk.script ( finish ) ->
 
   for controller in sorted
     # h1, the path of the controller
-    printOnce "# #{controller.desc()}"
-    printOnce "## #{controller.path()}"
+    printOnce "# #{controller.path()}"
 
-    print "## #{controller.constructor.verb.toUpperCase()}\n"
+    print "## #{controller.desc()} (#{controller.constructor.verb.toUpperCase()})"
     print "#{controller.docs()}\n"
 
   finish()
