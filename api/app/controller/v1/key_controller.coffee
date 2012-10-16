@@ -31,9 +31,10 @@ class exports.ListKeys extends ListController
 
   path: -> "/v1/key/list/:from/:to"
 
-  docs: ->
-    """List the keys in the database.
+  desc: -> "List the keys in the database."
 
+  docs: ->
+    """
     ### Path parameters
 
     * from: Integer for the index of the first key you want to
@@ -60,9 +61,10 @@ class exports.ListKeys extends ListController
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
 
-  docs: ->
-    """Add a new key.
+  desc: -> "Add a new key."
 
+  docs: ->
+    """
     ### Fields supported
 
     #{ @app.model( 'key' ).getValidationDocs() }
@@ -90,9 +92,10 @@ class exports.CreateKey extends ApiaxleController
 class exports.ViewKey extends ApiaxleController
   @verb = "get"
 
-  docs: ->
-    """Get the details of key `:key`.
+  desc: -> "Get the details of key `:key`."
 
+  docs: ->
+    """
     ### Returns
 
     * The key object (including timestamps).
@@ -108,9 +111,10 @@ class exports.ViewKey extends ApiaxleController
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
 
-  docs: ->
-    """Delete the key `:key`.
+  desc: -> "Delete the key `:key`."
 
+  docs: ->
+    """
     ### Returns
 
     * `true` on success.
@@ -131,9 +135,11 @@ class exports.DeleteKey extends ApiaxleController
 class exports.ModifyKey extends ApiaxleController
   @verb = "put"
 
+  desc: -> "Update an existing key `:key`."
+
   docs: ->
-    """Update an existing key `:key`. Fields passed in will will be
-    merged with the old key details.
+    """
+    Fields passed in will will be merged with the old key details.
 
     ### Fields supported
 
@@ -168,9 +174,10 @@ class exports.ModifyKey extends ApiaxleController
 class exports.ViewAllStatsForKey extends ApiaxleController
   @verb = "get"
 
-  docs: ->
-    """Get the statistics for key `:key`.
+  desc: -> "Get the statistics for key `:key`."
 
+  docs: ->
+    """
     ### Returns
 
     * Object where the keys represent the HTTP status code of the

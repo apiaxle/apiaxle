@@ -31,9 +31,10 @@ apiDetailsRequired = ( app ) ->
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
 
-  docs: ->
-    """Add a new API definition for `:api`.
+  desc: -> "Add a new API definition for `:api`."
 
+  docs: ->
+    """
     ### Fields supported
 
     #{ @app.model( 'api' ).getValidationDocs() }
@@ -60,9 +61,10 @@ class exports.CreateApi extends ApiaxleController
 class exports.ViewApi extends ApiaxleController
   @verb = "get"
 
-  docs: ->
-    """Get the definition for API `:api`.
+  desc: -> "Get the definition for API `:api`."
 
+  docs: ->
+    """
     ### Returns
 
     * The API structure (including the timestamp fields).
@@ -78,9 +80,10 @@ class exports.ViewApi extends ApiaxleController
 class exports.DeleteApi extends ApiaxleController
   @verb = "delete"
 
-  docs: ->
-    """Delete the API `:api`.
+  desc: -> "Delete the API `:api`."
 
+  docs: ->
+    """
     ### Returns
 
     * `true` on success.
@@ -101,8 +104,10 @@ class exports.DeleteApi extends ApiaxleController
 class exports.ModifyApi extends ApiaxleController
   @verb = "put"
 
+  desc: -> "Update the API `:api`."
+
   docs: ->
-    """Update the API `:api`. Will merge fields you pass in.
+    """Will merge fields you pass in.
 
     ### Fields supported
 
@@ -138,9 +143,10 @@ class exports.ListApiKeys extends ApiaxleController
 
   path: -> "/v1/api/:api/keys/:from/:to"
 
-  docs: ->
-    """List keys belonging to :api
+  desc: -> "List keys belonging to :api"
 
+  docs: ->
+    """
     ### Path parameters
 
     * from: Integer for the index of the first key you want to
