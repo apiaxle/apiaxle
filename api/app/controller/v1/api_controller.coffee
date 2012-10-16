@@ -34,11 +34,11 @@ class exports.CreateApi extends ApiaxleController
   docs: ->
     """Add a new API definition for `:api`.
 
-    ### Fields supported:
+    ### Fields supported
 
     #{ @app.model( 'api' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The inserted structure (including the new timestamp fields).
     """
@@ -63,7 +63,7 @@ class exports.ViewApi extends ApiaxleController
   docs: ->
     """Get the definition for API `:api`.
 
-    ### Returns:
+    ### Returns
 
     * The API structure (including the timestamp fields).
     """
@@ -81,7 +81,7 @@ class exports.DeleteApi extends ApiaxleController
   docs: ->
     """Delete the API `:api`.
 
-    ### Returns:
+    ### Returns
 
     * `true` on success.
     """
@@ -104,11 +104,11 @@ class exports.ModifyApi extends ApiaxleController
   docs: ->
     """Update the API `:api`. Will merge fields you pass in.
 
-    ### Fields supported:
+    ### Fields supported
 
     #{ @app.model( 'api' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The merged structure (including the timestamp fields).
     """
@@ -148,13 +148,13 @@ class exports.ListApiKeys extends ApiaxleController
     * to: Integer for the index of the last key you want to
       see. Starts at zero.
 
-    ### Supported query params:
+    ### Supported query params
 
     * resolve: if set to `true` then the details concerning the listed
       keys will also be printed. Be aware that this will come with a
       minor performace hit.
 
-    ### Returns:
+    ### Returns
 
     * Without `resolve` the result will be an array with one key per
       entry.

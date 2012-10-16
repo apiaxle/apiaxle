@@ -41,13 +41,13 @@ class exports.ListKeys extends ListController
     * to: Integer for the index of the last key you want to
       see. Starts at zero.
 
-    ### Supported query params:
+    ### Supported query params
 
     * resolve: if set to `true` then the details concerning the listed
       keys will also be printed. Be aware that this will come with a
       minor performace hit.
 
-    ### Returns:
+    ### Returns
 
     * Without `resolve` the result will be an array with one key per
       entry.
@@ -63,11 +63,11 @@ class exports.CreateKey extends ApiaxleController
   docs: ->
     """Add a new key.
 
-    ### Fields supported:
+    ### Fields supported
 
     #{ @app.model( 'key' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The newly inseted structure (including the new timestamp
       fields).
@@ -93,7 +93,7 @@ class exports.ViewKey extends ApiaxleController
   docs: ->
     """Get the details of key `:key`.
 
-    ### Returns:
+    ### Returns
 
     * The key object (including timestamps).
     """
@@ -111,7 +111,7 @@ class exports.DeleteKey extends ApiaxleController
   docs: ->
     """Delete the key `:key`.
 
-    ### Returns:
+    ### Returns
 
     * `true` on success.
     """
@@ -135,11 +135,11 @@ class exports.ModifyKey extends ApiaxleController
     """Update an existing key `:key`. Fields passed in will will be
     merged with the old key details.
 
-    ### Fields supported:
+    ### Fields supported
 
     #{ @app.model( 'key' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The newly inseted structure (including the new timestamp
       fields).
@@ -171,7 +171,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
   docs: ->
     """Get the statistics for key `:key`.
 
-    ### Returns:
+    ### Returns
 
     * Object where the keys represent the HTTP status code of the
       endpoint or the error returned by apiaxle (QpsExceededError, for
