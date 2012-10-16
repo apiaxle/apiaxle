@@ -23,12 +23,11 @@ class exports.CatchallTest extends ApiaxleTest
   generateSig: ( epoch ) ->
     date = Math.floor( epoch ).toString()
 
-    md5 = crypto.createHash "md5"
-    md5.update @constructor.fixture_api_secret
-    md5.update Math.floor( epoch ).toString()
-    md5.update @constructor.fixture_api_key
+    hmac = crypto.createHmac "sha1", @constructor.fixture_api_secret
+    hmac.update Math.floor( epoch ).toString()
+    hmac.update @constructor.fixture_api_key
 
-    return md5.digest "hex"
+    return hmac.digest "hex"
 
   "test #validateToken": ( done ) ->
     controller = @application.controllers.GetCatchall
@@ -47,7 +46,8 @@ class exports.CatchallTest extends ApiaxleTest
           token = @generateSig keyTime
 
           controller.validateToken token, @constructor.fixture_api_key, @constructor.fixture_api_secret, ( err, token ) =>
-            @isNull err, "No error for a token #{ validSeconds } out."
+            @isNull err
+
             @ok token
 
             cb()
@@ -60,7 +60,8 @@ class exports.CatchallTest extends ApiaxleTest
           token = @generateSig keyTime
 
           controller.validateToken token, @constructor.fixture_api_key, @constructor.fixture_api_secret, ( err, token ) =>
-            @ok err, "Error for a token #{ validSeconds } out."
+            @ok err,
+              "There should be an error for a token that's #{ validSeconds } out."
 
             @match err.message, /Invalid signature/
             @equal err.name, "AppError"
@@ -103,12 +104,7 @@ class exports.CatchallTest extends ApiaxleTest
     tests.push ( cb ) =>
       date = Math.floor( Date.now() / 1000 ).toString()
 
-      md5 = crypto.createHash "md5"
-      md5.update @constructor.fixture_api_secret
-      md5.update date
-      md5.update @constructor.fixture_api_key
-
-      validSig = md5.digest "hex"
+      validSig = @generateSig Math.floor( Date.now() / 1000 )
 
       httpOptions =
         path: "/?api_key=1234&api_sig=#{validSig}"
