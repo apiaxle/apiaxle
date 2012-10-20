@@ -65,7 +65,7 @@ class exports.CreateKey extends ApiaxleController
 
   docs: ->
     """
-    ### Fields supported
+    ### JSON fields supported
 
     #{ @app.model( 'key' ).getValidationDocs() }
 
@@ -141,7 +141,7 @@ class exports.ModifyKey extends ApiaxleController
     """
     Fields passed in will will be merged with the old key details.
 
-    ### Fields supported
+    ### JSON fields supported
 
     #{ @app.model( 'key' ).getValidationDocs() }
 

@@ -35,7 +35,7 @@ class exports.CreateApi extends ApiaxleController
 
   docs: ->
     """
-    ### Fields supported
+    ### JSON fields supported
 
     #{ @app.model( 'api' ).getValidationDocs() }
 
@@ -109,7 +109,7 @@ class exports.ModifyApi extends ApiaxleController
   docs: ->
     """Will merge fields you pass in.
 
-    ### Fields supported
+    ### JSON fields supported
 
     #{ @app.model( 'api' ).getValidationDocs() }
 
