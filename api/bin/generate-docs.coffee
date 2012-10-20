@@ -19,19 +19,19 @@ gk.logger =
   info: ( ) ->
 
 outputHeaders = ( ) ->
-  print "---"
-  print "layout: apidocs"
-  print "title: \"Api documentation\""
-  print "---\n"
-
+  """---
+  layout: apidocs
+  title: "Api documentation"
+  ---
+  """
 gk.script ( finish ) ->
   # we need to know the controllers
   gk.configureControllers()
 
-  outputHeaders()
+  print outputHeaders()
 
   # sort by the controller path
-  sorted = _.sortBy( gk.controllers, ( x ) -> x.path() )
+  sorted = _.sortBy gk.controllers, ( x ) -> x.path()
 
   for controller in sorted
     # h1, the path of the controller
