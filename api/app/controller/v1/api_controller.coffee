@@ -31,7 +31,7 @@ apiDetailsRequired = ( app ) ->
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
 
-  desc: -> "Add a new API definition for `:api`."
+  desc: -> "Provision a new API."
 
   docs: ->
     """
@@ -61,7 +61,7 @@ class exports.CreateApi extends ApiaxleController
 class exports.ViewApi extends ApiaxleController
   @verb = "get"
 
-  desc: -> "Get the definition for API `:api`."
+  desc: -> "Get the definition for an API."
 
   docs: ->
     """
@@ -80,7 +80,7 @@ class exports.ViewApi extends ApiaxleController
 class exports.DeleteApi extends ApiaxleController
   @verb = "delete"
 
-  desc: -> "Delete the API `:api`."
+  desc: -> "Delete an API."
 
   docs: ->
     """
@@ -104,7 +104,7 @@ class exports.DeleteApi extends ApiaxleController
 class exports.ModifyApi extends ApiaxleController
   @verb = "put"
 
-  desc: -> "Update the API `:api`."
+  desc: -> "Update an API."
 
   docs: ->
     """Will merge fields you pass in.
@@ -143,7 +143,7 @@ class exports.ListApiKeys extends ApiaxleController
 
   path: -> "/v1/api/:api/keys/:from/:to"
 
-  desc: -> "List keys belonging to :api"
+  desc: -> "List keys belonging to an API."
 
   docs: ->
     """
