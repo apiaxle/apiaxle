@@ -31,7 +31,7 @@ class exports.ListKeys extends ListController
 
   path: -> "/v1/key/list/:from/:to"
 
-  desc: -> "List the keys in the database."
+  desc: -> "List all of the available keys."
 
   docs: ->
     """
@@ -61,7 +61,7 @@ class exports.ListKeys extends ListController
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
 
-  desc: -> "Add a new key."
+  desc: -> "Provision a new key."
 
   docs: ->
     """
@@ -92,7 +92,7 @@ class exports.CreateKey extends ApiaxleController
 class exports.ViewKey extends ApiaxleController
   @verb = "get"
 
-  desc: -> "Get the details of key `:key`."
+  desc: -> "Get the definition of a key."
 
   docs: ->
     """
@@ -111,7 +111,7 @@ class exports.ViewKey extends ApiaxleController
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
 
-  desc: -> "Delete the key `:key`."
+  desc: -> "Delete a key."
 
   docs: ->
     """
@@ -135,7 +135,7 @@ class exports.DeleteKey extends ApiaxleController
 class exports.ModifyKey extends ApiaxleController
   @verb = "put"
 
-  desc: -> "Update an existing key `:key`."
+  desc: -> "Update a key."
 
   docs: ->
     """
@@ -174,7 +174,7 @@ class exports.ModifyKey extends ApiaxleController
 class exports.ViewAllStatsForKey extends ApiaxleController
   @verb = "get"
 
-  desc: -> "Get the statistics for key `:key`."
+  desc: -> "Get the statistics for a key."
 
   docs: ->
     """
