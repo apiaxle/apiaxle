@@ -3,9 +3,9 @@ _ = require "underscore"
 { Redis } = require "../redis"
 { ValidationError } = require "../../../lib/error"
 
-validationEnv = require( "schema" )( "apiKeyEnv" )
+validationEnv = require( "schema" )( "keyEnv" )
 
-class exports.ApiKey extends Redis
+class exports.Key extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "key"
 
@@ -33,14 +33,17 @@ class exports.ApiKey extends Redis
   create: ( name, details, cb ) ->
     # if there isn't a forApi field then `super` will take care of
     # that
-    if details?.forApi?
-      @application.model( "api" ).find details.forApi, ( err, apiDetails ) =>
-        return cb err if err
+    if not details?.forApi?
+      return super
 
-        if not apiDetails
-          return cb new ValidationError "API '#{ details.forApi }' doesn't exist."
+    @application.model( "api" ).find details.forApi, ( err, apiDetails ) =>
+      return cb err if err
 
-        # why won't coffeescript just let me call super here?
-        ApiKey.__super__.create.apply @, [ name, details, cb ]
-    else
-      super
+      if not apiDetails
+        return cb new ValidationError "API '#{ details.forApi }' doesn't exist."
+
+      # Save the key
+      @application.model("api").add_key details.forApi, name
+
+      # why won't coffeescript just let me call super here?
+      return Key.__super__.create.apply @, [ name, details, cb ]

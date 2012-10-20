@@ -6,43 +6,43 @@ class exports.Counters extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "ct"
 
-  apiHit: ( apiKey, response, cb ) ->
+  apiHit: ( key, response, cb ) ->
     multi = @multi()
 
-    multi.hincrby [ apiKey, response ], @dayString(), 1
-    multi.hincrby [ apiKey, response ], @monthString(), 1
-    multi.hincrby [ apiKey, response ], @yearString(), 1
+    multi.hincrby [ key, response ], @dayString(), 1
+    multi.hincrby [ key, response ], @monthString(), 1
+    multi.hincrby [ key, response ], @yearString(), 1
 
-    multi.sadd [ apiKey, "all-response-types" ], response
+    multi.sadd [ key, "all-response-types" ], response
 
     multi.exec cb
 
-  _getTimeRange: ( apiKey, result, date, dateFunc, cb ) ->
-    @hget [ apiKey, result ], dateFunc( date ), ( err, value ) ->
+  _getTimeRange: ( key, result, date, dateFunc, cb ) ->
+    @hget [ key, result ], dateFunc( date ), ( err, value ) ->
       return cb err if err
 
       return cb null, ( value or 0 )
 
-  getPossibleResponseTypes: ( apiKey, cb ) ->
-    @smembers [ apiKey, "all-response-types" ], cb
+  getPossibleResponseTypes: ( key, cb ) ->
+    @smembers [ key, "all-response-types" ], cb
 
-  getToday: ( apiKey, response, cb ) ->
-    @getDay apiKey, response, new Date(), cb
+  getToday: ( key, response, cb ) ->
+    @getDay key, response, new Date(), cb
 
-  getThisMonth: ( apiKey, response, cb ) ->
-    @getMonth apiKey, response, new Date(), cb
+  getThisMonth: ( key, response, cb ) ->
+    @getMonth key, response, new Date(), cb
 
-  getThisYear: ( apiKey, response, cb ) ->
-    @getYear apiKey, response, new Date(), cb
+  getThisYear: ( key, response, cb ) ->
+    @getYear key, response, new Date(), cb
 
-  getHour: ( apiKey, response, date, cb ) ->
-    @_getTimeRange apiKey, response, date, @hourString, cb
+  getHour: ( key, response, date, cb ) ->
+    @_getTimeRange key, response, date, @hourString, cb
 
-  getDay: ( apiKey, response, date, cb ) ->
-    @_getTimeRange apiKey, response, date, @dayString, cb
+  getDay: ( key, response, date, cb ) ->
+    @_getTimeRange key, response, date, @dayString, cb
 
-  getMonth: ( apiKey, response, date, cb ) ->
-    @_getTimeRange apiKey, response, date, @monthString, cb
+  getMonth: ( key, response, date, cb ) ->
+    @_getTimeRange key, response, date, @monthString, cb
 
-  getYear: ( apiKey, response, date, cb ) ->
-    @_getTimeRange apiKey, response, date, @yearString, cb
+  getYear: ( key, response, date, cb ) ->
+    @_getTimeRange key, response, date, @yearString, cb

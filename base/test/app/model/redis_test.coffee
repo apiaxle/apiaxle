@@ -117,7 +117,7 @@ class exports.RedisTest extends FakeAppTest
       model.get "isThisEmitted?", ( err, value ) =>
         @isNull err
 
-        @application.model( "apiKey" ).get "anotherKeyName", ( err, value ) =>
+        @application.model( "key" ).get "anotherKeyName", ( err, value ) =>
           @isNull err
           @isNull value
 
@@ -140,6 +140,6 @@ class exports.RedisTest extends FakeAppTest
             access: "read"
             command: "get"
             key: "anotherKeyName"
-            model: "apiKey"
+            model: "key"
 
           done 9

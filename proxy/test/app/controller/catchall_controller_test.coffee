@@ -85,7 +85,7 @@ class exports.CatchallTest extends ApiaxleTest
 
         response.parseJson ( json ) =>
           @ok err = json.error
-          @equal err.type, "ApiKeyError"
+          @equal err.type, "KeyError"
           @equal err.status, 403
 
           done 5
@@ -102,7 +102,7 @@ class exports.CatchallTest extends ApiaxleTest
       @GET { path: "/?api_key=1", host: "facebook.api.localhost" }, ( err, response ) =>
         response.parseJson ( json ) =>
           @ok err = json.error
-          @equal err.type, "ApiKeyError"
+          @equal err.type, "KeyError"
           @equal err.status, 403
 
           done 4
@@ -119,7 +119,7 @@ class exports.CatchallTest extends ApiaxleTest
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "apiKey" ).create "1234", keyOptions, ( err ) =>
+      @application.model( "key" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -158,7 +158,7 @@ class exports.CatchallTest extends ApiaxleTest
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "apiKey" ).create "1234", keyOptions, ( err ) =>
+      @application.model( "key" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -193,7 +193,7 @@ class exports.CatchallTest extends ApiaxleTest
 
         response.parseXml ( xmlDoc ) =>
           @ok xmlDoc.get "/error"
-          @ok xmlDoc.get "/error/type[text()='ApiKeyError']"
+          @ok xmlDoc.get "/error/type[text()='KeyError']"
           @ok xmlDoc.get "/error/status[text()='403']"
           @ok xmlDoc.get "/error/message[text()='No api_key specified.']"
 

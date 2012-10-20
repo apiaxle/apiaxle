@@ -10,13 +10,13 @@ class exports.KeyControllerTest extends ApiaxleTest
     details =
       endPoint: "api.twitter.com"
 
-    @apiKeyModel = @application.model( "apiKey" )
+    @keyModel = @application.model( "key" )
 
     @application.model( "api" ).create "twitter", details, ( err, @newApi ) ->
       done()
 
   "test GET a valid key": ( done ) ->
-    @apiKeyModel.create "1234", forApi: "twitter", ( err, newKey ) =>
+    @keyModel.create "1234", forApi: "twitter", ( err, newKey ) =>
       @isNull err
       @ok newKey
 
@@ -69,7 +69,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal json.forApi, "twitter"
 
         # check it went in
-        @apiKeyModel.find "1234", ( err, dbKey ) =>
+        @keyModel.find "1234", ( err, dbKey ) =>
           @isNull err
 
           @equal dbKey.qps, "1"
@@ -77,7 +77,9 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal dbKey.forApi, "twitter"
           @ok dbKey.createdAt
 
-          done 8
+          @application.model("api").get_keys "twitter", 0, 10, (err, keys) =>
+            @equal keys[0], "1234"
+            done 9
 
   "test POST with an invalid key": ( done ) ->
     options =
@@ -107,14 +109,14 @@ class exports.KeyControllerTest extends ApiaxleTest
         qps: 30
         qpd: 1000
 
-    @apiKeyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
+    @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
       @PUT options, ( err, res ) =>
         @equal res.statusCode, 200
 
-        @apiKeyModel.find "1234", ( err, dbKey ) =>
+        @keyModel.find "1234", ( err, dbKey ) =>
           @equal dbKey.qps, "30"
           @equal dbKey.qpd, "1000"
 
@@ -130,7 +132,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         qps: "hi"     # invalid
         qpd: 1000
 
-    @apiKeyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
+    @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -144,14 +146,14 @@ class exports.KeyControllerTest extends ApiaxleTest
           done 5
 
   "test DELETE": ( done ) ->
-    @apiKeyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
+    @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
       @DELETE path: "/v1/key/1234", ( err, res ) =>
         @equal res.statusCode, 200
 
-        @apiKeyModel.find "1234", ( err, dbKey ) =>
+        @keyModel.find "1234", ( err, dbKey ) =>
           @isNull err
           @isNull dbKey
 
@@ -164,7 +166,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @apiKeyModel.create "key_#{i}", forApi: "twitter", cb
+          @keyModel.create "key_#{i}", forApi: "twitter", cb
 
     async.series fixtures, ( err, newKeys ) =>
       @isNull err
@@ -186,7 +188,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @apiKeyModel.create "key_#{i}", forApi: "twitter", qps: i, qpd: i, cb
+          @keyModel.create "key_#{i}", forApi: "twitter", qps: i, qpd: i, cb
 
     async.parallel fixtures, ( err, newKeys ) =>
       @isNull err
@@ -206,3 +208,97 @@ class exports.KeyControllerTest extends ApiaxleTest
             @equal json[ name ].forApi, "twitter"
 
           done 43
+
+class exports.KeyStatsTest extends ApiaxleTest
+  @start_webserver = true
+  @empty_db_on_setup = true
+
+  "setup api and key": ( done ) ->
+    apiOptions =
+      endPoint: "graph.facebook.com"
+      apiFormat: "json"
+
+    # we create the API
+    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+      keyOptions =
+        forApi: "facebook"
+
+      @application.model( "key" ).create "1234", keyOptions, ( err ) ->
+        done()
+
+  "test all counts": ( done ) ->
+    model = @application.model "counters"
+
+    hits = []
+
+    # 2011-12-04
+    clock = @getClock 1323892867000
+
+    hits.push ( cb ) => model.apiHit "1234", 400, cb
+    hits.push ( cb ) => model.apiHit "1234", 400, cb
+    hits.push ( cb ) => model.apiHit "1234", 400, cb
+
+    hits.push ( cb ) => model.apiHit "1234", 200, cb
+    hits.push ( cb ) => model.apiHit "1234", 200, cb
+
+    hits.push ( cb ) => model.apiHit "1234", 404, cb
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+
+      @GET path: "/v1/key/1234/stats", ( err, res ) =>
+        @isNull err
+
+        shouldHave =
+          "200":
+            "2011-12-4": "2"
+            "2011-12": "2"
+            "2011": "2"
+          "400":
+            "2011-12-4": "3"
+            "2011-12": "3"
+            "2011": "3"
+          "404":
+            "2011-12-4": "1"
+            "2011-12": "1"
+            "2011": "1"
+
+        res.parseJson ( json ) =>
+          @ok json
+          @deepEqual json, shouldHave
+
+          # now again but a couple of days later
+          newHits = []
+
+          # 2011-12-06
+          clock.addDays 2
+
+          newHits.push ( cb ) => model.apiHit "1234", 400, cb
+          newHits.push ( cb ) => model.apiHit "1234", 400, cb
+          newHits.push ( cb ) => model.apiHit "1234", 200, cb
+
+          async.parallel newHits, ( err ) =>
+            @GET  path: "/v1/key/1234/stats", ( err, res ) =>
+              @isNull err
+
+              shouldHave =
+                "200":
+                  "2011-12-4": "2"
+                  "2011-12-6": "1"
+                  "2011-12": "3"
+                  "2011": "3"
+                "400":
+                  "2011-12-6": "2"
+                  "2011-12-4": "3"
+                  "2011-12": "5"
+                  "2011": "5"
+                "404":
+                  "2011-12-4": "1"
+                  "2011-12": "1"
+                  "2011": "1"
+
+              res.parseJson ( json ) =>
+                @ok json
+                @deepEqual json, shouldHave
+
+              done 7

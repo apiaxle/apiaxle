@@ -1,6 +1,6 @@
 _ = require "underscore"
 
-{ ApiaxleController } = require "../controller"
+{ contentTypeRequired, ApiaxleController } = require "../controller"
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
 
 apiDetails = ( app ) ->
@@ -31,19 +31,20 @@ apiDetailsRequired = ( app ) ->
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
 
-  docs: ->
-    """Add a new API definition for `:api`.
+  desc: -> "Provision a new API."
 
-    ### Fields supported:
+  docs: ->
+    """
+    ### Fields supported
 
     #{ @app.model( 'api' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The inserted structure (including the new timestamp fields).
     """
 
-  middleware: -> [ apiDetails( @app ) ]
+  middleware: -> [ contentTypeRequired(), apiDetails( @app ) ]
 
   path: -> "/v1/api/:api"
 
@@ -60,10 +61,11 @@ class exports.CreateApi extends ApiaxleController
 class exports.ViewApi extends ApiaxleController
   @verb = "get"
 
-  docs: ->
-    """Get the definition for API `:api`.
+  desc: -> "Get the definition for an API."
 
-    ### Returns:
+  docs: ->
+    """
+    ### Returns
 
     * The API structure (including the timestamp fields).
     """
@@ -78,10 +80,11 @@ class exports.ViewApi extends ApiaxleController
 class exports.DeleteApi extends ApiaxleController
   @verb = "delete"
 
-  docs: ->
-    """Delete the API `:api`.
+  desc: -> "Delete an API."
 
-    ### Returns:
+  docs: ->
+    """
+    ### Returns
 
     * `true` on success.
     """
@@ -101,19 +104,21 @@ class exports.DeleteApi extends ApiaxleController
 class exports.ModifyApi extends ApiaxleController
   @verb = "put"
 
-  docs: ->
-    """Update the API `:api`. Will merge fields you pass in.
+  desc: -> "Update an API."
 
-    ### Fields supported:
+  docs: ->
+    """Will merge fields you pass in.
+
+    ### Fields supported
 
     #{ @app.model( 'api' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The merged structure (including the timestamp fields).
     """
 
-  middleware: -> [ apiDetailsRequired( @app ) ]
+  middleware: -> [ contentTypeRequired( ), apiDetailsRequired( @app ) ]
 
   path: -> "/v1/api/:api"
 
@@ -132,3 +137,48 @@ class exports.ModifyApi extends ApiaxleController
         return next err if err
 
         res.json newApi
+
+class exports.ListApiKeys extends ApiaxleController
+  @verb = "get"
+
+  path: -> "/v1/api/:api/keys/:from/:to"
+
+  desc: -> "List keys belonging to an API."
+
+  docs: ->
+    """
+    ### Path parameters
+
+    * from: Integer for the index of the first key you want to
+      see. Starts at zero.
+    * to: Integer for the index of the last key you want to
+      see. Starts at zero.
+
+    ### Supported query params
+
+    * resolve: if set to `true` then the details concerning the listed
+      keys will also be printed. Be aware that this will come with a
+      minor performace hit.
+
+    ### Returns
+
+    * Without `resolve` the result will be an array with one key per
+      entry.
+    * If `resolve` is passed then results will be an object with the
+      key name as the key and the details as the value.
+    """
+
+  modelName: -> "api"
+
+  middleware: -> [ apiDetails( @app ) ]
+
+  execute: ( req, res, next ) ->
+    @app.model( "api" ).get_keys req.params.api, req.params.from, req.params.to, ( err, results ) =>
+      return next err if err
+
+      if not req.query.resolve?
+        return res.json results
+
+      @resolve @app.model("key"), results, (err, resolved_results) ->
+        return next err if err
+        return res.json resolved_results

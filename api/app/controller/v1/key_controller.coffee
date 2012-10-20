@@ -1,11 +1,11 @@
 _ = require "underscore"
 
-{ ApiaxleController, ListController, CreateController } = require "../controller"
+{ contentTypeRequired, ApiaxleController, ListController, CreateController } = require "../controller"
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
 
 key = ( app ) ->
   ( req, res, next ) ->
-    app.model( "apiKey" ).find key, ( err, dbKey ) ->
+    app.model( "key" ).find key, ( err, dbKey ) ->
       return next err if err
 
       req.key = dbKey
@@ -16,7 +16,7 @@ keyRequired = ( app ) ->
   ( req, res, next ) ->
     api_key = req.params.key
 
-    app.model( "apiKey" ).find api_key, ( err, dbKey ) ->
+    app.model( "key" ).find api_key, ( err, dbKey ) ->
       return next err if err
 
       if not dbKey?
@@ -31,9 +31,10 @@ class exports.ListKeys extends ListController
 
   path: -> "/v1/key/list/:from/:to"
 
-  docs: ->
-    """List the keys in the database.
+  desc: -> "List all of the available keys."
 
+  docs: ->
+    """
     ### Path parameters
 
     * from: Integer for the index of the first key you want to
@@ -41,13 +42,13 @@ class exports.ListKeys extends ListController
     * to: Integer for the index of the last key you want to
       see. Starts at zero.
 
-    ### Supported query params:
+    ### Supported query params
 
     * resolve: if set to `true` then the details concerning the listed
       keys will also be printed. Be aware that this will come with a
       minor performace hit.
 
-    ### Returns:
+    ### Returns
 
     * Without `resolve` the result will be an array with one key per
       entry.
@@ -55,25 +56,26 @@ class exports.ListKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "apiKey"
+  modelName: -> "key"
 
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
 
+  desc: -> "Provision a new key."
+
   docs: ->
-    """Add a new key.
+    """
+    ### Fields supported
 
-    ### Fields supported:
+    #{ @app.model( 'key' ).getValidationDocs() }
 
-    #{ @app.model( 'apiKey' ).getValidationDocs() }
-
-    ### Returns:
+    ### Returns
 
     * The newly inseted structure (including the new timestamp
       fields).
     """
 
-  middleware: -> [ key( @app ) ]
+  middleware: -> [ contentTypeRequired( ), key( @app ) ]
 
   path: -> "/v1/key/:key"
 
@@ -82,7 +84,7 @@ class exports.CreateKey extends ApiaxleController
     if req.key?
       return next new AlreadyExists "#{ key } already exists."
 
-    @app.model( "apiKey" ).create req.params.key, req.body, ( err, newObj ) ->
+    @app.model( "key" ).create req.params.key, req.body, ( err, newObj ) ->
       return next err if err
 
       res.json newObj
@@ -90,10 +92,11 @@ class exports.CreateKey extends ApiaxleController
 class exports.ViewKey extends ApiaxleController
   @verb = "get"
 
-  docs: ->
-    """Get the details of key `:key`.
+  desc: -> "Get the definition of a key."
 
-    ### Returns:
+  docs: ->
+    """
+    ### Returns
 
     * The key object (including timestamps).
     """
@@ -108,10 +111,11 @@ class exports.ViewKey extends ApiaxleController
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
 
-  docs: ->
-    """Delete the key `:key`.
+  desc: -> "Delete a key."
 
-    ### Returns:
+  docs: ->
+    """
+    ### Returns
 
     * `true` on success.
     """
@@ -121,7 +125,7 @@ class exports.DeleteKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "apiKey"
+    model = @app.model "key"
 
     model.del req.params.key, ( err, newKey ) ->
       return next err if err
@@ -131,26 +135,28 @@ class exports.DeleteKey extends ApiaxleController
 class exports.ModifyKey extends ApiaxleController
   @verb = "put"
 
+  desc: -> "Update a key."
+
   docs: ->
-    """Update an existing key `:key`. Fields passed in will will be
-    merged with the old key details.
+    """
+    Fields passed in will will be merged with the old key details.
 
-    ### Fields supported:
+    ### Fields supported
 
-    #{ @app.model( 'apiKey' ).getValidationDocs() }
+    #{ @app.model( 'key' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The newly inseted structure (including the new timestamp
       fields).
     """
 
-  middleware: -> [ keyRequired( @app ) ]
+  middleware: -> [ contentTypeRequired( ), keyRequired( @app ) ]
 
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "apiKey"
+    model = @app.model "key"
 
     # validate the input
     model.validate req.body, ( err ) =>
@@ -164,3 +170,43 @@ class exports.ModifyKey extends ApiaxleController
         return next err if err
 
         res.json newKey
+
+class exports.ViewAllStatsForKey extends ApiaxleController
+  @verb = "get"
+
+  desc: -> "Get the statistics for a key."
+
+  docs: ->
+    """
+    ### Returns
+
+    * Object where the keys represent the HTTP status code of the
+      endpoint or the error returned by apiaxle (QpsExceededError, for
+      example). Each object contains date to hit count pairs.
+    """
+
+  middleware: -> [ keyRequired( @app ) ]
+
+  path: -> "/v1/key/:key/stats"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "counters"
+    model.getPossibleResponseTypes req.params.key, ( err, types ) ->
+      return next err if err
+
+      multi = model.multi()
+
+      for type in types
+        do ( type ) ->
+          multi.hgetall [ req.params.key, type ]
+
+      multi.exec ( err, results ) ->
+        return next err if err
+
+        # build up the output structure
+        output = {}
+
+        for type in types
+          output[ type ] = results.shift()
+
+        res.json output

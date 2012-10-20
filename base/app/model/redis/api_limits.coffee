@@ -7,13 +7,13 @@ class exports.ApiLimits extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "al"
 
-  qpsKey: ( apiKey ) ->
+  qpsKey: ( key ) ->
     seconds = Math.round( new Date().getTime() / 1000 )
 
-    return [ "qps", seconds, apiKey ]
+    return [ "qps", seconds, key ]
 
-  qpdKey: ( apiKey ) ->
-    return [ "qpd", @dayString(), apiKey ]
+  qpdKey: ( key ) ->
+    return [ "qpd", @dayString(), key ]
 
   _setInitialQp: ( key, expires, qp, cb ) ->
     @setex key, expires, qp, ( err ) ->
@@ -21,26 +21,26 @@ class exports.ApiLimits extends Redis
 
       cb null, qp
 
-  apiHit: ( apiKey, qpsLimit, qpdLimit, cb ) ->
+  apiHit: ( key, qpsLimit, qpdLimit, cb ) ->
     both = [ ]
 
     if qpsLimit? and qpsLimit > 0
       both.push ( innerCb ) =>
-        @qpsHit apiKey, qpsLimit, innerCb
+        @qpsHit key, qpsLimit, innerCb
 
     if qpdLimit? and qpdLimit > 0
       both.push ( innerCb ) =>
-        @qpdHit apiKey, qpdLimit, innerCb
+        @qpdHit key, qpdLimit, innerCb
 
     async.series both, cb
 
-  qpdHit: ( apiKey, qpdLimit, cb ) ->
-    qpdKey = @qpdKey( apiKey )
+  qpdHit: ( key, qpdLimit, cb ) ->
+    qpdKey = @qpdKey( key )
 
     @qpHit qpdKey, 86400, qpdLimit, QpdExceededError, cb
 
-  qpsHit: ( apiKey, qpsLimit, cb ) ->
-    qpsKey = @qpsKey( apiKey )
+  qpsHit: ( key, qpsLimit, cb ) ->
+    qpsKey = @qpsKey( key )
 
     @qpHit qpsKey, 2, qpsLimit, QpsExceededError, cb
 

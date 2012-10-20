@@ -3,11 +3,11 @@ async = require "async"
 { ValidationError } = require "../../../../lib/error"
 { FakeAppTest } = require "../../../apiaxle_base"
 
-class exports.ApiKeyTest extends FakeAppTest
+class exports.KeyTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup model": ( done ) ->
-    @model = @application.model "apiKey"
+    @model = @application.model "key"
 
     done()
 

@@ -1,7 +1,8 @@
 crypto = require "crypto"
+async  = require "async"
 
 { Controller } = require "apiaxle.base"
-{ ApiUnknown, ApiKeyError } = require "../../lib/error"
+{ ApiUnknown, KeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
   simpleBodyParser: ( req, res, next ) ->
@@ -33,39 +34,61 @@ class exports.ApiaxleController extends Controller
       return next()
 
   authenticateWithKey: ( key, req, next ) ->
-    @app.model( "apiKey" ).find key, ( err, keyDetails ) ->
+    @app.model( "key" ).find key, ( err, keyDetails ) =>
       return next err if err
+
+      all = [ ]
 
       # check the key is for this api
       if keyDetails?.forApi isnt req.subdomain
-        return next new ApiKeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
+        return next new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
 
       if keyDetails?.sharedSecret
-        # if the signature is missing then we cant go on
-        if not sig = ( req.query.apiaxle_sig or req.query.api_sig )
-          return next new ApiKeyError "A signature is required for this API."
+        if not providedToken = ( req.query.apiaxle_sig or req.query.api_sig )
+          return next new KeyError "A signature is required for this API."
 
-        date = Math.floor( Date.now() / 1000 / 3 ).toString()
+        all.push ( cb ) =>
+          @validateToken providedToken, key, keyDetails.sharedSecret, cb
 
-        md5 = crypto.createHash "md5"
-        md5.update keyDetails.sharedSecret
-        md5.update date
-        md5.update key
+      async.series all, ( err, results ) ->
+        return next err if err
 
-        processed = md5.digest( "hex" )
+        keyDetails.key = key
+        req.key = keyDetails
 
-        if processed isnt sig
-          return next new ApiKeyError "Invalid signature (got #{processed})."
+        return next()
 
-      keyDetails.key = key
-      req.apiKey = keyDetails
+  validateToken: ( providedToken, key, sharedSecret, cb ) ->
+    now = Date.now() / 1000
 
-      return next()
+    potentials = [
+      now,
 
-  apiKey: ( req, res, next ) =>
+      now + 1, now - 1,
+      now + 2, now - 2,
+      now + 3, now - 3
+    ]
+
+    for potential in potentials
+      date = Math.floor( potential ).toString()
+
+      md5 = crypto.createHash "md5"
+      md5.update sharedSecret
+      md5.update date
+      md5.update key
+
+      processed = md5.digest "hex"
+
+      if processed is providedToken
+        return cb null, processed
+
+    # none of the potential matches matched
+    return cb new KeyError "Invalid signature (got #{processed})."
+
+  key: ( req, res, next ) =>
     key = ( req.query.apiaxle_key or req.query.api_key )
 
     if not key
-      return next new ApiKeyError "No api_key specified."
+      return next new KeyError "No api_key specified."
 
     @authenticateWithKey( key, req, next )
