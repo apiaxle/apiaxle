@@ -24,9 +24,9 @@ class exports.CatchallTest extends ApiaxleTest
             @equal response.statusCode, 404
 
             response.parseJson ( json ) =>
-              @ok json.error
-              @equal json.error.type, "ApiUnknown"
-              @equal json.error.status, "404"
+              @ok json.results.error
+              @equal json.results.error.type, "ApiUnknown"
+              @equal json.results.error.status, "404"
 
               cb()
 
@@ -59,9 +59,9 @@ class exports.CatchallTest extends ApiaxleTest
             @equal response.statusCode, 404
 
             response.parseJson ( json ) =>
-              @ok json.error
-              @equal json.error.type, "ApiUnknown"
-              @equal json.error.status, "404"
+              @ok json.results.error
+              @equal json.results.error.type, "ApiUnknown"
+              @equal json.results.error.status, "404"
 
               cb()
 
@@ -84,7 +84,7 @@ class exports.CatchallTest extends ApiaxleTest
         @isNull err
 
         response.parseJson ( json ) =>
-          @ok err = json.error
+          @ok err = json.results.error
           @equal err.type, "KeyError"
           @equal err.status, 403
 
@@ -101,7 +101,7 @@ class exports.CatchallTest extends ApiaxleTest
 
       @GET { path: "/?api_key=1", host: "facebook.api.localhost" }, ( err, response ) =>
         response.parseJson ( json ) =>
-          @ok err = json.error
+          @ok err = json.results.error
           @equal err.type, "KeyError"
           @equal err.status, 403
 
