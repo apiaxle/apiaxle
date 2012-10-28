@@ -84,10 +84,10 @@ class exports.CreateKey extends ApiaxleController
     if req.key?
       return next new AlreadyExists "#{ key } already exists."
 
-    @app.model( "key" ).create req.params.key, req.body, ( err, newObj ) ->
+    @app.model( "key" ).create req.params.key, req.body, ( err, newObj ) =>
       return next err if err
 
-      res.json newObj
+      @json res, newObj
 
 class exports.ViewKey extends ApiaxleController
   @verb = "get"
@@ -106,7 +106,7 @@ class exports.ViewKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    res.json req.key
+    @json res, req.key
 
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
@@ -127,10 +127,10 @@ class exports.DeleteKey extends ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model "key"
 
-    model.del req.params.key, ( err, newKey ) ->
+    model.del req.params.key, ( err, newKey ) =>
       return next err if err
 
-      res.json true
+      @json res, true
 
 class exports.ModifyKey extends ApiaxleController
   @verb = "put"
@@ -169,7 +169,7 @@ class exports.ModifyKey extends ApiaxleController
       model.create req.params.key, req.key, ( err, newKey ) =>
         return next err if err
 
-        res.json newKey
+        @json res, newKey
 
 class exports.ViewAllStatsForKey extends ApiaxleController
   @verb = "get"
@@ -191,7 +191,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
 
   execute: ( req, res, next ) ->
     model = @app.model "counters"
-    model.getPossibleResponseTypes req.params.key, ( err, types ) ->
+    model.getPossibleResponseTypes req.params.key, ( err, types ) =>
       return next err if err
 
       multi = model.multi()
@@ -200,7 +200,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
         do ( type ) ->
           multi.hgetall [ req.params.key, type ]
 
-      multi.exec ( err, results ) ->
+      multi.exec ( err, results ) =>
         return next err if err
 
         # build up the output structure
@@ -209,4 +209,4 @@ class exports.ViewAllStatsForKey extends ApiaxleController
         for type in types
           output[ type ] = results.shift()
 
-        res.json output
+        return @json res, output

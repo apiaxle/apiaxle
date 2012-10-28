@@ -53,10 +53,10 @@ class exports.CreateApi extends ApiaxleController
     if req.api?
       return next new AlreadyExists "#{ api } already exists."
 
-    @app.model( "api" ).create req.params.api, req.body, ( err, newObj ) ->
+    @app.model( "api" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err
 
-      res.json newObj
+      @json res, newObj
 
 class exports.ViewApi extends ApiaxleController
   @verb = "get"
@@ -75,7 +75,7 @@ class exports.ViewApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    res.json req.api
+    @json res, req.api
 
 class exports.DeleteApi extends ApiaxleController
   @verb = "delete"
@@ -96,10 +96,10 @@ class exports.DeleteApi extends ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model "api"
 
-    model.del req.params.api, ( err, newApi ) ->
+    model.del req.params.api, ( err, newApi ) =>
       return next err if err
 
-      res.json true
+      @json res, true
 
 class exports.ModifyApi extends ApiaxleController
   @verb = "put"
@@ -136,7 +136,7 @@ class exports.ModifyApi extends ApiaxleController
       model.create req.params.api, instance, ( err, newApi ) =>
         return next err if err
 
-        res.json newApi
+        @json res, newApi
 
 class exports.ListApiKeys extends ApiaxleController
   @verb = "get"
@@ -177,8 +177,8 @@ class exports.ListApiKeys extends ApiaxleController
       return next err if err
 
       if not req.query.resolve?
-        return res.json results
+        return @json res, results
 
-      @resolve @app.model("key"), results, (err, resolved_results) ->
+      @resolve @app.model("key"), results, (err, resolved_results) =>
         return next err if err
-        return res.json resolved_results
+        return @json res, resolved_results

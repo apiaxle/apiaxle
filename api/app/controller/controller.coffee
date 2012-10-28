@@ -13,7 +13,17 @@ exports.contentTypeRequired = ( accepted=[ "application/json" ] ) ->
 
     return next()
 
-class exports.ApiaxleController extends Controller
+class ApiController extends Controller
+  json: ( res, results ) ->
+    output =
+      meta:
+        version: 1
+        status_code: res.statusCode
+      results: results
+
+    return res.json output
+
+class exports.ApiaxleController extends ApiController
   docs: -> ""
 
   resolve: ( model, keys, cb ) ->
@@ -44,10 +54,10 @@ class exports.ListController extends exports.ApiaxleController
       # if we're not asked to resolve the items then just bung the
       # list back
       if not req.query.resolve?
-        return res.json keys
+        return @json res, keys
 
       # now bind the actual results to the keys
-      @resolve model, keys, ( err, results ) ->
+      @resolve model, keys, ( err, results ) =>
         return next err if err
 
-        res.json results
+        @json res, results

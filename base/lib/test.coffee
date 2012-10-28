@@ -51,7 +51,9 @@ class AppResponse
     callback libxml.parseXmlString @data
 
   parseJson: ( callback ) ->
-    callback JSON.parse @data, "utf8"
+    output = JSON.parse @data, "utf8"
+
+    callback output
 
 class exports.AppTest extends TwerpTest
   @port = 26100
