@@ -240,6 +240,7 @@ class exports.KeyStatsTest extends ApiaxleTest
         shouldHave =
           meta:
             version: 1
+            status_code: 200
           results:
             "200":
               "2011-12-4": "2"
@@ -275,6 +276,7 @@ class exports.KeyStatsTest extends ApiaxleTest
               shouldHave =
                 meta:
                   version: 1
+                  status_code: 200
                 results:
                   "200":
                     "2011-12-4": "2"

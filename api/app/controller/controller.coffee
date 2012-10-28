@@ -18,6 +18,7 @@ class ApiController extends Controller
     output =
       meta:
         version: 1
+        status_code: res.statusCode
       results: results
 
     return res.json output
