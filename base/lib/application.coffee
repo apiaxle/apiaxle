@@ -180,7 +180,11 @@ class exports.Application
 
     # json
     if req.api?.apiFormat isnt "xml"
-      return res.json { meta: null, results: output }, err.constructor.status
+      meta =
+        version: 1
+        status_code: err.constructor.status
+
+      return res.json { meta: meta, results: output }, err.constructor.status
 
     # need xml
     res.contentType "application/xml"

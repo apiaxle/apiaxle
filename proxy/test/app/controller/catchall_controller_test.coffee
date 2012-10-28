@@ -24,6 +24,10 @@ class exports.CatchallTest extends ApiaxleTest
             @equal response.statusCode, 404
 
             response.parseJson ( json ) =>
+              # meta
+              @equal json.meta.version, 1
+              @equal json.meta.status_code, response.statusCode
+
               @ok json.results.error
               @equal json.results.error.type, "ApiUnknown"
               @equal json.results.error.status, "404"
@@ -34,7 +38,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
       @equal results.length, 4
 
-      done 26
+      done 27
 
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
     all = [ ]
