@@ -45,7 +45,7 @@ class exports.ViewApi extends ApiaxleController
     * The API structure (including the timestamp fields).
     """
 
-  middleware: -> [ @mwApiDetailsRequired( @app ) ]
+  middleware: -> [ @mwApiDetails( valid_api_required=true ) ]
 
   path: -> "/v1/api/:api"
 
@@ -64,7 +64,7 @@ class exports.DeleteApi extends ApiaxleController
     * `true` on success.
     """
 
-  middleware: -> [ @mwApiDetailsRequired( @app ) ]
+  middleware: -> [ @mwApiDetails( valid_api_required=true ) ]
 
   path: -> "/v1/api/:api"
 
@@ -93,7 +93,10 @@ class exports.ModifyApi extends ApiaxleController
     * The merged structure (including the timestamp fields).
     """
 
-  middleware: -> [ @mwContentTypeRequired( ), @mwApiDetailsRequired( @app ) ]
+  middleware: -> [
+    @mwContentTypeRequired( ),
+    @mwApiDetails( valid_api_required=true )
+  ]
 
   path: -> "/v1/api/:api"
 

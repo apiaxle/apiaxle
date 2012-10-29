@@ -13,7 +13,7 @@ class exports.ApiaxleController extends Controller
 
     return res.json output
 
-  # this function is used to satisfy the `?resolve=true` type
+  # This function is used to satisfy the `?resolve=true` type
   # parameters. Given a bunch of keys, go off to the respective bits
   # of redis to resolve the data.
   resolve: ( model, keys, cb ) ->
@@ -34,31 +34,44 @@ class exports.ApiaxleController extends Controller
 
       return cb null, final
 
-  mwKeyDetails: ( ) ->
+  # Will decorate `req.key` with details of the key specified in the
+  # `:key` parameter. If `valid_key_required` is truthful then an
+  # error will be thrown if a valid key wasn't found.
+  mwKeyDetails: ( valid_api_required=false ) ->
     ( req, res, next ) =>
       api_key = req.params.key
 
       @app.model( "key" ).find api_key, ( err, dbKey ) ->
         return next err if err
 
-        req.key = dbKey
-
-        return next()
-
-  mwKeyDetailsRequired: ( ) ->
-    ( req, res, next ) =>
-      api_key = req.params.key
-
-      @app.model( "key" ).find api_key, ( err, dbKey ) ->
-        return next err if err
-
-        if not dbKey?
+        if valid_api_required and not dbKey?
           return next new NotFoundError "#{ api_key } not found."
 
         req.key = dbKey
 
         return next()
 
+  # Will decorate `req.api` with details of the api specified in the
+  # `:api` parameter. If `valid_api_required` is truthful then an
+  # error will be thrown if a valid api wasn't found.
+  mwApiDetails: ( valid_api_required=false ) ->
+    ( req, res, next ) =>
+      api = req.params.api
+
+      @app.model( "api" ).find api, ( err, dbApi ) ->
+        return next err if err
+
+        # do we /need/ the api to exist?
+        if valid_api_required and not dbApi?
+          return next new NotFoundError "#{ api } not found."
+
+        req.api = dbApi
+
+        return next()
+
+  # Make a call require a specific content-type `accepted` can be an
+  # array of good types. Without one of the valid content types
+  # supplied there will be an error.
   mwContentTypeRequired: ( accepted=[ "application/json" ] ) ->
     ( req, res, next ) ->
       ct = req.headers[ "content-type" ]
@@ -70,32 +83,6 @@ class exports.ApiaxleController extends Controller
         return next new InvalidContentType "#{ ct } is not a supported content type."
 
       return next()
-
-  mwApiDetailsRequired: ( ) ->
-    ( req, res, next ) =>
-      api = req.params.api
-
-      @app.model( "api" ).find api, ( err, dbApi ) ->
-        return next err if err
-
-        if not dbApi?
-          return next new NotFoundError "#{ api } not found."
-
-        req.api = dbApi
-
-        return next()
-
-
-  mwApiDetails: ( ) ->
-    ( req, res, next ) =>
-      api = req.params.api
-
-      @app.model( "api" ).find api, ( err, dbApi ) ->
-        return next err if err
-
-        req.api = dbApi
-
-        return next()
 
 class exports.ListController extends exports.ApiaxleController
   execute: ( req, res, next ) ->

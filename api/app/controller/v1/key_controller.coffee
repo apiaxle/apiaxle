@@ -78,7 +78,7 @@ class exports.ViewKey extends ApiaxleController
     * The key object (including timestamps).
     """
 
-  middleware: -> [ @mwKeyDetailsRequired( ) ]
+  middleware: -> [ @mwKeyDetails( valid_api_required=true ) ]
 
   path: -> "/v1/key/:key"
 
@@ -97,7 +97,7 @@ class exports.DeleteKey extends ApiaxleController
     * `true` on success.
     """
 
-  middleware: -> [ @mwKeyDetailsRequired( ) ]
+  middleware: -> [ @mwKeyDetails( valid_api_required=true ) ]
 
   path: -> "/v1/key/:key"
 
@@ -128,7 +128,10 @@ class exports.ModifyKey extends ApiaxleController
       fields).
     """
 
-  middleware: -> [ @mwContentTypeRequired( ), @mwKeyDetailsRequired( ) ]
+  middleware: -> [
+    @mwContentTypeRequired( ),
+    @mwKeyDetails( valid_api_required=true )
+  ]
 
   path: -> "/v1/key/:key"
 
@@ -162,7 +165,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
       example). Each object contains date to hit count pairs.
     """
 
-  middleware: -> [ @mwKeyDetailsRequired( ) ]
+  middleware: -> [ @mwKeyDetails( valid_api_required=true ) ]
 
   path: -> "/v1/key/:key/stats"
 

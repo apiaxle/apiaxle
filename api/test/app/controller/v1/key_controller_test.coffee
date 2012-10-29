@@ -133,19 +133,42 @@ class exports.KeyControllerTest extends ApiaxleTest
 
           done 5
 
-  "test DELETE": ( done ) ->
+  "test DELETE with invalid KEY": ( done ) ->
+    @DELETE path: "/v1/key/1234", ( err, res ) =>
+      @equal res.statusCode, 404
+
+      res.parseJson ( json ) =>
+        @ok json.results.error
+        @ok json.meta.status_code, 404
+
+        @equal json.results.error.message, "1234 not found."
+        @equal json.results.error.type, "NotFoundError"
+
+        done 5
+
+  "test DELETE with valid key": ( done ) ->
     @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
       @DELETE path: "/v1/key/1234", ( err, res ) =>
+        @isNull err
         @equal res.statusCode, 200
 
-        @keyModel.find "1234", ( err, dbKey ) =>
-          @isNull err
-          @isNull dbKey
+        res.parseJson ( json ) =>
+          # no error
+          @equal json.results.error?, false
 
-          done 5
+          # just returns true
+          @equal json.results, true
+          @equal json.meta.status_code, 200
+
+          # confirm it's out of the database
+          @application.model( "key" ).find "1234", ( err, dbKey ) =>
+            @isNull err
+            @isNull dbKey
+
+            done 9
 
   "test get key range without resolution": ( done ) ->
     # create 11 keys
