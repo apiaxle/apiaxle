@@ -65,7 +65,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal dbKey.forApi, "twitter"
           @ok dbKey.createdAt
 
-          @application.model("api").get_keys "twitter", 0, 10, (err, keys) =>
+          @application.model("api").getKeys "twitter", 0, 10, (err, keys) =>
             @equal keys[0], "1234"
             done 9
 
