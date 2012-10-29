@@ -13,7 +13,7 @@ class exports.ApiaxleController extends Controller
 
     return res.json output
 
-  # this function is used to satisfy the `?resolve=true` type
+  # This function is used to satisfy the `?resolve=true` type
   # parameters. Given a bunch of keys, go off to the respective bits
   # of redis to resolve the data.
   resolve: ( model, keys, cb ) ->
@@ -34,6 +34,9 @@ class exports.ApiaxleController extends Controller
 
       return cb null, final
 
+  # Will decorate `req.key` with details of the key specified in the
+  # `:key` parameter. Won't throw an error if it's not found. See also
+  # `mwKeyDetailsRequired`.
   mwKeyDetails: ( ) ->
     ( req, res, next ) =>
       api_key = req.params.key
@@ -45,6 +48,8 @@ class exports.ApiaxleController extends Controller
 
         return next()
 
+  # As `mwKeyDetails` but with throw an error if there is no valid key
+  # found.
   mwKeyDetailsRequired: ( ) ->
     ( req, res, next ) =>
       api_key = req.params.key
@@ -59,6 +64,9 @@ class exports.ApiaxleController extends Controller
 
         return next()
 
+  # Make a call require a specific content-type `accepted` can be an
+  # array of good types. Without one of the valid content types
+  # supplied there will be an error.
   mwContentTypeRequired: ( accepted=[ "application/json" ] ) ->
     ( req, res, next ) ->
       ct = req.headers[ "content-type" ]
@@ -71,6 +79,22 @@ class exports.ApiaxleController extends Controller
 
       return next()
 
+  # Will decorate `req.api` with details of the api specified in the
+  # `:api` parameter. Won't throw an error if it's not found. See also
+  # `mwApiDetailsRequired`.
+  mwApiDetails: ( ) ->
+    ( req, res, next ) =>
+      api = req.params.api
+
+      @app.model( "api" ).find api, ( err, dbApi ) ->
+        return next err if err
+
+        req.api = dbApi
+
+        return next()
+
+  # As `mwApiDetails` but with throw an error if there is no valid api
+  # found.
   mwApiDetailsRequired: ( ) ->
     ( req, res, next ) =>
       api = req.params.api
@@ -80,18 +104,6 @@ class exports.ApiaxleController extends Controller
 
         if not dbApi?
           return next new NotFoundError "#{ api } not found."
-
-        req.api = dbApi
-
-        return next()
-
-
-  mwApiDetails: ( ) ->
-    ( req, res, next ) =>
-      api = req.params.api
-
-      @app.model( "api" ).find api, ( err, dbApi ) ->
-        return next err if err
 
         req.api = dbApi
 
