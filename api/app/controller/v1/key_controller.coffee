@@ -8,9 +8,10 @@ class exports.ListKeys extends ListController
 
   path: -> "/v1/key/list/:from/:to"
 
-  docs: ->
-    """List the keys in the database.
+  desc: -> "List all of the available keys."
 
+  docs: ->
+    """
     ### Path parameters
 
     * from: Integer for the index of the first key you want to
@@ -18,13 +19,13 @@ class exports.ListKeys extends ListController
     * to: Integer for the index of the last key you want to
       see. Starts at zero.
 
-    ### Supported query params:
+    ### Supported query params
 
     * resolve: if set to `true` then the details concerning the listed
       keys will also be printed. Be aware that this will come with a
       minor performace hit.
 
-    ### Returns:
+    ### Returns
 
     * Without `resolve` the result will be an array with one key per
       entry.
@@ -37,14 +38,15 @@ class exports.ListKeys extends ListController
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
 
-  docs: ->
-    """Add a new key.
+  desc: -> "Provision a new key."
 
-    ### Fields supported:
+  docs: ->
+    """
+    ### JSON fields supported
 
     #{ @app.model( 'key' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The newly inseted structure (including the new timestamp
       fields).
@@ -59,18 +61,19 @@ class exports.CreateKey extends ApiaxleController
     if req.key?
       return next new AlreadyExists "#{ key } already exists."
 
-    @app.model( "key" ).create req.params.key, req.body, ( err, newObj ) ->
+    @app.model( "key" ).create req.params.key, req.body, ( err, newObj ) =>
       return next err if err
 
-      res.json newObj
+      @json res, newObj
 
 class exports.ViewKey extends ApiaxleController
   @verb = "get"
 
-  docs: ->
-    """Get the details of key `:key`.
+  desc: -> "Get the definition of a key."
 
-    ### Returns:
+  docs: ->
+    """
+    ### Returns
 
     * The key object (including timestamps).
     """
@@ -80,15 +83,16 @@ class exports.ViewKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    res.json req.key
+    @json res, req.key
 
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
 
-  docs: ->
-    """Delete the key `:key`.
+  desc: -> "Delete a key."
 
-    ### Returns:
+  docs: ->
+    """
+    ### Returns
 
     * `true` on success.
     """
@@ -100,23 +104,25 @@ class exports.DeleteKey extends ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model "key"
 
-    model.del req.params.key, ( err, newKey ) ->
+    model.del req.params.key, ( err, newKey ) =>
       return next err if err
 
-      res.json true
+      @json res, true
 
 class exports.ModifyKey extends ApiaxleController
   @verb = "put"
 
-  docs: ->
-    """Update an existing key `:key`. Fields passed in will will be
-    merged with the old key details.
+  desc: -> "Update a key."
 
-    ### Fields supported:
+  docs: ->
+    """
+    Fields passed in will will be merged with the old key details.
+
+    ### JSON fields supported
 
     #{ @app.model( 'key' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The newly inseted structure (including the new timestamp
       fields).
@@ -140,15 +146,16 @@ class exports.ModifyKey extends ApiaxleController
       model.create req.params.key, req.key, ( err, newKey ) =>
         return next err if err
 
-        res.json newKey
+        @json res, newKey
 
 class exports.ViewAllStatsForKey extends ApiaxleController
   @verb = "get"
 
-  docs: ->
-    """Get the statistics for key `:key`.
+  desc: -> "Get the statistics for a key."
 
-    ### Returns:
+  docs: ->
+    """
+    ### Returns
 
     * Object where the keys represent the HTTP status code of the
       endpoint or the error returned by apiaxle (QpsExceededError, for
@@ -161,7 +168,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
 
   execute: ( req, res, next ) ->
     model = @app.model "counters"
-    model.getPossibleResponseTypes req.params.key, ( err, types ) ->
+    model.getPossibleResponseTypes req.params.key, ( err, types ) =>
       return next err if err
 
       multi = model.multi()
@@ -170,7 +177,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
         do ( type ) ->
           multi.hgetall [ req.params.key, type ]
 
-      multi.exec ( err, results ) ->
+      multi.exec ( err, results ) =>
         return next err if err
 
         # build up the output structure
@@ -179,4 +186,4 @@ class exports.ViewAllStatsForKey extends ApiaxleController
         for type in types
           output[ type ] = results.shift()
 
-        res.json output
+        return @json res, output

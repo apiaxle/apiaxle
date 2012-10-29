@@ -6,14 +6,15 @@ _ = require "underscore"
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
 
-  docs: ->
-    """Add a new API definition for `:api`.
+  desc: -> "Provision a new API."
 
-    ### Fields supported:
+  docs: ->
+    """
+    ### JSON fields supported
 
     #{ @app.model( 'api' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The inserted structure (including the new timestamp fields).
     """
@@ -27,18 +28,19 @@ class exports.CreateApi extends ApiaxleController
     if req.api?
       return next new AlreadyExists "#{ api } already exists."
 
-    @app.model( "api" ).create req.params.api, req.body, ( err, newObj ) ->
+    @app.model( "api" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err
 
-      res.json newObj
+      @json res, newObj
 
 class exports.ViewApi extends ApiaxleController
   @verb = "get"
 
-  docs: ->
-    """Get the definition for API `:api`.
+  desc: -> "Get the definition for an API."
 
-    ### Returns:
+  docs: ->
+    """
+    ### Returns
 
     * The API structure (including the timestamp fields).
     """
@@ -48,15 +50,16 @@ class exports.ViewApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    res.json req.api
+    @json res, req.api
 
 class exports.DeleteApi extends ApiaxleController
   @verb = "delete"
 
-  docs: ->
-    """Delete the API `:api`.
+  desc: -> "Delete an API."
 
-    ### Returns:
+  docs: ->
+    """
+    ### Returns
 
     * `true` on success.
     """
@@ -68,22 +71,24 @@ class exports.DeleteApi extends ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model "api"
 
-    model.del req.params.api, ( err, newApi ) ->
+    model.del req.params.api, ( err, newApi ) =>
       return next err if err
 
-      res.json true
+      @json res, true
 
 class exports.ModifyApi extends ApiaxleController
   @verb = "put"
 
-  docs: ->
-    """Update the API `:api`. Will merge fields you pass in.
+  desc: -> "Update an API."
 
-    ### Fields supported:
+  docs: ->
+    """Will merge fields you pass in.
+
+    ### JSON fields supported
 
     #{ @app.model( 'api' ).getValidationDocs() }
 
-    ### Returns:
+    ### Returns
 
     * The merged structure (including the timestamp fields).
     """
@@ -106,16 +111,17 @@ class exports.ModifyApi extends ApiaxleController
       model.create req.params.api, instance, ( err, newApi ) =>
         return next err if err
 
-        res.json newApi
+        @json res, newApi
 
 class exports.ListApiKeys extends ApiaxleController
   @verb = "get"
 
   path: -> "/v1/api/:api/keys/:from/:to"
 
-  docs: ->
-    """List keys belonging to :api
+  desc: -> "List keys belonging to an API."
 
+  docs: ->
+    """
     ### Path parameters
 
     * from: Integer for the index of the first key you want to
@@ -123,13 +129,13 @@ class exports.ListApiKeys extends ApiaxleController
     * to: Integer for the index of the last key you want to
       see. Starts at zero.
 
-    ### Supported query params:
+    ### Supported query params
 
     * resolve: if set to `true` then the details concerning the listed
       keys will also be printed. Be aware that this will come with a
       minor performace hit.
 
-    ### Returns:
+    ### Returns
 
     * Without `resolve` the result will be an array with one key per
       entry.
@@ -146,8 +152,8 @@ class exports.ListApiKeys extends ApiaxleController
       return next err if err
 
       if not req.query.resolve?
-        return res.json results
+        return @json res, results
 
-      @resolve @app.model("key"), results, (err, resolved_results) ->
+      @resolve @app.model("key"), results, (err, resolved_results) =>
         return next err if err
-        return res.json resolved_results
+        return @json res, resolved_results

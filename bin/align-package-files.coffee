@@ -20,8 +20,8 @@ getPackages = ( cb ) ->
 getVersions = ( packages, cb ) ->
   vers = [ ]
 
-  for project, package of packages
-    vers.push package.version
+  for project, pkg of packages
+    vers.push pkg.version
 
   cb null, _.uniq vers.sort()
 

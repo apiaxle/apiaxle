@@ -84,7 +84,7 @@ class Redis
 
   getValidationDocs: ( ) ->
     strings = for field, details of @constructor.structure.properties
-      out = "* #{field} - "
+      out = "* #{field}: "
 
       out += "(default: #{ details.default }) " if details.default
       out += "#{ details.docs or 'undocumented.'}"

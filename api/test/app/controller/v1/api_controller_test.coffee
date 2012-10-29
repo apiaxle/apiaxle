@@ -13,7 +13,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( json ) =>
         @ok 1
 
-        done 1
+        done 2
 
   "test GET keys for a valid api": ( done ) ->
     # now try and get it
@@ -22,7 +22,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( json ) =>
         @ok 1
 
-        done 1
+        done 2
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
@@ -31,8 +31,8 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 404
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "NotFoundError"
+        @ok json.results.error
+        @equal json.results.error.type, "NotFoundError"
 
         done 4
 
@@ -43,8 +43,8 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 404
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "NotFoundError"
+        @ok json.results.error
+        @equal json.results.error.type, "NotFoundError"
 
         done 4
 
@@ -58,9 +58,9 @@ class exports.ApiControllerTest extends ApiaxleTest
       @isNull err
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "InvalidContentType"
-        @equal json.error.message, "Content-type is a required header."
+        @ok json.results.error
+        @equal json.results.error.type, "InvalidContentType"
+        @equal json.results.error.message, "Content-type is a required header."
 
         done 4
 
@@ -76,9 +76,9 @@ class exports.ApiControllerTest extends ApiaxleTest
       @isNull err
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "InvalidContentType"
-        @equal json.error.message, "text/json is not a supported content type."
+        @ok json.results.error
+        @equal json.results.error.type, "InvalidContentType"
+        @equal json.results.error.message, "text/json is not a supported content type."
 
         done 4
 
@@ -95,15 +95,15 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 200
 
       res.parseJson ( json ) =>
-        @isUndefined json.error
-        @equal json.apiFormat, "json"
+        @isUndefined json.results.error
+        @equal json.results.apiFormat, "json"
 
         # check it went in
         @application.model( "api" ).find "1234", ( err, dbApi ) =>
           @equal dbApi.apiFormat, "json"
           @ok dbApi.createdAt
 
-          done 5
+          done 6
 
   "test POST with an invalid api": ( done ) ->
     options =
@@ -118,11 +118,11 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 400
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "ValidationError"
+        @ok json.results.error
+        @equal json.results.error.type, "ValidationError"
 
         # TODO: this is a terrible message...
-        @equal json.error.message, "endPoint: (optional) "
+        @equal json.results.error.message, "endPoint: (optional) "
 
         done 5
 
@@ -170,7 +170,7 @@ class exports.ApiControllerTest extends ApiaxleTest
 
         res.parseJson ( json ) =>
           @ok json
-          @equal json.error.type, "ValidationError"
+          @equal json.results.error.type, "ValidationError"
 
           done 6
 
