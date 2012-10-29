@@ -174,6 +174,19 @@ class exports.ApiControllerTest extends ApiaxleTest
 
           done 6
 
+  "test DELETE with invalid API": ( done ) ->
+    @DELETE path: "/v1/api/1234", ( err, res ) =>
+      @equal res.statusCode, 404
+
+      res.parseJson ( json ) =>
+        @ok json.results.error
+        @ok json.meta.status_code, 404
+
+        @equal json.results.error.message, "1234 not found."
+        @equal json.results.error.type, "NotFoundError"
+
+        done 5
+
   "test DELETE": ( done ) ->
     @application.model( "api" ).create "1234", endPoint: "hi.com", ( err, origApi ) =>
       @isNull err
@@ -183,8 +196,17 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 200
 
-        @application.model( "api" ).find "1234", ( err, dbApi ) =>
-          @isNull err
-          @isNull dbApi
+        res.parseJson ( json ) =>
+          # no error
+          @equal json.results.error?, false
 
-          done 6
+          # just returns true
+          @equal json.results, true
+          @equal json.meta.status_code, 200
+
+          # confirm it's out of the database
+          @application.model( "api" ).find "1234", ( err, dbApi ) =>
+            @isNull err
+            @isNull dbApi
+
+            done 9
