@@ -80,29 +80,17 @@ class exports.ApiaxleController extends Controller
       return next()
 
   # Will decorate `req.api` with details of the api specified in the
-  # `:api` parameter. Won't throw an error if it's not found. See also
-  # `mwApiDetailsRequired`.
-  mwApiDetails: ( ) ->
+  # `:api` parameter. If `valid_api_required` is truthful then an
+  # error will be thrown if a valid api wasn't found.
+  mwApiDetails: ( valid_api_required=false ) ->
     ( req, res, next ) =>
       api = req.params.api
 
       @app.model( "api" ).find api, ( err, dbApi ) ->
         return next err if err
 
-        req.api = dbApi
-
-        return next()
-
-  # As `mwApiDetails` but with throw an error if there is no valid api
-  # found.
-  mwApiDetailsRequired: ( ) ->
-    ( req, res, next ) =>
-      api = req.params.api
-
-      @app.model( "api" ).find api, ( err, dbApi ) ->
-        return next err if err
-
-        if not dbApi?
+        # do we /need/ the api to exist?
+        if valid_api_required and not dbApi?
           return next new NotFoundError "#{ api } not found."
 
         req.api = dbApi
