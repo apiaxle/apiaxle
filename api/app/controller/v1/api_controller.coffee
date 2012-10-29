@@ -1,32 +1,7 @@
 _ = require "underscore"
 
-{ contentTypeRequired, ApiaxleController } = require "../controller"
-{ NotFoundError, AlreadyExists } = require "../../../lib/error"
-
-apiDetails = ( app ) ->
-  ( req, res, next ) ->
-    api = req.params.api
-
-    app.model( "api" ).find api, ( err, dbApi ) ->
-      return next err if err
-
-      req.api = dbApi
-
-      return next()
-
-apiDetailsRequired = ( app ) ->
-  ( req, res, next ) ->
-    api = req.params.api
-
-    app.model( "api" ).find api, ( err, dbApi ) ->
-      return next err if err
-
-      if not dbApi?
-        return next new NotFoundError "#{ api } not found."
-
-      req.api = dbApi
-
-      return next()
+{ ApiaxleController } = require "../controller"
+{ AlreadyExists } = require "../../../lib/error"
 
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
@@ -44,7 +19,7 @@ class exports.CreateApi extends ApiaxleController
     * The inserted structure (including the new timestamp fields).
     """
 
-  middleware: -> [ contentTypeRequired(), apiDetails( @app ) ]
+  middleware: -> [ @mwContentTypeRequired(), @mwApiDetails( ) ]
 
   path: -> "/v1/api/:api"
 
@@ -53,10 +28,10 @@ class exports.CreateApi extends ApiaxleController
     if req.api?
       return next new AlreadyExists "#{ api } already exists."
 
-    @app.model( "api" ).create req.params.api, req.body, ( err, newObj ) ->
+    @app.model( "api" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err
 
-      res.json newObj
+      @json res, newObj
 
 class exports.ViewApi extends ApiaxleController
   @verb = "get"
@@ -70,12 +45,12 @@ class exports.ViewApi extends ApiaxleController
     * The API structure (including the timestamp fields).
     """
 
-  middleware: -> [ apiDetailsRequired( @app ) ]
+  middleware: -> [ @mwApiDetails( valid_api_required=true ) ]
 
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    res.json req.api
+    @json res, req.api
 
 class exports.DeleteApi extends ApiaxleController
   @verb = "delete"
@@ -89,17 +64,17 @@ class exports.DeleteApi extends ApiaxleController
     * `true` on success.
     """
 
-  middleware: -> [ apiDetailsRequired( @app ) ]
+  middleware: -> [ @mwApiDetails( valid_api_required=true ) ]
 
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
     model = @app.model "api"
 
-    model.del req.params.api, ( err, newApi ) ->
+    model.del req.params.api, ( err, newApi ) =>
       return next err if err
 
-      res.json true
+      @json res, true
 
 class exports.ModifyApi extends ApiaxleController
   @verb = "put"
@@ -118,7 +93,10 @@ class exports.ModifyApi extends ApiaxleController
     * The merged structure (including the timestamp fields).
     """
 
-  middleware: -> [ contentTypeRequired( ), apiDetailsRequired( @app ) ]
+  middleware: -> [
+    @mwContentTypeRequired( ),
+    @mwApiDetails( valid_api_required=true )
+  ]
 
   path: -> "/v1/api/:api"
 
@@ -136,7 +114,7 @@ class exports.ModifyApi extends ApiaxleController
       model.create req.params.api, instance, ( err, newApi ) =>
         return next err if err
 
-        res.json newApi
+        @json res, newApi
 
 class exports.ListApiKeys extends ApiaxleController
   @verb = "get"
@@ -170,15 +148,15 @@ class exports.ListApiKeys extends ApiaxleController
 
   modelName: -> "api"
 
-  middleware: -> [ apiDetails( @app ) ]
+  middleware: -> [ @mwApiDetails( @app ) ]
 
   execute: ( req, res, next ) ->
     @app.model( "api" ).get_keys req.params.api, req.params.from, req.params.to, ( err, results ) =>
       return next err if err
 
       if not req.query.resolve?
-        return res.json results
+        return @json res, results
 
-      @resolve @app.model("key"), results, (err, resolved_results) ->
+      @resolve @app.model("key"), results, (err, resolved_results) =>
         return next err if err
-        return res.json resolved_results
+        return @json res, resolved_results

@@ -23,8 +23,8 @@ class exports.KeyControllerTest extends ApiaxleTest
       # now try and get it
       @GET path: "/v1/key/1234", ( err, res ) =>
         res.parseJson ( json ) =>
-          @isNumber parseInt( json.qps )
-          @isNumber parseInt( json.qpd )
+          @isNumber parseInt( json.results.qps )
+          @isNumber parseInt( json.results.qpd )
 
           done 4
 
@@ -35,20 +35,8 @@ class exports.KeyControllerTest extends ApiaxleTest
       @equal res.statusCode, 404
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "NotFoundError"
-
-        done 4
-
-  "test GET a non-existant key": ( done ) ->
-    # now try and get it
-    @GET path: "/v1/key/1234", ( err, res ) =>
-      @isNull err
-      @equal res.statusCode, 404
-
-      res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "NotFoundError"
+        @ok json.results.error
+        @equal json.results.error.type, "NotFoundError"
 
         done 4
 
@@ -64,9 +52,9 @@ class exports.KeyControllerTest extends ApiaxleTest
 
     @POST options, ( err, res ) =>
       res.parseJson ( json ) =>
-        @equal json.qps, "1"
-        @equal json.qpd, "100"
-        @equal json.forApi, "twitter"
+        @equal json.results.qps, "1"
+        @equal json.results.qpd, "100"
+        @equal json.results.forApi, "twitter"
 
         # check it went in
         @keyModel.find "1234", ( err, dbKey ) =>
@@ -93,9 +81,9 @@ class exports.KeyControllerTest extends ApiaxleTest
 
     @POST options, ( err, res ) =>
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "ValidationError"
-        @equal json.error.message, "qps: (type) Invalid type"
+        @ok json.results.error
+        @equal json.results.error.type, "ValidationError"
+        @equal json.results.error.message, "qps: (type) Invalid type"
 
         done 3
 
@@ -141,23 +129,46 @@ class exports.KeyControllerTest extends ApiaxleTest
 
         res.parseJson ( json ) =>
           @ok json
-          @equal json.error.type, "ValidationError"
+          @equal json.results.error.type, "ValidationError"
 
           done 5
 
-  "test DELETE": ( done ) ->
+  "test DELETE with invalid KEY": ( done ) ->
+    @DELETE path: "/v1/key/1234", ( err, res ) =>
+      @equal res.statusCode, 404
+
+      res.parseJson ( json ) =>
+        @ok json.results.error
+        @ok json.meta.status_code, 404
+
+        @equal json.results.error.message, "1234 not found."
+        @equal json.results.error.type, "NotFoundError"
+
+        done 5
+
+  "test DELETE with valid key": ( done ) ->
     @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
       @DELETE path: "/v1/key/1234", ( err, res ) =>
+        @isNull err
         @equal res.statusCode, 200
 
-        @keyModel.find "1234", ( err, dbKey ) =>
-          @isNull err
-          @isNull dbKey
+        res.parseJson ( json ) =>
+          # no error
+          @equal json.results.error?, false
 
-          done 5
+          # just returns true
+          @equal json.results, true
+          @equal json.meta.status_code, 200
+
+          # confirm it's out of the database
+          @application.model( "key" ).find "1234", ( err, dbKey ) =>
+            @isNull err
+            @isNull dbKey
+
+            done 9
 
   "test get key range without resolution": ( done ) ->
     # create 11 keys
@@ -176,7 +187,7 @@ class exports.KeyControllerTest extends ApiaxleTest
 
         response.parseJson ( json ) =>
           @ok json
-          @equal json.length, 10
+          @equal json.results.length, 10
 
           done 4
 
@@ -202,10 +213,10 @@ class exports.KeyControllerTest extends ApiaxleTest
           for i in [ 0..9 ]
             name = "key_#{i}"
 
-            @ok json[ name ]
-            @equal json[ name ].qpd, i
-            @equal json[ name ].qps, i
-            @equal json[ name ].forApi, "twitter"
+            @ok json.results[ name ]
+            @equal json.results[ name ].qpd, i
+            @equal json.results[ name ].qps, i
+            @equal json.results[ name ].forApi, "twitter"
 
           done 43
 
@@ -250,18 +261,22 @@ class exports.KeyStatsTest extends ApiaxleTest
         @isNull err
 
         shouldHave =
-          "200":
-            "2011-12-4": "2"
-            "2011-12": "2"
-            "2011": "2"
-          "400":
-            "2011-12-4": "3"
-            "2011-12": "3"
-            "2011": "3"
-          "404":
-            "2011-12-4": "1"
-            "2011-12": "1"
-            "2011": "1"
+          meta:
+            version: 1
+            status_code: 200
+          results:
+            "200":
+              "2011-12-4": "2"
+              "2011-12": "2"
+              "2011": "2"
+            "400":
+              "2011-12-4": "3"
+              "2011-12": "3"
+              "2011": "3"
+            "404":
+              "2011-12-4": "1"
+              "2011-12": "1"
+              "2011": "1"
 
         res.parseJson ( json ) =>
           @ok json
@@ -282,20 +297,24 @@ class exports.KeyStatsTest extends ApiaxleTest
               @isNull err
 
               shouldHave =
-                "200":
-                  "2011-12-4": "2"
-                  "2011-12-6": "1"
-                  "2011-12": "3"
-                  "2011": "3"
-                "400":
-                  "2011-12-6": "2"
-                  "2011-12-4": "3"
-                  "2011-12": "5"
-                  "2011": "5"
-                "404":
-                  "2011-12-4": "1"
-                  "2011-12": "1"
-                  "2011": "1"
+                meta:
+                  version: 1
+                  status_code: 200
+                results:
+                  "200":
+                    "2011-12-4": "2"
+                    "2011-12-6": "1"
+                    "2011-12": "3"
+                    "2011": "3"
+                  "400":
+                    "2011-12-6": "2"
+                    "2011-12-4": "3"
+                    "2011-12": "5"
+                    "2011": "5"
+                  "404":
+                    "2011-12-4": "1"
+                    "2011-12": "1"
+                    "2011": "1"
 
               res.parseJson ( json ) =>
                 @ok json

@@ -31,8 +31,8 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 404
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "NotFoundError"
+        @ok json.results.error
+        @equal json.results.error.type, "NotFoundError"
 
         done 4
 
@@ -43,8 +43,8 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 404
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "NotFoundError"
+        @ok json.results.error
+        @equal json.results.error.type, "NotFoundError"
 
         done 4
 
@@ -58,9 +58,9 @@ class exports.ApiControllerTest extends ApiaxleTest
       @isNull err
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "InvalidContentType"
-        @equal json.error.message, "Content-type is a required header."
+        @ok json.results.error
+        @equal json.results.error.type, "InvalidContentType"
+        @equal json.results.error.message, "Content-type is a required header."
 
         done 4
 
@@ -76,9 +76,9 @@ class exports.ApiControllerTest extends ApiaxleTest
       @isNull err
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "InvalidContentType"
-        @equal json.error.message, "text/json is not a supported content type."
+        @ok json.results.error
+        @equal json.results.error.type, "InvalidContentType"
+        @equal json.results.error.message, "text/json is not a supported content type."
 
         done 4
 
@@ -95,8 +95,8 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 200
 
       res.parseJson ( json ) =>
-        @isUndefined json.error
-        @equal json.apiFormat, "json"
+        @isUndefined json.results.error
+        @equal json.results.apiFormat, "json"
 
         # check it went in
         @application.model( "api" ).find "1234", ( err, dbApi ) =>
@@ -118,11 +118,11 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 400
 
       res.parseJson ( json ) =>
-        @ok json.error
-        @equal json.error.type, "ValidationError"
+        @ok json.results.error
+        @equal json.results.error.type, "ValidationError"
 
         # TODO: this is a terrible message...
-        @equal json.error.message, "endPoint: (optional) "
+        @equal json.results.error.message, "endPoint: (optional) "
 
         done 5
 
@@ -170,9 +170,22 @@ class exports.ApiControllerTest extends ApiaxleTest
 
         res.parseJson ( json ) =>
           @ok json
-          @equal json.error.type, "ValidationError"
+          @equal json.results.error.type, "ValidationError"
 
           done 6
+
+  "test DELETE with invalid API": ( done ) ->
+    @DELETE path: "/v1/api/1234", ( err, res ) =>
+      @equal res.statusCode, 404
+
+      res.parseJson ( json ) =>
+        @ok json.results.error
+        @ok json.meta.status_code, 404
+
+        @equal json.results.error.message, "1234 not found."
+        @equal json.results.error.type, "NotFoundError"
+
+        done 5
 
   "test DELETE": ( done ) ->
     @application.model( "api" ).create "1234", endPoint: "hi.com", ( err, origApi ) =>
@@ -183,8 +196,17 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 200
 
-        @application.model( "api" ).find "1234", ( err, dbApi ) =>
-          @isNull err
-          @isNull dbApi
+        res.parseJson ( json ) =>
+          # no error
+          @equal json.results.error?, false
 
-          done 6
+          # just returns true
+          @equal json.results, true
+          @equal json.meta.status_code, 200
+
+          # confirm it's out of the database
+          @application.model( "api" ).find "1234", ( err, dbApi ) =>
+            @isNull err
+            @isNull dbApi
+
+            done 9
