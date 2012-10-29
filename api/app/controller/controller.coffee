@@ -1,19 +1,9 @@
 { Controller } = require "apiaxle.base"
-{ InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
+{ NotFoundError, InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
 
-exports.contentTypeRequired = ( accepted=[ "application/json" ] ) ->
-  ( req, res, next ) ->
-    ct = req.headers[ "content-type" ]
-
-    if not ct
-      return next new InvalidContentType "Content-type is a required header."
-
-    if ct not in accepted
-      return next new InvalidContentType "#{ ct } is not a supported content type."
-
-    return next()
-
-class ApiController extends Controller
+class exports.ApiaxleController extends Controller
+  # Used output data conforming to a standard Api Axle
+  # format. Includes a metadata field
   json: ( res, results ) ->
     output =
       meta:
@@ -23,9 +13,9 @@ class ApiController extends Controller
 
     return res.json output
 
-class exports.ApiaxleController extends ApiController
-  docs: -> ""
-
+  # this function is used to satisfy the `?resolve=true` type
+  # parameters. Given a bunch of keys, go off to the respective bits
+  # of redis to resolve the data.
   resolve: ( model, keys, cb ) ->
     # build up the requests, grab the keys and zip into a new
     # hash
@@ -43,6 +33,69 @@ class exports.ApiaxleController extends ApiController
         final[ result ] = accKeys[ i++ ]
 
       return cb null, final
+
+  mwKeyDetails: ( ) ->
+    ( req, res, next ) =>
+      api_key = req.params.key
+
+      @app.model( "key" ).find api_key, ( err, dbKey ) ->
+        return next err if err
+
+        req.key = dbKey
+
+        return next()
+
+  mwKeyDetailsRequired: ( ) ->
+    ( req, res, next ) =>
+      api_key = req.params.key
+
+      @app.model( "key" ).find api_key, ( err, dbKey ) ->
+        return next err if err
+
+        if not dbKey?
+          return next new NotFoundError "#{ api_key } not found."
+
+        req.key = dbKey
+
+        return next()
+
+  mwContentTypeRequired: ( accepted=[ "application/json" ] ) ->
+    ( req, res, next ) ->
+      ct = req.headers[ "content-type" ]
+
+      if not ct
+        return next new InvalidContentType "Content-type is a required header."
+
+      if ct not in accepted
+        return next new InvalidContentType "#{ ct } is not a supported content type."
+
+      return next()
+
+  mwApiDetailsRequired: ( ) ->
+    ( req, res, next ) =>
+      api = req.params.api
+
+      @app.model( "api" ).find api, ( err, dbApi ) ->
+        return next err if err
+
+        if not dbApi?
+          return next new NotFoundError "#{ api } not found."
+
+        req.api = dbApi
+
+        return next()
+
+
+  mwApiDetails: ( ) ->
+    ( req, res, next ) =>
+      api = req.params.api
+
+      @app.model( "api" ).find api, ( err, dbApi ) ->
+        return next err if err
+
+        req.api = dbApi
+
+        return next()
 
 class exports.ListController extends exports.ApiaxleController
   execute: ( req, res, next ) ->

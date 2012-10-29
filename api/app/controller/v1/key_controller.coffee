@@ -1,30 +1,7 @@
 _ = require "underscore"
 
-{ contentTypeRequired, ApiaxleController, ListController, CreateController } = require "../controller"
+{ ApiaxleController, ListController, CreateController } = require "../controller"
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
-
-key = ( app ) ->
-  ( req, res, next ) ->
-    app.model( "key" ).find key, ( err, dbKey ) ->
-      return next err if err
-
-      req.key = dbKey
-
-      return next()
-
-keyRequired = ( app ) ->
-  ( req, res, next ) ->
-    api_key = req.params.key
-
-    app.model( "key" ).find api_key, ( err, dbKey ) ->
-      return next err if err
-
-      if not dbKey?
-        return next new NotFoundError "#{ key } not found."
-
-      req.key = dbKey
-
-      return next()
 
 class exports.ListKeys extends ListController
   @verb = "get"
@@ -75,7 +52,7 @@ class exports.CreateKey extends ApiaxleController
       fields).
     """
 
-  middleware: -> [ contentTypeRequired( ), key( @app ) ]
+  middleware: -> [ @mwContentTypeRequired( ), @mwKeyDetails( ) ]
 
   path: -> "/v1/key/:key"
 
@@ -101,7 +78,7 @@ class exports.ViewKey extends ApiaxleController
     * The key object (including timestamps).
     """
 
-  middleware: -> [ keyRequired( @app ) ]
+  middleware: -> [ @mwKeyDetailsRequired( ) ]
 
   path: -> "/v1/key/:key"
 
@@ -120,7 +97,7 @@ class exports.DeleteKey extends ApiaxleController
     * `true` on success.
     """
 
-  middleware: -> [ keyRequired( @app ) ]
+  middleware: -> [ @mwKeyDetailsRequired( ) ]
 
   path: -> "/v1/key/:key"
 
@@ -151,7 +128,7 @@ class exports.ModifyKey extends ApiaxleController
       fields).
     """
 
-  middleware: -> [ contentTypeRequired( ), keyRequired( @app ) ]
+  middleware: -> [ @mwContentTypeRequired( ), @mwKeyDetailsRequired( ) ]
 
   path: -> "/v1/key/:key"
 
@@ -185,7 +162,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
       example). Each object contains date to hit count pairs.
     """
 
-  middleware: -> [ keyRequired( @app ) ]
+  middleware: -> [ @mwKeyDetailsRequired( ) ]
 
   path: -> "/v1/key/:key/stats"
 
