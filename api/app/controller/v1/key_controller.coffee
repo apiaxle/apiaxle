@@ -162,7 +162,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
       example). Each object contains date to hit count pairs.
     """
 
-  middleware: -> [ keyRequired( @app ) ]
+  middleware: -> [ @mwKeyDetailsRequired( ) ]
 
   path: -> "/v1/key/:key/stats"
 

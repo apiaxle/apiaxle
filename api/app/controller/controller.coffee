@@ -2,6 +2,33 @@
 { NotFoundError, InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
+  json: ( res, results ) ->
+    output =
+      meta:
+        version: 1
+        status_code: res.statusCode
+      results: results
+
+    return res.json output
+
+  resolve: ( model, keys, cb ) ->
+    # build up the requests, grab the keys and zip into a new
+    # hash
+    multi = model.multi()
+    multi.hgetall result for result in keys
+
+    final = { }
+
+    # grab the accumulated keys
+    multi.exec ( err, accKeys ) ->
+      return cb err if err
+
+      i = 0
+      for result in keys
+        final[ result ] = accKeys[ i++ ]
+
+      return cb null, final
+
   mwKeyDetails: ( ) ->
     ( req, res, next ) =>
       api_key = req.params.key
@@ -64,37 +91,6 @@ class exports.ApiaxleController extends Controller
         req.api = dbApi
 
         return next()
-
-class ApiController extends Controller
-  json: ( res, results ) ->
-    output =
-      meta:
-        version: 1
-        status_code: res.statusCode
-      results: results
-
-    return res.json output
-
-class exports.ApiaxleController extends ApiController
-  docs: -> ""
-
-  resolve: ( model, keys, cb ) ->
-    # build up the requests, grab the keys and zip into a new
-    # hash
-    multi = model.multi()
-    multi.hgetall result for result in keys
-
-    final = { }
-
-    # grab the accumulated keys
-    multi.exec ( err, accKeys ) ->
-      return cb err if err
-
-      i = 0
-      for result in keys
-        final[ result ] = accKeys[ i++ ]
-
-      return cb null, final
 
 class exports.ListController extends exports.ApiaxleController
   execute: ( req, res, next ) ->
