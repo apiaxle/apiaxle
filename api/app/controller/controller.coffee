@@ -2,6 +2,8 @@
 { NotFoundError, InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
+  # Used output data conforming to a standard Api Axle
+  # format. Includes a metadata field
   json: ( res, results ) ->
     output =
       meta:
@@ -11,6 +13,9 @@ class exports.ApiaxleController extends Controller
 
     return res.json output
 
+  # this function is used to satisfy the `?resolve=true` type
+  # parameters. Given a bunch of keys, go off to the respective bits
+  # of redis to resolve the data.
   resolve: ( model, keys, cb ) ->
     # build up the requests, grab the keys and zip into a new
     # hash
