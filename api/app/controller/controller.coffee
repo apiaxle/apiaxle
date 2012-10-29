@@ -35,49 +35,21 @@ class exports.ApiaxleController extends Controller
       return cb null, final
 
   # Will decorate `req.key` with details of the key specified in the
-  # `:key` parameter. Won't throw an error if it's not found. See also
-  # `mwKeyDetailsRequired`.
-  mwKeyDetails: ( ) ->
+  # `:key` parameter. If `valid_key_required` is truthful then an
+  # error will be thrown if a valid key wasn't found.
+  mwKeyDetails: ( valid_api_required=false ) ->
     ( req, res, next ) =>
       api_key = req.params.key
 
       @app.model( "key" ).find api_key, ( err, dbKey ) ->
         return next err if err
 
-        req.key = dbKey
-
-        return next()
-
-  # As `mwKeyDetails` but with throw an error if there is no valid key
-  # found.
-  mwKeyDetailsRequired: ( ) ->
-    ( req, res, next ) =>
-      api_key = req.params.key
-
-      @app.model( "key" ).find api_key, ( err, dbKey ) ->
-        return next err if err
-
-        if not dbKey?
+        if valid_api_required and not dbKey?
           return next new NotFoundError "#{ api_key } not found."
 
         req.key = dbKey
 
         return next()
-
-  # Make a call require a specific content-type `accepted` can be an
-  # array of good types. Without one of the valid content types
-  # supplied there will be an error.
-  mwContentTypeRequired: ( accepted=[ "application/json" ] ) ->
-    ( req, res, next ) ->
-      ct = req.headers[ "content-type" ]
-
-      if not ct
-        return next new InvalidContentType "Content-type is a required header."
-
-      if ct not in accepted
-        return next new InvalidContentType "#{ ct } is not a supported content type."
-
-      return next()
 
   # Will decorate `req.api` with details of the api specified in the
   # `:api` parameter. If `valid_api_required` is truthful then an
@@ -96,6 +68,21 @@ class exports.ApiaxleController extends Controller
         req.api = dbApi
 
         return next()
+
+  # Make a call require a specific content-type `accepted` can be an
+  # array of good types. Without one of the valid content types
+  # supplied there will be an error.
+  mwContentTypeRequired: ( accepted=[ "application/json" ] ) ->
+    ( req, res, next ) ->
+      ct = req.headers[ "content-type" ]
+
+      if not ct
+        return next new InvalidContentType "Content-type is a required header."
+
+      if ct not in accepted
+        return next new InvalidContentType "#{ ct } is not a supported content type."
+
+      return next()
 
 class exports.ListController extends exports.ApiaxleController
   execute: ( req, res, next ) ->
