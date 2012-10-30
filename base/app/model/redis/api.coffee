@@ -34,6 +34,7 @@ class exports.Api extends Redis
       extractKeyRegex:
         type: "string"
         docs: "Regular expression used to extract API key from url"
+        optional: true
 
   addKey: (api, key) ->
     @lpush "#{ api }:keys", key
