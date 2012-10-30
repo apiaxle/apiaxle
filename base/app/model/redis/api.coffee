@@ -33,7 +33,7 @@ class exports.Api extends Redis
         docs: "Max redirects that are allowed when endpoint called."
       extractKeyRegex:
         type: "string"
-        docs: "Regular expression used to extract API key from url"
+        docs: "Regular expression used to extract API key from url. Axle will use the **first** matched grouping and then apply that as the key. Using the `api_key` or `apiaxle_key` will take precedence."
         optional: true
         pre: ( value ) ->
           try
