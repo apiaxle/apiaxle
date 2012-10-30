@@ -15,7 +15,10 @@ class Redis
     @ns = "gk:#{ env }:#{ name }"
 
   validate: ( details, cb ) ->
-    validate @constructor.structure, details, cb
+    try
+      return validate @constructor.structure, details, cb
+    catch err
+      return cb err, null
 
   create: ( id, details, cb ) ->
     @validate details, ( err, instance ) =>
