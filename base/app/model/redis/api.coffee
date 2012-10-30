@@ -38,6 +38,7 @@ class exports.Api extends Redis
         pre: ( value ) ->
           try
             new RegExp( value )
+            return value
           catch err
             throw new ValidationError( err.message )
 
