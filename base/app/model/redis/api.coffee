@@ -31,6 +31,9 @@ class exports.Api extends Redis
         type: "integer"
         default: 2
         docs: "Max redirects that are allowed when endpoint called."
+      extractKeyRegex:
+        type: "string"
+        docs: "Regular expression used to extract API key from url"
 
   addKey: (api, key) ->
     @lpush "#{ api }:keys", key
