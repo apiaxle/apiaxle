@@ -65,7 +65,8 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( json ) =>
         @equal json.meta.status_code, 400
         @match json.results.error.message, /Invalid regular expression/
-        done 1
+
+        done 4
 
   "test POST a valid api but no content-type header": ( done ) ->
     options =
