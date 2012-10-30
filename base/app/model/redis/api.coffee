@@ -1,4 +1,4 @@
-{ ApiUnknown } = require "../../../lib/error"
+{ ApiUnknown, ValidationError } = require "../../../lib/error"
 { Redis } = require "../redis"
 
 validationEnv = require( "schema" )( "apiEnv" )
@@ -35,9 +35,14 @@ class exports.Api extends Redis
         type: "string"
         docs: "Regular expression used to extract API key from url"
         optional: true
+        pre: ( value ) ->
+          try
+            new RegExp( value )
+          catch err
+            throw new ValidationError( err.message )
 
-  addKey: (api, key) ->
+  addKey: ( api, key ) ->
     @lpush "#{ api }:keys", key
 
-  getKeys: (api, start, stop, cb) ->
+  getKeys: ( api, start, stop, cb ) ->
     @lrange "#{ api }:keys", start, stop, cb
