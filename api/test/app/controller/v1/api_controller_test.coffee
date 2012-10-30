@@ -48,6 +48,25 @@ class exports.ApiControllerTest extends ApiaxleTest
 
         done 4
 
+  "test POST an invalid regexp for an API": ( done ) ->
+    options =
+      path: "/v1/api/1234"
+      headers:
+        "Content-Type": "application/json"
+      data: JSON.stringify
+        endPoint: "api.example.com"
+        extractKeyRegex: "hello(" # invalid
+
+    @POST options, ( err, res ) =>
+      @isNull err
+    
+      @equal res.statusCode, 400
+
+      res.parseJson ( json ) =>
+        @equal json.meta.status_code, 400
+        @match json.results.error.message, /Invalid regular expression/
+        done 1
+
   "test POST a valid api but no content-type header": ( done ) ->
     options =
       path: "/v1/api/1234"
