@@ -28,6 +28,18 @@ class exports.ApiTest extends FakeAppTest
 
       done 1
 
+  "test #create with an invalid regex": ( done ) ->
+    newObj =
+      apiFormat: "xml"
+      endPoint: "api.twitter.com"
+      extractKeyRegex: "hello("
+
+    @model.create "twitter", newObj, ( err ) =>
+      @ok err
+      @match err.message, /Invalid regular expression/
+
+      done 2
+
   "test #create with good structure": ( done ) ->
     newObj =
       apiFormat: "xml"
