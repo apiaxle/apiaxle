@@ -91,7 +91,7 @@ class exports.ApiaxleController extends Controller
 
     matches = url.match new RegExp(regex)
 
-    if matches.length > 1
+    if matches and matches.length > 1
       return matches[1]
 
     # Default out
