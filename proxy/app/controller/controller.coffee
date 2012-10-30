@@ -90,7 +90,6 @@ class exports.ApiaxleController extends Controller
       return null
 
     matches = url.match new RegExp(regex)
-    console.log matches
 
     if matches.length > 1
       return matches[1]

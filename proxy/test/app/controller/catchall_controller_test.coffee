@@ -184,6 +184,41 @@ class exports.CatchallTest extends ApiaxleTest
 
             done 4
 
+  "test GET with regex key": ( done ) ->
+    apiOptions =
+      endPoint:        "graph.facebook.com"
+      apiFormat:       "json"
+      extractKeyRegex: ".*\/bastard\/([A-Za-z0-9]*)\/?.*"
+
+    # we create the API
+    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+      @isNull err
+
+      keyOptions =
+        forApi: "facebook"
+
+      @application.model( "key" ).create "1234", keyOptions, ( err ) =>
+        @isNull err
+
+        # make sure we don't actually hit facebook
+        data = JSON.stringify
+          one: 1
+
+        @stubCatchall 200, data,
+          "Content-Type": "application/json"
+
+        requestOptions =
+          path: "/bastard/1234/hello/"
+          host: "facebook.api.localhost"
+
+        @GET requestOptions, ( err, response ) =>
+          @isNull err
+
+          response.parseJson ( json ) =>
+            @equal json.one, 1
+
+            done 4
+
   "test XML error": ( done ) ->
     apiOptions =
       endPoint: "graph.facebook.com"
