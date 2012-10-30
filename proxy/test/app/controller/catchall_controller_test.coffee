@@ -188,7 +188,7 @@ class exports.CatchallTest extends ApiaxleTest
     apiOptions =
       endPoint:        "graph.facebook.com"
       apiFormat:       "json"
-      extractKeyRegex: ".*\/bastard\/([A-Za-z0-9]*)\/?.*"
+      extractKeyRegex: "/bastard/([A-Za-z0-9]*)/"
 
     # we create the API
     @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
