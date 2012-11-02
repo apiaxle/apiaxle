@@ -1,7 +1,7 @@
 #!/usr/bin/env coffee
 
 _  = require "underscore"
-{ getPackages } = require "./axle_utils"
+{ getPackages } = require "../lib/axle_utils"
 
 getVersions = ( packages, cb ) ->
   vers = [ ]
