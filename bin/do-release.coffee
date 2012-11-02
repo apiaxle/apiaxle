@@ -24,33 +24,28 @@ getPackages projects, ( err, packages ) ->
   throw err if err
 
   for pkg_name, pkg_details of packages
-    old_version = pkg_details.version
-    pkg_details.version = new_version
+    do ( pkg_name, pkg_details ) ->
+      old_version = pkg_details.version
+      pkg_details.version = new_version
 
-    json = JSON.stringify( pkg_details, null, 2 ) + "\n"
-    filename = "#{ pkg_name }/package.json"
+      json = JSON.stringify( pkg_details, null, 2 ) + "\n"
+      filename = "#{ pkg_name }/package.json"
 
-    fs.writeFile filename, json, "utf-8", ( err ) ->
-      throw err if err
+      fs.writeFile filename, json, "utf-8", ( err ) ->
+        throw err if err
 
-      console.log "#{ filename }\twas #{ old_version }, becomes #{ new_version }"
+        commands = [
+          [ "git", [ "add", "#{ filename }" ] ],
+          [ "git", [ "ci", "-m", "Version bumped to #{ new_version }" ] ],
+        ]
 
-      commands = [
-        "git add '#{ filename }'"
-        "git tag '#{ new_version}'"
-        "git ci -m 'Version bumped to #{ new_version }'"
-      ]
+        for command in commands
+          git = spawn.apply @, command
 
-      command = commands.join(" && ")
+          git.stdout.on "data", console.log
+          git.stderr.on "data", console.log
 
-      # add and commit
-      console.log "Running: #{ command }"
-      script = spawn command
+          git.on "exit", ( code, signal ) ->
+            console.log "#{ pkg_name } was #{ old_version }, becomes #{ new_version }"
 
-      script.stdout.on "data", sys.print
-      script.stderr.on "data", sys.print
-
-      script.on "exit", ( code, signal ) ->
-        if code isnt 0
-          process.exit code
-
+            process.exit code if code isnt 0
