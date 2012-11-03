@@ -171,7 +171,6 @@ class exports.Application
     output =
       error:
         type: err.constructor.name
-        status: err.constructor.status
         message: err.message
 
     if @debug

@@ -30,7 +30,6 @@ class exports.CatchallTest extends ApiaxleTest
 
               @ok json.results.error
               @equal json.results.error.type, "ApiUnknown"
-              @equal json.results.error.status, "404"
 
               cb()
 
@@ -38,7 +37,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
       @equal results.length, 4
 
-      done 27
+      done 26
 
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
     all = [ ]
@@ -65,7 +64,6 @@ class exports.CatchallTest extends ApiaxleTest
             response.parseJson ( json ) =>
               @ok json.results.error
               @equal json.results.error.type, "ApiUnknown"
-              @equal json.results.error.status, "404"
 
               cb()
 
@@ -73,7 +71,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
       @equal results.length, 4
 
-      done 26
+      done 25
 
   "test GET with registered domain but no key": ( done ) ->
     apiOptions =
@@ -90,9 +88,8 @@ class exports.CatchallTest extends ApiaxleTest
         response.parseJson ( json ) =>
           @ok err = json.results.error
           @equal err.type, "KeyError"
-          @equal err.status, 403
 
-          done 5
+          done 4
 
   "test GET with registered domain but invalid key": ( done ) ->
     apiOptions =
@@ -107,9 +104,8 @@ class exports.CatchallTest extends ApiaxleTest
         response.parseJson ( json ) =>
           @ok err = json.results.error
           @equal err.type, "KeyError"
-          @equal err.status, 403
 
-          done 4
+          done 3
 
   "test GET with registered domain and valid key": ( done ) ->
     apiOptions =
@@ -198,7 +194,6 @@ class exports.CatchallTest extends ApiaxleTest
         response.parseXml ( xmlDoc ) =>
           @ok xmlDoc.get "/error"
           @ok xmlDoc.get "/error/type[text()='KeyError']"
-          @ok xmlDoc.get "/error/status[text()='403']"
           @ok xmlDoc.get "/error/message[text()='No api_key specified.']"
 
-          done 6
+          done 5
