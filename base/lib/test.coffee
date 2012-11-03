@@ -24,6 +24,12 @@ class Clock
     # move on the fake clock
     @tick ( now.getTime() - thenTime )
 
+  addMinutes: ( number ) ->
+    @_addTime "addMinutes", number
+
+  addHours: ( number ) ->
+    @_addTime "addHours", number
+
   addDays: ( number ) ->
     @_addTime "addDays", number
 
