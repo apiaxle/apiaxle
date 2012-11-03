@@ -37,7 +37,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
       @equal results.length, 4
 
-      done 26
+      done 30
 
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
     all = [ ]
@@ -71,7 +71,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
       @equal results.length, 4
 
-      done 25
+      done 22
 
   "test GET with registered domain but no key": ( done ) ->
     apiOptions =
