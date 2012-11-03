@@ -97,7 +97,6 @@ class CatchAll extends ApiaxleController
         # means we've a cache miss and so need to make a real request
         @_httpRequest options, req.key.key, ( err, apiRes, body ) =>
           return outerCb err if err
-
           # do I really need to check both?
           contentType = apiRes.headers["Content-Type"] or apiRes.headers["content-type"]
 
@@ -151,7 +150,7 @@ class CatchAll extends ApiaxleController
       headers = req.headers
       delete headers.host
 
-      endpointUrl = "http://#{ req.api.endPoint }/#{ pathname }"
+      endpointUrl = "http://#{ req.api.endPoint }#{ pathname }"
       if query
         endpointUrl += "?"
         newStrings = ( "#{ key }=#{ value }" for key, value of query )

@@ -43,7 +43,7 @@ class exports.Key extends Redis
         return cb new ValidationError "API '#{ details.forApi }' doesn't exist."
 
       # Save the key
-      @application.model("api").add_key details.forApi, name
+      @application.model("api").addKey details.forApi, name
 
       # why won't coffeescript just let me call super here?
       return Key.__super__.create.apply @, [ name, details, cb ]

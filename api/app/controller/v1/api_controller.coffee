@@ -151,7 +151,7 @@ class exports.ListApiKeys extends ApiaxleController
   middleware: -> [ @mwApiDetails( @app ) ]
 
   execute: ( req, res, next ) ->
-    @app.model( "api" ).get_keys req.params.api, req.params.from, req.params.to, ( err, results ) =>
+    @app.model( "api" ).getKeys req.params.api, req.params.from, req.params.to, ( err, results ) =>
       return next err if err
 
       if not req.query.resolve?

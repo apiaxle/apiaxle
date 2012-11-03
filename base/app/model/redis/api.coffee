@@ -32,8 +32,8 @@ class exports.Api extends Redis
         default: 2
         docs: "Max redirects that are allowed when endpoint called."
 
-  add_key: (api, key) ->
+  addKey: (api, key) ->
     @lpush "#{ api }:keys", key
 
-  get_keys: (api, start, stop, cb) ->
+  getKeys: (api, start, stop, cb) ->
     @lrange "#{ api }:keys", start, stop, cb

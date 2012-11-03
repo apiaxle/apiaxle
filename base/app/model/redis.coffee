@@ -70,16 +70,19 @@ class Redis
 
       multi.exec cb
 
-  hourString: ( date=new Date() ) ->
-    return "#{ date.getFullYear() }-#{ date.getMonth() + 1 }-#{ date.getDay() + 1 }#{ date.getHours() }"
+  minuteString: ( date=new Date() ) =>
+    return "#{ @hourString date }:#{ date.getMinutes() }"
 
-  dayString: ( date=new Date() ) ->
-    return "#{ date.getFullYear() }-#{ date.getMonth() + 1 }-#{ date.getDay() + 1 }"
+  hourString: ( date=new Date() ) =>
+    return "#{ @dayString date } #{ date.getHours() }"
 
-  monthString: ( date=new Date() ) ->
-    return "#{ date.getFullYear() }-#{ date.getMonth() + 1 }"
+  dayString: ( date=new Date() ) =>
+    return "#{ @monthString date }-#{ date.getDate() }"
 
-  yearString: ( date=new Date() ) ->
+  monthString: ( date=new Date() ) =>
+    return "#{ @yearString date }-#{ date.getMonth() + 1 }"
+
+  yearString: ( date=new Date() ) =>
     return "#{ date.getFullYear() }"
 
   getValidationDocs: ( ) ->
