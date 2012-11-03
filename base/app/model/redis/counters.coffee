@@ -9,11 +9,11 @@ class exports.Counters extends Redis
   apiHit: ( key, response, cb ) ->
     multi = @multi()
 
+    multi.hincrby [ key, response ], @minuteString(), 1
+    multi.hincrby [ key, response ], @hourString(), 1
     multi.hincrby [ key, response ], @dayString(), 1
     multi.hincrby [ key, response ], @monthString(), 1
     multi.hincrby [ key, response ], @yearString(), 1
-    multi.hincrby [ key, response ], @hourString(), 1
-    multi.hincrby [ key, response ], @minuteString(), 1
 
     multi.sadd [ key, "all-response-types" ], response
 

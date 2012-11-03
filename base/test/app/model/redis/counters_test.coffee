@@ -16,7 +16,7 @@ class exports.CountersTest extends FakeAppTest
   "test #apiHit": ( done ) ->
     clock = @getClock()
 
-    @model.apiHit "1234", 200, ( err, [ day, month, year, hour, min ] ) =>
+    @model.apiHit "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @isNull err
 
       @equal day, 1
@@ -26,7 +26,7 @@ class exports.CountersTest extends FakeAppTest
       # move on a day
       clock.addDays 1
 
-      @model.apiHit "1234", 200, ( err, [ day, month, year, hour, min ] ) =>
+      @model.apiHit "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
         @isNull err
 
         @equal day, 1
@@ -38,7 +38,7 @@ class exports.CountersTest extends FakeAppTest
   "test #getToday": ( done ) ->
     clock = @getClock()
 
-    @model.apiHit "1234", 200, ( err, [ day, month, year, hour, min ] ) =>
+    @model.apiHit "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @isNull err
       @equal day, 1
 
@@ -57,16 +57,16 @@ class exports.CountersTest extends FakeAppTest
   "test #getHour": ( done ) ->
     clock = @getClock()
 
-    @model.apiHit "1234", 200, ( err, [ day, month, year, hour, min ] ) =>
+    @model.apiHit "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @isNull err
 
-      for time in [ day, month, year, hour, min ]
+      for time in [ min, hour, day, month, year ]
         @equal time, 1
       
       # move on a day
       clock.addMinutes 1
 
-      @model.apiHit "1234", 200, ( err, [ day, month, year, hour, min ] ) =>
+      @model.apiHit "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
         @equal min, 1
 
         for time in [ day, month, year, hour ]
@@ -77,7 +77,7 @@ class exports.CountersTest extends FakeAppTest
   "test #getThisMonth": ( done ) ->
     clock = @getClock()
 
-    @model.apiHit "1234", 200, ( err, [ day, month, year, hour, min ] ) =>
+    @model.apiHit "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @isNull err
       @equal day, 1
 
@@ -102,7 +102,7 @@ class exports.CountersTest extends FakeAppTest
   "test #getThisYear": ( done ) ->
     clock = @getClock()
 
-    @model.apiHit "1234", 200, ( err, [ day, month, year, hour, min ] ) =>
+    @model.apiHit "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @isNull err
       @equal day, 1
 
