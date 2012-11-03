@@ -71,10 +71,10 @@ class Redis
       multi.exec cb
 
   minuteString: ( date=new Date() ) =>
-    return "#{ @hourString date }-#{ date.getMinutes() }"
+    return "#{ @hourString date }:#{ date.getMinutes() }"
 
   hourString: ( date=new Date() ) =>
-    return "#{ @dayString date }-#{ date.getHours() }"
+    return "#{ @dayString date } #{ date.getHours() }"
 
   dayString: ( date=new Date() ) =>
     return "#{ @monthString date }-#{ date.getDate() }"
