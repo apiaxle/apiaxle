@@ -37,7 +37,7 @@ class exports.Counters extends Redis
   getThisYear: ( key, response, cb ) ->
     @getYear key, response, new Date(), cb
 
-  getHour: ( key, response, date, cb ) ->
+  getMinute: ( key, response, date, cb ) ->
     @_getTimeRange key, response, date, @minuteString, cb
 
   getHour: ( key, response, date, cb ) ->
