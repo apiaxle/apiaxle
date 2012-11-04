@@ -9,6 +9,8 @@ class exports.Counters extends Redis
   apiHit: ( key, response, cb ) ->
     multi = @multi()
 
+    multi.hincrby [ key, response ], @minuteString(), 1
+    multi.hincrby [ key, response ], @hourString(), 1
     multi.hincrby [ key, response ], @dayString(), 1
     multi.hincrby [ key, response ], @monthString(), 1
     multi.hincrby [ key, response ], @yearString(), 1
@@ -34,6 +36,9 @@ class exports.Counters extends Redis
 
   getThisYear: ( key, response, cb ) ->
     @getYear key, response, new Date(), cb
+
+  getMinute: ( key, response, date, cb ) ->
+    @_getTimeRange key, response, date, @minuteString, cb
 
   getHour: ( key, response, date, cb ) ->
     @_getTimeRange key, response, date, @hourString, cb
