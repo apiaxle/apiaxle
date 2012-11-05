@@ -20,6 +20,14 @@ catch e
   parser.usage()
   process.exit 1
 
+gitCommand = ( args, cb ) ->
+  git = spawn "git", args
+
+  git.stdout.on "data", sys.print
+  git.stderr.on "data", sys.print
+
+  git.on "exit", cb
+
 projects = [ "api", "base", "proxy" ]
 getPackages projects, ( err, packages ) ->
   throw err if err
@@ -38,12 +46,7 @@ getPackages projects, ( err, packages ) ->
         fs.writeFile filename, json, "utf-8", ( err ) ->
           throw err if err
 
-          git = spawn "git", [ "add", filename ]
-
-          git.stdout.on "data", console.log
-          git.stderr.on "data", console.log
-
-          git.on "exit", ( code, signal ) ->
+          gitCommand [ "add", filename ], ( code, signal ) ->
             console.log "#{ pkg_name } was #{ old_version }, becomes #{ new_version }"
 
             if code isnt 0
@@ -51,5 +54,11 @@ getPackages projects, ( err, packages ) ->
 
             return cb null, filename
 
-  async.series all_projects, ( err, results ) ->
+  async.series all_projects, ( err, filenames ) ->
     throw err if err
+
+    git_args = [ "commit", "-m", "Version bump (#{ new_version })." ]
+    git_args = git_args.concat filenames
+
+    gitCommand git_args, ( code, signal ) ->
+      console.log ""
