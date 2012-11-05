@@ -24,7 +24,7 @@ gitCommand = ( args, cb ) ->
   git = spawn "git", args
 
   git.stdout.on "data", sys.print
-  git.stderr.on "data", sys.print
+  git.stderr.on "data", process.stderr.write
 
   git.on "exit", cb
 
