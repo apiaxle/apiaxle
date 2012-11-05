@@ -1,12 +1,10 @@
 #!/usr/bin/env coffee
 
 fs    = require "fs"
-sys   = require "sys"
 async = require "async"
 
 { OptionParser } = require "parseopt"
-{ getPackages }  = require "../lib/axle_utils"
-{ spawn }        = require "child_process"
+{ gitCommand, getPackages }  = require "../lib/axle_utils"
 
 process.on "uncaughtException", console.log
 
@@ -21,19 +19,6 @@ try
 catch e
   parser.usage()
   process.exit 1
-
-gitCommand = ( args, cb ) ->
-  git = spawn "git", args
-
-  git.stdout.on "data", ( b ) -> console.log( b.toString "utf-8" )
-  git.stderr.on "data", ( b ) -> console.error( b.toString "utf-8" )
-
-  git.on "exit", ( code, signal ) ->
-    if code isnt 0
-      console.error "#{ args.join ' ' } failed, exiting with #{ code }\n"
-      process.exit code
-
-    return cb code, signal
 
 projects = [ "api", "base", "proxy" ]
 getPackages projects, ( err, packages ) ->
