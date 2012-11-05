@@ -26,7 +26,12 @@ gitCommand = ( args, cb ) ->
   git.stdout.on "data", sys.print
   git.stderr.on "data", process.stderr.write
 
-  git.on "exit", cb
+  git.on "exit", ( code, signal ) ->
+    if code isnt 0
+      process.stderr.write "#{ args.join ' ' } failed, exiting with #{ code }\n"
+      process.exit code
+
+    return cb code, signal
 
 projects = [ "api", "base", "proxy" ]
 getPackages projects, ( err, packages ) ->
@@ -49,9 +54,6 @@ getPackages projects, ( err, packages ) ->
           gitCommand [ "add", filename ], ( code, signal ) ->
             console.log "#{ pkg_name } was #{ old_version }, becomes #{ new_version }"
 
-            if code isnt 0
-              return cb new Error "git add returned #{ code } for #{ filename }."
-
             return cb null, filename
 
   async.series all_projects, ( err, filenames ) ->
@@ -60,5 +62,6 @@ getPackages projects, ( err, packages ) ->
     git_args = [ "commit", "-m", "Version bump (#{ new_version })." ]
     git_args = git_args.concat filenames
 
-    gitCommand git_args, ( code, signal ) ->
-      console.log ""
+    gitCommand git_args, ( ) ->
+      gitCommand [ "tag", new_version ], ( ) ->
+        console.log( "Tagged as #{ new_version }" )
