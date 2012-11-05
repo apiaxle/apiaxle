@@ -8,6 +8,8 @@ async = require "async"
 { getPackages }  = require "../lib/axle_utils"
 { spawn }        = require "child_process"
 
+process.on "uncaughtException", console.log
+
 parser = new OptionParser
   minargs: 1
   strings:
@@ -23,8 +25,8 @@ catch e
 gitCommand = ( args, cb ) ->
   git = spawn "git", args
 
-  git.stdout.on "data", sys.print
-  git.stderr.on "data", process.stderr.write
+  git.stdout.on "data", ( b ) -> console.log( b.toString "utf-8" )
+  git.stderr.on "data", ( b ) -> console.error( b.toString "utf-8" )
 
   git.on "exit", ( code, signal ) ->
     if code isnt 0
@@ -32,8 +34,6 @@ gitCommand = ( args, cb ) ->
       process.exit code
 
     return cb code, signal
-
-process.on "uncaughtException", console.log
 
 projects = [ "api", "base", "proxy" ]
 getPackages projects, ( err, packages ) ->
