@@ -51,4 +51,4 @@ getPackages projects, ( err, packages ) ->
 
     gitCommand git_args, ( ) ->
       gitCommand [ "tag", new_version ], ( ) ->
-        console.log( "Tagged as #{ new_version }" )
+        console.log( "Tagged as #{ new_version } (don't forget to push the tag)." )
