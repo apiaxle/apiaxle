@@ -28,10 +28,12 @@ gitCommand = ( args, cb ) ->
 
   git.on "exit", ( code, signal ) ->
     if code isnt 0
-      process.stderr.write "#{ args.join ' ' } failed, exiting with #{ code }\n"
+      console.error "#{ args.join ' ' } failed, exiting with #{ code }\n"
       process.exit code
 
     return cb code, signal
+
+process.on "uncaughtException", console.log
 
 projects = [ "api", "base", "proxy" ]
 getPackages projects, ( err, packages ) ->
