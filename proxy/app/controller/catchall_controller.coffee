@@ -150,7 +150,7 @@ class CatchAll extends ApiaxleController
       headers = req.headers
       delete headers.host
 
-      endpointUrl = "http://#{ req.api.endPoint }#{ pathname }"
+      endpointUrl = "https://#{ req.api.endPoint }#{ pathname }"
       if query
         endpointUrl += "?"
         newStrings = ( "#{ key }=#{ value }" for key, value of query )
