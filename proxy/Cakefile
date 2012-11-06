@@ -1,6 +1,5 @@
 async  = require "async"
 fs     = require "fs"
-sys    = require "sys"
 util   = require "util"
 
 { Apiaxle } = require "./apiaxle_proxy"
@@ -9,6 +8,6 @@ util   = require "util"
 task "test", "Run the tests.", ( options ) ->
   script = spawn "./bin/run-tests.bash"
 
-  script.stdout.on "data", sys.print
-  script.stderr.on "data", sys.print
+  script.stdout.on "data", util.print
+  script.stderr.on "data", util.print
   script.on "exit", ( code, signal ) -> process.exit code
