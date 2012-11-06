@@ -18,6 +18,11 @@ class exports.Api extends Redis
         type: "string"
         required: true
         docs: "The endpoint for the API. For example; `graph.facebook.com`"
+      protocol:
+        type: "string"
+        enum: [ "https", "http" ]
+        default: "http"
+        docs: "The protocol for the API, whether or not to use SSL"
       apiFormat:
         type: "string"
         enum: [ "json", "xml" ]
