@@ -1,4 +1,4 @@
-{ ApiUnknown } = require "../../../lib/error"
+{ ApiUnknown, ValidationError } = require "../../../lib/error"
 { Redis } = require "../redis"
 
 validationEnv = require( "schema" )( "apiEnv" )
@@ -31,9 +31,19 @@ class exports.Api extends Redis
         type: "integer"
         default: 2
         docs: "Max redirects that are allowed when endpoint called."
+      extractKeyRegex:
+        type: "string"
+        docs: "Regular expression used to extract API key from url. Axle will use the **first** matched grouping and then apply that as the key. Using the `api_key` or `apiaxle_key` will take precedence."
+        optional: true
+        pre: ( value ) ->
+          try
+            new RegExp( value )
+            return value
+          catch err
+            throw new ValidationError( err.message )
 
-  addKey: (api, key) ->
+  addKey: ( api, key ) ->
     @lpush "#{ api }:keys", key
 
-  getKeys: (api, start, stop, cb) ->
+  getKeys: ( api, start, stop, cb ) ->
     @lrange "#{ api }:keys", start, stop, cb

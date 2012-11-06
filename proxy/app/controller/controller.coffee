@@ -84,8 +84,25 @@ class exports.ApiaxleController extends Controller
     # none of the potential matches matched
     return cb new KeyError "Invalid signature (got #{processed})."
 
+  # Attempts to parse regex from url
+  getRegexKey: ( url, regex ) ->
+    if not regex
+      return null
+
+    matches = url.match new RegExp(regex)
+
+    if matches and matches.length > 1
+      return matches[1]
+
+    # Default out
+    return null
+
   key: ( req, res, next ) =>
     key = ( req.query.apiaxle_key or req.query.api_key )
+
+    # if the key isn't a query param, check a regex
+    if not key
+      key = @getRegexKey req.url, req.api.extractKeyRegex
 
     if not key
       return next new KeyError "No api_key specified."
