@@ -1,21 +1,7 @@
 #!/usr/bin/env coffee
 
-fs = require "fs"
 _  = require "underscore"
-
-projects = [ "api", "base", "proxy" ]
-
-getPackages = ( cb ) ->
-  packages = { }
-
-  for project in projects
-    filename = "#{project}/package.json"
-
-    do ( project ) ->
-      data = fs.readFileSync filename, "utf-8"
-      packages[ project ] = JSON.parse data
-
-  cb null, packages
+{ getPackages } = require "../lib/axle_utils"
 
 getVersions = ( packages, cb ) ->
   vers = [ ]
@@ -25,7 +11,8 @@ getVersions = ( packages, cb ) ->
 
   cb null, _.uniq vers.sort()
 
-getPackages ( err, packages ) ->
+projects = [ "api", "base", "proxy" ]
+getPackages projects, ( err, packages ) ->
   throw new Error err if err
 
   getVersions packages, ( err, versions ) ->
