@@ -230,3 +230,55 @@ class exports.ApiControllerTest extends ApiaxleTest
             @isNull dbApi
 
             done 9
+  "test GET list apis without resolution": ( done ) ->
+    # create 11 apis
+    fixtures = []
+    @apiModel = @application.model( "api" )
+
+    for i in [ 0..10 ]
+      do ( i ) =>
+        fixtures.push ( cb ) =>
+          @apiModel.create "api_#{i}", endPoint: "api_#{i}.com", cb
+
+    async.series fixtures, ( err, newApis ) =>
+      @isNull err
+
+      @GET path: "/v1/api/list/1/12", ( err, response ) =>
+        @isNull err
+
+        response.parseJson ( json ) =>
+          @ok json
+          @equal json.results.length, 10
+          done 4
+
+  "test list apis with resolution": ( done ) ->
+    # create 11 apis
+    fixtures = []
+
+    for i in [ 0..10 ]
+      do ( i ) =>
+        fixtures.push ( cb ) =>
+          options =
+            globalCache: i
+            apiFormat:   "json"
+            endPoint:    "api_#{i}.com"
+
+          @apiModel.create "api_#{i}", options, cb
+
+    async.parallel fixtures, ( err, newApis ) =>
+      @isNull err
+
+      @GET path: "/v1/api/list/0/12?resolve=true", ( err, response ) =>
+        @isNull err
+
+        response.parseJson ( json ) =>
+          @ok json
+
+          for i in [ 0..9 ]
+            name = "api_#{i}"
+
+            @ok json.results[ name ]
+            @equal json.results[ name ].globalCache, i
+            @equal json.results[ name ].endPoint, "api_#{i}.com"
+
+          done 33
