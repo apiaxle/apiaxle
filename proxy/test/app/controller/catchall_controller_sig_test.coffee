@@ -18,7 +18,11 @@ class exports.CatchallTest extends ApiaxleTest
     keyOptions =
       sharedSecret: @constructor.fixture_api_secret
 
-    @fixtures.createApiAndKey "facebook", apiOptions, @constructor.fixture_api_key, keyOptions, done
+    @fixtures.createApiAndKey "facebook",
+                              apiOptions,
+                              @constructor.fixture_api_key,
+                              keyOptions,
+                              done
 
   generateSig: ( epoch ) ->
     date = Math.floor( epoch ).toString()
