@@ -250,7 +250,20 @@ class Fixtures
     @bucket_ids = require "../test/fixtures/key-bucket-fixture-names.json"
     @keys       = [ 1..1000 ]
 
-  createKey: ( args..., cb ) ->
+  _bulkApply: ( method, all, cb ) ->
+    key_create_list = [ ]
+
+    for key in all
+      do( key ) =>
+        key_create_list.push ( cb ) =>
+          @createKey.apply @, all
+
+    async.series key_create_list, cb
+
+  createKeys: ( all, cb ) ->
+    @_bulkApply @createKey, all, cb
+
+  createKey: ( args..., cb ) =>
     name    = null
 
     passed_options  = { }
@@ -286,3 +299,6 @@ class Fixtures
     options = _.extend default_options, passed_options
 
     @application.model( "api" ).create name, options, cb
+
+  createApis: ( all, cb ) ->
+    @_bulkApply @createApi, all, cb
