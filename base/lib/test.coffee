@@ -260,6 +260,17 @@ class Fixtures
 
     async.series key_create_list, cb
 
+  createApiAndKey: ( api, apiOptions, key, keyOptions={}, cb ) ->
+    @createApi api, apiOptions, ( err, newApi ) =>
+      return cb err if err
+
+      keyOptions["forApi"] = api
+
+      @createKey key, keyOptions, ( err, newKey ) =>
+        return cb err if err
+
+        return cb null, newApi, newKey
+
   createKeys: ( all, cb ) ->
     @_bulkApply @createKey, all, cb
 
