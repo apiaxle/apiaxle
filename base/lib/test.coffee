@@ -250,6 +250,24 @@ class Fixtures
     @bucket_ids = require "../test/fixtures/key-bucket-fixture-names.json"
     @keys       = [ 1..1000 ]
 
+  createKey: ( args..., cb ) ->
+    name    = null
+
+    passed_options  = { }
+    default_options =
+      forApi: "twitter"
+
+    # grab the optional args and make sure a name is assigned
+    switch args.length
+      when 2 then [ name, passed_options ] = args
+      when 1 then [ name ] = args
+      else name = @key_names.pop()
+
+    # merge the options
+    options = _.extend default_options, passed_options
+
+    @application.model( "key" ).create name, options, cb
+
   createApi: ( args..., cb ) ->
     name    = null
 
@@ -257,7 +275,7 @@ class Fixtures
     default_options =
       endPoint: "api.twitter.com"
       apiFormat: "json"
-    
+
     # grab the optional args and make sure a name is assigned
     switch args.length
       when 2 then [ name, passed_options ] = args
