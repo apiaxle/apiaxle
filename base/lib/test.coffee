@@ -4,6 +4,7 @@ path   = require "path"
 sinon  = require "sinon"
 async  = require "async"
 libxml = require "libxmljs"
+_      = require "underscore"
 
 { Application } = require "./application"
 { TwerpTest }   = require "twerp"
@@ -251,14 +252,19 @@ class Fixtures
 
   createApi: ( args..., cb ) ->
     name    = null
-    options =
+
+    passed_options  = { }
+    default_options =
       endPoint: "api.twitter.com"
       apiFormat: "json"
     
     # grab the optional args and make sure a name is assigned
     switch args.length
-      when 2 then [ name, options ] = args
+      when 2 then [ name, passed_options ] = args
       when 1 then [ name ] = args
       else name = @api_names.pop()
+
+    # merge the options
+    options = _.extend default_options, passed_options
 
     @application.model( "api" ).create name, options, cb
