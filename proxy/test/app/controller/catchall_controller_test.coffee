@@ -37,7 +37,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
       @equal results.length, 4
 
-      done 34
+      done 30
 
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
     all = [ ]
