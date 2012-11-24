@@ -26,5 +26,5 @@ components.
 
 # Build
 
-master: [![Build Status](https://secure.travis-ci.org/philjackson/apiaxle.png?branch=master)](http://travis-ci.org/philjackson/apiaxle)
-develop: [![Build Status](https://secure.travis-ci.org/philjackson/apiaxle.png?branch=develop)](http://travis-ci.org/philjackson/apiaxle)
+* master: [![Build Status](https://secure.travis-ci.org/philjackson/apiaxle.png?branch=master)](http://travis-ci.org/philjackson/apiaxle)
+* develop: [![Build Status](https://secure.travis-ci.org/philjackson/apiaxle.png?branch=develop)](http://travis-ci.org/philjackson/apiaxle)
