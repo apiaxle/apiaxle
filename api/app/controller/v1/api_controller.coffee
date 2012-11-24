@@ -1,6 +1,6 @@
 _ = require "underscore"
 
-{ ApiaxleController } = require "../controller"
+{ ApiaxleController, ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
 class exports.CreateApi extends ApiaxleController
@@ -115,6 +115,38 @@ class exports.ModifyApi extends ApiaxleController
         return next err if err
 
         @json res, newApi
+
+class exports.ListApis extends ListController
+  @verb = "get"
+
+  path: -> "/v1/api/list/:from/:to"
+
+  desc: -> "List all APIs."
+
+  docs: ->
+    """
+    ### Path parameters
+
+    * from: Integer for the index of the first api you want to
+      see. Starts at zero.
+    * to: Integer for the index of the last api you want to
+      see. Starts at zero.
+
+    ### Supported query params
+
+    * resolve: if set to `true` then the details concerning the listed
+      apis  will also be printed. Be aware that this will come with a
+      minor performace hit.
+
+    ### Returns
+
+    * Without `resolve` the result will be an array with one api per
+      entry.
+    * If `resolve` is passed then results will be an object with the
+      api name as the api and the details as the value.
+    """
+
+  modelName: -> "api"
 
 class exports.ListApiKeys extends ApiaxleController
   @verb = "get"
