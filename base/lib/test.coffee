@@ -61,6 +61,9 @@ class AppResponse
 
     callback output
 
+application_mem = null
+application_fixtures = null
+
 class exports.AppTest extends TwerpTest
   @port = 26100
 
@@ -74,6 +77,12 @@ class exports.AppTest extends TwerpTest
 
     @stubs = [ ]
     @spies  = [ ]
+
+    # fixture lists, persist over lifetime
+    @fixtures = if application_fixtures
+      application_fixtures
+    else
+      application_fixtures = new Fixtures @application
 
     super options
 
@@ -233,3 +242,23 @@ class exports.AppTest extends TwerpTest
 
     res.emit "data", data
     res.emit "end"
+
+class Fixtures
+  constructor: ( @application ) ->
+    @api_names  = require "../test/fixtures/api-fixture-names.json"
+    @bucket_ids = require "../test/fixtures/key-bucket-fixture-names.json"
+    @keys       = [ 1..1000 ]
+
+  createApi: ( args..., cb ) ->
+    name    = null
+    options =
+      endPoint: "api.twitter.com"
+      apiFormat: "json"
+    
+    # grab the optional args and make sure a name is assigned
+    switch args.length
+      when 2 then [ name, options ] = args
+      when 1 then [ name ] = args
+      else name = @api_names.pop()
+
+    @application.model( "api" ).create name, options, cb
