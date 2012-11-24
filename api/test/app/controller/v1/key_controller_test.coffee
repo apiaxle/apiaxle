@@ -83,7 +83,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       res.parseJson ( json ) =>
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
-        @equal json.results.error.message, "qps: (type) Invalid type"
+        @equal json.results.error.message, "qps: (type) "
 
         done 3
 
