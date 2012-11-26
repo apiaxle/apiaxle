@@ -22,7 +22,7 @@ class exports.ApiaxleController extends Controller
     multi = model.multi()
     multi.hgetall result for result in keys
 
-    final = { }
+    final = {}
 
     # grab the accumulated keys
     multi.exec ( err, accKeys ) ->

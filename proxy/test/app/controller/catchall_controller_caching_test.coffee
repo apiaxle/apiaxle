@@ -13,7 +13,7 @@ class exports.CatchallTest extends ApiaxleTest
       controller = @application.controller "#{type}Catchall"
 
       req =
-        headers: { }
+        headers: {}
         api:
           globalCache: 20
 

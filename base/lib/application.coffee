@@ -47,7 +47,7 @@ class exports.Application
     return @
 
   configureControllers: ( ) ->
-    @controllers = { }
+    @controllers = {}
 
     return @ unless @constructor.controllersPath
 
@@ -68,7 +68,7 @@ class exports.Application
     return @
 
   configureModels: ( ) ->
-    @.models or= { }
+    @.models or= {}
 
     modelPaths = @_modelList( "#{ __dirname }/../app/model" )
 
