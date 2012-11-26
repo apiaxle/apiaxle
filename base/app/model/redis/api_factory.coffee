@@ -4,6 +4,11 @@
 validationEnv = require( "schema" )( "apiEnv" )
 
 class Api extends Model
+  addKey: ( api, key ) ->
+    @lpush "#{ api }:keys", key
+
+  getKeys: ( api, start, stop, cb ) ->
+    @lrange "#{ api }:keys", start, stop, cb
 
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
@@ -43,9 +48,3 @@ class exports.ApiFactory extends Redis
             return value
           catch err
             throw new ValidationError( err.message )
-
-  addKey: ( api, key ) ->
-    @lpush "#{ api }:keys", key
-
-  getKeys: ( api, start, stop, cb ) ->
-    @lrange "#{ api }:keys", start, stop, cb

@@ -6,7 +6,7 @@ events = require "events"
 redis = require "redis"
 
 class Model
-  constructor: ( @data ) ->
+  constructor: ( @key, @data ) ->
 
 class Redis
   constructor: ( @application ) ->
@@ -42,7 +42,7 @@ class Redis
 
         # construct a new return object (see @returns on the factory
         # base class)
-        cb null, new @constructor.returns details
+        cb null, new @constructor.returns id, details
 
   range: ( start, stop, cb ) ->
     @lrange "all", start, stop, cb
@@ -51,7 +51,7 @@ class Redis
     @hgetall key, ( err, details ) =>
       return cb err, null if err
       return cb null, null unless details and _.size details
-      return cb null, new @constructor.returns details
+      return cb null, new @constructor.returns key, details
 
   multi: ( args ) ->
     return new RedisMulti( @ns, @application.redisClient, args )
