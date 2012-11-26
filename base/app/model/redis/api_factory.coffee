@@ -1,11 +1,13 @@
 { ApiUnknown, ValidationError } = require "../../../lib/error"
-{ Redis } = require "../redis"
+{ Model, Redis } = require "../redis"
 
 validationEnv = require( "schema" )( "apiEnv" )
 
-class exports.Api extends Redis
-  @instantiateOnStartup = true
+class Api extends Model
 
+class exports.ApiFactory extends Redis
+  @instantiateOnStartup = true
+  @returns   = Api
   @structure = validationEnv.Schema.create
     type: "object"
     additionalProperties: false

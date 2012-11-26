@@ -5,13 +5,15 @@ events = require "events"
 
 redis = require "redis"
 
+class Model
+  constructor: ( @data ) ->
+
 class Redis
   constructor: ( @application ) ->
     env = @application.constructor.env
     name = @constructor.smallKeyName or @constructor.name.toLowerCase()
 
     @ee = new events.EventEmitter()
-
     @ns = "gk:#{ env }:#{ name }"
 
   validate: ( details, cb ) ->
@@ -35,19 +37,21 @@ class Redis
       # later.
       multi.rpush "all", id
 
-      multi.exec ( err, results ) ->
+      multi.exec ( err, results ) =>
         return cb err if err
 
-        cb null, details
+        # construct a new return object (see @returns on the factory
+        # base class)
+        cb null, new @constructor.returns details
 
   range: ( start, stop, cb ) ->
     @lrange "all", start, stop, cb
 
   find: ( key, cb ) ->
-    @hgetall key, ( err, details ) ->
+    @hgetall key, ( err, details ) =>
       return cb err, null if err
       return cb null, null unless details and _.size details
-      return cb null, details
+      return cb null, new @constructor.returns details
 
   multi: ( args ) ->
     return new RedisMulti( @ns, @application.redisClient, args )
@@ -153,3 +157,4 @@ for command, access of redisCommands
       @application.redisClient[ command ]( full_key, args... )
 
 exports.Redis = Redis
+exports.Model = Model
