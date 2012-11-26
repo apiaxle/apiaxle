@@ -6,7 +6,7 @@ events = require "events"
 redis = require "redis"
 
 class Model
-  constructor: ( @key, @data ) ->
+  constructor: ( @id, @data ) ->
 
 class Redis
   constructor: ( @application ) ->

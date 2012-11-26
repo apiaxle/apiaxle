@@ -4,11 +4,11 @@
 validationEnv = require( "schema" )( "apiEnv" )
 
 class Api extends Model
-  addKey: ( api, key ) ->
-    @lpush "#{ api }:keys", key
+  addKey: ( key ) ->
+    @lpush "#{ @id }:keys", key
 
-  getKeys: ( api, start, stop, cb ) ->
-    @lrange "#{ api }:keys", start, stop, cb
+  getKeys: ( start, stop, cb ) ->
+    @lrange "#{ @id }:keys", start, stop, cb
 
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
