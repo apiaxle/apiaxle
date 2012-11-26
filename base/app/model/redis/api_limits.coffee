@@ -22,7 +22,7 @@ class exports.ApiLimits extends Redis
       cb null, qp
 
   apiHit: ( key, qpsLimit, qpdLimit, cb ) ->
-    both = [ ]
+    both = []
 
     if qpsLimit? and qpsLimit > 0
       both.push ( innerCb ) =>

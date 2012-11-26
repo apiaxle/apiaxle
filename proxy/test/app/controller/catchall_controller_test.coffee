@@ -8,7 +8,7 @@ class exports.CatchallTest extends ApiaxleTest
   @empty_db_on_setup = true
 
   "test POST,GET,PUT and DELETE with no subdomain": ( done ) ->
-    all = [ ]
+    all = []
 
     for method in [ "POST", "GET", "PUT", "DELETE" ]
       do ( method ) =>
@@ -40,7 +40,7 @@ class exports.CatchallTest extends ApiaxleTest
       done 34
 
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
-    all = [ ]
+    all = []
 
     for method in [ "POST", "GET", "PUT", "DELETE" ]
       do ( method ) =>

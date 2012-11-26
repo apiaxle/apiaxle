@@ -72,8 +72,8 @@ class exports.AppTest extends TwerpTest
       application_mem = new @constructor.appClass().configureModels()
                                                    .configureControllers()
 
-    @stubs = [ ]
-    @spies  = [ ]
+    @stubs = []
+    @spies  = []
 
     super options
 
@@ -154,9 +154,9 @@ class exports.AppTest extends TwerpTest
     @httpRequest options, callback
 
   start: ( done ) ->
-    chain = [ ]
+    chain = []
 
-    @runRedisCommands = [ ]
+    @runRedisCommands = []
 
     if @constructor.start_webserver
       chain.push ( cb ) =>
@@ -205,7 +205,7 @@ class exports.AppTest extends TwerpTest
     done( )
 
   "setup": ( done ) ->
-    tasks = [ ]
+    tasks = []
 
     # sanbox for sinon
     @sandbox = sinon.sandbox.create()
@@ -218,7 +218,7 @@ class exports.AppTest extends TwerpTest
             model.flush cb
 
     tasks.push ( cb ) =>
-      @runRedisCommands = [ ]
+      @runRedisCommands = []
       cb()
 
     async.series tasks, done

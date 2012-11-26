@@ -36,7 +36,7 @@ class exports.CatchallTest extends ApiaxleTest
     clock = @getClock()
     now = Math.floor( Date.now() / 1000 )
 
-    all = [ ]
+    all = []
 
     # all of these should be fine given the three second window
     for validSeconds in [ 0, -1, -2, -3, 1, 2, 3 ]

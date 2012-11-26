@@ -100,7 +100,7 @@ class exports.Application
     @.controllers[ name ] or null
 
   _modelList: ( initialPath ) ->
-    list = [ ]
+    list = []
 
     walkTreeSync initialPath, null, ( path, filename, stats ) ->
       return unless /\.(coffee|js)$/.exec filename
@@ -111,7 +111,7 @@ class exports.Application
 
   # grab the list of controllers (which can just be required)
   _controllerList: ( ) ->
-    list = [ ]
+    list = []
 
     walkTreeSync @constructor.controllersPath, null, ( path, filename, stats ) ->
       return unless /_controller\.(coffee|js)$/.exec filename

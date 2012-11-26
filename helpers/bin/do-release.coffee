@@ -24,7 +24,7 @@ projects = [ "api", "base", "proxy" ]
 getPackages projects, ( err, packages ) ->
   throw err if err
 
-  all_projects = [ ]
+  all_projects = []
 
   for pkg_name, pkg_details of packages
     do ( pkg_name, pkg_details ) ->

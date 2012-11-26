@@ -18,7 +18,7 @@ class exports.FakeAppTest extends AppTest
     apiModel.find options.forApi, ( err, dbApi ) =>
       return cb err if err
 
-      fixtures = [ ]
+      fixtures = []
 
       fixtures.push ( cb ) =>
         if not dbApi?

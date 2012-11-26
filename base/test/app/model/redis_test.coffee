@@ -109,7 +109,7 @@ class exports.RedisTest extends FakeAppTest
 
   "test the test framework captures redis commands": ( done ) ->
     # none thanks to setup having run
-    @deepEqual @runRedisCommands, [ ]
+    @deepEqual @runRedisCommands, []
 
     @ok model = @application.model "counters"
 

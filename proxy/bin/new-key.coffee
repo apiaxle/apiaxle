@@ -41,7 +41,7 @@ gk = new ApiaxleProxy()
 gk.script ( finish ) ->
   model = gk.model "key"
 
-  all = [ ]
+  all = []
 
   for key in keys
     do( key ) ->
