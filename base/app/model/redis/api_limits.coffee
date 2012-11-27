@@ -3,7 +3,7 @@ async = require "async"
 { QpsExceededError, QpdExceededError } = require "../../../lib/error"
 { Redis } = require "../redis"
 
-class exports.ApiLimitsFactory extends Redis
+class exports.ApiLimits extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "al"
 
