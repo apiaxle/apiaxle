@@ -13,8 +13,9 @@ class Redis
     @ee = new events.EventEmitter()
     @ns = "gk:#{ env }:#{ name }"
 
-    if not @constructor.returns
-      throw Error "Any Redis class must specify a returns model."
+    # by default we just want to return the raw data, some classes
+    # will want to override this and return objects
+    @returns = ( @application, @id, @data ) => @data
 
   validate: ( details, cb ) ->
     try
