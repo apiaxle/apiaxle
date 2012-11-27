@@ -13,6 +13,9 @@ class Redis
     @ee = new events.EventEmitter()
     @ns = "gk:#{ env }:#{ name }"
 
+    if not @constructor.returns
+      throw Error "Any Redis class must specify a returns model."
+
   validate: ( details, cb ) ->
     try
       return validate @constructor.structure, details, cb

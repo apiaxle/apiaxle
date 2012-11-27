@@ -1,7 +1,7 @@
 async = require "async"
 
 { FakeAppTest } = require "../../../apiaxle_base"
-{ ApiLimits }   = require "../../../../app/model/redis/api_limits"
+{ ApiLimits }   = require "../../../../app/model/redis/api_limits_factory"
 { QpsExceededError, QpdExceededError } = require "../../../../lib/error"
 
 class exports.QpdTest extends FakeAppTest
@@ -11,14 +11,14 @@ class exports.QpdTest extends FakeAppTest
     @ok @application,
       "application is defined"
 
-    @ok model = @application.model "apiLimits"
+    @ok model = @application.model "apiLimitsFactory"
 
     @equal model.ns, "gk:test:al"
 
     done 3
 
   "test first apiHit": ( done ) ->
-    model = @application.model "apiLimits"
+    model = @application.model "apiLimitsFactory"
 
     model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
       @isNull err
@@ -28,7 +28,7 @@ class exports.QpdTest extends FakeAppTest
       done 3
 
   "test second apiHit": ( done ) ->
-    model = @application.model "apiLimits"
+    model = @application.model "apiLimitsFactory"
 
     # we need to stub the keys because there's a chance we'll tick
     # over to the next second/day
@@ -54,7 +54,7 @@ class exports.QpdTest extends FakeAppTest
         done 10
 
   "test third and errornous apiHit": ( done ) ->
-    model = @application.model "apiLimits"
+    model = @application.model "apiLimitsFactory"
 
     # we need to stub the keys because there's a chance we'll tick
     # over to the next second/day
