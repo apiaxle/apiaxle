@@ -6,16 +6,34 @@ class exports.Counters extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "ct"
 
-  apiHit: ( key, response, cb ) ->
+  apiHit: ( api, key, response, cb ) ->
     multi = @multi()
 
-    multi.hincrby [ key, response ], @minuteString(), 1
-    multi.hincrby [ key, response ], @hourString(), 1
-    multi.hincrby [ key, response ], @dayString(), 1
-    multi.hincrby [ key, response ], @monthString(), 1
-    multi.hincrby [ key, response ], @yearString(), 1
+    multi.hincrby [ "key", key, response ], @minuteString(), 1
+    multi.hincrby [ "key", key, response ], @hourString(), 1
+    multi.hincrby [ "key", key, response ], @dayString(), 1
+    multi.hincrby [ "key", key, response ], @monthString(), 1
+    multi.hincrby [ "key", key, response ], @yearString(), 1
 
-    multi.sadd [ key, "all-response-types" ], response
+    # Record per day stats
+    multi.hincrby [ "key", key, @dayString(), response ], @dayString(), 1
+    multi.hincrby [ "key", key, @dayString(), response ], @hourString(), 1
+    multi.hincrby [ "key", key, @dayString(), response ], @minuteString(), 1
+
+    multi.sadd [ "key", key, "all-response-types" ], response
+
+    multi.hincrby [ "api", api, response ], @minuteString(), 1
+    multi.hincrby [ "api", api, response ], @hourString(), 1
+    multi.hincrby [ "api", api, response ], @dayString(), 1
+    multi.hincrby [ "api", api, response ], @monthString(), 1
+    multi.hincrby [ "api", api, response ], @yearString(), 1
+
+    # Record per day stats
+    multi.hincrby [ "api", api, @dayString(), response ], @dayString(), 1
+    multi.hincrby [ "api", api, @dayString(), response ], @hourString(), 1
+    multi.hincrby [ "api", api, @dayString(), response ], @minuteString(), 1
+
+    multi.sadd [ "api", api, "all-response-types" ], response
 
     multi.exec cb
 
