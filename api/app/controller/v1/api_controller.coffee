@@ -19,7 +19,8 @@ class exports.CreateApi extends ApiaxleController
     * The inserted structure (including the new timestamp fields).
     """
 
-  middleware: -> [ @mwContentTypeRequired(), @mwApiDetails( ) ]
+  middleware: -> [ @mwContentTypeRequired(),
+                   @mwApiDetails( ) ]
 
   path: -> "/v1/api/:api"
 
@@ -28,7 +29,7 @@ class exports.CreateApi extends ApiaxleController
     if req.api?
       return next new AlreadyExists "#{ api } already exists."
 
-    @app.model( "api" ).create req.params.api, req.body, ( err, newObj ) =>
+    @app.model( "apiFactory" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err
 
       @json res, newObj
@@ -69,7 +70,7 @@ class exports.DeleteApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    model = @app.model "api"
+    model = @app.model "apiFactory"
 
     model.del req.params.api, ( err, newApi ) =>
       return next err if err
@@ -101,7 +102,7 @@ class exports.ModifyApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    model = @app.model "api"
+    model = @app.model "apiFactory"
 
     # modify the old api struct
     newData = _.extend req.api, req.body
@@ -146,7 +147,7 @@ class exports.ListApis extends ListController
       api name as the api and the details as the value.
     """
 
-  modelName: -> "api"
+  modelName: -> "apiFactory"
 
 class exports.ListApiKeys extends ApiaxleController
   @verb = "get"
@@ -178,17 +179,19 @@ class exports.ListApiKeys extends ApiaxleController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "api"
+  modelName: -> "apiFactory"
 
   middleware: -> [ @mwApiDetails( @app ) ]
 
   execute: ( req, res, next ) ->
-    @app.model( "api" ).getKeys req.params.api, req.params.from, req.params.to, ( err, results ) =>
+    { from, to } = req.params
+
+    @app.model( "apiFactory" ).getKeys req.params.api, from, to, ( err, results ) =>
       return next err if err
 
       if not req.query.resolve?
         return @json res, results
 
-      @resolve @app.model("key"), results, (err, resolved_results) =>
+      @resolve @app.model("keyFactory"), results, (err, key) =>
         return next err if err
-        return @json res, resolved_results
+        return @json res, key.data

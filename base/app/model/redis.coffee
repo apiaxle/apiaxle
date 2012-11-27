@@ -41,6 +41,9 @@ class Redis
       multi.exec ( err, results ) =>
         return cb err if err
 
+        # no data means no object
+        return cb null, null unless results
+
         # construct a new return object (see @returns on the factory
         # base class)
         cb null, new @constructor.returns @application, id, details

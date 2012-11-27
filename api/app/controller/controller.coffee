@@ -41,7 +41,7 @@ class exports.ApiaxleController extends Controller
     ( req, res, next ) =>
       api_key = req.params.key
 
-      @app.model( "key" ).find api_key, ( err, dbKey ) ->
+      @app.model( "keyFactory" ).find api_key, ( err, dbKey ) ->
         return next err if err
 
         if valid_api_required and not dbKey?
@@ -58,7 +58,7 @@ class exports.ApiaxleController extends Controller
     ( req, res, next ) =>
       api = req.params.api
 
-      @app.model( "api" ).find api, ( err, dbApi ) ->
+      @app.model( "apiFactory" ).find api, ( err, dbApi ) ->
         return next err if err
 
         # do we /need/ the api to exist?
