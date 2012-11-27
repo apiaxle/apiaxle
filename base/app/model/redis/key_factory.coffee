@@ -1,13 +1,16 @@
 _ = require "underscore"
 
-{ Redis } = require "../redis"
+{ Redis, Model } = require "../redis"
 { ValidationError } = require "../../../lib/error"
 
 validationEnv = require( "schema" )( "keyEnv" )
 
+class Key extends Model
+
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "key"
+  @returns      = Key
 
   @structure = validationEnv.Schema.create
     type: "object"

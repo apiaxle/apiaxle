@@ -41,7 +41,10 @@ class exports.KeyTest extends FakeAppTest
       done 2
 
   "test #create with an existant api": ( done ) ->
-    @application.model( "apiFactory" ).create "twitter", endPoint: "api.twitter.com", ( err, newApi ) =>
+    options =
+      endPoint: "api.twitter.com"
+
+    @application.model( "apiFactory" ).create "twitter", options, ( err, newApi ) =>
       @isNull err
 
       createObj =
