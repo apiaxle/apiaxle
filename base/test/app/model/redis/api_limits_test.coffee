@@ -1,7 +1,7 @@
 async = require "async"
 
 { FakeAppTest } = require "../../../apiaxle_base"
-{ ApiLimits }   = require "../../../../app/model/redis/api_limits_factory"
+{ ApiLimits }   = require "../../../../app/model/redis/api_limits"
 { QpsExceededError, QpdExceededError } = require "../../../../lib/error"
 
 class exports.QpdTest extends FakeAppTest
