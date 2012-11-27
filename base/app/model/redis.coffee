@@ -5,12 +5,9 @@ events = require "events"
 
 redis = require "redis"
 
-class Model
-  constructor: ( @id, @data ) ->
-
 class Redis
   constructor: ( @application ) ->
-    env = @application.constructor.env
+    env =  @application.constructor.env
     name = @constructor.smallKeyName or @constructor.name.toLowerCase()
 
     @ee = new events.EventEmitter()
@@ -42,7 +39,7 @@ class Redis
 
         # construct a new return object (see @returns on the factory
         # base class)
-        cb null, new @constructor.returns id, details
+        cb null, new @constructor.returns @application, id, details
 
   range: ( start, stop, cb ) ->
     @lrange "all", start, stop, cb
@@ -51,7 +48,7 @@ class Redis
     @hgetall key, ( err, details ) =>
       return cb err, null if err
       return cb null, null unless details and _.size details
-      return cb null, new @constructor.returns key, details
+      return cb null, new @constructor.returns @application, key, details
 
   multi: ( args ) ->
     return new RedisMulti( @ns, @application.redisClient, args )
@@ -108,6 +105,10 @@ class RedisMulti extends redis.Multi
     super client, args
 
   getKey: Redis::getKey
+
+class Model extends Redis
+  constructor: ( @application, @id, @data ) ->
+    super @application
 
 # adding a command here will make it usable in Redis and RedisMulti
 redisCommands = {
