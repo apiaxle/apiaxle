@@ -15,10 +15,6 @@ class Redis
     @ee = new events.EventEmitter()
     @ns = "#{ @base_key }:#{ name }"
 
-    # by default we just want to return the raw data, some classes
-    # will want to override this and return objects
-    @returns = ( @application, @id, @data ) => @data
-
   validate: ( details, cb ) ->
     try
       return validate @constructor.structure, details, cb
@@ -48,7 +44,11 @@ class Redis
 
         # construct a new return object (see @returns on the factory
         # base class)
-        cb null, new @constructor.returns @application, id, details
+        if @constructor.returns?
+          return cb null, new @constructor.returns( @application, id, details )
+
+        # no returns object, just throw back the data
+        return cb null, details
 
   range: ( start, stop, cb ) ->
     @lrange "all", start, stop, cb
@@ -57,7 +57,11 @@ class Redis
     @hgetall key, ( err, details ) =>
       return cb err, null if err
       return cb null, null unless details and _.size details
-      return cb null, new @constructor.returns @application, key, details
+
+      if @constructor.returns?
+        return cb null, new @constructor.returns @application, key, details
+
+      return cb null, details
 
   multi: ( args ) ->
     return new RedisMulti( @ns, @application.redisClient, args )
