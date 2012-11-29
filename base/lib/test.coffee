@@ -8,6 +8,7 @@ _      = require "underscore"
 
 { Application } = require "./application"
 { TwerpTest }   = require "twerp"
+{ Redis }       = require "../app/model/redis"
 
 class Clock
   constructor: ( @sinonClock ) ->
@@ -76,8 +77,8 @@ class exports.AppTest extends TwerpTest
       application_mem = new @constructor.appClass().configureModels()
                                                    .configureControllers()
 
-    @stubs = [ ]
-    @spies  = [ ]
+    @stubs = []
+    @spies  = []
 
     # fixture lists, persist over lifetime
     @fixtures = if application_fixtures
@@ -164,9 +165,9 @@ class exports.AppTest extends TwerpTest
     @httpRequest options, callback
 
   start: ( done ) ->
-    chain = [ ]
+    chain = []
 
-    @runRedisCommands = [ ]
+    @runRedisCommands = []
 
     if @constructor.start_webserver
       chain.push ( cb ) =>
@@ -214,24 +215,31 @@ class exports.AppTest extends TwerpTest
 
     done( )
 
+  flushAllKeys: ( cb ) ->
+    base_object = new Redis @application
+
+    @application.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
+      multi = @application.redisClient.multi()
+      
+      for key in keys
+        multi.del key, ( err ) ->
+          return cb err if err
+
+      multi.exec cb
+
   "setup": ( done ) ->
-    tasks = [ ]
+    tasks = []
 
     # sanbox for sinon
     @sandbox = sinon.sandbox.create()
 
+    @runRedisCommands = []
+
     # flush the database first
     if @constructor.empty_db_on_setup
-      for name, model of @application.models
-        do ( model ) ->
-          tasks.push ( cb ) ->
-            model.flush cb
-
-    tasks.push ( cb ) =>
-      @runRedisCommands = [ ]
-      cb()
-
-    async.series tasks, done
+      @flushAllKeys done
+    else
+      done()
 
   fakeIncomingMessage: ( status, data, headers, callback ) ->
     res = new http.IncomingMessage( )
@@ -290,7 +298,7 @@ class Fixtures
     # merge the options
     options = _.extend default_options, passed_options
 
-    @application.model( "key" ).create name, options, cb
+    @application.model( "keyFactory" ).create name, options, cb
 
   createApi: ( args..., cb ) ->
     name    = null
@@ -309,7 +317,7 @@ class Fixtures
     # merge the options
     options = _.extend default_options, passed_options
 
-    @application.model( "api" ).create name, options, cb
+    @application.model( "apiFactory" ).create name, options, cb
 
   createApis: ( all, cb ) ->
     @_bulkApply @createApi, all, cb

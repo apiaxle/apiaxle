@@ -23,7 +23,7 @@ class exports.ApiaxleController extends Controller
     return next new ApiUnknown "No api specified (via subdomain)"
 
   api: ( req, res, next ) =>
-    @app.model( "api" ).find req.subdomain, ( err, api ) ->
+    @app.model( "apiFactory" ).find req.subdomain, ( err, api ) ->
       return next err if err
 
       if not api?
@@ -34,26 +34,26 @@ class exports.ApiaxleController extends Controller
       return next()
 
   authenticateWithKey: ( key, req, next ) ->
-    @app.model( "key" ).find key, ( err, keyDetails ) =>
+    @app.model( "keyFactory" ).find key, ( err, keyDetails ) =>
       return next err if err
 
-      all = [ ]
+      all = []
 
       # check the key is for this api
-      if keyDetails?.forApi isnt req.subdomain
+      if keyDetails?.data.forApi isnt req.subdomain
         return next new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
 
-      if keyDetails?.sharedSecret
+      if keyDetails?.data.sharedSecret
         if not providedToken = ( req.query.apiaxle_sig or req.query.api_sig )
           return next new KeyError "A signature is required for this API."
 
         all.push ( cb ) =>
-          @validateToken providedToken, key, keyDetails.sharedSecret, cb
+          @validateToken providedToken, key, keyDetails.data.sharedSecret, cb
 
       async.series all, ( err, results ) ->
         return next err if err
 
-        keyDetails.key = key
+        keyDetails.data.key = key
         req.key = keyDetails
 
         return next()
@@ -102,7 +102,7 @@ class exports.ApiaxleController extends Controller
 
     # if the key isn't a query param, check a regex
     if not key
-      key = @getRegexKey req.url, req.api.extractKeyRegex
+      key = @getRegexKey req.url, req.api.data.extractKeyRegex
 
     if not key
       return next new KeyError "No api_key specified."

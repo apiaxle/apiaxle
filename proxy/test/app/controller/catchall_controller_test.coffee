@@ -8,7 +8,7 @@ class exports.CatchallTest extends ApiaxleTest
   @empty_db_on_setup = true
 
   "test POST,GET,PUT and DELETE with no subdomain": ( done ) ->
-    all = [ ]
+    all = []
 
     for method in [ "POST", "GET", "PUT", "DELETE" ]
       do ( method ) =>
@@ -40,7 +40,7 @@ class exports.CatchallTest extends ApiaxleTest
       done 30
 
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
-    all = [ ]
+    all = []
 
     for method in [ "POST", "GET", "PUT", "DELETE" ]
       do ( method ) =>
@@ -119,7 +119,7 @@ class exports.CatchallTest extends ApiaxleTest
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "key" ).create "1234", keyOptions, ( err ) =>
+      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -135,6 +135,8 @@ class exports.CatchallTest extends ApiaxleTest
           host: "facebook.api.localhost"
 
         @GET requestOptions, ( err, response ) =>
+          @ok stub.calledOnce
+
           @isNull err
           @equal response.contentType, "application/json"
 
@@ -144,7 +146,7 @@ class exports.CatchallTest extends ApiaxleTest
           response.parseJson ( json ) =>
             @equal json.one, 1
 
-            done 7
+            done 8
 
   "test GET with apiaxle_key, rather than api_key": ( done ) ->
     apiOptions =
@@ -158,7 +160,7 @@ class exports.CatchallTest extends ApiaxleTest
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "key" ).create "1234", keyOptions, ( err ) =>
+      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -193,7 +195,7 @@ class exports.CatchallTest extends ApiaxleTest
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "key" ).create "1234", keyOptions, ( err ) =>
+      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook

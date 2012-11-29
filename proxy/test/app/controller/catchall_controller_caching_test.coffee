@@ -7,13 +7,13 @@ class exports.CatchallTest extends ApiaxleTest
   @empty_db_on_setup = true
 
   "test only get should be cachable": ( done ) ->
-    all = [ ]
+    all = []
 
     for type in [ "Post", "Put", "Delete" ]
       controller = @application.controller "#{type}Catchall"
 
       req =
-        headers: { }
+        headers: {}
         api:
           globalCache: 20
 
@@ -31,7 +31,7 @@ class exports.CatchallTest extends ApiaxleTest
   _runCacheControlTests: ( tests, cb ) ->
     controller = @application.controller "GetCatchall"
 
-    runnables = [ ]
+    runnables = []
 
     for test in tests
       do ( test ) =>
@@ -46,7 +46,7 @@ class exports.CatchallTest extends ApiaxleTest
     async.series runnables, cb
 
   "test #_cacheControl 'no-cache'": ( done ) ->
-    tests = [ ]
+    tests = []
 
     tests.push
       req:
@@ -84,7 +84,7 @@ class exports.CatchallTest extends ApiaxleTest
       done 10
 
   "test #_cacheControl 's-maxage'": ( done ) ->
-    tests = [ ]
+    tests = []
 
     # check that s-maxage overrides globalCache
     tests.push

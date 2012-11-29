@@ -17,7 +17,7 @@ exports.gitCommand = ( args, cb ) ->
     return cb code, signal
 
 exports.getPackages = ( projects, cb ) ->
-  packages = { }
+  packages = {}
 
   for project in projects
     filename = "#{project}/package.json"

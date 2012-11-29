@@ -6,7 +6,7 @@ _ = require "underscore"
 
 print = console.log
 
-alreadyPrinted = { }
+alreadyPrinted = {}
 printOnce = ( toPrint ) ->
   return if alreadyPrinted[ toPrint ]?
 

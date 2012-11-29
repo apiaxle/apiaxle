@@ -7,7 +7,7 @@ class exports.ApiTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup model": ( done ) ->
-    @model = @application.model "api"
+    @model = @application.model "apiFactory"
 
     done()
 
@@ -15,7 +15,7 @@ class exports.ApiTest extends FakeAppTest
     @ok @application
     @ok @model
 
-    @equal @model.ns, "gk:test:api"
+    @equal @model.ns, "gk:test:apifactory"
 
     done 3
 
@@ -48,10 +48,10 @@ class exports.ApiTest extends FakeAppTest
     @fixtures.createApi "twitter", newObj, ( err ) =>
       @isNull err
 
-      @model.find "twitter", ( err, details ) =>
+      @model.find "twitter", ( err, api ) =>
         @isNull err
 
-        @equal details.apiFormat, "xml"
-        @ok details.createdAt
+        @equal api.data.apiFormat, "xml"
+        @ok api.data.createdAt
 
         done 4
