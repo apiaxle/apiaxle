@@ -229,7 +229,7 @@ class exports.ApiControllerTest extends ApiaxleTest
             @isNull err
             @isNull dbApi
 
-            done 10
+            done 9
 
   "test GET list apis without resolution": ( done ) ->
     # create 11 apis
