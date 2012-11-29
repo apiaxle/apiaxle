@@ -51,7 +51,7 @@ class exports.ViewApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    @json res, req.api
+    @json res, req.api.data
 
 class exports.DeleteApi extends ApiaxleController
   @verb = "delete"

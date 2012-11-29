@@ -178,7 +178,7 @@ class exports.Application
       output.error.stack = err.stack
 
     # json
-    if req.api?.apiFormat isnt "xml"
+    if req.api?.data.apiFormat isnt "xml"
       meta =
         version: 1
         status_code: err.constructor.status

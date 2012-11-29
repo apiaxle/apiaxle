@@ -22,12 +22,12 @@ class exports.ApiaxleTest extends AppTest
     apiOptions = _.extend apiOptions,
       endPoint: "graph.facebook.com"
 
-    @application.model( "api" ).create api, apiOptions, ( err, newApi ) =>
+    @application.model( "apiFactory" ).create api, apiOptions, ( err, newApi ) =>
       return cb err if err
 
       keyOptions["forApi"] = api
 
-      @application.model( "key" ).create key, keyOptions, ( err, newKey ) =>
+      @application.model( "keyFactory" ).create key, keyOptions, ( err, newKey ) =>
         return cb err if err
 
         return cb null, newApi, newKey

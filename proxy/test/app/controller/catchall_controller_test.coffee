@@ -79,7 +79,7 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "json"
 
     # we create the API
-    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
       @isNull err
 
       @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
@@ -97,7 +97,7 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "json"
 
     # we create the API
-    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
       @isNull err
 
       @GET { path: "/?api_key=1", host: "facebook.api.localhost" }, ( err, response ) =>
@@ -113,13 +113,13 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "json"
 
     # we create the API
-    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
       @isNull err
 
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "key" ).create "1234", keyOptions, ( err ) =>
+      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -135,6 +135,8 @@ class exports.CatchallTest extends ApiaxleTest
           host: "facebook.api.localhost"
 
         @GET requestOptions, ( err, response ) =>
+          @ok stub.calledOnce
+
           @isNull err
           @equal response.contentType, "application/json"
 
@@ -152,13 +154,13 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "json"
 
     # we create the API
-    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
       @isNull err
 
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "key" ).create "1234", keyOptions, ( err ) =>
+      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -187,13 +189,13 @@ class exports.CatchallTest extends ApiaxleTest
       extractKeyRegex: "/bastard/([A-Za-z0-9]*)/"
 
     # we create the API
-    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
       @isNull err
 
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "key" ).create "1234", keyOptions, ( err ) =>
+      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -220,7 +222,7 @@ class exports.CatchallTest extends ApiaxleTest
       endPoint: "graph.facebook.com"
       apiFormat: "xml"
 
-    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
       @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
         @isNull err
 

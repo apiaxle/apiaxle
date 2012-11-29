@@ -83,7 +83,7 @@ class exports.ViewKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    @json res, req.key
+    @json res, req.key.data
 
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
