@@ -155,7 +155,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         apiFormat: "xml"
         doesntExist: 1
 
-    @application.model( "apiFactory" ).create "1234", endPoint: "hi.com", ( err, origApi ) =>
+    @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
       @isNull err
       @ok origApi
 
@@ -173,7 +173,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           done 7
 
   "test PUT with a bad structure": ( done ) ->
-    @application.model( "apiFactory" ).create "1234", endPoint: "hi.com", ( err, origApi ) =>
+    @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
       @isNull err
       @ok origApi
 
@@ -208,7 +208,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         done 5
 
   "test DELETE": ( done ) ->
-    @application.model( "apiFactory" ).create "1234", endPoint: "hi.com", ( err, origApi ) =>
+    @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
       @isNull err
       @ok origApi
 

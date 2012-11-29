@@ -16,18 +16,3 @@ class exports.ApiaxleTest extends AppTest
     @getStub GetCatchall::, "_httpRequest", ( options, key, cb ) =>
       @fakeIncomingMessage status, body, headers, ( err, res ) =>
         return cb err, res, body
-
-  newApiAndKey: ( api, apiOptions, key, keyOptions={}, cb ) ->
-    # make sure there's an endpoint
-    apiOptions = _.extend apiOptions,
-      endPoint: "graph.facebook.com"
-
-    @application.model( "apiFactory" ).create api, apiOptions, ( err, newApi ) =>
-      return cb err if err
-
-      keyOptions["forApi"] = api
-
-      @application.model( "keyFactory" ).create key, keyOptions, ( err, newKey ) =>
-        return cb err if err
-
-        return cb null, newApi, newKey

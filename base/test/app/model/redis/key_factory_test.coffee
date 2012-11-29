@@ -23,7 +23,7 @@ class exports.KeyTest extends FakeAppTest
     createObj =
       qpd: "text"
 
-    @model.create "987654321", createObj, ( err ) =>
+    @fixtures.createKey "987654321", createObj, ( err ) =>
       @ok err
 
       done 1
@@ -34,7 +34,7 @@ class exports.KeyTest extends FakeAppTest
       qpd: 3
       forApi: "twitter"
 
-    @model.create "987654321", createObj, ( err ) =>
+    @fixtures.createKey "987654321", createObj, ( err ) =>
       @ok err
       @equal err.message, "API 'twitter' doesn't exist."
 
@@ -52,7 +52,7 @@ class exports.KeyTest extends FakeAppTest
         qpd: 3
         forApi: "twitter"
 
-      @model.create "987654321", createObj, ( err ) =>
+      @fixtures.createKey "987654321", createObj, ( err ) =>
         @isNull err
 
         done 2

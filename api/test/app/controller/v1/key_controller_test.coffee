@@ -12,11 +12,11 @@ class exports.KeyControllerTest extends ApiaxleTest
 
     @keyModel = @application.model( "keyFactory" )
 
-    @application.model( "apiFactory" ).create "twitter", details, ( err, @newApi ) ->
+    @fixtures.createApi "twitter", details, ( err, @newApi ) ->
       done()
 
   "test GET a valid key": ( done ) ->
-    @keyModel.create "1234", forApi: "twitter", ( err, newKey ) =>
+    @fixtures.createKey "1234", forApi: "twitter", ( err, newKey ) =>
       @isNull err
       @ok newKey
 
@@ -106,7 +106,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         qps: 30
         qpd: 1000
 
-    @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
+    @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -129,7 +129,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         qps: "hi"     # invalid
         qpd: 1000
 
-    @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
+    @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -156,7 +156,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         done 5
 
   "test DELETE with valid key": ( done ) ->
-    @keyModel.create "1234", forApi: "twitter", ( err, origKey ) =>
+    @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -186,7 +186,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @keyModel.create "key_#{i}", forApi: "twitter", cb
+          @fixtures.createKey "key_#{i}", forApi: "twitter", cb
 
     async.series fixtures, ( err, newKeys ) =>
       @isNull err
@@ -208,7 +208,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @keyModel.create "key_#{i}", forApi: "twitter", qps: i, qpd: i, cb
+          @fixtures.createKey "key_#{i}", forApi: "twitter", qps: i, qpd: i, cb
 
     async.parallel fixtures, ( err, newKeys ) =>
       @isNull err
@@ -239,11 +239,11 @@ class exports.KeyStatsTest extends ApiaxleTest
       apiFormat: "json"
 
     # we create the API
-    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
+    @fixtures.createApi "facebook", apiOptions, ( err ) =>
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) ->
+      @fixtures.createKey "1234", keyOptions, ( err ) ->
         done()
 
   "test all counts": ( done ) ->

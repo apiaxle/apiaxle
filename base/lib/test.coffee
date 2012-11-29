@@ -4,6 +4,7 @@ path   = require "path"
 sinon  = require "sinon"
 async  = require "async"
 libxml = require "libxmljs"
+_      = require "underscore"
 
 { Application } = require "./application"
 { TwerpTest }   = require "twerp"
@@ -62,6 +63,9 @@ class AppResponse
 
     callback output
 
+application_mem = null
+application_fixtures = null
+
 class exports.AppTest extends TwerpTest
   @port = 26100
 
@@ -75,6 +79,12 @@ class exports.AppTest extends TwerpTest
 
     @stubs = []
     @spies  = []
+
+    # fixture lists, persist over lifetime
+    @fixtures = if application_fixtures
+      application_fixtures
+    else
+      application_fixtures = new Fixtures @application
 
     super options
 
@@ -241,3 +251,73 @@ class exports.AppTest extends TwerpTest
 
     res.emit "data", data
     res.emit "end"
+
+class Fixtures
+  constructor: ( @application ) ->
+    @api_names  = require "../test/fixtures/api-fixture-names.json"
+    @bucket_ids = require "../test/fixtures/key-bucket-fixture-names.json"
+    @keys       = [ 1..1000 ]
+
+  _bulkApply: ( method, all, cb ) ->
+    key_create_list = [ ]
+
+    for key in all
+      do( key ) =>
+        key_create_list.push ( cb ) =>
+          @createKey.apply @, all
+
+    async.series key_create_list, cb
+
+  createApiAndKey: ( api, apiOptions, key, keyOptions={}, cb ) ->
+    @createApi api, apiOptions, ( err, newApi ) =>
+      return cb err if err
+
+      keyOptions["forApi"] = api
+
+      @createKey key, keyOptions, ( err, newKey ) =>
+        return cb err if err
+
+        return cb null, newApi, newKey
+
+  createKeys: ( all, cb ) ->
+    @_bulkApply @createKey, all, cb
+
+  createKey: ( args..., cb ) =>
+    name    = null
+
+    passed_options  = { }
+    default_options =
+      forApi: "twitter"
+
+    # grab the optional args and make sure a name is assigned
+    switch args.length
+      when 2 then [ name, passed_options ] = args
+      when 1 then [ name ] = args
+      else name = @key_names.pop()
+
+    # merge the options
+    options = _.extend default_options, passed_options
+
+    @application.model( "keyFactory" ).create name, options, cb
+
+  createApi: ( args..., cb ) ->
+    name    = null
+
+    passed_options  = { }
+    default_options =
+      endPoint: "api.twitter.com"
+      apiFormat: "json"
+
+    # grab the optional args and make sure a name is assigned
+    switch args.length
+      when 2 then [ name, passed_options ] = args
+      when 1 then [ name ] = args
+      else name = @api_names.pop()
+
+    # merge the options
+    options = _.extend default_options, passed_options
+
+    @application.model( "apiFactory" ).create name, options, cb
+
+  createApis: ( all, cb ) ->
+    @_bulkApply @createApi, all, cb

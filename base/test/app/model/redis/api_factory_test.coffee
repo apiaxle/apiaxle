@@ -34,7 +34,7 @@ class exports.ApiTest extends FakeAppTest
       endPoint: "api.twitter.com"
       extractKeyRegex: "hello("
 
-    @model.create "twitter", newObj, ( err ) =>
+    @fixtures.createApi "twitter", newObj, ( err ) =>
       @ok err
       @match err.message, /Invalid regular expression/
 
@@ -45,7 +45,7 @@ class exports.ApiTest extends FakeAppTest
       apiFormat: "xml"
       endPoint: "api.twitter.com"
 
-    @model.create "twitter", newObj, ( err ) =>
+    @fixtures.createApi "twitter", newObj, ( err ) =>
       @isNull err
 
       @model.find "twitter", ( err, api ) =>
