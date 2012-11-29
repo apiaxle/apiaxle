@@ -7,6 +7,7 @@ libxml = require "libxmljs"
 
 { Application } = require "./application"
 { TwerpTest }   = require "twerp"
+{ Redis }       = require "../app/model/redis"
 
 class Clock
   constructor: ( @sinonClock ) ->
@@ -204,24 +205,31 @@ class exports.AppTest extends TwerpTest
 
     done( )
 
+  flushAllKeys: ( cb ) ->
+    base_object = new Redis @application
+
+    @application.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
+      multi = @application.redisClient.multi()
+      
+      for key in keys
+        multi.del key, ( err ) ->
+          return cb err if err
+
+      multi.exec cb
+
   "setup": ( done ) ->
     tasks = []
 
     # sanbox for sinon
     @sandbox = sinon.sandbox.create()
 
+    @runRedisCommands = []
+
     # flush the database first
     if @constructor.empty_db_on_setup
-      for name, model of @application.models
-        do ( model ) ->
-          tasks.push ( cb ) ->
-            model.flush cb
-
-    tasks.push ( cb ) =>
-      @runRedisCommands = []
-      cb()
-
-    async.series tasks, done
+      @flushAllKeys done
+    else
+      done()
 
   fakeIncomingMessage: ( status, data, headers, callback ) ->
     res = new http.IncomingMessage( )

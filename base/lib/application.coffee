@@ -80,11 +80,11 @@ class exports.Application
       current = require( modelPath )
 
       for model, func of current
+        # lowercase the first char of the model name
+        modelName = model.charAt( 0 ).toLowerCase() + model.slice( 1 )
+
         if func.instantiateOnStartup
           @logger.info "Loading model '#{model}'"
-
-          # lowercase the first char of the model name
-          modelName = model.charAt( 0 ).toLowerCase() + model.slice( 1 )
 
           # models take an instance of this class as an argument to the
           # constructor. This gives us something like

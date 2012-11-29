@@ -10,8 +10,10 @@ class Redis
     env =  @application.constructor.env
     name = @constructor.smallKeyName or @constructor.name.toLowerCase()
 
+    @base_key = "gk:#{ env }"
+
     @ee = new events.EventEmitter()
-    @ns = "gk:#{ env }:#{ name }"
+    @ns = "#{ @base_key }:#{ name }"
 
     # by default we just want to return the raw data, some classes
     # will want to override this and return objects
@@ -65,21 +67,6 @@ class Redis
     key = key.concat parts
 
     return key.join ":"
-
-  # Clear the keys associated with this model (taking into account the
-  # namespace). It's for tests, not for use in production code.
-  flush: ( cb ) ->
-    multi = @application.redisClient.multi()
-
-    # loop over all of the keys deleting them one by one :/
-    @keys [ "*" ], ( err, keys ) ->
-      return cb err if err
-
-      for key in keys
-        multi.del key, ( err, res ) ->
-          return cb err if err
-
-      multi.exec cb
 
   minuteString: ( date=new Date() ) =>
     return "#{ @hourString date }:#{ date.getMinutes() }"
