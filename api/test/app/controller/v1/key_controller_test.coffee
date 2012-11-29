@@ -10,9 +10,9 @@ class exports.KeyControllerTest extends ApiaxleTest
     details =
       endPoint: "api.twitter.com"
 
-    @keyModel = @application.model( "key" )
+    @keyModel = @application.model( "keyFactory" )
 
-    @application.model( "api" ).create "twitter", details, ( err, @newApi ) ->
+    @application.model( "apiFactory" ).create "twitter", details, ( err, @newApi ) ->
       done()
 
   "test GET a valid key": ( done ) ->
@@ -60,14 +60,23 @@ class exports.KeyControllerTest extends ApiaxleTest
         @keyModel.find "1234", ( err, dbKey ) =>
           @isNull err
 
-          @equal dbKey.qps, "1"
-          @equal dbKey.qpd, "100"
-          @equal dbKey.forApi, "twitter"
-          @ok dbKey.createdAt
+          @equal dbKey.data.qps, "1"
+          @equal dbKey.data.qpd, "100"
+          @equal dbKey.data.forApi, "twitter"
+          @ok dbKey.data.createdAt
 
-          @application.model("api").getKeys "twitter", 0, 10, (err, keys) =>
-            @equal keys[0], "1234"
-            done 9
+          @application.model("apiFactory").find "twitter", ( err, api ) =>
+            @isNull err
+            @ok api
+
+            api.getKeys 0, 10, ( err, keys ) =>
+              console.log( keys )
+
+              done 9
+
+          # @application.model("apiFactory").getKeys "twitter", 0, 10, (err, keys) =>
+          #   @equal keys[0], "1234"
+          #   done 9
 
   "test POST with an invalid key": ( done ) ->
     options =
@@ -105,8 +114,8 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal res.statusCode, 200
 
         @keyModel.find "1234", ( err, dbKey ) =>
-          @equal dbKey.qps, "30"
-          @equal dbKey.qpd, "1000"
+          @equal dbKey.data.qps, "30"
+          @equal dbKey.data.qpd, "1000"
 
           done 5
 
@@ -164,7 +173,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @application.model( "key" ).find "1234", ( err, dbKey ) =>
+          @application.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
             @isNull err
             @isNull dbKey
 
@@ -230,11 +239,11 @@ class exports.KeyStatsTest extends ApiaxleTest
       apiFormat: "json"
 
     # we create the API
-    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "key" ).create "1234", keyOptions, ( err ) ->
+      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) ->
         done()
 
   "test all counts": ( done ) ->

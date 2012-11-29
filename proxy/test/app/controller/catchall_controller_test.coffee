@@ -57,8 +57,6 @@ class exports.CatchallTest extends ApiaxleTest
               console.log "WARNING: You might need to put facebook.api.localhost" +
                 " and twitter.api.localhost into your hosts file."
 
-            console.log( response )
-
             @isNull err
             @ok response
             @equal response.statusCode, 404

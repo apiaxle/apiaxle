@@ -33,7 +33,7 @@ class exports.ListKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "key"
+  modelName: -> "keyFactory"
 
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
@@ -61,10 +61,10 @@ class exports.CreateKey extends ApiaxleController
     if req.key?
       return next new AlreadyExists "#{ key } already exists."
 
-    @app.model( "key" ).create req.params.key, req.body, ( err, newObj ) =>
+    @app.model( "keyFactory" ).create req.params.key, req.body, ( err, newObj ) =>
       return next err if err
 
-      @json res, newObj
+      @json res, newObj.data
 
 class exports.ViewKey extends ApiaxleController
   @verb = "get"
@@ -102,7 +102,7 @@ class exports.DeleteKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "key"
+    model = @app.model "keyFactory"
 
     model.del req.params.key, ( err, newKey ) =>
       return next err if err
@@ -136,20 +136,20 @@ class exports.ModifyKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "key"
+    model = @app.model "keyFactory"
 
     # validate the input
     model.validate req.body, ( err ) =>
       return next err if err
 
       # modify the key
-      _.extend req.key, req.body
+      _.extend req.key.data, req.body
 
       # re-apply it to the db
-      model.create req.params.key, req.key, ( err, newKey ) =>
+      model.create req.params.key, req.key.data, ( err, newKey ) =>
         return next err if err
 
-        @json res, newKey
+        @json res, newKey.json
 
 class exports.ViewAllStatsForKey extends ApiaxleController
   @verb = "get"

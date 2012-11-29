@@ -32,7 +32,7 @@ class exports.CreateApi extends ApiaxleController
     @app.model( "apiFactory" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err
 
-      @json res, newObj
+      @json res, newObj.data
 
 class exports.ViewApi extends ApiaxleController
   @verb = "get"
@@ -105,7 +105,7 @@ class exports.ModifyApi extends ApiaxleController
     model = @app.model "apiFactory"
 
     # modify the old api struct
-    newData = _.extend req.api, req.body
+    newData = _.extend req.api.data, req.body
 
     # validate it
     model.validate newData, ( err, instance ) =>
@@ -115,7 +115,7 @@ class exports.ModifyApi extends ApiaxleController
       model.create req.params.api, instance, ( err, newApi ) =>
         return next err if err
 
-        @json res, newApi
+        @json res, newApi.data
 
 class exports.ListApis extends ListController
   @verb = "get"
