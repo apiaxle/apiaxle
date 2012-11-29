@@ -118,7 +118,7 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "json"
       globalCache: 20
 
-    @newApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+    @fixtures.createApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
       @isNull err
 
       # make sure we don't actually hit facebook
@@ -169,7 +169,7 @@ class exports.CatchallTest extends ApiaxleTest
     apiOptions =
       apiFormat: "json"
 
-    @newApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+    @fixtures.createApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
       @isNull err
 
       # make sure we don't actually hit facebook
@@ -218,7 +218,7 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "json"
       globalCache: 30
 
-    @newApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+    @fixtures.createApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
       @isNull err
 
       # make sure we don't actually hit facebook
@@ -260,7 +260,7 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "json"
       globalCache: 30
 
-    @newApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+    @fixtures.createApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
       @isNull err
 
       # make sure we don't actually hit facebook
