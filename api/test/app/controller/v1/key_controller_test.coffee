@@ -70,9 +70,10 @@ class exports.KeyControllerTest extends ApiaxleTest
             @ok api
 
             api.getKeys 0, 10, ( err, keys ) =>
-              console.log( keys )
+              @equal keys.length, 1
+              @equal keys[0], "1234"
 
-              done 10
+              done 12
 
   "test POST with an invalid key": ( done ) ->
     options =
