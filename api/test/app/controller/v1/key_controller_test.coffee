@@ -72,11 +72,7 @@ class exports.KeyControllerTest extends ApiaxleTest
             api.getKeys 0, 10, ( err, keys ) =>
               console.log( keys )
 
-              done 9
-
-          # @application.model("apiFactory").getKeys "twitter", 0, 10, (err, keys) =>
-          #   @equal keys[0], "1234"
-          #   done 9
+              done 10
 
   "test POST with an invalid key": ( done ) ->
     options =
