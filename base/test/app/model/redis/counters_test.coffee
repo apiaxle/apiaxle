@@ -14,7 +14,7 @@ class exports.CountersTest extends FakeAppTest
     done 3
 
   "test #apiHit": ( done ) ->
-    clock = @getClock()
+    clock = @getClock 1323892867000
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @isNull err
@@ -36,7 +36,7 @@ class exports.CountersTest extends FakeAppTest
         done 8
 
   "test #getToday": ( done ) ->
-    clock = @getClock()
+    clock = @getClock 1323892867000
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @isNull err
@@ -75,7 +75,7 @@ class exports.CountersTest extends FakeAppTest
         done 11
 
   "test #getThisMonth": ( done ) ->
-    clock = @getClock()
+    clock = @getClock 1323892867000
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @isNull err
