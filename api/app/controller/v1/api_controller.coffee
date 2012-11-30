@@ -216,19 +216,15 @@ class exports.ViewAllStatsForApi extends ApiaxleController
     model.getPossibleResponseTypes "api:"+req.params.api, ( err, types ) =>
       return next err if err
 
-      multi = model.multi()
-      from = req.query["from-date"]
-      to   = req.query["to-date"]
-
-      if from and to
-        ranged = true
-      else
-        ranged = false
+      multi  = model.multi()
+      from   = req.query["from-date"]
+      to     = req.query["to-date"]
+      ranged = from and to
 
       for type in types
         do ( type ) =>
           if ranged
-            multi = @getStatsRange multi, "api", req.params.api, type, req.query["from-date"], req.query["to-date"]
+            multi = @getStatsRange multi, "api", req.params.api, type, from, to
           else
             multi.hgetall [ "api", req.params.api, type ]
 
@@ -240,9 +236,7 @@ class exports.ViewAllStatsForApi extends ApiaxleController
         processed_results = []
 
         if ranged
-          merged  = {}
-          merged = _.extend merged, result for result in results
-          processed_results.push merged
+          processed_results = @combineStatsRange results, from, to
         else
           processed_results = results
 

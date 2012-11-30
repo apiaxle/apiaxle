@@ -171,22 +171,34 @@ class exports.ViewAllStatsForKey extends ApiaxleController
 
   execute: ( req, res, next ) ->
     model = @app.model "counters"
-    model.getPossibleResponseTypes req.params.key, ( err, types ) =>
+    model.getPossibleResponseTypes "key:"+req.params.key, ( err, types ) =>
       return next err if err
 
-      multi = model.multi()
+      multi  = model.multi()
+      from   = req.query["from-date"]
+      to     = req.query["to-date"]
+      ranged = from and to
 
       for type in types
-        do ( type ) ->
-          multi.hgetall [ req.params.key, type ]
+        do ( type ) =>
+          if ranged
+            multi = @getStatsRange multi, "key", req.params.key, type, from, to
+          else
+            multi.hgetall [ "key", req.params.key, type ]
 
       multi.exec ( err, results ) =>
         return next err if err
 
         # build up the output structure
         output = {}
+        processed_results = []
+
+        if ranged
+          processed_results = @combineStatsRange results, from, to
+        else
+          processed_results = results
 
         for type in types
-          output[ type ] = results.shift()
+          output[ type ] = processed_results.shift()
 
         return @json res, output
