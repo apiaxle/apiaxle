@@ -250,9 +250,8 @@ class exports.KeyStatsTest extends ApiaxleTest
 
     async.parallel hits, ( err, results ) =>
       @isNull err
-      console.log "Results", results
 
-      @GET path: "/v1/key/1234/stats?from-date=2011-12-10&to-date=2011-12-15", ( err, res ) =>
+      @GET path: "/v1/key/1234/stats?from-date=2011-12-10&to-date=2011-12-16", ( err, res ) =>
         @isNull err
 
         shouldHave =
@@ -261,11 +260,11 @@ class exports.KeyStatsTest extends ApiaxleTest
             status_code: 200
           results:
             "200":
-               "2011-12": "1"
+               "2011-12-14": "1"
                "2011-12-14 20": "1"
                "2011-12-14 20:1": "1"
              "400":
-               "2011-12": "2"
+               "2011-12-14": "2"
                "2011-12-14 20": "2"
                "2011-12-14 20:1": "2"
 
@@ -284,7 +283,7 @@ class exports.KeyStatsTest extends ApiaxleTest
           newHits.push ( cb ) => model.apiHit "facebook", "1234", 200, cb
 
           async.parallel newHits, ( err ) =>
-            path = "/v1/key/1234/stats?from-date=2011-12-10&to-date=2011-12-15"
+            path = "/v1/key/1234/stats?from-date=2011-12-10&to-date=2011-12-16"
             @GET path: path, ( err, res ) =>
               @isNull err
 
@@ -309,7 +308,6 @@ class exports.KeyStatsTest extends ApiaxleTest
                     "2011-12-16 20:1": "2"
 
               res.parseJson ( json ) =>
-                console.log "JSON", json
                 @ok json
                 @deepEqual json, shouldHave
 
