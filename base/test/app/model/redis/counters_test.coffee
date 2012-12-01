@@ -100,7 +100,8 @@ class exports.CountersTest extends FakeAppTest
             done 5
 
   "test #getThisYear": ( done ) ->
-    clock = @getClock()
+    #Thu Nov 1 10:09:07 2012 GMT
+    clock = @getClock 1351764547
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @isNull err
