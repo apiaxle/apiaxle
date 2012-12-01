@@ -282,3 +282,198 @@ class exports.ApiControllerTest extends ApiaxleTest
             @equal json.results[ name ].endPoint, "api_#{i}.com"
 
           done 33
+
+class exports.ApiStatsTest extends ApiaxleTest
+  @start_webserver = true
+  @empty_db_on_setup = true
+
+  "setup api and key": ( done ) ->
+    apiOptions =
+      endPoint: "graph.facebook.com"
+      apiFormat: "json"
+
+    # we create the API
+    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+      keyOptions =
+        forApi: "facebook"
+
+      @application.model( "key" ).create "1234", keyOptions, ( err ) ->
+        done()
+
+  "test GET all counts with range": ( done ) ->
+    model = @application.model "counters"
+
+    hits = []
+
+    # Wed, December 14th 2011, 20:01
+    clock = @getClock 1323892867000
+    hits.push ( cb ) => model.apiHit "facebook", "1234", 200, cb
+    hits.push ( cb ) => model.apiHit "facebook", "1234", 400, cb
+    hits.push ( cb ) => model.apiHit "facebook", "1234", 400, cb
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+
+      @GET path: "/v1/api/facebook/stats?from-date=2011-12-10&to-date=2011-12-16", ( err, res ) =>
+        @isNull err
+
+        shouldHave =
+          meta:
+            version: 1
+            status_code: 200
+          results:
+            "200":
+               "2011-12-14": "1"
+               "2011-12-14 20": "1"
+               "2011-12-14 20:1": "1"
+             "400":
+               "2011-12-14": "2"
+               "2011-12-14 20": "2"
+               "2011-12-14 20:1": "2"
+
+        res.parseJson ( json ) =>
+          @ok json
+          @deepEqual json, shouldHave
+
+          # now again but a couple of days later
+          newHits = []
+
+          # Fri, 16 Dec 2011 20:01:07 GMT
+          clock.addDays 2
+
+          newHits.push ( cb ) => model.apiHit "facebook", "1234", 400, cb
+          newHits.push ( cb ) => model.apiHit "facebook", "1234", 400, cb
+          newHits.push ( cb ) => model.apiHit "facebook", "1234", 200, cb
+
+          async.parallel newHits, ( err ) =>
+            path = "/v1/api/facebook/stats?from-date=2011-12-10&to-date=2011-12-16"
+            @GET path: path, ( err, res ) =>
+              @isNull err
+
+              shouldHave =
+                meta:
+                  version: 1
+                  status_code: 200
+                results:
+                  "200":
+                    "2011-12-14": "1"
+                    "2011-12-14 20": "1",
+                    "2011-12-14 20:1": "1"
+                    "2011-12-16": "1"
+                    "2011-12-16 20": "1",
+                    "2011-12-16 20:1": "1"
+                  "400":
+                    "2011-12-14": "2"
+                    "2011-12-14 20": "2"
+                    "2011-12-14 20:1": "2"
+                    "2011-12-16": "2",
+                    "2011-12-16 20": "2",
+                    "2011-12-16 20:1": "2"
+
+              res.parseJson ( json ) =>
+                @ok json
+                @deepEqual json, shouldHave
+
+              done 7
+
+
+  "test GET all counts": ( done ) ->
+    model = @application.model "counters"
+
+    hits = []
+
+    # Wed, 14 Dec 2011 20:01:07 GMT
+    clock = @getClock 1323892867000
+
+    hits.push ( cb ) => model.apiHit "facebook", "1234", 400, cb
+    hits.push ( cb ) => model.apiHit "facebook", "5678", 400, cb
+    hits.push ( cb ) => model.apiHit "facebook", "5678", 400, cb
+
+    hits.push ( cb ) => model.apiHit "facebook", "1234", 200, cb
+    hits.push ( cb ) => model.apiHit "facebook", "5678", 200, cb
+
+    hits.push ( cb ) => model.apiHit "facebook", "1234", 404, cb
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+
+      @GET path: "/v1/api/facebook/stats", ( err, res ) =>
+        @isNull err
+
+        shouldHave =
+          meta:
+            version: 1
+            status_code: 200
+          results:
+            "200":
+               "2011": "2"
+               "2011-12-14": "2"
+               "2011-12": "2"
+               "2011-12-14 20": "2"
+               "2011-12-14 20:1": "2"
+             "400":
+               "2011": "3"
+               "2011-12-14": "3"
+               "2011-12": "3"
+               "2011-12-14 20": "3"
+               "2011-12-14 20:1": "3"
+             "404":
+               "2011": "1"
+               "2011-12-14": "1"
+               "2011-12": "1"
+               "2011-12-14 20": "1"
+               "2011-12-14 20:1": "1"
+
+        res.parseJson ( json ) =>
+          @ok json
+          @deepEqual json, shouldHave
+
+          # now again but a couple of days later
+          newHits = []
+
+          # Fri, 16 Dec 2011 20:01:07 GMT
+          clock.addDays 2
+
+          newHits.push ( cb ) => model.apiHit "facebook", "1234", 400, cb
+          newHits.push ( cb ) => model.apiHit "facebook", "1234", 400, cb
+          newHits.push ( cb ) => model.apiHit "facebook", "1234", 200, cb
+
+          async.parallel newHits, ( err ) =>
+            @GET  path: "/v1/api/facebook/stats", ( err, res ) =>
+              @isNull err
+
+              shouldHave =
+                meta:
+                  version: 1
+                  status_code: 200
+                results:
+                  "200":
+                    "2011": "3"
+                    "2011-12-14": "2"
+                    "2011-12": "3"
+                    "2011-12-14 20": "2",
+                    "2011-12-14 20:1": "2"
+                    "2011-12-16": "1"
+                    "2011-12-16 20": "1",
+                    "2011-12-16 20:1": "1"
+                  "400":
+                    "2011": "5"
+                    "2011-12-14": "3"
+                    "2011-12": "5"
+                    "2011-12-14 20": "3"
+                    "2011-12-14 20:1": "3"
+                    "2011-12-16": "2",
+                    "2011-12-16 20": "2",
+                    "2011-12-16 20:1": "2"
+                  "404":
+                    "2011": "1"
+                    "2011-12-14": "1"
+                    "2011-12": "1"
+                    "2011-12-14 20": "1"
+                    "2011-12-14 20:1": "1"
+
+              res.parseJson ( json ) =>
+                @ok json
+                @deepEqual json, shouldHave
+
+              done 7
