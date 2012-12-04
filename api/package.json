@@ -12,7 +12,8 @@
     "express": "~2.5",
     "underscore": "~1.1.7",
     "redis": "0.8.1",
-    "hiredis": "0.1.14"
+    "hiredis": "0.1.14",
+    "moment": "1.7.2"
   },
   "devDependencies": {
     "twerp":         "=1.0.7",

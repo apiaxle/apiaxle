@@ -1,3 +1,6 @@
+moment = require "moment"
+_      = require "underscore"
+
 { Controller } = require "apiaxle.base"
 { NotFoundError, InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
 
@@ -83,6 +86,36 @@ class exports.ApiaxleController extends Controller
         return next new InvalidContentType "#{ ct } is not a supported content type."
 
       return next()
+
+  # Gets a range of stats from Redis
+  # Stats are keyed by stat_type ('api' or 'key') and day
+  # Returns a Redis multi
+  getStatsRange: ( multi, stat_type, stat_key, response_type, from_date, to_date ) ->
+    from  = moment(from_date)
+    to    = moment(to_date)
+    days  = to.diff from, "days"
+
+    for i in [0..days]
+      date = from.format "YYYY-M-D"
+      from.add "days",1
+      multi.hgetall [ stat_type, stat_key, date, response_type ]
+
+    return multi
+
+  combineStatsRange: ( results, from_date, to_date ) ->
+    from  = moment(from_date)
+    to    = moment(to_date)
+    days  = to.diff from, "days"
+
+    processed_results = []
+    while results.length > 0
+      merged = {}
+      for i in [0..days]
+        result = results.shift()
+        merged = _.extend merged, result
+      processed_results.push merged
+
+    return processed_results
 
 class exports.ListController extends exports.ApiaxleController
   execute: ( req, res, next ) ->
