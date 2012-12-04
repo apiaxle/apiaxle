@@ -1,4 +1,5 @@
 fs     = require "fs"
+dns    = require "dns"
 http   = require "http"
 path   = require "path"
 sinon  = require "sinon"
@@ -86,6 +87,16 @@ class exports.AppTest extends TwerpTest
       application_fixtures = new Fixtures @application
 
     super options
+
+  stubDns: ( mapping ) ->
+    # we need to avoid hitting twitter.api.localhost because it won't
+    # exist on everyone's machine
+    stub = @getStub dns, "lookup", ( domain, cb ) ->
+      for name, address of mapping
+        if domain is name
+          return cb null, address, 4
+
+      return dns.lookup domain, cb
 
   getClock: ( seed=new Date().getTime() ) ->
     new Clock @sandbox.useFakeTimers( seed )

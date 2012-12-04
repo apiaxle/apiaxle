@@ -83,6 +83,8 @@ class exports.CatchallTest extends ApiaxleTest
 
     tests = []
 
+    @stubDns { "facebook.api.localhost": "127.0.0.1" }
+
     tests.push ( cb ) =>
       @GET { path: "/?api_key=1234", host: "facebook.api.localhost" }, ( err, response ) =>
         @isNull err

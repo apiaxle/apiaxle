@@ -131,6 +131,7 @@ class exports.CatchallTest extends ApiaxleTest
         path: "/cock.bastard?api_key=1234"
         host: "facebook.api.localhost"
 
+      @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
         @isNull err
 
@@ -184,6 +185,7 @@ class exports.CatchallTest extends ApiaxleTest
         headers:
           "Cache-Control": "s-maxage=30"
 
+      @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
         @isNull err
         @ok stub.calledOnce
@@ -233,6 +235,7 @@ class exports.CatchallTest extends ApiaxleTest
         headers:
           "Cache-Control": "no-cache"
 
+      @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
         @isNull err
 
@@ -275,6 +278,7 @@ class exports.CatchallTest extends ApiaxleTest
         headers:
           "Cache-Control": "s-maxage=30, proxy-revalidate"
 
+      @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
         @isNull err
 

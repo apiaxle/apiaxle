@@ -1,4 +1,4 @@
-async = require "async"
+async  = require "async"
 libxml = require "libxmljs"
 
 { ApiaxleTest } = require "../../apiaxle"
@@ -42,6 +42,8 @@ class exports.CatchallTest extends ApiaxleTest
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
     all = [ ]
 
+    @stubDns { "twitter.api.localhost": "127.0.0.1" }
+
     for method in [ "POST", "GET", "PUT", "DELETE" ]
       do ( method ) =>
         all.push ( cb ) =>
@@ -52,12 +54,8 @@ class exports.CatchallTest extends ApiaxleTest
             data: "something"
 
           @httpRequest options, ( err, response ) =>
-            if err and err.code is "ENOTFOUND"
-              # this usually means missing host entries
-              console.log "WARNING: You might need to put facebook.api.localhost" +
-                " and twitter.api.localhost into your hosts file."
-
             @isNull err
+
             @ok response
             @equal response.statusCode, 404
 
@@ -78,6 +76,8 @@ class exports.CatchallTest extends ApiaxleTest
       endPoint: "graph.facebook.com"
       apiFormat: "json"
 
+    @stubDns { "facebook.api.localhost": "127.0.0.1" }
+
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
       @isNull err
@@ -95,11 +95,12 @@ class exports.CatchallTest extends ApiaxleTest
     apiOptions =
       endPoint: "graph.facebook.com"
       apiFormat: "json"
-
+    
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
       @isNull err
 
+      @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET { path: "/?api_key=1", host: "facebook.api.localhost" }, ( err, response ) =>
         response.parseJson ( json ) =>
           @ok err = json.results.error
@@ -134,6 +135,7 @@ class exports.CatchallTest extends ApiaxleTest
           path: "/cock.bastard?api_key=1234"
           host: "facebook.api.localhost"
 
+        @stubDns { "facebook.api.localhost": "127.0.0.1" }
         @GET requestOptions, ( err, response ) =>
           @isNull err
           @equal response.contentType, "application/json"
@@ -172,6 +174,7 @@ class exports.CatchallTest extends ApiaxleTest
           path: "/cock.bastard?apiaxle_key=1234&api_key=5678"
           host: "facebook.api.localhost"
 
+        @stubDns { "facebook.api.localhost": "127.0.0.1" }
         @GET requestOptions, ( err, response ) =>
           @isNull err
 
@@ -207,6 +210,7 @@ class exports.CatchallTest extends ApiaxleTest
           path: "/bastard/1234/hello/"
           host: "facebook.api.localhost"
 
+        @stubDns { "facebook.api.localhost": "127.0.0.1" }
         @GET requestOptions, ( err, response ) =>
           @isNull err
 
@@ -221,6 +225,8 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "xml"
 
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
+
+      @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
         @isNull err
 
