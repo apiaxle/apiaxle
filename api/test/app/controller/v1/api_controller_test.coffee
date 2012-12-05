@@ -295,13 +295,7 @@ class exports.ApiStatsTest extends ApiaxleTest
       endPoint: "graph.facebook.com"
       apiFormat: "json"
 
-    # we create the API
-    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
-      keyOptions =
-        forApi: "facebook"
-
-      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) ->
-        done()
+    @fixtures.createApiAndKey "facebook", apiOptions, "1234", {}, done
 
   "test GET all counts with range": ( done ) ->
     model = @application.model "counters"
