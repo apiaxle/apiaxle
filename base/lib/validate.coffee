@@ -6,7 +6,7 @@ module.exports = ( structure, data, cb ) ->
   validation = structure.validate data
 
   if validation.errors.length > 0
-    errors = [ ]
+    errors = []
 
     for e in validation.errors
       errors.push "#{ e.path.join "." }: (#{ e.attribute }) #{ e.description }"

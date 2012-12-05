@@ -119,9 +119,9 @@ class exports.ApiControllerTest extends ApiaxleTest
         @equal json.results.apiFormat, "json"
 
         # check it went in
-        @application.model( "api" ).find "1234", ( err, dbApi ) =>
-          @equal dbApi.apiFormat, "json"
-          @ok dbApi.createdAt
+        @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+          @equal dbApi.data.apiFormat, "json"
+          @ok dbApi.data.createdAt
 
           done 6
 
@@ -163,12 +163,12 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 200
 
-        @application.model( "api" ).find "1234", ( err, dbApi ) =>
-          @equal dbApi.endPoint, "hi.com"
-          @equal dbApi.apiFormat, "xml"
+        @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+          @equal dbApi.data.endPoint, "hi.com"
+          @equal dbApi.data.apiFormat, "xml"
 
           # we shouldn't have added the superfluous field
-          @equal dbApi.doesntExist?, false
+          @equal dbApi.data.doesntExist?, false
 
           done 7
 
@@ -225,20 +225,21 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @application.model( "api" ).find "1234", ( err, dbApi ) =>
+          @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
             @isNull err
             @isNull dbApi
 
             done 9
+
   "test GET list apis without resolution": ( done ) ->
     # create 11 apis
     fixtures = []
-    @apiModel = @application.model( "api" )
+    model = @application.model( "apiFactory" )
 
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @apiModel.create "api_#{i}", endPoint: "api_#{i}.com", cb
+          model.create "api_#{i}", endPoint: "api_#{i}.com", cb
 
     async.series fixtures, ( err, newApis ) =>
       @isNull err
@@ -255,6 +256,8 @@ class exports.ApiControllerTest extends ApiaxleTest
     # create 11 apis
     fixtures = []
 
+    model = @application.model( "apiFactory" )
+
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
@@ -263,7 +266,7 @@ class exports.ApiControllerTest extends ApiaxleTest
             apiFormat:   "json"
             endPoint:    "api_#{i}.com"
 
-          @apiModel.create "api_#{i}", options, cb
+          model.create "api_#{i}", options, cb
 
     async.parallel fixtures, ( err, newApis ) =>
       @isNull err
@@ -293,11 +296,11 @@ class exports.ApiStatsTest extends ApiaxleTest
       apiFormat: "json"
 
     # we create the API
-    @application.model( "api" ).create "facebook", apiOptions, ( err ) =>
+    @application.model( "apiFactory" ).create "facebook", apiOptions, ( err ) =>
       keyOptions =
         forApi: "facebook"
 
-      @application.model( "key" ).create "1234", keyOptions, ( err ) ->
+      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) ->
         done()
 
   "test GET all counts with range": ( done ) ->

@@ -44,7 +44,7 @@ catch e
 
 gk = new ApiaxleProxy()
 gk.script ( finish ) ->
-  model = gk.model "api"
+  model = gk.model "apiFactory"
 
   model.create name, options.options, ( err ) ->
     throw err if err

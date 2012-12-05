@@ -6,6 +6,6 @@ class exports.Controller
     @app.app[ verb ] @path(), @middleware(), ( req, res, next ) =>
       @execute req, res, next
 
-  middleware: ( ) -> [ ]
+  middleware: ( ) -> []
 
   path: ( ) -> "/#{ @cleanPath }"

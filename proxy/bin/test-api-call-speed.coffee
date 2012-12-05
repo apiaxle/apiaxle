@@ -7,7 +7,7 @@ util = require "util"
 results =
   success: 0
   failed: 0
-  persecond: { }
+  persecond: {}
 
 limits =
   qps: ( process.argv[2] or 1 )

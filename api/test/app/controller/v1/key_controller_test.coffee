@@ -10,7 +10,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     details =
       endPoint: "api.twitter.com"
 
-    @keyModel = @application.model( "key" )
+    @keyModel = @application.model( "keyFactory" )
 
     @fixtures.createApi "twitter", details, ( err, @newApi ) ->
       done()
@@ -60,14 +60,20 @@ class exports.KeyControllerTest extends ApiaxleTest
         @keyModel.find "1234", ( err, dbKey ) =>
           @isNull err
 
-          @equal dbKey.qps, "1"
-          @equal dbKey.qpd, "100"
-          @equal dbKey.forApi, "twitter"
-          @ok dbKey.createdAt
+          @equal dbKey.data.qps, "1"
+          @equal dbKey.data.qpd, "100"
+          @equal dbKey.data.forApi, "twitter"
+          @ok dbKey.data.createdAt
 
-          @application.model("api").getKeys "twitter", 0, 10, (err, keys) =>
-            @equal keys[0], "1234"
-            done 9
+          @application.model("apiFactory").find "twitter", ( err, api ) =>
+            @isNull err
+            @ok api
+
+            api.getKeys 0, 10, ( err, keys ) =>
+              @equal keys.length, 1
+              @equal keys[0], "1234"
+
+              done 12
 
   "test POST with an invalid key": ( done ) ->
     options =
@@ -105,8 +111,8 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal res.statusCode, 200
 
         @keyModel.find "1234", ( err, dbKey ) =>
-          @equal dbKey.qps, "30"
-          @equal dbKey.qpd, "1000"
+          @equal dbKey.data.qps, "30"
+          @equal dbKey.data.qpd, "1000"
 
           done 5
 
@@ -164,7 +170,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @application.model( "key" ).find "1234", ( err, dbKey ) =>
+          @application.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
             @isNull err
             @isNull dbKey
 

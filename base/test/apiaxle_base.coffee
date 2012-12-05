@@ -14,21 +14,21 @@ class exports.FakeAppTest extends AppTest
   addKeyFixture: ( key, options, cb ) ->
     forApi = ( options.forApi or= "twitter" )
 
-    apiModel = @application.model( "api" )
+    apiModel = @application.model( "apiFactory" )
     apiModel.find options.forApi, ( err, dbApi ) =>
       return cb err if err
 
-      fixtures = [ ]
+      fixtures = []
 
       fixtures.push ( cb ) =>
         if not dbApi?
           return apiModel.create forApi, endPoint: "#{forApi}.api.localhost", cb
 
-        return cb null, dbApi
+        return cb null, dbApi.data
 
       # add the new key
       fixtures.push ( cb ) =>
-        keyModel = @application.model "key"
-        keyModel.create key, options, cb
+        keyModel = @application.model( "keyFactory" )
+        keyModel.create key.data, options, cb
 
       async.series fixtures, cb

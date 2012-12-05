@@ -4,7 +4,7 @@ _  = require "underscore"
 { getPackages } = require "../lib/axle_utils"
 
 getVersions = ( packages, cb ) ->
-  vers = [ ]
+  vers = []
 
   for project, pkg of packages
     vers.push pkg.version

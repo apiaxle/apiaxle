@@ -10,7 +10,10 @@ class CatchAll extends ApiaxleController
 
   path: ( ) -> "*"
 
-  middleware: -> [ @simpleBodyParser, @subdomain, @api, @key ]
+  middleware: -> [ @simpleBodyParser,
+                   @subdomain,
+                   @api,
+                   @key ]
 
   _cacheHash: ( url ) ->
     md5 = crypto.createHash "md5"
@@ -41,7 +44,7 @@ class CatchAll extends ApiaxleController
         return cb null, mustRevalidate, ttl
 
     # return the global cache
-    return cb null, mustRevalidate, parseInt req.api.globalCache
+    return cb null, mustRevalidate, parseInt req.api.data.globalCache
 
   # returns an object which looks like this (with all fields being
   # optional):
@@ -72,7 +75,7 @@ class CatchAll extends ApiaxleController
     # cache (the 0 is a string because it comes straight from redis).
     @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
       if cacheTtl is 0 or mustRevalidate
-        return @_httpRequest options, req.subdomain, req.key.key, outerCb
+        return @_httpRequest options, req.subdomain, req.key.data.key, outerCb
 
       cache = @app.model "cache"
       key = @_cacheHash options.url
@@ -80,14 +83,11 @@ class CatchAll extends ApiaxleController
       cache.get key, ( err, status, contentType, body ) =>
         return outerCb err if err
 
-
-        # TODO: does anything need setting in terms of the
-        # apiresponse? Should we have cached the headers?
         if body
           counterModel = @app.model( "counters" )
 
           @app.logger.debug "Cache hit: #{options.url}"
-          return counterModel.apiHit req.subdomain, req.key.key, status, ( err, res ) ->
+          return counterModel.apiHit req.subdomain, req.key.data.key, status, ( err, res ) ->
             fakeResponse =
               statusCode: status
               headers:
@@ -98,7 +98,7 @@ class CatchAll extends ApiaxleController
         @app.logger.debug "Cache miss: #{options.url}"
 
         # means we've a cache miss and so need to make a real request
-        @_httpRequest options, req.subdomain, req.key.key, ( err, apiRes, body ) =>
+        @_httpRequest options, req.subdomain, req.key.data.key, ( err, apiRes, body ) =>
           return outerCb err if err
           # do I really need to check both?
           contentType = apiRes.headers["Content-Type"] or apiRes.headers["content-type"]
@@ -135,7 +135,7 @@ class CatchAll extends ApiaxleController
 
     model = @app.model "apiLimits"
 
-    { qps, qpd, key } = req.key
+    { qps, qpd, key } = req.key.data
 
     model.apiHit key, qps, qpd, ( err, [ newQps, newQpd ] ) =>
       if err
@@ -144,7 +144,7 @@ class CatchAll extends ApiaxleController
         # collect the type of error (QpsExceededError or
         # QpdExceededError at the moment)
         type = err.constructor.name
-        return counterModel.apiHit req.subdomain, req.key.key, type, ( counterErr, res ) ->
+        return counterModel.apiHit req.subdomain, req.key.data.key, type, ( counterErr, res ) ->
           return next counterErr if counterErr
           return next err
 
@@ -152,7 +152,7 @@ class CatchAll extends ApiaxleController
       headers = req.headers
       delete headers.host
 
-      endpointUrl = "http://#{ req.api.endPoint }#{ pathname }"
+      endpointUrl = "http://#{ req.api.data.endPoint }#{ pathname }"
       if query
         endpointUrl += "?"
         newStrings = ( "#{ key }=#{ value }" for key, value of query )
@@ -161,8 +161,8 @@ class CatchAll extends ApiaxleController
       options =
         url: endpointUrl
         followRedirects: true
-        maxRedirects: req.api.endPointMaxRedirects
-        timeout: req.api.endPointTimeout * 1000
+        maxRedirects: req.api.data.endPointMaxRedirects
+        timeout: req.api.data.endPointTimeout * 1000
         headers: headers
 
       options.body = req.body

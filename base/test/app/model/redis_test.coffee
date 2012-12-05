@@ -1,9 +1,35 @@
 async = require "async"
 
 { FakeAppTest } = require "../../apiaxle_base"
+{ Redis }       = require "../../../app/model/redis"
+
+validationEnv = require( "schema" )( "apiEnv" )
+
+class TestModel extends Redis
+  @structure = validationEnv.Schema.create
+    type: "object"
+    additionalProperties: false
+    properties:
+      one:
+        type: "integer"
 
 class exports.RedisTest extends FakeAppTest
   @empty_db_on_setup = true
+
+  "test finding an object without @returns set": ( done ) ->
+    @ok test_model = new TestModel @application
+
+    test_model.create "hello", { one: 1, two: 2 }, ( err, newObject ) =>
+      @isNull err
+      @equal newObject.one, 1
+
+      test_model.find "hello", ( err, data ) =>
+        @isNull err
+        @ok data
+
+        @equal data.one, 1
+
+        done 6
 
   "test multi incr/decr": ( done ) ->
     @ok model = @application.model "counters"
@@ -109,7 +135,7 @@ class exports.RedisTest extends FakeAppTest
 
   "test the test framework captures redis commands": ( done ) ->
     # none thanks to setup having run
-    @deepEqual @runRedisCommands, [ ]
+    @deepEqual @runRedisCommands, []
 
     @ok model = @application.model "counters"
 
@@ -117,7 +143,7 @@ class exports.RedisTest extends FakeAppTest
       model.get "isThisEmitted?", ( err, value ) =>
         @isNull err
 
-        @application.model( "key" ).get "anotherKeyName", ( err, value ) =>
+        @application.model( "keyFactory" ).get "anotherKeyName", ( err, value ) =>
           @isNull err
           @isNull value
 
@@ -140,6 +166,6 @@ class exports.RedisTest extends FakeAppTest
             access: "read"
             command: "get"
             key: "anotherKeyName"
-            model: "key"
+            model: "keyFactory"
 
           done 9

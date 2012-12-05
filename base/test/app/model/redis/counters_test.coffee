@@ -126,7 +126,7 @@ class exports.CountersTest extends FakeAppTest
             done 5
 
   "test #getPossibleResponseTypes": ( done ) ->
-    fixtures = [ ]
+    fixtures = []
 
     fixtures.push ( cb ) => @model.apiHit "facebook", "1234", 200, cb
     fixtures.push ( cb ) => @model.apiHit "facebook", "1234", "QpsExceededError", cb

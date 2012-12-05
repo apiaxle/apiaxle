@@ -7,12 +7,13 @@ redis = require "redis"
 
 class Redis
   constructor: ( @application ) ->
-    env = @application.constructor.env
+    env =  @application.constructor.env
     name = @constructor.smallKeyName or @constructor.name.toLowerCase()
 
-    @ee = new events.EventEmitter()
+    @base_key = "gk:#{ env }"
 
-    @ns = "gk:#{ env }:#{ name }"
+    @ee = new events.EventEmitter()
+    @ns = "#{ @base_key }:#{ name }"
 
   validate: ( details, cb ) ->
     try
@@ -35,18 +36,31 @@ class Redis
       # later.
       multi.rpush "all", id
 
-      multi.exec ( err, results ) ->
+      multi.exec ( err, results ) =>
         return cb err if err
 
-        cb null, details
+        # no data means no object
+        return cb null, null unless results
+
+        # construct a new return object (see @returns on the factory
+        # base class)
+        if @constructor.returns?
+          return cb null, new @constructor.returns( @application, id, details )
+
+        # no returns object, just throw back the data
+        return cb null, details
 
   range: ( start, stop, cb ) ->
     @lrange "all", start, stop, cb
 
   find: ( key, cb ) ->
-    @hgetall key, ( err, details ) ->
+    @hgetall key, ( err, details ) =>
       return cb err, null if err
       return cb null, null unless details and _.size details
+
+      if @constructor.returns?
+        return cb null, new @constructor.returns @application, key, details
+
       return cb null, details
 
   multi: ( args ) ->
@@ -57,21 +71,6 @@ class Redis
     key = key.concat parts
 
     return key.join ":"
-
-  # Clear the keys associated with this model (taking into account the
-  # namespace). It's for tests, not for use in production code.
-  flush: ( cb ) ->
-    multi = @application.redisClient.multi()
-
-    # loop over all of the keys deleting them one by one :/
-    @keys [ "*" ], ( err, keys ) ->
-      return cb err if err
-
-      for key in keys
-        multi.del key, ( err, res ) ->
-          return cb err if err
-
-      multi.exec cb
 
   minuteString: ( date=new Date() ) =>
     return "#{ @hourString date }:#{ date.getMinutes() }"
@@ -104,6 +103,10 @@ class RedisMulti extends redis.Multi
     super client, args
 
   getKey: Redis::getKey
+
+class Model extends Redis
+  constructor: ( @application, @id, @data ) ->
+    super @application
 
 # adding a command here will make it usable in Redis and RedisMulti
 redisCommands = {
@@ -153,3 +156,4 @@ for command, access of redisCommands
       @application.redisClient[ command ]( full_key, args... )
 
 exports.Redis = Redis
+exports.Model = Model

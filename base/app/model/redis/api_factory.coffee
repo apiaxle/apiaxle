@@ -1,11 +1,18 @@
 { ApiUnknown, ValidationError } = require "../../../lib/error"
-{ Redis } = require "../redis"
+{ Model, Redis } = require "../redis"
 
 validationEnv = require( "schema" )( "apiEnv" )
 
-class exports.Api extends Redis
-  @instantiateOnStartup = true
+class Api extends Model
+  addKey: ( key ) ->
+    @lpush "#{ @id }:keys", key
 
+  getKeys: ( start, stop, cb ) ->
+    @lrange "#{ @id }:keys", start, stop, cb
+
+class exports.ApiFactory extends Redis
+  @instantiateOnStartup = true
+  @returns   = Api
   @structure = validationEnv.Schema.create
     type: "object"
     additionalProperties: false
@@ -41,9 +48,3 @@ class exports.Api extends Redis
             return value
           catch err
             throw new ValidationError( err.message )
-
-  addKey: ( api, key ) ->
-    @lpush "#{ api }:keys", key
-
-  getKeys: ( api, start, stop, cb ) ->
-    @lrange "#{ api }:keys", start, stop, cb
