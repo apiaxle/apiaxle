@@ -16,7 +16,7 @@ function silence-or-loud-on-error {
 
 # cant do proxy yet because of the tests that rely on host files being
 # set.
-for project in base api; do
+for project in base api proxy; do
   pushd ${project}
 
   echo "Installing modules..."
