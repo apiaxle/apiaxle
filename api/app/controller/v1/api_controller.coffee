@@ -216,7 +216,7 @@ class exports.ViewAllStatsForApi extends ApiaxleController
 
   execute: ( req, res, next ) ->
     model = @app.model "counters"
-    model.getPossibleResponseTypes "api:"+req.params.api, ( err, types ) =>
+    model.getPossibleResponseTypes "api:#{ req.params.api }", ( err, types ) =>
       return next err if err
 
       multi  = model.multi()
