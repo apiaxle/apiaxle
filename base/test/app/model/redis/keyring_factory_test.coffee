@@ -29,8 +29,27 @@ class exports.KeyringFactoryTest extends FakeAppTest
 
         done 4
 
-  "test adding a key to the keyring": ( done ) ->
+  "test adding an unknown key to a keyring": ( done ) ->
     @fixtures.createKeyring ( err, keyring ) =>
       @isNull err
 
-      done 1
+      # 1234 doesn't exist
+      keyring.addKey "1234", ( err, key ) =>
+        @ok err
+        @match err.message, /Key 1234 not found/
+  
+        done 2
+
+  "test adding a key to the keyring": ( done ) ->
+    @fixtures.createApiAndKey "facebook", {}, "1234", {}, ( err ) =>
+      @isNull err
+
+      @fixtures.createKeyring ( err, keyring ) =>
+        @isNull err
+
+        keyring.addKey "1234", ( err, key ) =>
+          @isNull err
+          @ok key
+          @equal key.id, "1234"
+
+          done 5
