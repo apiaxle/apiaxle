@@ -192,3 +192,55 @@ class exports.ListApiKeys extends ApiaxleController
       @resolve @app.model("key"), results, (err, resolved_results) =>
         return next err if err
         return @json res, resolved_results
+
+class exports.ViewAllStatsForApi extends ApiaxleController
+  @verb = "get"
+
+  desc: -> "Get the statistics for an api."
+
+  docs: ->
+    """
+    ### Returns
+
+    * Object where the keys represent the HTTP status code of the
+      endpoint or the error returned by apiaxle (QpsExceededError, for
+      example). Each object contains date to hit count pairs.
+    """
+
+  middleware: -> [ @mwApiDetails( @app ) ]
+
+  path: -> "/v1/api/:api/stats"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "counters"
+    model.getPossibleResponseTypes "api:"+req.params.api, ( err, types ) =>
+      return next err if err
+
+      multi  = model.multi()
+      from   = req.query["from-date"]
+      to     = req.query["to-date"]
+      ranged = from and to
+
+      for type in types
+        do ( type ) =>
+          if ranged
+            multi = @getStatsRange multi, "api", req.params.api, type, from, to
+          else
+            multi.hgetall [ "api", req.params.api, type ]
+
+      multi.exec ( err, results ) =>
+        return next err if err
+
+        # build up the output structure
+        output = {}
+        processed_results = []
+
+        if ranged
+          processed_results = @combineStatsRange results, from, to
+        else
+          processed_results = results
+
+        for type in types
+          output[ type ] = processed_results.shift()
+
+        return @json res, output
