@@ -25,6 +25,12 @@ class exports.KeyringFactoryTest extends FakeAppTest
 
       @model.find "keyring_one", ( err, keyring ) =>
         @isNull err
-        @ok keyring
+        @equal keyring.id, "keyring_one"
 
         done 4
+
+  "test adding a key to the keyring": ( done ) ->
+    @fixtures.createKeyring ( err, keyring ) =>
+      @isNull err
+
+      done 1

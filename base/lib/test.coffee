@@ -279,6 +279,18 @@ class Fixtures
 
     async.series key_create_list, cb
 
+  createKeyring: ( args..., cb ) ->
+    name    = null
+    options = { }
+
+    # grab the optional args and make sure a name is assigned
+    switch args.length
+      when 2 then [ name, options ] = args
+      when 1 then [ name ] = args
+      else name = "bucket-#{ @keys.pop() }"
+
+    @application.model( "keyringFactory" ).create name, options, cb
+
   createApiAndKey: ( api, apiOptions, key, keyOptions={}, cb ) ->
     @createApi api, apiOptions, ( err, newApi ) =>
       return cb err if err

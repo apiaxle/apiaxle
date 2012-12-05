@@ -1,10 +1,10 @@
 async = require "async"
 
-{ Redis } = require "../redis"
+{ Redis, Model } = require "../redis"
 
 validationEnv = require( "schema" )( "apiEnv" )
 
-class Keyring extends Redis
+class Keyring extends Model
 
 class exports.KeyringFactory extends Redis
   @instantiateOnStartup = true
