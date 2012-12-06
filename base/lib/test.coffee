@@ -316,7 +316,7 @@ class Fixtures
     switch args.length
       when 2 then [ name, passed_options ] = args
       when 1 then [ name ] = args
-      else name = @key_names.pop()
+      else name = @keys.pop()
 
     # merge the options
     options = _.extend default_options, passed_options
