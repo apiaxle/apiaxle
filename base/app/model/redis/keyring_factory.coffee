@@ -13,8 +13,11 @@ class Keyring extends Model
       if not key
         return cb new ValidationError "Key #{ key_name } not found."
 
-      @lpush "#{ @id }:keys", key, ( err ) ->
+      @lpush "#{ @id }:keys", key_name, ( err ) ->
         return cb err, key
+
+  getKeys: ( start, stop, cb ) ->
+    @lrange "#{ @id }:keys", start, stop, cb
 
 class exports.KeyringFactory extends Redis
   @instantiateOnStartup = true

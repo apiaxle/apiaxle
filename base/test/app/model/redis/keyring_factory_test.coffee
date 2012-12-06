@@ -29,7 +29,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
 
         done 4
 
-  "test adding an unknown key to a keyring": ( done ) ->
+  "test adding an unknown key to a keyring fails": ( done ) ->
     @fixtures.createKeyring ( err, keyring ) =>
       @isNull err
 
@@ -38,7 +38,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
         @ok err
         @match err.message, /Key 1234 not found/
   
-        done 2
+        done 3
 
   "test adding a key to the keyring": ( done ) ->
     @fixtures.createApiAndKey "facebook", {}, "1234", {}, ( err ) =>
@@ -53,3 +53,34 @@ class exports.KeyringFactoryTest extends FakeAppTest
           @equal key.id, "1234"
 
           done 5
+
+  "test getting keys from a ring": ( done ) ->
+    all = []
+
+    all.push ( cb ) => @fixtures.createApi "twitter", cb
+    @fixtures.createKeyring ( err, keyring ) =>
+      for i in [ 1..9 ]
+        all.push ( cb ) =>
+          # create a bunch of keys
+          @fixtures.createKey ( err, key ) =>
+            @isNull err
+            @ok key
+
+            # add the new key
+            keyring.addKey key.id, ( err, added_key ) =>
+              @isNull err
+              @ok added_key
+
+              @equal added_key.id, key.id
+
+              return cb null, key.id
+
+      async.series all, ( err, [ api, added_keys... ] ) =>
+        @isNull err
+
+        keyring.getKeys 0, 1000, ( err, keys ) =>
+          @isNull err
+          @equal keys.length, 9
+          @deepEqual keys, added_keys.reverse()
+          
+          done 49
