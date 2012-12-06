@@ -12,7 +12,7 @@ class exports.CreateApi extends ApiaxleController
     """
     ### JSON fields supported
 
-    #{ @app.model( 'api' ).getValidationDocs() }
+    #{ @app.model( 'apiFactory' ).getValidationDocs() }
 
     ### Returns
 
@@ -87,7 +87,7 @@ class exports.ModifyApi extends ApiaxleController
 
     ### JSON fields supported
 
-    #{ @app.model( 'api' ).getValidationDocs() }
+    #{ @app.model( 'apiFactory' ).getValidationDocs() }
 
     ### Returns
 
