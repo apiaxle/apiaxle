@@ -173,9 +173,7 @@ class exports.ListApiKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "apiFactory"
-
-  resolveModelName: -> "keyFactory"
+  modelName: -> "keyFactory"
 
   middleware: -> [ @mwApiDetails( @app ) ]
 
