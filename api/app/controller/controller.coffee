@@ -121,6 +121,9 @@ class exports.ListController extends exports.ApiaxleController
   @default_from = 0
   @default_to   = 100
 
+  resolveModelName: ( ) ->
+    @modelName()
+
   execute: ( req, res, next ) ->
     model = @app.model( @modelName() )
 
@@ -137,7 +140,7 @@ class exports.ListController extends exports.ApiaxleController
         return @json res, keys
 
       # now bind the actual results to the keys
-      @resolve model, keys, ( err, results ) =>
+      @resolve @app.model( @resolveModelName() ), keys, ( err, results ) =>
         return next err if err
 
         @json res, results
