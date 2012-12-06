@@ -19,9 +19,9 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test GET keys for a valid api": ( done ) ->
     @fixtures.createApi "twitter", ( err ) =>
       new_keys = []
-
-      for i in [ 1..15 ]
-        new_keys.push @fixtures.createKey
+      
+      # create a bunch of keys
+      new_keys.push @fixtures.createKey for i in [ 1..15 ]
 
       async.series new_keys, ( err, keys ) =>
         @isNull err
