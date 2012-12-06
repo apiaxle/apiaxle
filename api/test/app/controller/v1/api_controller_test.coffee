@@ -17,7 +17,7 @@ class exports.ApiControllerTest extends ApiaxleTest
 
   "test GET keys for a valid api": ( done ) ->
     # now try and get it
-    @GET path: "/v1/api/123/keys/0/10", ( err, res ) =>
+    @GET path: "/v1/api/123/keys?from=0&to=10", ( err, res ) =>
       @isNull err
       res.parseJson ( json ) =>
         @ok 1
@@ -231,7 +231,7 @@ class exports.ApiControllerTest extends ApiaxleTest
 
             done 9
 
-  "test GET list apis without resolution": ( done ) ->
+  "test list apis without resolution": ( done ) ->
     # create 11 apis
     fixtures = []
     model = @application.model( "apiFactory" )
@@ -244,12 +244,13 @@ class exports.ApiControllerTest extends ApiaxleTest
     async.series fixtures, ( err, newApis ) =>
       @isNull err
 
-      @GET path: "/v1/api/list/1/12", ( err, response ) =>
+      @GET path: "/v1/apis?from=1&to=12", ( err, response ) =>
         @isNull err
 
         response.parseJson ( json ) =>
           @ok json
           @equal json.results.length, 10
+
           done 4
 
   "test list apis with resolution": ( done ) ->
@@ -271,7 +272,7 @@ class exports.ApiControllerTest extends ApiaxleTest
     async.parallel fixtures, ( err, newApis ) =>
       @isNull err
 
-      @GET path: "/v1/api/list/0/12?resolve=true", ( err, response ) =>
+      @GET path: "/v1/apis?from=0&to=12&resolve=true", ( err, response ) =>
         @isNull err
 
         response.parseJson ( json ) =>

@@ -118,10 +118,17 @@ class exports.ApiaxleController extends Controller
     return processed_results
 
 class exports.ListController extends exports.ApiaxleController
+  @default_from = 0
+  @default_to   = 100
+
   execute: ( req, res, next ) ->
     model = @app.model( @modelName() )
 
-    model.range req.params.from, req.params.to, ( err, keys ) =>
+    # grab from and to
+    from = ( req.query.from or @constructor.default_from )
+    to   = ( req.query.to or @constructor.default_to )
+
+    model.range from, to, ( err, keys ) =>
       return next err if err
 
       # if we're not asked to resolve the items then just bung the
