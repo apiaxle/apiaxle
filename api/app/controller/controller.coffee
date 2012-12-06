@@ -54,6 +54,25 @@ class exports.ApiaxleController extends Controller
 
         return next()
 
+  # Will decorate `req.keyring` with details of the keyring specified
+  # in the `:keyring` parameter. If `valid_keyring_required` is
+  # truthful then an error will be thrown if a valid keyring wasn't
+  # found.
+  mwKeyringDetails: ( valid_keyring_required=false ) ->
+    ( req, res, next ) =>
+      keyring = req.params.keyring
+
+      @app.model( "keyringFactory" ).find keyring, ( err, dbKeyring ) ->
+        return next err if err
+
+        # do we /need/ the keyring to exist?
+        if valid_keyring_required and not dbKeyring?
+          return next new NotFoundError "#{ keyring } not found."
+
+        req.keyring = dbKeyring
+
+        return next()
+
   # Will decorate `req.api` with details of the api specified in the
   # `:api` parameter. If `valid_api_required` is truthful then an
   # error will be thrown if a valid api wasn't found.
