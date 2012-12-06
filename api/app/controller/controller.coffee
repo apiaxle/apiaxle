@@ -129,7 +129,7 @@ class exports.ListController extends exports.ApiaxleController
 
     # grab from and to
     from = ( req.query.from or @constructor.default_from )
-    to   = ( req.query.to or @constructor.default_to )
+    to   = ( req.query.to   or @constructor.default_to )
 
     model.range from, to, ( err, keys ) =>
       return next err if err
@@ -140,7 +140,7 @@ class exports.ListController extends exports.ApiaxleController
         return @json res, keys
 
       # now bind the actual results to the keys
-      @resolve @app.model( @resolveModelName() ), keys, ( err, results ) =>
+      @resolve model, keys, ( err, results ) =>
         return next err if err
 
         @json res, results
