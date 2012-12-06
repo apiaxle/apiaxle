@@ -4,8 +4,8 @@
 validationEnv = require( "schema" )( "apiEnv" )
 
 class Api extends Model
-  addKey: ( key ) ->
-    @lpush "#{ @id }:keys", key
+  addKey: ( key, cb ) ->
+    @lpush "#{ @id }:keys", key, cb
 
   getKeys: ( start, stop, cb ) ->
     @lrange "#{ @id }:keys", start, stop, cb
