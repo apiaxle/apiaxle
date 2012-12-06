@@ -119,6 +119,7 @@ class exports.AppTest extends TwerpTest
     for key, val of defaults
       options[ key ] = val unless options[ key ]
 
+    @application.logger.debug "Making a #{ options.method} to #{ options.path }"
     req = http.request options, ( res ) =>
       data = ""
       res.setEncoding "utf8"
