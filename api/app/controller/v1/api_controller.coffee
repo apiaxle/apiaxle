@@ -146,7 +146,7 @@ class exports.ListApis extends ListController
 
   modelName: -> "apiFactory"
 
-class exports.ListApiKeys extends ApiaxleController
+class exports.ListApiKeys extends ListController
   @verb = "get"
 
   path: -> "/v1/api/:api/keys"
@@ -175,20 +175,9 @@ class exports.ListApiKeys extends ApiaxleController
 
   modelName: -> "apiFactory"
 
+  resolveModelName: -> "keyFactory"
+
   middleware: -> [ @mwApiDetails( @app ) ]
-
-  execute: ( req, res, next ) ->
-    { from, to } = req.params
-
-    @app.model( "apiFactory" ).getKeys req.params.api, from, to, ( err, results ) =>
-      return next err if err
-
-      if not req.query.resolve?
-        return @json res, results
-
-      @resolve @app.model("keyFactory"), results, (err, key) =>
-        return next err if err
-        return @json res, resolved_results
 
 class exports.ViewAllStatsForApi extends ApiaxleController
   @verb = "get"
