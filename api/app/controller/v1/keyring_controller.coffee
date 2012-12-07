@@ -28,7 +28,8 @@ class exports.CreateKeyring extends ApiaxleController
     if req.keyring?
       return next new AlreadyExists "#{ keyring } already exists."
 
-    @app.model( "keyringFactory" ).create req.params.keyring, req.body, ( err, newObj ) =>
+    model = @app.model "keyringFactory"
+    model.create req.params.keyring, req.body, ( err, newObj ) =>
       return next err if err
 
       @json res, newObj.data
