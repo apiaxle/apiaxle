@@ -121,9 +121,6 @@ class exports.ListController extends exports.ApiaxleController
   @default_from = 0
   @default_to   = 100
 
-  resolveModelName: ( ) ->
-    @modelName()
-
   execute: ( req, res, next ) ->
     model = @app.model( @modelName() )
 
