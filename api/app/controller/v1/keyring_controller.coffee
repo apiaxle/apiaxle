@@ -157,15 +157,12 @@ class exports.ListKeyringKeys extends ListController
 
   docs: ->
     """
-    ### Path parameters
+    ### Supported query params
 
     * from: Integer for the index of the first key you want to
       see. Starts at zero.
     * to: Integer for the index of the last key you want to
       see. Starts at zero.
-
-    ### Supported query params
-
     * resolve: if set to `true` then the details concerning the listed
       keys will also be printed. Be aware that this will come with a
       minor performace hit.
