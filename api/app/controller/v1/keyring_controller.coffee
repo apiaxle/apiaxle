@@ -148,10 +148,10 @@ class exports.ListKeyrings extends ListController
 
   modelName: -> "keyringFactory"
 
-class exports.ListKeyringKeys extends ApiaxleController
+class exports.ListKeyringKeys extends ListController
   @verb = "get"
 
-  path: -> "/v1/keyring/:keyring/keys/:from/:to"
+  path: -> "/v1/keyring/:keyring/keys"
 
   desc: -> "List keys belonging to an KEYRING."
 
@@ -178,19 +178,6 @@ class exports.ListKeyringKeys extends ApiaxleController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "keyringFactory"
+  modelName: -> "keyFactory"
 
   middleware: -> [ @mwKeyringDetails( @app ) ]
-
-  execute: ( req, res, next ) ->
-    { from, to } = req.params
-
-    @app.model( "keyringFactory" ).getKeys req.params.keyring, from, to, ( err, results ) =>
-      return next err if err
-
-      if not req.query.resolve?
-        return @json res, results
-
-      @resolve @app.model("keyFactory"), results, (err, key) =>
-        return next err if err
-        return @json res, resolved_results
