@@ -52,6 +52,6 @@ gk.script ( finish ) ->
     model.find name, ( err, newApi ) ->
       throw err if err
 
-      console.log newApi
+      console.log newApi.data
 
       finish()

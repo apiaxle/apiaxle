@@ -119,6 +119,7 @@ class exports.AppTest extends TwerpTest
     for key, val of defaults
       options[ key ] = val unless options[ key ]
 
+    @application.logger.debug "Making a #{ options.method} to #{ options.path }"
     req = http.request options, ( res ) =>
       data = ""
       res.setEncoding "utf8"
@@ -304,7 +305,7 @@ class Fixtures
     switch args.length
       when 2 then [ name, passed_options ] = args
       when 1 then [ name ] = args
-      else name = @key_names.pop()
+      else name = @keys.pop()
 
     # merge the options
     options = _.extend default_options, passed_options

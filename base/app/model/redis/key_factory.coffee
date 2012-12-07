@@ -46,7 +46,8 @@ class exports.KeyFactory extends Redis
         return cb new ValidationError "API '#{ details.forApi }' doesn't exist."
 
       # Save the key
-      api.addKey id
+      api.addKey id, ( err ) =>
+        return cb err if err
 
-      # why won't coffeescript just let me call super here?
-      return @constructor.__super__.create.apply @, [ id, details, cb ]
+        # why won't coffeescript just let me call super here?
+        return @constructor.__super__.create.apply @, [ id, details, cb ]
