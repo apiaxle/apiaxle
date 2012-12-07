@@ -188,7 +188,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     async.series fixtures, ( err, newKeys ) =>
       @isNull err
 
-      @GET path: "/v1/key/list/1/12", ( err, response ) =>
+      @GET path: "/v1/keys?from=1&to=12", ( err, response ) =>
         @isNull err
 
         response.parseJson ( json ) =>
@@ -210,7 +210,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     async.parallel fixtures, ( err, newKeys ) =>
       @isNull err
 
-      @GET path: "/v1/key/list/0/12?resolve=true", ( err, response ) =>
+      @GET path: "/v1/keys?from=0&to=12&resolve=true", ( err, response ) =>
         @isNull err
 
         response.parseJson ( json ) =>

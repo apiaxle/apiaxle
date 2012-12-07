@@ -12,7 +12,7 @@ class exports.CreateApi extends ApiaxleController
     """
     ### JSON fields supported
 
-    #{ @app.model( 'api' ).getValidationDocs() }
+    #{ @app.model( 'apiFactory' ).getValidationDocs() }
 
     ### Returns
 
@@ -87,7 +87,7 @@ class exports.ModifyApi extends ApiaxleController
 
     ### JSON fields supported
 
-    #{ @app.model( 'api' ).getValidationDocs() }
+    #{ @app.model( 'apiFactory' ).getValidationDocs() }
 
     ### Returns
 
@@ -120,21 +120,18 @@ class exports.ModifyApi extends ApiaxleController
 class exports.ListApis extends ListController
   @verb = "get"
 
-  path: -> "/v1/api/list/:from/:to"
+  path: -> "/v1/apis"
 
   desc: -> "List all APIs."
 
   docs: ->
     """
-    ### Path parameters
+    ### Supported query params
 
     * from: Integer for the index of the first api you want to
       see. Starts at zero.
     * to: Integer for the index of the last api you want to
       see. Starts at zero.
-
-    ### Supported query params
-
     * resolve: if set to `true` then the details concerning the listed
       apis  will also be printed. Be aware that this will come with a
       minor performace hit.
@@ -149,24 +146,21 @@ class exports.ListApis extends ListController
 
   modelName: -> "apiFactory"
 
-class exports.ListApiKeys extends ApiaxleController
+class exports.ListApiKeys extends ListController
   @verb = "get"
 
-  path: -> "/v1/api/:api/keys/:from/:to"
+  path: -> "/v1/api/:api/keys"
 
   desc: -> "List keys belonging to an API."
 
   docs: ->
     """
-    ### Path parameters
+    ### Supported query params
 
     * from: Integer for the index of the first key you want to
       see. Starts at zero.
     * to: Integer for the index of the last key you want to
       see. Starts at zero.
-
-    ### Supported query params
-
     * resolve: if set to `true` then the details concerning the listed
       keys will also be printed. Be aware that this will come with a
       minor performace hit.
@@ -179,22 +173,9 @@ class exports.ListApiKeys extends ApiaxleController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "apiFactory"
+  modelName: -> "keyFactory"
 
   middleware: -> [ @mwApiDetails( @app ) ]
-
-  execute: ( req, res, next ) ->
-    { from, to } = req.params
-
-    @app.model( "apiFactory" ).getKeys req.params.api, from, to, ( err, results ) =>
-      return next err if err
-
-      if not req.query.resolve?
-        return @json res, results
-
-      @resolve @app.model("keyFactory"), results, (err, key) =>
-        return next err if err
-        return @json res, resolved_results
 
 class exports.ViewAllStatsForApi extends ApiaxleController
   @verb = "get"
