@@ -280,7 +280,7 @@ class Fixtures
 
     async.series key_create_list, cb
 
-  createKeyring: ( args..., cb ) ->
+  createKeyring: ( args..., cb ) =>
     name    = null
     options = { }
 

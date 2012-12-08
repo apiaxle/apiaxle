@@ -16,6 +16,21 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
         done 2
 
+  "test GET a list of keyrings": ( done ) ->
+    all_keyrings = []
+
+    for i in [ 1..15 ]
+      all_keyrings.push @fixtures.createKeyring
+
+    async.series all_keyrings, ( err, keyrings ) =>
+      @isNull err
+
+      @GET path: "/v1/keyrings?from=2&to=4", ( err, res ) =>
+        res.parseJson ( json ) =>
+          @deepEqual json.results, _.pluck( keyrings[2..4], "id" )
+
+          done 2
+
   "test GET keys for a valid keyring": ( done ) ->
     @fixtures.createApi "twitter", ( err ) =>
       @fixtures.createKeyring "blah", ( err, keyring ) =>

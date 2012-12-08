@@ -120,21 +120,18 @@ class exports.ModifyKeyring extends ApiaxleController
 class exports.ListKeyrings extends ListController
   @verb = "get"
 
-  path: -> "/v1/keyring/list/:from/:to"
+  path: -> "/v1/keyrings"
 
   desc: -> "List all KEYRINGs."
 
   docs: ->
     """
-    ### Path parameters
+    ### Supported query params
 
     * from: Integer for the index of the first keyring you want to
       see. Starts at zero.
     * to: Integer for the index of the last keyring you want to
       see. Starts at zero.
-
-    ### Supported query params
-
     * resolve: if set to `true` then the details concerning the listed
       keyrings  will also be printed. Be aware that this will come with a
       minor performace hit.
