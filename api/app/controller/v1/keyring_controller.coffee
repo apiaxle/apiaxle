@@ -12,7 +12,7 @@ class exports.CreateKeyring extends ApiaxleController
     """
     ### JSON fields supported
 
-    #{ @app.model( 'keyring' ).getValidationDocs() }
+    #{ @app.model( 'keyringFactory' ).getValidationDocs() }
 
     ### Returns
 
@@ -87,7 +87,7 @@ class exports.ModifyKeyring extends ApiaxleController
 
     ### JSON fields supported
 
-    #{ @app.model( 'keyring' ).getValidationDocs() }
+    #{ @app.model( 'keyringFactory' ).getValidationDocs() }
 
     ### Returns
 
