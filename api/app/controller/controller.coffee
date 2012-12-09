@@ -40,15 +40,15 @@ class exports.ApiaxleController extends Controller
   # Will decorate `req.key` with details of the key specified in the
   # `:key` parameter. If `valid_key_required` is truthful then an
   # error will be thrown if a valid key wasn't found.
-  mwKeyDetails: ( valid_api_required=false ) ->
+  mwKeyDetails: ( valid_key_required=false ) ->
     ( req, res, next ) =>
-      api_key = req.params.key
+      key = req.params.key
 
-      @app.model( "keyFactory" ).find api_key, ( err, dbKey ) ->
+      @app.model( "keyFactory" ).find key, ( err, dbKey ) ->
         return next err if err
 
         if valid_api_required and not dbKey?
-          return next new NotFoundError "#{ api_key } not found."
+          return next new NotFoundError "#{ key } not found."
 
         req.key = dbKey
 
