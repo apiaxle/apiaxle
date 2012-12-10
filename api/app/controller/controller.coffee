@@ -47,7 +47,7 @@ class exports.ApiaxleController extends Controller
       @app.model( "keyFactory" ).find key, ( err, dbKey ) ->
         return next err if err
 
-        if valid_api_required and not dbKey?
+        if valid_key_required and not dbKey?
           return next new NotFoundError "#{ key } not found."
 
         req.key = dbKey
