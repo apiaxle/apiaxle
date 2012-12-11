@@ -270,6 +270,26 @@ class Fixtures
     @bucket_ids = require "../test/fixtures/key-bucket-fixture-names.json"
     @keys       = [ 1..1000 ]
 
+  create: ( data, cb ) ->
+    all = [ ]
+
+    # add any new convenience methods here
+    type_map =
+      api: @createApi
+      key: @createKey
+
+    # loop over the structure grabbing the names and details
+    for type, item of data
+      if not type in _.keys type_map
+        return cb new Error "Don't know how to handle #{ type }"
+
+      for name, details of item
+        do( type, name, details ) =>
+          all.push ( cb ) =>
+            type_map[ type ]( name, details, cb )
+
+    async.series all, cb
+
   _bulkApply: ( method, all, cb ) ->
     key_create_list = [ ]
 
@@ -312,7 +332,7 @@ class Fixtures
 
     @application.model( "keyFactory" ).create name, options, cb
 
-  createApi: ( args..., cb ) ->
+  createApi: ( args..., cb ) =>
     name    = null
 
     passed_options  = { }
