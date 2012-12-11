@@ -290,16 +290,6 @@ class Fixtures
 
     async.series all, cb
 
-  _bulkApply: ( method, all, cb ) ->
-    key_create_list = [ ]
-
-    for key in all
-      do( key ) =>
-        key_create_list.push ( cb ) =>
-          @createKey.apply @, all
-
-    async.series key_create_list, cb
-
   createApiAndKey: ( api, apiOptions, key, keyOptions={}, cb ) ->
     @createApi api, apiOptions, ( err, newApi ) =>
       return cb err if err
@@ -310,9 +300,6 @@ class Fixtures
         return cb err if err
 
         return cb null, newApi, newKey
-
-  createKeys: ( all, cb ) ->
-    @_bulkApply @createKey, all, cb
 
   createKey: ( args..., cb ) =>
     name    = null
@@ -350,6 +337,3 @@ class Fixtures
     options = _.extend default_options, passed_options
 
     @application.model( "apiFactory" ).create name, options, cb
-
-  createApis: ( all, cb ) ->
-    @_bulkApply @createApi, all, cb
