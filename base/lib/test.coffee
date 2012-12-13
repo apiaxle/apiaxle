@@ -270,41 +270,25 @@ class Fixtures
     @bucket_ids = require "../test/fixtures/key-bucket-fixture-names.json"
     @keys       = [ 1..1000 ]
 
-  _bulkApply: ( method, all, cb ) ->
-    key_create_list = [ ]
+  create: ( data, cb ) ->
+    all = [ ]
 
-    for key in all
-      do( key ) =>
-        key_create_list.push ( cb ) =>
-          @createKey.apply @, all
+    # add any new convenience methods here
+    type_map =
+      api: @createApi
+      key: @createKey
 
-    async.series key_create_list, cb
+    # loop over the structure grabbing the names and details
+    for type, item of data
+      if not type in _.keys type_map
+        return cb new Error "Don't know how to handle #{ type }"
 
-  createKeyring: ( args..., cb ) =>
-    name    = null
-    options = { }
+      for name, details of item
+        do( type, name, details ) =>
+          all.push ( cb ) =>
+            type_map[ type ]( name, details, cb )
 
-    # grab the optional args and make sure a name is assigned
-    switch args.length
-      when 2 then [ name, options ] = args
-      when 1 then [ name ] = args
-      else name = "bucket-#{ @keys.pop() }"
-
-    @application.model( "keyringFactory" ).create name, options, cb
-
-  createApiAndKey: ( api, apiOptions, key, keyOptions={}, cb ) ->
-    @createApi api, apiOptions, ( err, newApi ) =>
-      return cb err if err
-
-      keyOptions["forApi"] = api
-
-      @createKey key, keyOptions, ( err, newKey ) =>
-        return cb err if err
-
-        return cb null, newApi, newKey
-
-  createKeys: ( all, cb ) ->
-    @_bulkApply @createKey, all, cb
+    async.series all, cb
 
   createKey: ( args..., cb ) =>
     name    = null
@@ -324,7 +308,7 @@ class Fixtures
 
     @application.model( "keyFactory" ).create name, options, cb
 
-  createApi: ( args..., cb ) ->
+  createApi: ( args..., cb ) =>
     name    = null
 
     passed_options  = { }
@@ -342,6 +326,3 @@ class Fixtures
     options = _.extend default_options, passed_options
 
     @application.model( "apiFactory" ).create name, options, cb
-
-  createApis: ( all, cb ) ->
-    @_bulkApply @createApi, all, cb

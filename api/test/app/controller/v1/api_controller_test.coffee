@@ -302,11 +302,15 @@ class exports.ApiStatsTest extends ApiaxleTest
   @empty_db_on_setup = true
 
   "setup api and key": ( done ) ->
-    apiOptions =
-      endPoint: "graph.facebook.com"
-      apiFormat: "json"
+    fixtures =
+      api:
+        facebook:
+          endPoint: "graph.facebook.com"
+          apiFormat: "json"
+      key:
+        1234: {}
 
-    @fixtures.createApiAndKey "facebook", apiOptions, "1234", {}, done
+    @fixtures.create fixtures, done
 
   "test GET all counts with range": ( done ) ->
     model = @application.model "counters"

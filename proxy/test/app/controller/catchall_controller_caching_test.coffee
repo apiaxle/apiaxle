@@ -114,11 +114,16 @@ class exports.CatchallTest extends ApiaxleTest
       done 7
 
   "test global caching miss": ( done ) ->
-    apiOptions =
-      apiFormat: "json"
-      globalCache: 20
+    fix =
+      api:
+        facebook:
+          apiFormat: "json"
+          globalCache: 20
+      key:
+        1234:
+          forApi: "facebook"
 
-    @fixtures.createApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+    @fixtures.create fix, ( err ) =>
       @isNull err
 
       # make sure we don't actually hit facebook
@@ -167,10 +172,15 @@ class exports.CatchallTest extends ApiaxleTest
     done 1
 
   "test caching at controller level": ( done ) ->
-    apiOptions =
-      apiFormat: "json"
+    fixture =
+      api:
+        facebook:
+          apiFormat: "json"
+      key:
+        1234:
+          forApi: "facebook"
 
-    @fixtures.createApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+    @fixtures.create fixture, ( err ) =>
       @isNull err
 
       # make sure we don't actually hit facebook
@@ -216,11 +226,16 @@ class exports.CatchallTest extends ApiaxleTest
               done 14
 
   "test caching at controller level (no-cache)": ( done ) ->
-    apiOptions =
-      apiFormat: "json"
-      globalCache: 30
+    fixture =
+      api:
+        facebook:
+          apiFormat: "json"
+          globalCache: 30
+      key:
+        1234:
+          forApi: "facebook"        
 
-    @fixtures.createApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+    @fixtures.create fixture, ( err ) =>
       @isNull err
 
       # make sure we don't actually hit facebook
@@ -259,11 +274,16 @@ class exports.CatchallTest extends ApiaxleTest
 
 
   "test caching at controller level (revalidate)": ( done ) ->
-    apiOptions =
-      apiFormat: "json"
-      globalCache: 30
+    fixture =
+      api:
+        facebook:
+          apiFormat: "json"
+          globalCache: 30
+      key:
+        1234:
+          forApi: "facebook"
 
-    @fixtures.createApiAndKey "facebook", apiOptions, "1234", null, ( err ) =>
+    @fixtures.create fixture, ( err ) =>
       @isNull err
 
       # make sure we don't actually hit facebook
