@@ -76,3 +76,5 @@ class exports.KeyringControllerTest extends ApiaxleTest
         @equal json.results.error.type, "NotFoundError"
 
         done 4
+
+  "test POSTing a valid key to a valid keyring": ( done ) ->

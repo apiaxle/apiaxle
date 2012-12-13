@@ -176,3 +176,21 @@ class exports.ListKeyringKeys extends ListController
   modelName: -> "keyFactory"
 
   middleware: -> [ @mwKeyringDetails( @app ) ]
+
+class exports.AddKeyringKey extends ApiaxleController
+  @verb = "post"
+
+  path: -> "/v1/keyring/:keyring/key/:key"
+
+  desc: -> "Add existing KEY to existing KEYRING."
+
+  docs: -> ""
+
+  middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
+                   @mwKeyDetails( valid_key_required=true ) ]
+
+  execute: ( req, res, next ) ->
+    req.keyring.addKey req.key.id, ( err ) =>
+      return next err if err
+
+      @json res, true
