@@ -41,7 +41,14 @@ class exports.KeyringFactoryTest extends FakeAppTest
         done 3
 
   "test adding a key to the keyring": ( done ) ->
-    @fixtures.createApiAndKey "facebook", {}, "1234", {}, ( err ) =>
+    fixture =
+      api:
+        facebook: {}
+      key:
+        1234:
+          forApi: "facebook"
+
+    @fixtures.create fixture, ( err ) =>
       @isNull err
 
       @fixtures.createKeyring ( err, keyring ) =>
