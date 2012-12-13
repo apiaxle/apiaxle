@@ -290,17 +290,6 @@ class Fixtures
 
     async.series all, cb
 
-  createApiAndKey: ( api, apiOptions, key, keyOptions={}, cb ) ->
-    @createApi api, apiOptions, ( err, newApi ) =>
-      return cb err if err
-
-      keyOptions["forApi"] = api
-
-      @createKey key, keyOptions, ( err, newKey ) =>
-        return cb err if err
-
-        return cb null, newApi, newKey
-
   createKey: ( args..., cb ) =>
     name    = null
 

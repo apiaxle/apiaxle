@@ -7,29 +7,25 @@ class exports.CatchallTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
-  @fixture_api_key = "1234"
-  @fixture_api_secret = "bob-the-builder"
-
   "setup api": ( done ) ->
-    apiOptions =
-      apiFormat: "json"
-      globalCache: 30
+    fixtures =
+      api:
+        facebook:
+          apiFormat: "json"
+          globalCache: "30"
+      key:
+        1234:
+          sharedSecret: "bob-the-builder"
+          forApi: "facebook"
 
-    keyOptions =
-      sharedSecret: @constructor.fixture_api_secret
-
-    @fixtures.createApiAndKey "facebook",
-                              apiOptions,
-                              @constructor.fixture_api_key,
-                              keyOptions,
-                              done
+    @fixtures.create fixtures, done
 
   generateSig: ( epoch ) ->
     date = Math.floor( epoch ).toString()
 
-    hmac = crypto.createHmac "sha1", @constructor.fixture_api_secret
+    hmac = crypto.createHmac "sha1", "bob-the-builder"
     hmac.update Math.floor( epoch ).toString()
-    hmac.update @constructor.fixture_api_key
+    hmac.update "1234"
 
     return hmac.digest "hex"
 
@@ -49,7 +45,7 @@ class exports.CatchallTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          controller.validateToken token, @constructor.fixture_api_key, @constructor.fixture_api_secret, ( err, token ) =>
+          controller.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
             @isNull err
 
             @ok token
@@ -63,7 +59,7 @@ class exports.CatchallTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          controller.validateToken token, @constructor.fixture_api_key, @constructor.fixture_api_secret, ( err, token ) =>
+          controller.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
             @ok err,
               "There should be an error for a token that's #{ validSeconds } out."
 
