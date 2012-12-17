@@ -11,7 +11,7 @@ class Keyring extends Model
       return cb err if err
 
       if not key
-        return cb new ValidationError "Key #{ key_name } not found."
+        return cb new ValidationError "Key '#{ key_name }' not found."
 
       @lpush "#{ @id }:keys", key_name, ( err ) ->
         return cb err, key

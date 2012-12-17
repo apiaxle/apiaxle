@@ -61,7 +61,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
       res.parseJson ( json ) =>
         @ok json.results.error
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.type, "KeyringNotFoundError"
 
         done 4
 
@@ -73,7 +73,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
       res.parseJson ( json ) =>
         @ok json.results.error
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.type, "KeyringNotFoundError"
 
         done 4
 

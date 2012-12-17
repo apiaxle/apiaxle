@@ -2,7 +2,13 @@ moment = require "moment"
 _      = require "underscore"
 
 { Controller } = require "apiaxle.base"
-{ NotFoundError, InvalidContentType, ApiUnknown, ApiKeyError } = require "../../lib/error"
+
+{ KeyNotFoundError,
+  ApiNotFoundError,
+  KeyringNotFoundError,
+  InvalidContentType,
+  ApiUnknown,
+  ApiKeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
   # Used output data conforming to a standard Api Axle
@@ -48,7 +54,7 @@ class exports.ApiaxleController extends Controller
         return next err if err
 
         if valid_key_required and not dbKey?
-          return next new NotFoundError "#{ key } not found."
+          return next new KeyNotFoundError "Key '#{ key }' not found."
 
         req.key = dbKey
 
@@ -67,7 +73,7 @@ class exports.ApiaxleController extends Controller
 
         # do we /need/ the keyring to exist?
         if valid_keyring_required and not dbKeyring?
-          return next new NotFoundError "#{ keyring } not found."
+          return next new KeyringNotFoundError "Keyring '#{ keyring }' not found."
 
         req.keyring = dbKeyring
 
@@ -85,7 +91,7 @@ class exports.ApiaxleController extends Controller
 
         # do we /need/ the api to exist?
         if valid_api_required and not dbApi?
-          return next new NotFoundError "#{ api } not found."
+          return next new ApiNotFoundError "Api '#{ api }' not found."
 
         req.api = dbApi
 

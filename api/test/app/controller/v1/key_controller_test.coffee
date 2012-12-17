@@ -36,7 +36,7 @@ class exports.KeyControllerTest extends ApiaxleTest
 
       res.parseJson ( json ) =>
         @ok json.results.error
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.type, "KeyNotFoundError"
 
         done 4
 
@@ -147,8 +147,8 @@ class exports.KeyControllerTest extends ApiaxleTest
         @ok json.results.error
         @ok json.meta.status_code, 404
 
-        @equal json.results.error.message, "1234 not found."
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.message, "Key '1234' not found."
+        @equal json.results.error.type, "KeyNotFoundError"
 
         done 5
 
