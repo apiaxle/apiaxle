@@ -77,7 +77,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
         done 4
 
-  "test POSTing an valid key to a invalid keyring": ( done ) ->
+  "test POSTing a valid key to an invalid keyring": ( done ) ->
     fixture =
       api:
         twitter: {}
