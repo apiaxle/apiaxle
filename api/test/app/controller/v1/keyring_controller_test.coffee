@@ -77,6 +77,24 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
         done 4
 
+  "test POSTing an invalid key to a valid keyring": ( done ) ->
+    fixture =
+      keyring:
+        ring1: {}
+
+    @fixtures.create fixture, ( err ) =>
+      @isNull err
+
+      @POST path: "/v1/keyring/ring1/key/1234", ( err, res ) =>
+        @isNull err
+
+        res.parseJson ( json ) =>
+          @ok err = json.results.error
+          @equal err.type, "KeyNotFoundError"
+          @equal err.message, "Key '1234' not found."
+
+          done 5
+
   "test POSTing a valid key to a valid keyring": ( done ) ->
     fixture =
       api:
