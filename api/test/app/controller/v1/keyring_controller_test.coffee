@@ -78,3 +78,51 @@ class exports.KeyringControllerTest extends ApiaxleTest
         done 4
 
   "test POSTing a valid key to a valid keyring": ( done ) ->
+    fixture =
+      api:
+        twitter: {}
+      key:
+        1234: {}
+        5678: {}
+      keyring:
+        ring1: {}
+        ring2: {}
+
+    @fixtures.create fixture, ( err ) =>
+      @isNull err
+
+      model = @application.model( "keyringFactory" )
+      model.find "ring1", ( err, keyring ) =>
+        @isNull err
+        @ok keyring
+        @equal keyring.id, "ring1"
+
+        add_key_functions = []
+        add_key_functions.push ( cb ) =>
+          @POST path: "/v1/keyring/ring1/key/1234", ( err, res ) =>
+            @isNull err
+            res.parseJson ( json ) =>
+              @equal json.results, true
+
+              # get all of the keys, check there's just one
+              keyring.getKeys 0, 100, ( err, keys ) =>
+                @deepEqual keys, [ "1234" ]
+
+                cb()
+
+        add_key_functions.push ( cb ) =>
+          @POST path: "/v1/keyring/ring1/key/5678", ( err, res ) =>
+            @isNull err
+            res.parseJson ( json ) =>
+              @equal json.results, true
+
+              # get all of the keys, check there's just one
+              keyring.getKeys 0, 100, ( err, keys ) =>
+                @deepEqual keys, [ "5678", "1234" ]
+
+                cb()
+
+        async.series add_key_functions, ( err ) =>
+          @isNull err
+
+          done 11

@@ -277,6 +277,7 @@ class Fixtures
     type_map =
       api: @createApi
       key: @createKey
+      keyring: @createKeyring
 
     # loop over the structure grabbing the names and details
     for type, item of data
@@ -303,7 +304,7 @@ class Fixtures
     @application.model( "keyringFactory" ).create name, options, cb
 
   createKey: ( args..., cb ) =>
-    name    = null
+    name = null
 
     passed_options  = { }
     default_options =
@@ -321,7 +322,7 @@ class Fixtures
     @application.model( "keyFactory" ).create name, options, cb
 
   createApi: ( args..., cb ) =>
-    name    = null
+    name = null
 
     passed_options  = { }
     default_options =
