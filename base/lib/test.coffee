@@ -60,9 +60,12 @@ class AppResponse
     callback libxml.parseXmlString @data
 
   parseJson: ( callback ) ->
-    output = JSON.parse @data, "utf8"
+    try
+      output = JSON.parse @data, "utf8"
+    catch err
+      return callback err, null
 
-    callback output
+    return callback null, output
 
 application_mem = null
 application_fixtures = null

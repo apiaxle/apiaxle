@@ -11,10 +11,11 @@ class exports.ApiControllerTest extends ApiaxleTest
     # now try and get it
     @GET path: "/v1/api/1234", ( err, res ) =>
       @isNull err
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok 1
 
-        done 2
+        done 3
 
   "test GET keys for a valid api": ( done ) ->
     @fixtures.createApi "twitter", ( err ) =>
@@ -28,11 +29,12 @@ class exports.ApiControllerTest extends ApiaxleTest
 
         @GET path: "/v1/api/twitter/keys?from=0&to=9", ( err, res ) =>
           @isNull err
-          res.parseJson ( json ) =>
+          res.parseJson ( err, json ) =>
+            @isNull err
             @equal json.results.length, 10
             @deepEqual json.results, _.pluck( keys[ 0..9 ], "id")
 
-            done 4
+            done 5
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
@@ -40,11 +42,12 @@ class exports.ApiControllerTest extends ApiaxleTest
       @isNull err
       @equal res.statusCode, 404
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @equal json.results.error.type, "NotFoundError"
 
-        done 4
+        done 5
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
@@ -52,11 +55,12 @@ class exports.ApiControllerTest extends ApiaxleTest
       @isNull err
       @equal res.statusCode, 404
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @equal json.results.error.type, "NotFoundError"
 
-        done 4
+        done 5
 
   "test POST an invalid regexp for an API": ( done ) ->
     options =
@@ -72,11 +76,12 @@ class exports.ApiControllerTest extends ApiaxleTest
     
       @equal res.statusCode, 400
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @equal json.meta.status_code, 400
         @match json.results.error.message, /Invalid regular expression/
 
-        done 4
+        done 5
 
   "test POST a valid api but no content-type header": ( done ) ->
     options =
@@ -87,12 +92,13 @@ class exports.ApiControllerTest extends ApiaxleTest
     @POST options, ( err, res ) =>
       @isNull err
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @equal json.results.error.type, "InvalidContentType"
         @equal json.results.error.message, "Content-type is a required header."
 
-        done 4
+        done 5
 
   "test POST a valid api but an invalid content-type header": ( done ) ->
     options =
@@ -105,12 +111,13 @@ class exports.ApiControllerTest extends ApiaxleTest
     @POST options, ( err, res ) =>
       @isNull err
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @equal json.results.error.type, "InvalidContentType"
         @equal json.results.error.message, "text/json is not a supported content type."
 
-        done 4
+        done 5
 
   "test POST a valid api": ( done ) ->
     options =
@@ -124,7 +131,8 @@ class exports.ApiControllerTest extends ApiaxleTest
       @isNull err
       @equal res.statusCode, 200
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @isUndefined json.results.error
         @equal json.results.apiFormat, "json"
 
@@ -133,7 +141,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal dbApi.data.apiFormat, "json"
           @ok dbApi.data.createdAt
 
-          done 6
+          done 7
 
   "test POST with an invalid api": ( done ) ->
     options =
@@ -147,14 +155,15 @@ class exports.ApiControllerTest extends ApiaxleTest
       @isNull err
       @equal res.statusCode, 400
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
 
         # TODO: this is a terrible message...
         @equal json.results.error.message, "endPoint: (optional) "
 
-        done 5
+        done 6
 
   "test PUT with an existing api": ( done ) ->
     options =
@@ -198,24 +207,26 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 400
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @ok json
           @equal json.results.error.type, "ValidationError"
 
-          done 6
+          done 7
 
   "test DELETE with invalid API": ( done ) ->
     @DELETE path: "/v1/api/1234", ( err, res ) =>
       @equal res.statusCode, 404
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @ok json.meta.status_code, 404
 
         @equal json.results.error.message, "1234 not found."
         @equal json.results.error.type, "NotFoundError"
 
-        done 5
+        done 6
 
   "test DELETE": ( done ) ->
     @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
@@ -226,7 +237,8 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 200
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           # no error
           @equal json.results.error?, false
 
@@ -239,7 +251,7 @@ class exports.ApiControllerTest extends ApiaxleTest
             @isNull err
             @isNull dbApi
 
-            done 9
+            done 10
 
   "test list apis without resolution": ( done ) ->
     # create 11 apis
@@ -257,11 +269,12 @@ class exports.ApiControllerTest extends ApiaxleTest
       @GET path: "/v1/apis?from=1&to=12", ( err, response ) =>
         @isNull err
 
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @ok json
           @equal json.results.length, 10
 
-          done 4
+          done 5
 
   "test list apis with resolution": ( done ) ->
     # create 11 apis
@@ -285,7 +298,8 @@ class exports.ApiControllerTest extends ApiaxleTest
       @GET path: "/v1/apis?from=0&to=12&resolve=true", ( err, response ) =>
         @isNull err
 
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @ok json
 
           for i in [ 0..9 ]
@@ -295,7 +309,7 @@ class exports.ApiControllerTest extends ApiaxleTest
             @equal json.results[ name ].globalCache, i
             @equal json.results[ name ].endPoint, "api_#{i}.com"
 
-          done 33
+          done 34
 
 class exports.ApiStatsTest extends ApiaxleTest
   @start_webserver = true
@@ -343,7 +357,8 @@ class exports.ApiStatsTest extends ApiaxleTest
                "2011-12-14 20": "2"
                "2011-12-14 20:1": "2"
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @ok json
           @deepEqual json, shouldHave
 
@@ -382,12 +397,12 @@ class exports.ApiStatsTest extends ApiaxleTest
                     "2011-12-16 20": "2",
                     "2011-12-16 20:1": "2"
 
-              res.parseJson ( json ) =>
+              res.parseJson ( err, json ) =>
+                @isNull err
                 @ok json
                 @deepEqual json, shouldHave
 
-              done 7
-
+              done 9
 
   "test GET all counts": ( done ) ->
     model = @application.model "counters"
@@ -436,7 +451,8 @@ class exports.ApiStatsTest extends ApiaxleTest
                "2011-12-14 20": "1"
                "2011-12-14 20:1": "1"
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @ok json
           @deepEqual json, shouldHave
 
@@ -484,8 +500,9 @@ class exports.ApiStatsTest extends ApiaxleTest
                     "2011-12-14 20": "1"
                     "2011-12-14 20:1": "1"
 
-              res.parseJson ( json ) =>
+              res.parseJson ( err, json ) =>
+                @isNull err
                 @ok json
                 @deepEqual json, shouldHave
 
-              done 7
+              done 9
