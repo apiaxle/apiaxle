@@ -57,7 +57,12 @@ class AppResponse
       callback jq
 
   parseXml: ( callback ) ->
-    callback libxml.parseXmlString @data
+    try
+      output = libxml.parseXmlString @data
+    catch err
+      return callback err, null
+
+    return callback null, output
 
   parseJson: ( callback ) ->
     try
