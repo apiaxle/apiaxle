@@ -142,7 +142,8 @@ class exports.CatchallTest extends ApiaxleTest
 
         @ok stub.calledOnce
 
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @isUndefined json.error
           @deepEqual json.two, 2
 
@@ -156,7 +157,7 @@ class exports.CatchallTest extends ApiaxleTest
             @isUndefined json.error
             @deepEqual json.two, 2
 
-            done 9
+            done 10
 
   "test #_parseCacheControl": ( done ) ->
     controller = @application.controller "GetCatchall"
@@ -203,7 +204,8 @@ class exports.CatchallTest extends ApiaxleTest
         @equal response.statusCode, 202
         @equal response.headers[ "content-type" ], "application/json"
 
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @isUndefined json.error
           @deepEqual json.two, 2
 
@@ -214,7 +216,8 @@ class exports.CatchallTest extends ApiaxleTest
             @equal response.statusCode, 202
             @equal response.headers[ "content-type" ], "application/json"
 
-            response.parseJson ( json ) =>
+            response.parseJson ( err, json ) =>
+              @isNull err
               @isUndefined json.error
 
               # we shouldn't have called the http req again
@@ -223,7 +226,7 @@ class exports.CatchallTest extends ApiaxleTest
               @isUndefined json.error
               @deepEqual json.two, 2
 
-              done 14
+              done 16
 
   "test caching at controller level (no-cache)": ( done ) ->
     fixture =
@@ -256,7 +259,8 @@ class exports.CatchallTest extends ApiaxleTest
 
         @ok stub.calledOnce
 
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @isUndefined json.error
           @deepEqual json.two, 2
 
@@ -270,8 +274,7 @@ class exports.CatchallTest extends ApiaxleTest
             @isUndefined json.error
             @deepEqual json.two, 2
 
-            done 9
-
+            done 10
 
   "test caching at controller level (revalidate)": ( done ) ->
     fixture =
@@ -304,7 +307,8 @@ class exports.CatchallTest extends ApiaxleTest
 
         @ok stub.calledOnce
 
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @isUndefined json.error
           @deepEqual json.two, 2
 
@@ -318,4 +322,4 @@ class exports.CatchallTest extends ApiaxleTest
             @isUndefined json.error
             @deepEqual json.two, 2
 
-            done 9
+            done 10

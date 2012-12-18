@@ -23,7 +23,8 @@ class exports.CatchallTest extends ApiaxleTest
             @ok response
             @equal response.statusCode, 404
 
-            response.parseJson ( json ) =>
+            response.parseJson ( err, json ) =>
+              @isNull err
               # meta
               @equal json.meta.version, 1
               @equal json.meta.status_code, response.statusCode
@@ -37,7 +38,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
       @equal results.length, 4
 
-      done 30
+      done 34
 
   "test POST,GET,PUT and DELETE with unregistered domain": ( done ) ->
     all = []
@@ -59,7 +60,8 @@ class exports.CatchallTest extends ApiaxleTest
             @ok response
             @equal response.statusCode, 404
 
-            response.parseJson ( json ) =>
+            response.parseJson ( err, json ) =>
+              @isNull err
               @ok json.results.error
               @equal json.results.error.type, "ApiUnknown"
 
@@ -69,7 +71,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
       @equal results.length, 4
 
-      done 22
+      done 26
 
   "test GET with registered domain but no key": ( done ) ->
     apiOptions =
@@ -85,11 +87,12 @@ class exports.CatchallTest extends ApiaxleTest
       @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
         @isNull err
 
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @ok err = json.results.error
           @equal err.type, "KeyError"
 
-          done 4
+          done 5
 
   "test GET with registered domain but invalid key": ( done ) ->
     apiOptions =
@@ -102,11 +105,12 @@ class exports.CatchallTest extends ApiaxleTest
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET { path: "/?api_key=1", host: "facebook.api.localhost" }, ( err, response ) =>
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @ok err = json.results.error
           @equal err.type, "KeyError"
 
-          done 3
+          done 4
 
   "test GET with registered domain and valid key": ( done ) ->
     apiOptions =
@@ -145,10 +149,11 @@ class exports.CatchallTest extends ApiaxleTest
           @ok response.headers[ "x-apiaxleproxy-qps-left" ]
           @ok response.headers[ "x-apiaxleproxy-qpd-left" ]
 
-          response.parseJson ( json ) =>
+          response.parseJson ( err, json ) =>
+            @isNull err
             @equal json.one, 1
 
-            done 8
+            done 9
 
   "test GET with apiaxle_key, rather than api_key": ( done ) ->
     apiOptions =
@@ -180,10 +185,11 @@ class exports.CatchallTest extends ApiaxleTest
         @GET requestOptions, ( err, response ) =>
           @isNull err
 
-          response.parseJson ( json ) =>
+          response.parseJson ( err, json ) =>
+            @isNull err
             @equal json.one, 1
 
-            done 4
+            done 5
 
   "test GET with regex key": ( done ) ->
     apiOptions =
@@ -216,10 +222,11 @@ class exports.CatchallTest extends ApiaxleTest
         @GET requestOptions, ( err, response ) =>
           @isNull err
 
-          response.parseJson ( json ) =>
+          response.parseJson ( err, json ) =>
+            @isNull err
             @equal json.one, 1
 
-            done 4
+            done 5
 
   "test XML error": ( done ) ->
     apiOptions =

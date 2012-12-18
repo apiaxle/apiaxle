@@ -22,11 +22,12 @@ class exports.KeyControllerTest extends ApiaxleTest
 
       # now try and get it
       @GET path: "/v1/key/1234", ( err, res ) =>
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @isNumber parseInt( json.results.qps )
           @isNumber parseInt( json.results.qpd )
 
-          done 4
+          done 5
 
   "test GET a non-existant key": ( done ) ->
     # now try and get it
@@ -34,11 +35,12 @@ class exports.KeyControllerTest extends ApiaxleTest
       @isNull err
       @equal res.statusCode, 404
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @equal json.results.error.type, "KeyNotFoundError"
 
-        done 4
+        done 5
 
   "test POST a valid key": ( done ) ->
     options =
@@ -51,7 +53,8 @@ class exports.KeyControllerTest extends ApiaxleTest
         qpd: 100
 
     @POST options, ( err, res ) =>
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @equal json.results.qps, "1"
         @equal json.results.qpd, "100"
         @equal json.results.forApi, "twitter"
@@ -73,7 +76,7 @@ class exports.KeyControllerTest extends ApiaxleTest
               @equal keys.length, 1
               @equal keys[0], "1234"
 
-              done 12
+              done 13
 
   "test POST with an invalid key": ( done ) ->
     options =
@@ -86,12 +89,13 @@ class exports.KeyControllerTest extends ApiaxleTest
         qpd: 100
 
     @POST options, ( err, res ) =>
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
         @equal json.results.error.message, "qps: (type) "
 
-        done 3
+        done 4
 
   "test PUT with an existing key": ( done ) ->
     options =
@@ -133,24 +137,26 @@ class exports.KeyControllerTest extends ApiaxleTest
       @PUT options, ( err, res ) =>
         @equal res.statusCode, 400
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @ok json
           @equal json.results.error.type, "ValidationError"
 
-          done 5
+          done 6
 
   "test DELETE with invalid KEY": ( done ) ->
     @DELETE path: "/v1/key/1234", ( err, res ) =>
       @equal res.statusCode, 404
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @ok json.meta.status_code, 404
 
         @equal json.results.error.message, "Key '1234' not found."
         @equal json.results.error.type, "KeyNotFoundError"
 
-        done 5
+        done 6
 
   "test DELETE with valid key": ( done ) ->
     @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
@@ -161,7 +167,8 @@ class exports.KeyControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 200
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           # no error
           @equal json.results.error?, false
 
@@ -174,7 +181,7 @@ class exports.KeyControllerTest extends ApiaxleTest
             @isNull err
             @isNull dbKey
 
-            done 9
+            done 10
 
   "test get key range without resolution": ( done ) ->
     # create 11 keys
@@ -191,11 +198,12 @@ class exports.KeyControllerTest extends ApiaxleTest
       @GET path: "/v1/keys?from=1&to=12", ( err, response ) =>
         @isNull err
 
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @ok json
           @equal json.results.length, 10
 
-          done 4
+          done 5
 
 
   "test get key range with resolution": ( done ) ->
@@ -213,7 +221,8 @@ class exports.KeyControllerTest extends ApiaxleTest
       @GET path: "/v1/keys?from=0&to=12&resolve=true", ( err, response ) =>
         @isNull err
 
-        response.parseJson ( json ) =>
+        response.parseJson ( err, json ) =>
+          @isNull err
           @ok json
 
           for i in [ 0..9 ]
@@ -224,7 +233,7 @@ class exports.KeyControllerTest extends ApiaxleTest
             @equal json.results[ name ].qps, i
             @equal json.results[ name ].forApi, "twitter"
 
-          done 43
+          done 44
 
 class exports.KeyStatsTest extends ApiaxleTest
   @start_webserver = true
@@ -274,7 +283,8 @@ class exports.KeyStatsTest extends ApiaxleTest
                "2011-12-14 20": "2"
                "2011-12-14 20:1": "2"
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @ok json
           @deepEqual json, shouldHave
 
@@ -313,12 +323,12 @@ class exports.KeyStatsTest extends ApiaxleTest
                     "2011-12-16 20": "2",
                     "2011-12-16 20:1": "2"
 
-              res.parseJson ( json ) =>
+              res.parseJson ( err, json ) =>
+                @isNull err
                 @ok json
                 @deepEqual json, shouldHave
 
-              done 7
-
+              done 9
 
   "test all counts": ( done ) ->
     model = @application.model "counters"
@@ -367,7 +377,8 @@ class exports.KeyStatsTest extends ApiaxleTest
                "2011-12-14 20": "1"
                "2011-12-14 20:1": "1"
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @ok json
           @deepEqual json, shouldHave
 
@@ -415,8 +426,9 @@ class exports.KeyStatsTest extends ApiaxleTest
                     "2011-12-14 20": "1"
                     "2011-12-14 20:1": "1"
 
-              res.parseJson ( json ) =>
+              res.parseJson ( err, json ) =>
+                @isNull err
                 @ok json
                 @deepEqual json, shouldHave
 
-              done 7
+              done 9
