@@ -241,9 +241,10 @@ class exports.CatchallTest extends ApiaxleTest
 
         @match response.headers[ "content-type" ], /application\/xml/
 
-        response.parseXml ( xmlDoc ) =>
+        response.parseXml ( err, xmlDoc ) =>
+          @isNull err
           @ok xmlDoc.get "/error"
           @ok xmlDoc.get "/error/type[text()='KeyError']"
           @ok xmlDoc.get "/error/message[text()='No api_key specified.']"
 
-          done 5
+          done 6
