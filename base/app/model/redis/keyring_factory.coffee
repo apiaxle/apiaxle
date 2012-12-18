@@ -6,6 +6,18 @@ async = require "async"
 validationEnv = require( "schema" )( "apiEnv" )
 
 class Keyring extends Model
+  delKey: ( key_name, cb ) ->
+    @application.model( "keyFactory" ).find key_name, ( err, key ) =>
+      return cb err if err
+
+      if not key
+        return cb new ValidationError "Key '#{ key_name }' not found."
+    
+      @lrem "#{ @id }:keys", 0, key_name, ( err ) ->
+        return cb err if err
+
+        return cb null, key
+
   addKey: ( key_name, cb ) =>
     @application.model( "keyFactory" ).find key_name, ( err, key ) =>
       return cb err if err

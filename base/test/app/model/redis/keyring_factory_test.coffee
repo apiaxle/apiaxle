@@ -61,6 +61,38 @@ class exports.KeyringFactoryTest extends FakeAppTest
 
           done 5
 
+  "test deleting keys from a ring": ( done ) ->
+    fixture =
+      api:
+        twitter: {}
+      key:
+        1234: {}
+        5678: {}
+      keyring:
+        ring2: {}
+
+    @fixtures.create fixture, ( err, [ api, key1, key2, keyring ] ) =>
+      @isNull err
+
+      keyring.addKey key1.id, ( err ) =>
+        @isNull err
+
+        keyring.addKey key2.id, ( err ) =>
+          @isNull err
+
+          keyring.getKeys 0, 10, ( err, keys ) =>
+            @isNull err
+            @deepEqual keys, [ key2.id, key1.id ]
+
+            keyring.delKey key1.id, ( err, result ) =>
+              @isNull err
+
+              keyring.getKeys 0, 10, ( err, keys ) =>
+                @isNull err
+                @deepEqual keys, [ key2.id ]
+
+                done 7
+
   "test getting keys from a ring": ( done ) ->
     all = []
 
