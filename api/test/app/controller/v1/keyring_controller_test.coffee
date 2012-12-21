@@ -182,18 +182,19 @@ class exports.KeyringControllerTest extends ApiaxleTest
       key:
         1234: {}
         5678: {}
+        9876: {}
 
-    @fixtures.create fixture, ( err, [ api, keyring, key1, key2 ] ) =>
+    @fixtures.create fixture, ( err, [ api, keyring, keys... ] ) =>
       @isNull err
 
-      keyring.addKeys [ key1.id, key2.id ], ( err ) =>
+      keyring.addKeys _.pluck( keys, "id" ), ( err ) =>
         @isNull err
 
-        keyring.delKey key1.id, ( err ) =>
+        keyring.delKey keys[0].id, ( err ) =>
           @isNull err
 
-          keyring.getKeys 0, 100, ( err, keys ) =>
+          keyring.getKeys 0, 100, ( err, dbKeys ) =>
             @isNull err
-            @deepEqual keys, [ key2.id ]
+            @deepEqual dbKeys.reverse(), _.pluck( keys[1..2], "id" )
 
             done 1
