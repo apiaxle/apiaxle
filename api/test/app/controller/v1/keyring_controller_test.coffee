@@ -26,7 +26,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
       @isNull err
 
       @GET path: "/v1/keyrings?from=2&to=4", ( err, res ) =>
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @deepEqual json.results, _.pluck( keyrings[2..4], "id" )
 
           done 2
@@ -47,7 +48,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
           @GET path: "/v1/keyring/blah/keys?from=0&to=9", ( err, res ) =>
             @isNull err
-            res.parseJson ( json ) =>
+            res.parseJson ( err, json ) =>
+              @isNull err
               @equal json.results.length, 10
               @deepEqual json.results, _.pluck( keys[ 0..9 ], "id")
 
@@ -59,7 +61,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
       @isNull err
       @equal res.statusCode, 404
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @equal json.results.error.type, "KeyringNotFoundError"
 
@@ -71,7 +74,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
       @isNull err
       @equal res.statusCode, 404
 
-      res.parseJson ( json ) =>
+      res.parseJson ( err, json ) =>
+        @isNull err
         @ok json.results.error
         @equal json.results.error.type, "KeyringNotFoundError"
 
@@ -90,7 +94,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
       @POST path: "/v1/keyring/ring1/key/1234", ( err, res ) =>
         @isNull err
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @ok err = json.results.error
           @equal err.type, "KeyringNotFoundError"
           @equal err.message, "Keyring 'ring1' not found."
@@ -108,7 +113,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
       @POST path: "/v1/keyring/ring1/key/1234", ( err, res ) =>
         @isNull err
 
-        res.parseJson ( json ) =>
+        res.parseJson ( err, json ) =>
+          @isNull err
           @ok err = json.results.error
           @equal err.type, "KeyNotFoundError"
           @equal err.message, "Key '1234' not found."
@@ -139,7 +145,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
         add_key_functions.push ( cb ) =>
           @POST path: "/v1/keyring/ring1/key/1234", ( err, res ) =>
             @isNull err
-            res.parseJson ( json ) =>
+            res.parseJson ( err, json ) =>
+              @isNull err
               @equal json.results, true
 
               # get all of the keys, check there's just one
@@ -151,7 +158,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
         add_key_functions.push ( cb ) =>
           @POST path: "/v1/keyring/ring1/key/5678", ( err, res ) =>
             @isNull err
-            res.parseJson ( json ) =>
+            res.parseJson ( err, json ) =>
+              @isNull err
               @equal json.results, true
 
               # get all of the keys, check there's just one
