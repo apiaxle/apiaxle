@@ -18,6 +18,15 @@ class Keyring extends Model
 
         return cb null, key
 
+  addKeys: ( key_names, cb ) =>
+    all = []
+
+    for key in key_names
+      do( key ) =>
+        all.push ( cb ) => @addKey key, cb
+
+    async.series all, cb
+
   addKey: ( key_name, cb ) =>
     @application.model( "keyFactory" ).find key_name, ( err, key ) =>
       return cb err if err
