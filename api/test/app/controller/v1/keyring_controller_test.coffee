@@ -172,3 +172,28 @@ class exports.KeyringControllerTest extends ApiaxleTest
           @isNull err
 
           done 11
+
+  "test DELETE-ing keys from a keyring": ( done ) ->
+    fixture =
+      api:
+        twitter: {}
+      keyring:
+        ring2: {}
+      key:
+        1234: {}
+        5678: {}
+
+    @fixtures.create fixture, ( err, [ api, keyring, key1, key2 ] ) =>
+      @isNull err
+
+      keyring.addKeys [ key1.id, key2.id ], ( err ) =>
+        @isNull err
+
+        keyring.delKey key1.id, ( err ) =>
+          @isNull err
+
+          keyring.getKeys 0, 100, ( err, keys ) =>
+            @isNull err
+            @deepEqual keys, [ key2.id ]
+
+            done 1

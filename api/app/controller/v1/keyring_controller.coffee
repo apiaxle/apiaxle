@@ -194,3 +194,21 @@ class exports.AddKeyringKey extends ApiaxleController
       return next err if err
 
       @json res, true
+
+class exports.DelKeyringKey extends ApiaxleController
+  @verb = "post"
+
+  path: -> "/v1/keyring/:keyring/key/:key"
+
+  desc: -> "Delete and existing KEY from an existing KEYRING."
+
+  docs: -> ""
+
+  middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
+                   @mwKeyDetails( valid_key_required=true ) ]
+
+  execute: ( req, res, next ) ->
+    req.keyring.delKey req.key.id, ( err ) =>
+      return next err if err
+
+      @json res, true
