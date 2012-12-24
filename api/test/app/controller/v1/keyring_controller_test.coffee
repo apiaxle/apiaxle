@@ -30,7 +30,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
           @isNull err
           @deepEqual json.results, _.pluck( keyrings[2..4], "id" )
 
-          done 2
+          done 3
 
   "test GET keys for a valid keyring": ( done ) ->
     @fixtures.createApi "twitter", ( err ) =>
@@ -53,7 +53,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
               @equal json.results.length, 10
               @deepEqual json.results, _.pluck( keys[ 0..9 ], "id")
 
-              done 4
+              done 5
 
   "test GET a non-existant keyring": ( done ) ->
     # now try and get it
@@ -66,20 +66,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
         @ok json.results.error
         @equal json.results.error.type, "KeyringNotFoundError"
 
-        done 4
-
-  "test GET a non-existant keyring": ( done ) ->
-    # now try and get it
-    @GET path: "/v1/keyring/1234", ( err, res ) =>
-      @isNull err
-      @equal res.statusCode, 404
-
-      res.parseJson ( err, json ) =>
-        @isNull err
-        @ok json.results.error
-        @equal json.results.error.type, "KeyringNotFoundError"
-
-        done 4
+        done 5
 
   "test POSTing a valid key to an invalid keyring": ( done ) ->
     fixture =
@@ -87,7 +74,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
         twitter: {}
       key:
         9876: {}
-        
+
     @fixtures.create fixture, ( err ) =>
       @isNull err
 
@@ -100,7 +87,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
           @equal err.type, "KeyringNotFoundError"
           @equal err.message, "Keyring 'ring1' not found."
 
-          done 5
+          done 6
 
   "test POSTing an invalid key to a valid keyring": ( done ) ->
     fixture =
@@ -119,7 +106,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
           @equal err.type, "KeyNotFoundError"
           @equal err.message, "Key '1234' not found."
 
-          done 5
+          done 6
 
   "test POSTing a valid key to a valid keyring": ( done ) ->
     fixture =
@@ -171,7 +158,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
         async.series add_key_functions, ( err ) =>
           @isNull err
 
-          done 11
+          done 13
 
   "test DELETE-ing keys from a keyring": ( done ) ->
     fixture =
@@ -197,4 +184,4 @@ class exports.KeyringControllerTest extends ApiaxleTest
             @isNull err
             @deepEqual dbKeys.reverse(), _.pluck( keys[1..2], "id" )
 
-            done 1
+            done 5
