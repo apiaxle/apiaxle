@@ -187,6 +187,7 @@ class exports.AddKeyringKey extends ApiaxleController
   docs: ->
     """
     ### Returns
+
     * `true` if the operation is successful.
     """
 
@@ -209,6 +210,7 @@ class exports.DelKeyringKey extends ApiaxleController
   docs: ->
     """
     ### Returns
+
     * `true` if the operation is successful.
     """
 
