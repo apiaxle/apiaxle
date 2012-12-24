@@ -6,6 +6,7 @@ async = require "async"
 
 class exports.PackageFileVersionUpdater extends PluginBase
   updateGit: ( filenames, cb ) ->
+    # add the files, commit the files and then tag HEAD
     gitCommand [ "add" ].concat( filenames ), ( err ) =>
       return cb err if err
 
