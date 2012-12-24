@@ -184,7 +184,11 @@ class exports.AddKeyringKey extends ApiaxleController
 
   desc: -> "Add existing KEY to existing KEYRING."
 
-  docs: -> ""
+  docs: ->
+    """
+    ### Returns
+    * `true` if the operation is successful.
+    """
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
                    @mwKeyDetails( valid_key_required=true ) ]
@@ -202,7 +206,11 @@ class exports.DelKeyringKey extends ApiaxleController
 
   desc: -> "Delete and existing KEY from an existing KEYRING."
 
-  docs: -> ""
+  docs: ->
+    """
+    ### Returns
+    * `true` if the operation is successful.
+    """
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
                    @mwKeyDetails( valid_key_required=true ) ]
