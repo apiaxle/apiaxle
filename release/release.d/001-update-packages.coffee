@@ -10,10 +10,8 @@ class exports.PackageFileVersionUpdater extends PluginBase
     gitCommand [ "add" ].concat( filenames ), ( err ) =>
       return cb err if err
 
-      git_args = [ "commit", "-m", "Version bump (#{ @new_version })." ]
-      git_args = git_args.concat filenames
-
-      gitCommand git_args, ( err ) =>
+      commit_args = [ "commit", "-m", "Version bump (#{ @new_version })." ]
+      gitCommand commit_args.concat( filenames ), ( err ) =>
         return cb err if err
 
         gitCommand [ "tag", @new_version ], cb
@@ -22,7 +20,7 @@ class exports.PackageFileVersionUpdater extends PluginBase
     all_filenames = []
 
     for project in @projects
-      filename = "../#{ project }/package.json"
+      filename = "#{ project }/package.json"
       all_filenames.push filename
 
       try

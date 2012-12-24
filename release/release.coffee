@@ -23,12 +23,12 @@ catch e
 loadPlugins = ( ) ->
   all_executions = []
 
-  walkTree "./release.d", null, ( path, filename, stats ) ->
+  walkTree "./release/release.d", null, ( path, filename, stats ) ->
     # just coffeescript or js and must start with a number
     return unless /^\d+.*?\.(js|coffee)$/.exec filename
 
     # load the file
-    exports = require "#{ path }/#{ filename }"
+    exports = require "./release.d/#{ filename }"
     for name, kls of exports
       object = new kls new_version, [ "api", "base", "proxy" ]
 
