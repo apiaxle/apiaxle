@@ -7,6 +7,7 @@ express      = require "express"
 walkTreeSync = require "./walktree"
 fs           = require "fs"
 redis        = require "redis"
+configLoader = require "./app_config"
 
 { Js2Xml }        = require "js2xml"
 { StreamLogger  } = require "../vendor/streamlogger"
@@ -130,17 +131,19 @@ class exports.Application
   _configure: ( app ) ->
     app.configure ( ) =>
       # load up /our/ configuration (from the files in /config)
-      @config = require( "./app_config" )( Application.env )
+      configLoader Application.env, ( err, @config ) =>
+        # still throwing at this point
+        throw err if err
 
-      @configureGeneral app
+        @configureGeneral app
 
-      app.configure "test",        ( ) => @_configureForTest app
-      app.configure "staging",     ( ) => @_configureForStaging app
-      app.configure "development", ( ) => @_configureForDevelopment app
-      app.configure "production",  ( ) => @_configureForProduction app
+        app.configure "test",        ( ) => @_configureForTest app
+        app.configure "staging",     ( ) => @_configureForStaging app
+        app.configure "development", ( ) => @_configureForDevelopment app
+        app.configure "production",  ( ) => @_configureForProduction app
 
-      # now let the rest of the class know about app
-      @app = app
+        # now let the rest of the class know about app
+        @app = app
 
   configureGeneral: ( app ) ->
     app.use app.router
