@@ -7,17 +7,17 @@ async = require "async"
 class exports.PackageFileVersionUpdater extends PluginBase
   updateGit: ( filenames, cb ) ->
     # add the files, commit the files and then tag HEAD
-    gitCommand [ "add" ].concat( filenames ), ( err ) =>
+    gitCommand [ "add" ].concat( filenames ), @logger, ( err ) =>
       return cb err if err
 
       commit_args = [ "commit",
                       "-m",
                       "Version bump (#{ @new_version })." ]
 
-      gitCommand commit_args.concat( filenames ), ( err ) =>
+      gitCommand commit_args.concat( filenames ), @logger, ( err ) =>
         return cb err if err
 
-        gitCommand [ "tag", @new_version ], ( err ) =>
+        gitCommand [ "tag", @new_version ], @logger, ( err ) =>
           return cb err if err
 
           @logger.info "Git tag #{ @new_version } applied."

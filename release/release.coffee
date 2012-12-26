@@ -41,9 +41,10 @@ loadPlugins = ( ) ->
       # allow the plugins to define some args
       object.getArguments parser
 
-      all_executions.push ( cb ) -> object.execute cb
+      all_executions.unshift ( cb ) -> object.execute cb
 
   async.series all_executions, ( err, res ) ->
-    throw err if err
+    # logging taken care of output
+    process.exit 1 if err
 
 loadPlugins()
