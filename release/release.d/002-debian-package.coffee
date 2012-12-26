@@ -13,9 +13,7 @@ class exports.BuildDebianPackage extends PluginBase
           process.chdir project
 
           exec "npm", [ "install" ], @logger, ( err ) =>
-            if err
-              @logger.error err
-              return cb err
+            return cb err if err
 
             process.chdir ".."
             return cb null
