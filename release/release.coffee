@@ -1,6 +1,7 @@
 #!/usr/bin/env coffee
 
 { OptionParser } = require "parseopt"
+{ StdoutLogger } = require "../base/lib/stderrlogger"
 
 async    = require "async"
 walkTree = require "../base/lib/walktree"
@@ -23,6 +24,9 @@ catch e
 loadPlugins = ( ) ->
   all_executions = []
 
+  # universal logging
+  logger = new StdoutLogger()
+
   walkTree "./release/release.d", null, ( path, filename, stats ) ->
     # just coffeescript or js and must start with a number
     return unless /^\d+.*?\.(js|coffee)$/.exec filename
@@ -30,14 +34,16 @@ loadPlugins = ( ) ->
     # load the file
     exports = require "./release.d/#{ filename }"
     for name, kls of exports
-      object = new kls new_version, [ "api", "base", "proxy" ]
+      logger.info "Found '#{ name }'. Loading."
+
+      object = new kls logger, new_version, [ "api", "base", "proxy" ]
 
       # allow the plugins to define some args
       object.getArguments parser
 
       all_executions.push ( cb ) -> object.execute cb
 
-  async.series all_executions, ( err ) ->
+  async.series all_executions, ( err, res ) ->
     throw err if err
 
 loadPlugins()
