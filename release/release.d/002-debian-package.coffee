@@ -20,5 +20,16 @@ class exports.BuildDebianPackage extends PluginBase
 
     async.series each_project, cb
 
+  runDhMake: ( cb ) ->
+    dh_args = [ "--email", "support@apiaxle.com",
+                "--single",
+                "--native",
+                "--packagename", "apiaxle_#{ @new_version }" ]
+
+    exec "release/bin/dh_make_wrapper.bash", dh_args, @logger, cb
+
   execute: ( cb ) ->
-    @installModulesInAllProjects cb
+    @installModulesInAllProjects ( err ) =>
+      return cb err if err
+
+      @runDhMake cb

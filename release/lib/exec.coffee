@@ -1,6 +1,10 @@
 { spawn } = require "child_process"
 
 exports.exec = ( command, args, logger, cb ) ->
+  cwd = process.cwd()
+  cmd = "#{ command } #{ args.join ' ' }"
+  logger.debug "Running '#{ cmd }' in '#{ cwd }'"
+
   toExec = spawn command, args
 
   stdout = ""
@@ -9,10 +13,6 @@ exports.exec = ( command, args, logger, cb ) ->
   toExec.stderr.on "data", ( b ) -> stderr += "#{ b.toString( "utf-8" ) }"
 
   toExec.on "exit", ( code, signal ) ->
-    cwd = process.cwd()
-    cmd = "#{ command } #{ args.join ' ' }"
-    logger.debug "Running '#{ cmd }' in '#{ cwd }'"
-
     if code isnt 0
       err = new Error "#{ args.join ' ' } failed, exiting with #{ code }"
       logger.fatal err
