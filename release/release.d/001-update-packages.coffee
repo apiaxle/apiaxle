@@ -10,14 +10,17 @@ class exports.PackageFileVersionUpdater extends PluginBase
     gitCommand [ "add" ].concat( filenames ), ( err ) =>
       return cb err if err
 
-      commit_args = [ "commit", "-m", "Version bump (#{ @new_version })." ]
+      commit_args = [ "commit",
+                      "-m",
+                      "Version bump (#{ @new_version })." ]
+
       gitCommand commit_args.concat( filenames ), ( err ) =>
         return cb err if err
 
         gitCommand [ "tag", @new_version ], ( err ) =>
           return cb err if err
 
-          @logger.info "Git tag #{ @new_version } applied. Don't forget to push it."
+          @logger.info "Git tag #{ @new_version } applied."
           return cb null, @new_version
 
   execute: ( cb ) ->
