@@ -14,7 +14,11 @@ class exports.PackageFileVersionUpdater extends PluginBase
       gitCommand commit_args.concat( filenames ), ( err ) =>
         return cb err if err
 
-        gitCommand [ "tag", @new_version ], cb
+        gitCommand [ "tag", @new_version ], ( err ) =>
+          return cb err if err
+
+          @logger.info "Git tag #{ @new_version } applied. Don't forget to push it."
+          return cb null, @new_version
 
   execute: ( cb ) ->
     all_filenames = []
@@ -32,6 +36,8 @@ class exports.PackageFileVersionUpdater extends PluginBase
         old_version = pkg_details.version
         pkg_details.version = @new_version
         json = JSON.stringify( pkg_details, null, 2 ) + "\n"
+
+        @logger.info "Moving #{ filename } from #{ old_version } to #{ @new_version }."
 
         # write it back out again
         fs.writeFileSync filename, json, "utf-8"
