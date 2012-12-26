@@ -1,7 +1,7 @@
 fs = require "fs"
 async = require "async"
 
-{ gitCommand } = require "../lib/git"
+{ gitCommand } = require "../lib/exec"
 { PluginBase } = require "../lib/plugin_base"
 
 class exports.PackageFileVersionUpdater extends PluginBase
