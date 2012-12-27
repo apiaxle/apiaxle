@@ -1,18 +1,22 @@
 dest=$(DESTDIR)/opt/apiaxle
-config_dest="/etc/apiaxle"
+config_dest="$(DESTDIR)/etc/apiaxle"
+bin_dest="$(DESTDIR)/usr/bin"
 
 install:
-	install -d $(dest)
+	install -d "$(dest)"
 	cp -r api proxy base $(dest)
 
-  # copy a configuration file
-	install -d "/etc/apiaxle"
-	cp "release/config/development.json" "/etc/apiaxle"
+  # copy a minimal configuration file
+	install -d "$(config_dest)"
+	cp "release/config/development.json" "$(config_dest)"
+
+  # symlinks so that people can actually run things
+	install -d "$(bin_dest)"
+	for project in api proxy; do	                                       \
+	  ln -fs "$(dest)/$$project/apiaxle_$${project}.coffee" $(bin_dest); \
+  done
 
   # npm link the base directory
-	cd $(dest)
-	for project in api proxy; do	\
-    cd $$project;								\
-    npm link ../base;						\
-    cd ..;											\
+	for project in api proxy; do	                                   \
+    ln -fs "$(dest)/base" "$(dest)/$$project/node_modules/apiaxle.base"; \
   done
