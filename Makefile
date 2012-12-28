@@ -16,7 +16,7 @@ install:
 	  ln -fs "$(dest)/$$project/apiaxle_$${project}.coffee" $(bin_dest); \
   done
 
-  # npm link the base directory
+  # emulate an 'npm link' to the base directory
 	for project in api proxy; do	                                   \
     ln -fs "$(dest)/base" "$(dest)/$$project/node_modules/apiaxle.base"; \
   done
