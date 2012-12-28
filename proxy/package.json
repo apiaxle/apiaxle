@@ -2,7 +2,7 @@
   "author": "Phil Jackson <phil@shellarchive.co.uk>",
   "name": "apiaxle",
   "description": "API gateway",
-  "version": "0.0.2",
+  "version": "0.0.18",
   "repository": {
     "type": "git",
     "url": "https://philjackson@bitbucket.org/philjackson/apiaxle.git"
@@ -25,7 +25,7 @@
     "libxmljs": "*"
   },
   "devDependencies": {
-    "twerp":         "=1.0.7",
-    "sinon":         "~1.1.1"
+    "twerp": "=1.0.7",
+    "sinon": "~1.1.1"
   }
 }

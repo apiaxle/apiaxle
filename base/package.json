@@ -2,7 +2,7 @@
   "author": "Phil Jackson <phil@shellarchive.co.uk>",
   "name": "apiaxle.base",
   "description": "Basic Application class for apiaxle.",
-  "version": "0.0.2",
+  "version": "0.0.18",
   "main": "index",
   "scripts": {
     "test": "cake test"
@@ -20,7 +20,7 @@
     "js2xml": "0.0.2"
   },
   "devDependencies": {
-    "twerp":         "=1.0.7",
-    "sinon":         "~1.1.1"
+    "twerp": "=1.0.7",
+    "sinon": "~1.1.1"
   }
 }
