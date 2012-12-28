@@ -1,10 +1,11 @@
-async = require "async"
+async  = require "async"
+rimraf = require "rimraf"
 
 { exec }       = require "../lib/exec"
 { PluginBase } = require "../lib/plugin_base"
 
 class exports.BuildDebianPackage extends PluginBase
-  installModulesInAllProjects: ( cb ) ->
+  installModulesInAllProjects: ( cb ) =>
     each_project = []
 
     for project in @projects
@@ -20,7 +21,7 @@ class exports.BuildDebianPackage extends PluginBase
 
     async.series each_project, cb
 
-  runDhMake: ( cb ) ->
+  runDhMake: ( cb ) =>
     dh_args = [ "--email", "support@apiaxle.com",
                 "--single",
                 "--native",
@@ -28,8 +29,23 @@ class exports.BuildDebianPackage extends PluginBase
 
     exec "release/bin/dh_make_wrapper.bash", dh_args, @logger, cb
 
-  execute: ( cb ) ->
-    @installModulesInAllProjects ( err ) =>
-      return cb err if err
+  deleteDebianDir: ( cb ) =>
+    @logger.info "Deleting debian directory"
+    rimraf "debian", cb
 
-      @runDhMake cb
+  runDpkgBuildPackage: ( cb ) =>
+    # do the building in /tmp so we don't need root
+    process.env[ "DESTDIR" ] = "/tmp"
+
+    # DESTDIR=/tmp dpkg-buildpackage -uc -us
+    exec "dpkg-buildpackage", [ "-uc", "-us" ], @logger, cb
+
+  execute: ( cb ) ->
+    everything = []
+
+    everything.push @installModulesInAllProjects
+    everything.push @deleteDebianDir
+    everything.push @runDhMake
+    everything.push @runDpkgBuildPackage
+
+    async.series everything, cb
