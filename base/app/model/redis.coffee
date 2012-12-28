@@ -130,6 +130,7 @@ redisCommands = {
   "scard": "read"
   "linsert": "write"
   "lrange": "read"
+  "lrem": "write"
   "rpush": "write"
   "lpush": "write"
 }

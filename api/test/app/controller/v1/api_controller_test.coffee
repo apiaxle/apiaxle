@@ -45,7 +45,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( err, json ) =>
         @isNull err
         @ok json.results.error
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.type, "ApiNotFoundError"
 
         done 5
 
@@ -58,7 +58,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( err, json ) =>
         @isNull err
         @ok json.results.error
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.type, "ApiNotFoundError"
 
         done 5
 
@@ -223,8 +223,8 @@ class exports.ApiControllerTest extends ApiaxleTest
         @ok json.results.error
         @ok json.meta.status_code, 404
 
-        @equal json.results.error.message, "1234 not found."
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.message, "Api '1234' not found."
+        @equal json.results.error.type, "ApiNotFoundError"
 
         done 6
 
