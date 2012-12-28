@@ -285,6 +285,7 @@ class Fixtures
     type_map =
       api: @createApi
       key: @createKey
+      keyring: @createKeyring
 
     # loop over the structure grabbing the names and details
     for type, item of data
@@ -298,8 +299,20 @@ class Fixtures
 
     async.series all, cb
 
-  createKey: ( args..., cb ) =>
+  createKeyring: ( args..., cb ) =>
     name    = null
+    options = { }
+
+    # grab the optional args and make sure a name is assigned
+    switch args.length
+      when 2 then [ name, options ] = args
+      when 1 then [ name ] = args
+      else name = "bucket-#{ @keys.pop() }"
+
+    @application.model( "keyringFactory" ).create name, options, cb
+
+  createKey: ( args..., cb ) =>
+    name = null
 
     passed_options  = { }
     default_options =
@@ -317,7 +330,7 @@ class Fixtures
     @application.model( "keyFactory" ).create name, options, cb
 
   createApi: ( args..., cb ) =>
-    name    = null
+    name = null
 
     passed_options  = { }
     default_options =
