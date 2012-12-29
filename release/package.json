@@ -6,7 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "dependencies": {
+    "async": "*",
+    "rimraf": "~2",
+    "parseopt": "~1"
+  },
   "repository": "",
-  "author": "",
+  "author": "Phil Jackson",
   "license": "BSD"
 }
