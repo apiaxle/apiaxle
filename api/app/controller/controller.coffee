@@ -121,14 +121,17 @@ class exports.ListController extends exports.ApiaxleController
   @default_from = 0
   @default_to   = 100
 
+  # calculate from and to
+  from: ( req ) ->
+    return ( req.query.from or @constructor.default_from )
+
+  to: ( req ) ->
+    return ( req.query.to or @constructor.default_to )
+
   execute: ( req, res, next ) ->
     model = @app.model( @modelName() )
 
-    # grab from and to
-    from = ( req.query.from or @constructor.default_from )
-    to   = ( req.query.to   or @constructor.default_to )
-
-    model.range from, to, ( err, keys ) =>
+    model.range @from( req ), @to( req ), ( err, keys ) =>
       return next err if err
 
       # if we're not asked to resolve the items then just bung the
