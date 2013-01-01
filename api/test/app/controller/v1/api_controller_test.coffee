@@ -20,7 +20,7 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test GET keys for a valid api": ( done ) ->
     @fixtures.createApi "twitter", ( err ) =>
       new_keys = []
-      
+
       # create a bunch of keys
       new_keys.push @fixtures.createKey for i in [ 1..15 ]
 
@@ -73,7 +73,7 @@ class exports.ApiControllerTest extends ApiaxleTest
 
     @POST options, ( err, res ) =>
       @isNull err
-    
+
       @equal res.statusCode, 400
 
       res.parseJson ( err, json ) =>
