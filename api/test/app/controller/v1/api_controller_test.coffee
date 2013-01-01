@@ -18,23 +18,28 @@ class exports.ApiControllerTest extends ApiaxleTest
         done 3
 
   "test GET keys for a valid api": ( done ) ->
-    @fixtures.createApi "twitter", ( err ) =>
-      new_keys = []
+    fixture =
+      api:
+        twitter: {}
+        facebook: {}
+      key:
+        1234:
+          forApi: "twitter"
+        5678:
+          forApi: "twitter"
+        9876:
+          forApi: "facebook"
 
-      # create a bunch of keys
-      new_keys.push @fixtures.createKey for i in [ 1..15 ]
+    @fixtures.create fixture, ( err ) =>
+      @isNull err
 
-      async.series new_keys, ( err, keys ) =>
+      @GET path: "/v1/api/twitter/keys?from=0&to=9", ( err, res ) =>
         @isNull err
 
-        @GET path: "/v1/api/twitter/keys?from=0&to=9", ( err, res ) =>
-          @isNull err
-          res.parseJson ( err, json ) =>
-            @isNull err
-            @equal json.results.length, 10
-            @deepEqual json.results, _.pluck( keys[ 0..9 ], "id")
+        res.parseJson ( err, json ) =>
+          @equal json.results, [ "1234", "5678" ]
 
-            done 5
+          done 3
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
