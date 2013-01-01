@@ -33,13 +33,38 @@ class exports.ApiControllerTest extends ApiaxleTest
     @fixtures.create fixture, ( err ) =>
       @isNull err
 
-      @GET path: "/v1/api/twitter/keys?from=0&to=9", ( err, res ) =>
+      base_call = "/v1/api/twitter/keys?from=0&to=9"
+
+      all_tests = []
+
+      # without resolution
+      all_tests.push ( cb ) =>
+        @GET path: base_call, ( err, res ) =>
+          @isNull err
+
+          res.parseJson ( err, json ) =>
+            @deepEqual json.results, [ "5678", "1234" ]
+            cb()
+
+      # with resolution
+      all_tests.push ( cb ) =>
+        @GET path: "#{ base_call }&resolve=true", ( err, res ) =>
+          @isNull err
+
+          res.parseJson ( err, json ) =>
+            expected =
+              "5678":
+                forApi: "twitter"
+              "1234":
+                forApi: "twitter"
+
+            @deepEqual json.results, expected
+            cb()
+
+      async.series all_tests, ( err ) =>
         @isNull err
 
-        res.parseJson ( err, json ) =>
-          @equal json.results, [ "1234", "5678" ]
-
-          done 3
+        done 5
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it

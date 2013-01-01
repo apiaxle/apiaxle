@@ -173,9 +173,12 @@ class exports.ListApiKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "keyFactory"
-
   middleware: -> [ @mwApiDetails( @app ) ]
+
+  execute: ( req, res, next ) ->
+    req.api.getKeys @from( req ), @to( req ), ( err, keys ) =>
+      return next err if err
+      return @json res, keys
 
 class exports.ViewAllStatsForApi extends ApiaxleController
   @verb = "get"
