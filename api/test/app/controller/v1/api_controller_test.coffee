@@ -18,23 +18,47 @@ class exports.ApiControllerTest extends ApiaxleTest
         done 3
 
   "test GET keys for a valid api": ( done ) ->
-    @fixtures.createApi "twitter", ( err ) =>
-      new_keys = []
-      
-      # create a bunch of keys
-      new_keys.push @fixtures.createKey for i in [ 1..15 ]
+    fixture =
+      api:
+        twitter: {}
+        facebook: {}
+      key:
+        1234:
+          forApi: "twitter"
+        5678:
+          forApi: "twitter"
+        9876:
+          forApi: "facebook"
 
-      async.series new_keys, ( err, keys ) =>
+    @fixtures.create fixture, ( err ) =>
+      @isNull err
+
+      base_call = "/v1/api/twitter/keys?from=0&to=9"
+
+      all_tests = []
+
+      # without resolution
+      all_tests.push ( cb ) =>
+        @GET path: base_call, ( err, res ) =>
+          @isNull err
+
+          res.parseJson ( err, json ) =>
+            @deepEqual json.results, [ "5678", "1234" ]
+            cb()
+
+      # with resolution
+      all_tests.push ( cb ) =>
+        @GET path: "#{ base_call }&resolve=true", ( err, res ) =>
+          @isNull err
+
+          res.parseJson ( err, json ) =>
+            @equal json.results["1234"].forApi, "twitter"
+            cb()
+
+      async.series all_tests, ( err ) =>
         @isNull err
 
-        @GET path: "/v1/api/twitter/keys?from=0&to=9", ( err, res ) =>
-          @isNull err
-          res.parseJson ( err, json ) =>
-            @isNull err
-            @equal json.results.length, 10
-            @deepEqual json.results, _.pluck( keys[ 0..9 ], "id")
-
-            done 5
+        done 5
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
@@ -73,7 +97,7 @@ class exports.ApiControllerTest extends ApiaxleTest
 
     @POST options, ( err, res ) =>
       @isNull err
-    
+
       @equal res.statusCode, 400
 
       res.parseJson ( err, json ) =>
