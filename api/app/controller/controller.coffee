@@ -29,7 +29,8 @@ class exports.ApiaxleController extends Controller
     # build up the requests, grab the keys and zip into a new
     # hash
     multi = model.multi()
-    multi.hgetall result for result in keys
+    for result in keys
+      multi.hgetall result 
 
     final = {}
 
@@ -146,14 +147,17 @@ class exports.ListController extends exports.ApiaxleController
   @default_from = 0
   @default_to   = 100
 
+  # calculate from and to
+  from: ( req ) ->
+    return ( req.query.from or @constructor.default_from )
+
+  to: ( req ) ->
+    return ( req.query.to or @constructor.default_to )
+
   execute: ( req, res, next ) ->
     model = @app.model( @modelName() )
 
-    # grab from and to
-    from = ( req.query.from or @constructor.default_from )
-    to   = ( req.query.to   or @constructor.default_to )
-
-    model.range from, to, ( err, keys ) =>
+    model.range @from( req ), @to( req ), ( err, keys ) =>
       return next err if err
 
       # if we're not asked to resolve the items then just bung the
