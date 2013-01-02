@@ -52,8 +52,6 @@ class exports.ApiControllerTest extends ApiaxleTest
           @isNull err
 
           res.parseJson ( err, json ) =>
-            console.log( json )
-
             @equal json.results["1234"].forApi, "twitter"
             cb()
 
