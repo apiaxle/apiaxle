@@ -23,7 +23,8 @@ class exports.ApiaxleController extends Controller
     # build up the requests, grab the keys and zip into a new
     # hash
     multi = model.multi()
-    multi.hgetall result for result in keys
+    for result in keys
+      multi.hgetall result 
 
     final = {}
 

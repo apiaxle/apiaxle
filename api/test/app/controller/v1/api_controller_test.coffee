@@ -52,13 +52,9 @@ class exports.ApiControllerTest extends ApiaxleTest
           @isNull err
 
           res.parseJson ( err, json ) =>
-            expected =
-              "5678":
-                forApi: "twitter"
-              "1234":
-                forApi: "twitter"
+            console.log( json )
 
-            @deepEqual json.results, expected
+            @equal json.results["1234"].forApi, "twitter"
             cb()
 
       async.series all_tests, ( err ) =>
