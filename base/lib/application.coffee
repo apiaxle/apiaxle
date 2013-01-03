@@ -17,26 +17,10 @@ redis        = require "redis"
 class exports.Application
   @env = ( process.env.NODE_ENV or "development" )
 
-  constructor: ( ssl_credentials ) ->
-    # load up /our/ configuration (from the files in /config)
-    @config = require( "./app_config" )( Application.env )
-
-    if @config.use_ssl
-      credentials = @load_ssl_credentials @config.ssl
-      app = module.exports = express.createServer credentials
-    else
-      app = module.exports = express.createServer()
+  constructor: ( ) ->
+    app = module.exports = express.createServer()
 
     @_configure app
-
-  load_ssl_credentials: (ssl_config) ->
-    certificate = fs.readFileSync(ssl_config.cert).toString()
-    private_key = fs.readFileSync(ssl_config.key).toString()
-
-    return credentials =
-      key:  private_key
-      cert: certificate
-      passphrase: ssl_config.passphrase
 
   redisConnect: ( cb ) =>
     # grab the redis config
@@ -144,6 +128,9 @@ class exports.Application
     return list
 
   _configure: ( app ) ->
+    # load up /our/ configuration (from the files in /config)
+    @config = require( "./app_config" )( Application.env )
+
     app.configure ( ) =>
       @configureGeneral app
 

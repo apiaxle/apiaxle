@@ -2,11 +2,5 @@
   "redis": {
     "host": "localhost",
     "port": 6379
-  },
-  "use_ssl": true,
-  "ssl": {
-    "key":        "/home/stuart/Projects/apiaxle/ssl/merchants.api.key",
-    "cert":       "/home/stuart/Projects/apiaxle/ssl/merchants.api.crt",
-    "passphrase": "apiaxle"
   }
 }
