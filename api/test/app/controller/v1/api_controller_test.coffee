@@ -166,6 +166,31 @@ class exports.ApiControllerTest extends ApiaxleTest
 
           done 7
 
+  "test POST https protocol": ( done ) ->
+    options =
+      path: "/v1/api/1234"
+      headers:
+        "Content-Type": "application/json"
+      data: JSON.stringify
+        endPoint: "api.example.com"
+        protocol: "https"
+
+    @POST options, ( err, res ) =>
+      @isNull err
+      @equal res.statusCode, 200
+
+      res.parseJson ( err, json ) =>
+        @isUndefined json.results.error
+        @equal json.results.apiFormat, "json"
+
+        # check it went in
+        @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+          @equal dbApi.data.apiFormat, "json"
+          @equal dbApi.data.protocol, "https"
+          @ok dbApi.data.createdAt
+
+          done 6
+
   "test POST with an invalid api": ( done ) ->
     options =
       path: "/v1/api/1234"
