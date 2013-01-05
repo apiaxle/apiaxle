@@ -97,7 +97,6 @@ class exports.ApiControllerTest extends ApiaxleTest
 
     @POST options, ( err, res ) =>
       @isNull err
-
       @equal res.statusCode, 400
 
       res.parseJson ( err, json ) =>

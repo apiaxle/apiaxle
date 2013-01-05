@@ -18,7 +18,7 @@ class exports.Application
   @env = ( process.env.NODE_ENV or "development" )
 
   constructor: ( ) ->
-    app = module.exports = express.createServer( )
+    app = module.exports = express.createServer()
 
     @_configure app
 
@@ -128,10 +128,10 @@ class exports.Application
     return list
 
   _configure: ( app ) ->
-    app.configure ( ) =>
-      # load up /our/ configuration (from the files in /config)
-      @config = require( "./app_config" )( Application.env )
+    # load up /our/ configuration (from the files in /config)
+    @config = require( "./app_config" )( Application.env )
 
+    app.configure ( ) =>
       @configureGeneral app
 
       app.configure "test",        ( ) => @_configureForTest app
