@@ -17,8 +17,6 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
       cert: fs.readFileSync("test/cert.pem")
 
     test_server.get "/test", ( req, res ) ->
-      console.log "TEST"
-
       res.send JSON.stringify
         one: 1
 
@@ -41,14 +39,16 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
         path: "/test?apiaxle_key=1234&api_key=5678"
         host: "testhttps.api.localhost"
 
-#      @stubDns { "testhttps.api.localhost": "127.0.0.1" }
+      @stubDns { "testhttps.api.localhost": "127.0.0.1" }
+
       @GET requestOptions, ( err, response ) =>
         @isNull err
+
+        # make sure we stop the server listening
+        test_server.close()
 
         response.parseJson ( err, json ) =>
           @isNull err
           @equal json.one, 1
 
-          test_server.close()
-
-          done 5
+          done 4
