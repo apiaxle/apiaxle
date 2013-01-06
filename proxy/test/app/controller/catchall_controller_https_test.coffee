@@ -12,50 +12,43 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
   @empty_db_on_setup = true
 
   "test GET https with valid api_key": ( done ) ->
-    options =
+    test_server = express.createServer
       key:  fs.readFileSync("test/key.pem"),
       cert: fs.readFileSync("test/cert.pem")
 
-    app = express.createServer options
-
-    app.get "/test", ( req, res ) ->
+    test_server.get "/test", ( req, res ) ->
       console.log "TEST"
-      console.log req
 
-    app.listen 8000
+      res.send JSON.stringify
+        one: 1
 
-    apiOptions =
-      endPoint:  "127.0.0.1:8000"
-      apiFormat: "json"
-      protocol:  "https"
+    test_server.listen 8000
 
-    # we create the API
-    @fixtures.createApi "testhttps", apiOptions, ( err ) =>
+    fixture =
+      api:
+        testhttps:
+          endPoint:  "127.0.0.1:8000"
+          apiFormat: "json"
+          protocol:  "https"
+      key:
+        1234:
+          forApi: "testhttps"
+
+    @fixtures.create fixture, ( err ) =>
       @isNull err
 
-      keyOptions =
-        forApi: "testhttps"
+      requestOptions =
+        path: "/test?apiaxle_key=1234&api_key=5678"
+        host: "testhttps.api.localhost"
 
-      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
+#      @stubDns { "testhttps.api.localhost": "127.0.0.1" }
+      @GET requestOptions, ( err, response ) =>
         @isNull err
 
-        # make sure we don't actually hit facebook
-        data = JSON.stringify
-          one: 1
-
-        @stubCatchall 200, data,
-          "Content-Type": "application/json"
-
-        requestOptions =
-          path: "/test?apiaxle_key=1234&api_key=5678"
-          host: "testhttps.api.localhost"
-
-        @GET requestOptions, ( err, response ) =>
+        response.parseJson ( err, json ) =>
           @isNull err
-          console.log err
+          @equal json.one, 1
 
-          response.parseJson ( err, json ) =>
-            @isNull err
-            @equal json.one, 1
+          test_server.close()
 
-            done 5
+          done 5
