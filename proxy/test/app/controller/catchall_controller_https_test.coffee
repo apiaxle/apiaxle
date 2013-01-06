@@ -39,10 +39,14 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
         path: "/test?apiaxle_key=1234&api_key=5678"
         host: "testhttps.api.localhost"
 
-      @stubDns { "testhttps.api.localhost": "127.0.0.1" }
+      stub = @stubDns { "testhttps.api.localhost": "127.0.0.1" }
 
       @GET requestOptions, ( err, response ) =>
         @isNull err
+
+        # twice because we make one DNS call to the proxy, then the
+        # proxy makes another call to the service running on port 8000
+        @ok stub.calledTwice
 
         # make sure we stop the server listening
         test_server.close()
@@ -51,4 +55,4 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
           @isNull err
           @equal json.one, 1
 
-          done 4
+          done 5
