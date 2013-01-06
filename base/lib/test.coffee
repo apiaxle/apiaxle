@@ -100,7 +100,7 @@ class exports.AppTest extends TwerpTest
   stubDns: ( mapping ) ->
     # we need to avoid hitting twitter.api.localhost because it won't
     # exist on everyone's machine
-    stub = @getStub dns, "lookup", ( domain, cb ) ->
+    @getStub dns, "lookup", ( domain, cb ) ->
       for name, address of mapping
         if domain is name
           return cb null, address, 4
@@ -240,7 +240,7 @@ class exports.AppTest extends TwerpTest
 
     @application.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
       multi = @application.redisClient.multi()
-      
+
       for key in keys
         multi.del key, ( err ) ->
           return cb err if err
