@@ -17,7 +17,7 @@ class exports.RedisTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "test finding an object without @returns set": ( done ) ->
-    @ok test_model = new TestModel @application
+    @ok test_model = new TestModel @app
 
     test_model.create "hello", { one: 1, two: 2 }, ( err, newObject ) =>
       @isNull err
@@ -32,7 +32,7 @@ class exports.RedisTest extends FakeAppTest
         done 6
 
   "test multi incr/decr": ( done ) ->
-    @ok model = @application.model "counters"
+    @ok model = @app.model "counters"
     @ok multi = model.multi()
 
     model.set [ "test" ], 20, ( err, value ) =>
@@ -52,7 +52,7 @@ class exports.RedisTest extends FakeAppTest
           done 6
 
   "test multi set/get": ( done ) ->
-    @ok model = @application.model "counters"
+    @ok model = @app.model "counters"
     @ok multi = model.multi()
 
     multi.set [ "test" ], 1
@@ -66,7 +66,7 @@ class exports.RedisTest extends FakeAppTest
         done 4
 
   "test key emitter": ( done ) ->
-    @ok model = @application.model "counters"
+    @ok model = @app.model "counters"
 
     writeCalled = false
     readCalled = false
@@ -98,7 +98,7 @@ class exports.RedisTest extends FakeAppTest
         )
 
   "test multi key emitter": ( done ) ->
-    @ok model = @application.model "counters"
+    @ok model = @app.model "counters"
 
     multi = model.multi()
 
@@ -137,13 +137,13 @@ class exports.RedisTest extends FakeAppTest
     # none thanks to setup having run
     @deepEqual @runRedisCommands, []
 
-    @ok model = @application.model "counters"
+    @ok model = @app.model "counters"
 
     model.set "isThisEmitted?", "hello", ( err ) =>
       model.get "isThisEmitted?", ( err, value ) =>
         @isNull err
 
-        @application.model( "keyFactory" ).get "anotherKeyName", ( err, value ) =>
+        @app.model( "keyFactory" ).get "anotherKeyName", ( err, value ) =>
           @isNull err
           @isNull value
 

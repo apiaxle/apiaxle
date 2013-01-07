@@ -8,17 +8,17 @@ class exports.QpdTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "test keys": ( done ) ->
-    @ok @application,
+    @ok @app,
       "application is defined"
 
-    @ok model = @application.model "apiLimits"
+    @ok model = @app.model "apiLimits"
 
     @equal model.ns, "gk:test:al"
 
     done 3
 
   "test first apiHit": ( done ) ->
-    model = @application.model "apiLimits"
+    model = @app.model "apiLimits"
 
     model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
       @isNull err
@@ -28,7 +28,7 @@ class exports.QpdTest extends FakeAppTest
       done 3
 
   "test second apiHit": ( done ) ->
-    model = @application.model "apiLimits"
+    model = @app.model "apiLimits"
 
     # we need to stub the keys because there's a chance we'll tick
     # over to the next second/day
@@ -54,7 +54,7 @@ class exports.QpdTest extends FakeAppTest
         done 10
 
   "test third and errornous apiHit": ( done ) ->
-    model = @application.model "apiLimits"
+    model = @app.model "apiLimits"
 
     # we need to stub the keys because there's a chance we'll tick
     # over to the next second/day

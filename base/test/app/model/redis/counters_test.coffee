@@ -6,8 +6,8 @@ class exports.CountersTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "test initialisation": ( done ) ->
-    @ok @application
-    @ok @model = @application.model "counters"
+    @ok @app
+    @ok @model = @app.model "counters"
 
     @equal @model.ns, "gk:test:ct"
 

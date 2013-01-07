@@ -80,7 +80,7 @@ class exports.AppTest extends TwerpTest
 
   constructor: ( options ) ->
     # avoid re-reading configuration and stuff
-    @application = if application_mem
+    @app = if application_mem
       application_mem
     else
       application_mem = new @constructor.appClass().configureModels()
@@ -93,7 +93,7 @@ class exports.AppTest extends TwerpTest
     @fixtures = if application_fixtures
       application_fixtures
     else
-      application_fixtures = new Fixtures @application
+      application_fixtures = new Fixtures @app
 
     super options
 
@@ -111,7 +111,7 @@ class exports.AppTest extends TwerpTest
     new Clock @sandbox.useFakeTimers( seed )
 
   startWebserver: ( done ) ->
-    @application.run "127.0.0.1", @constructor.port, done
+    @app.run "127.0.0.1", @constructor.port, done
 
   # returns a AppResponse object
   httpRequest: ( options, callback ) ->
@@ -127,7 +127,7 @@ class exports.AppTest extends TwerpTest
     for key, val of defaults
       options[ key ] = val unless options[ key ]
 
-    @application.logger.debug "Making a #{ options.method} to #{ options.path }"
+    @app.logger.debug "Making a #{ options.method} to #{ options.path }"
     req = http.request options, ( res ) =>
       data = ""
       res.setEncoding "utf8"
@@ -193,7 +193,7 @@ class exports.AppTest extends TwerpTest
       chain.push ( cb ) =>
         @startWebserver cb
 
-    chain.push @application.redisConnect
+    chain.push @app.redisConnect
 
     wrapCommand = ( access, model, command, fullkey ) ->
       access: access
@@ -203,7 +203,7 @@ class exports.AppTest extends TwerpTest
 
     # capture each redis event as it happens so that we can see what
     # we've been running
-    for name, model of @application.models
+    for name, model of @app.models
       do( name, model ) =>
         model.ee.on "read", ( command, fullkey ) =>
           @runRedisCommands.push wrapCommand( "read", name, command, fullkey )
@@ -217,11 +217,11 @@ class exports.AppTest extends TwerpTest
 
   finish: ( done ) ->
     # this is synchronous
-    @application.app.close( ) if @constructor.start_webserver
-    @application.redisClient.quit( )
+    @app.app.close( ) if @constructor.start_webserver
+    @app.redisClient.quit( )
 
     # remove the redis emitters
-    for name, model of @application.models
+    for name, model of @app.models
       do( name, model ) =>
         model.ee.removeAllListeners "read"
         model.ee.removeAllListeners "write"
@@ -236,10 +236,10 @@ class exports.AppTest extends TwerpTest
     done( )
 
   flushAllKeys: ( cb ) ->
-    base_object = new Redis @application
+    base_object = new Redis @app
 
-    @application.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
-      multi = @application.redisClient.multi()
+    @app.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
+      multi = @app.redisClient.multi()
       
       for key in keys
         multi.del key, ( err ) ->
@@ -273,7 +273,7 @@ class exports.AppTest extends TwerpTest
     res.emit "end"
 
 class Fixtures
-  constructor: ( @application ) ->
+  constructor: ( @app ) ->
     @api_names  = require "../test/fixtures/api-fixture-names.json"
     @bucket_ids = require "../test/fixtures/key-bucket-fixture-names.json"
     @keys       = [ 1..1000 ]
@@ -309,7 +309,7 @@ class Fixtures
       when 1 then [ name ] = args
       else name = "bucket-#{ @keys.pop() }"
 
-    @application.model( "keyringFactory" ).create name, options, cb
+    @app.model( "keyringFactory" ).create name, options, cb
 
   createKey: ( args..., cb ) =>
     name = null
@@ -327,7 +327,7 @@ class Fixtures
     # merge the options
     options = _.extend default_options, passed_options
 
-    @application.model( "keyFactory" ).create name, options, cb
+    @app.model( "keyFactory" ).create name, options, cb
 
   createApi: ( args..., cb ) =>
     name = null
@@ -346,4 +346,4 @@ class Fixtures
     # merge the options
     options = _.extend default_options, passed_options
 
-    @application.model( "apiFactory" ).create name, options, cb
+    @app.model( "apiFactory" ).create name, options, cb

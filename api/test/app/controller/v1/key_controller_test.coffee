@@ -10,7 +10,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     details =
       endPoint: "api.twitter.com"
 
-    @keyModel = @application.model( "keyFactory" )
+    @keyModel = @app.model( "keyFactory" )
 
     @fixtures.createApi "twitter", details, ( err, @newApi ) ->
       done()
@@ -68,7 +68,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal dbKey.data.forApi, "twitter"
           @ok dbKey.data.createdAt
 
-          @application.model("apiFactory").find "twitter", ( err, api ) =>
+          @app.model("apiFactory").find "twitter", ( err, api ) =>
             @isNull err
             @ok api
 
@@ -177,7 +177,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @application.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
+          @app.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
             @isNull err
             @isNull dbKey
 
@@ -253,7 +253,7 @@ class exports.KeyStatsTest extends ApiaxleTest
         done()
 
   "test all counts with range": ( done ) ->
-    model = @application.model "counters"
+    model = @app.model "counters"
 
     hits = []
 
@@ -331,7 +331,7 @@ class exports.KeyStatsTest extends ApiaxleTest
               done 9
 
   "test all counts": ( done ) ->
-    model = @application.model "counters"
+    model = @app.model "counters"
 
     hits = []
 

@@ -7,7 +7,7 @@ validationEnv = require( "schema" )( "apiEnv" )
 
 class Keyring extends Model
   delKey: ( key_name, cb ) ->
-    @application.model( "keyFactory" ).find key_name, ( err, key ) =>
+    @app.model( "keyFactory" ).find key_name, ( err, key ) =>
       return cb err if err
 
       if not key
@@ -28,7 +28,7 @@ class Keyring extends Model
     async.series all, cb
 
   addKey: ( key_name, cb ) =>
-    @application.model( "keyFactory" ).find key_name, ( err, key ) =>
+    @app.model( "keyFactory" ).find key_name, ( err, key ) =>
       return cb err if err
 
       if not key

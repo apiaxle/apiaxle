@@ -6,8 +6,8 @@ events = require "events"
 redis = require "redis"
 
 class Redis
-  constructor: ( @application ) ->
-    env =  @application.constructor.env
+  constructor: ( @app ) ->
+    env =  @app.constructor.env
     name = @constructor.smallKeyName or @constructor.name.toLowerCase()
 
     @base_key = "gk:#{ env }"
@@ -45,7 +45,7 @@ class Redis
         # construct a new return object (see @returns on the factory
         # base class)
         if @constructor.returns?
-          return cb null, new @constructor.returns( @application, id, details )
+          return cb null, new @constructor.returns( @app, id, details )
 
         # no returns object, just throw back the data
         return cb null, details
@@ -59,12 +59,12 @@ class Redis
       return cb null, null unless details and _.size details
 
       if @constructor.returns?
-        return cb null, new @constructor.returns @application, key, details
+        return cb null, new @constructor.returns @app, key, details
 
       return cb null, details
 
   multi: ( args ) ->
-    return new RedisMulti( @ns, @application.redisClient, args )
+    return new RedisMulti( @ns, @app.redisClient, args )
 
   getKey: ( parts ) ->
     key = [ @ns ]
@@ -105,8 +105,8 @@ class RedisMulti extends redis.Multi
   getKey: Redis::getKey
 
 class Model extends Redis
-  constructor: ( @application, @id, @data ) ->
-    super @application
+  constructor: ( @app, @id, @data ) ->
+    super @app
 
 # adding a command here will make it usable in Redis and RedisMulti
 redisCommands = {
@@ -154,7 +154,7 @@ for command, access of redisCommands
       full_key = @getKey( key )
 
       @ee.emit access, command, key, full_key
-      @application.redisClient[ command ]( full_key, args... )
+      @app.redisClient[ command ]( full_key, args... )
 
 exports.Redis = Redis
 exports.Model = Model

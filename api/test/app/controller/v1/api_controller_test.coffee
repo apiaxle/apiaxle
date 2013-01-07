@@ -161,7 +161,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @equal json.results.apiFormat, "json"
 
         # check it went in
-        @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+        @app.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
           @equal dbApi.data.apiFormat, "json"
           @ok dbApi.data.createdAt
 
@@ -206,7 +206,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 200
 
-        @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+        @app.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
           @equal dbApi.data.endPoint, "hi.com"
           @equal dbApi.data.apiFormat, "xml"
 
@@ -271,7 +271,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+          @app.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
             @isNull err
             @isNull dbApi
 
@@ -280,7 +280,7 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test list apis without resolution": ( done ) ->
     # create 11 apis
     fixtures = []
-    model = @application.model( "apiFactory" )
+    model = @app.model( "apiFactory" )
 
     for i in [ 0..10 ]
       do ( i ) =>
@@ -304,7 +304,7 @@ class exports.ApiControllerTest extends ApiaxleTest
     # create 11 apis
     fixtures = []
 
-    model = @application.model( "apiFactory" )
+    model = @app.model( "apiFactory" )
 
     for i in [ 0..10 ]
       do ( i ) =>
@@ -351,7 +351,7 @@ class exports.ApiStatsTest extends ApiaxleTest
     @fixtures.create fixtures, done
 
   "test GET all counts with range": ( done ) ->
-    model = @application.model "counters"
+    model = @app.model "counters"
 
     hits = []
 
@@ -429,7 +429,7 @@ class exports.ApiStatsTest extends ApiaxleTest
               done 9
 
   "test GET all counts": ( done ) ->
-    model = @application.model "counters"
+    model = @app.model "counters"
 
     hits = []
 

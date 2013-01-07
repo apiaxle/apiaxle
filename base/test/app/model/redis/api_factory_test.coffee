@@ -7,12 +7,12 @@ class exports.ApiTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup model": ( done ) ->
-    @model = @application.model "apiFactory"
+    @model = @app.model "apiFactory"
 
     done()
 
   "test initialisation": ( done ) ->
-    @ok @application
+    @ok @app
     @ok @model
 
     @equal @model.ns, "gk:test:apifactory"

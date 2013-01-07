@@ -39,7 +39,7 @@ class exports.KeyFactory extends Redis
     if not details?.forApi?
       return super
 
-    @application.model( "apiFactory" ).find details.forApi, ( err, api ) =>
+    @app.model( "apiFactory" ).find details.forApi, ( err, api ) =>
       return cb err if err
 
       if not api

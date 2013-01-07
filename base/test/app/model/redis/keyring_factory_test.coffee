@@ -6,12 +6,12 @@ class exports.KeyringFactoryTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup model": ( done ) ->
-    @model = @application.model "keyringFactory"
+    @model = @app.model "keyringFactory"
 
     done()
 
   "test initialisation": ( done ) ->
-    @ok @application
+    @ok @app
     @ok @model
 
     @equal @model.ns, "gk:test:keyringfactory"
