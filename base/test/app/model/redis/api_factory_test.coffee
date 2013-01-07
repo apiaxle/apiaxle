@@ -55,3 +55,29 @@ class exports.ApiTest extends FakeAppTest
         @ok api.data.createdAt
 
         done 4
+
+  # for an explanation of what this is for see github issue 32
+  "test creating an api called 'all' should be fine": ( done ) ->
+    fixture =
+      api:
+        twitter: {}
+      key:
+        1234: {}
+        5678: {}
+
+    model = @app.model( "apiFactory" )
+
+    # create the api/keys
+    @fixtures.create fixture, ( err ) =>
+      @isNull err
+
+      # now create a new api called 'all'
+      @fixtures.createApi "all", ( err ) =>
+        @isNull err
+
+        # finding 'all' should return the details we expect
+        model.find "all", ( err, dbApi ) =>
+          @isNull err
+          @ok dbApi
+
+          done 5
