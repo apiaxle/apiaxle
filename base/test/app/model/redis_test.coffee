@@ -170,29 +170,34 @@ class exports.RedisTest extends FakeAppTest
 
           done 9
 
-  # for an explanation of what this is for see github issue 32
-  "test creating an api called 'all' should be fine": ( done ) ->
-    fixture =
-      api:
-        twitter: {}
-      key:
-        1234: {}
-        5678: {}
-
+  "test creating ids with : in them should be fine": ( done ) ->
     model = new TestModel @app
 
-    # create the api/keys
-    @fixtures.create fixture, ( err ) =>
+    @equal model.escapeId( "hello:world" ), "hello\\:world"
+    @equal model.escapeId( "meta:data:world" ), "meta\\:data\\:world"
+
+    model.create "this:is:an:id", { one: 2 }, ( err ) =>
       @isNull err
 
-      # now create a new api called 'all'
-      model.create "all", { one: 1 }, ( err ) =>
+      model.find "this:is:an:id", ( err, dbObj ) =>
         @isNull err
+        @ok dbObj
+        @equal dbObj.one, 2
 
-        # finding 'all' should return the details we expect
-        model.find "all", ( err, dbApi ) =>
-          @isNull err
-          @ok dbApi
-          @equal dbApi.one, 1
+        done 6
 
-          done 5
+  # for an explanation of what this is for see github issue 32
+  "test creating an api called 'all' should be fine": ( done ) ->
+    model = new TestModel @app
+
+    # now create a new api called 'all'
+    model.create "all", { one: 1 }, ( err ) =>
+      @isNull err
+
+      # finding 'all' should return the details we expect
+      model.find "all", ( err, dbApi ) =>
+        @isNull err
+        @ok dbApi
+        @equal dbApi.one, 1
+
+        done 5

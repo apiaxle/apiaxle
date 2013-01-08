@@ -25,6 +25,10 @@ class Redis
     @validate details, ( err, instance ) =>
       return cb err if err
 
+      # need to escape the key so that people don't use colons and
+      # trick redis into overwrting other keys
+      id = @escapeId id
+
       multi = @multi()
 
       details.createdAt = new Date().getTime()
@@ -34,7 +38,7 @@ class Redis
 
       # then add it to its list so that we can do range queries on it
       # later.
-      multi.rpush "all", id
+      multi.rpush "meta:all", id
 
       multi.exec ( err, results ) =>
         return cb err if err
@@ -51,15 +55,22 @@ class Redis
         return cb null, details
 
   range: ( start, stop, cb ) ->
-    @lrange "all", start, stop, cb
+    @lrange "meta:all", start, stop, cb
 
-  find: ( key, cb ) ->
-    @hgetall key, ( err, details ) =>
+  # escape the id so that people can't sneak a colon in and do
+  # something like modify metadata
+  escapeId: ( id ) ->
+    return id.replace( /([:])/g, "\\:" )
+
+  find: ( id, cb ) ->
+    id = @escapeId id
+
+    @hgetall id, ( err, details ) =>
       return cb err, null if err
       return cb null, null unless details and _.size details
 
       if @constructor.returns?
-        return cb null, new @constructor.returns @app, key, details
+        return cb null, new @constructor.returns @app, id, details
 
       return cb null, details
 
