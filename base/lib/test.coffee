@@ -240,7 +240,7 @@ class exports.AppTest extends TwerpTest
 
     @app.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
       multi = @app.redisClient.multi()
-      
+
       for key in keys
         multi.del key, ( err ) ->
           return cb err if err
@@ -309,7 +309,7 @@ class Fixtures
       when 1 then [ name ] = args
       else name = "bucket-#{ @keys.pop() }"
 
-    @app.model( "keyringFactory" ).create name, options, cb
+    @app.model( "keyringFactory" ).create "#{ name }", options, cb
 
   createKey: ( args..., cb ) =>
     name = null
@@ -327,7 +327,7 @@ class Fixtures
     # merge the options
     options = _.extend default_options, passed_options
 
-    @app.model( "keyFactory" ).create name, options, cb
+    @app.model( "keyFactory" ).create "#{ name }", options, cb
 
   createApi: ( args..., cb ) =>
     name = null
