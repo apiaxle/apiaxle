@@ -37,7 +37,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
       keyring.addKey "1234", ( err, key ) =>
         @ok err
         @match err.message, /Key '1234' not found/
-  
+
         done 3
 
   "test adding a key to the keyring": ( done ) ->
@@ -121,5 +121,5 @@ class exports.KeyringFactoryTest extends FakeAppTest
           @isNull err
           @equal keys.length, 9
           @deepEqual keys, added_keys.reverse()
-          
+
           done 49
