@@ -100,12 +100,14 @@ class exports.AppTest extends TwerpTest
   stubDns: ( mapping ) ->
     # we need to avoid hitting twitter.api.localhost because it won't
     # exist on everyone's machine
-    stub = @getStub dns, "lookup", ( domain, cb ) ->
+    old = dns.lookup
+
+    @getStub dns, "lookup", ( domain, cb ) ->
       for name, address of mapping
         if domain is name
           return cb null, address, 4
 
-      return dns.lookup domain, cb
+      return old domain, cb
 
   getClock: ( seed=new Date().getTime() ) ->
     new Clock @sandbox.useFakeTimers( seed )
@@ -240,6 +242,9 @@ class exports.AppTest extends TwerpTest
 
     @app.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
       multi = @app.redisClient.multi()
+
+    @application.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
+      multi = @application.redisClient.multi()
 
       for key in keys
         multi.del key, ( err ) ->
