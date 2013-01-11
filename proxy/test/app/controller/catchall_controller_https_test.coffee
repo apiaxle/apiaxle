@@ -16,6 +16,8 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
       key:  fs.readFileSync("test/key.pem"),
       cert: fs.readFileSync("test/cert.pem")
 
+    test_server.use express.bodyParser()
+
     for method in [ "get", "post", "put" ]
       do( method ) ->
         # setup a test endpoint e.g /test/get which retuns various
@@ -52,7 +54,7 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
           host: "testhttps.api.localhost"
           headers:
             "Content-Type": "application/json"
-          data: "this is a post body"
+          data: JSON.stringify "this is a post body"
 
         @POST requestOptions, ( err, response ) =>
           # twice because we make one DNS call to the proxy, then the
@@ -62,7 +64,7 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
           response.parseJson ( err, json ) =>
             @isNull err
             @equal json.method, "post"
-            #@equal json.body, "this is a post body"
+            @equal json.body, "this is a post body"
 
             cb()
 
@@ -72,7 +74,7 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
           host: "testhttps.api.localhost"
           headers:
             "Content-Type": "application/json"
-          data: "this is a put body"
+          data: JSON.stringify "this is a put body"
 
         @PUT requestOptions, ( err, response ) =>
           response.parseJson ( err, json ) =>
@@ -100,4 +102,4 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
         # make sure we stop the server listening
         test_server.close()
 
-        done 1
+        done 10
