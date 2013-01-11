@@ -11,14 +11,19 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
   @start_webserver   = true
   @empty_db_on_setup = true
 
-  "test GET https with valid api_key": ( done ) ->
+  "test GET/POST/PUT https with valid api_key": ( done ) ->
     test_server = express.createServer
       key:  fs.readFileSync("test/key.pem"),
       cert: fs.readFileSync("test/cert.pem")
 
-    test_server.get "/test", ( req, res ) ->
-      res.send JSON.stringify
-        one: 1
+    for method in [ "get", "post", "put" ]
+      do( method ) ->
+        # setup a test endpoint e.g /test/get which retuns various
+        # aspects of the call so that we can test them
+        test_server[ method ] "/test/#{ method }", ( req, res ) ->
+          res.send JSON.stringify
+            method: method
+            body: req.body
 
     test_server.listen 8000
 
@@ -31,28 +36,68 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
       key:
         1234:
           forApi: "testhttps"
+          qps: 200
 
     @fixtures.create fixture, ( err ) =>
       @isNull err
 
-      requestOptions =
-        path: "/test?apiaxle_key=1234&api_key=5678"
-        host: "testhttps.api.localhost"
-
       stub = @stubDns { "testhttps.api.localhost": "127.0.0.1" }
 
-      @GET requestOptions, ( err, response ) =>
-        @isNull err
+      all_methods = []
 
-        # twice because we make one DNS call to the proxy, then the
-        # proxy makes another call to the service running on port 8000
-        @ok stub.calledTwice
+      # now test the methods themselves
+      all_methods.push ( cb ) =>
+        requestOptions =
+          path: "/test/post?apiaxle_key=1234&api_key=5678"
+          host: "testhttps.api.localhost"
+          headers:
+            "Content-Type": "application/json"
+          data: "this is a post body"
+
+        @POST requestOptions, ( err, response ) =>
+          # twice because we make one DNS call to the proxy, then the
+          # proxy makes another call to the service running on port 8000
+          @ok stub.calledTwice
+
+          response.parseJson ( err, json ) =>
+            @isNull err
+            @equal json.method, "post"
+            #@equal json.body, "this is a post body"
+
+            cb()
+
+      all_methods.push ( cb ) =>
+        requestOptions =
+          path: "/test/put?apiaxle_key=1234&api_key=5678"
+          host: "testhttps.api.localhost"
+          headers:
+            "Content-Type": "application/json"
+          data: "this is a put body"
+
+        @PUT requestOptions, ( err, response ) =>
+          response.parseJson ( err, json ) =>
+            @isNull err
+            @equal json.method, "put"
+            #@equal json.body, "this is a put body"
+
+            cb()
+
+      all_methods.push ( cb ) =>
+        requestOptions =
+          path: "/test/get?apiaxle_key=1234&api_key=5678"
+          host: "testhttps.api.localhost"
+
+        @GET requestOptions, ( err, response ) =>
+          response.parseJson ( err, json ) =>
+            @isNull err
+            @equal json.method, "get"
+
+            cb()
+
+      async.series all_methods, ( err ) =>
+        @isNull err
 
         # make sure we stop the server listening
         test_server.close()
 
-        response.parseJson ( err, json ) =>
-          @isNull err
-          @equal json.one, 1
-
-          done 5
+        done 1
