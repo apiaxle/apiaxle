@@ -58,7 +58,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       async.series all_tests, ( err ) =>
         @isNull err
 
-        done 5
+        done 6
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
@@ -189,7 +189,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal dbApi.data.protocol, "https"
           @ok dbApi.data.createdAt
 
-          done 6
+          done 7
 
   "test POST with an invalid api": ( done ) ->
     options =

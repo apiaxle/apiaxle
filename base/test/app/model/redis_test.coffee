@@ -200,4 +200,4 @@ class exports.RedisTest extends FakeAppTest
         @ok dbApi
         @equal dbApi.one, 1
 
-        done 5
+        done 4

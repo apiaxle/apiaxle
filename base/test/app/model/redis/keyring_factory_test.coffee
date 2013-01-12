@@ -91,7 +91,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
                 @isNull err
                 @deepEqual keys, [ key2.id ]
 
-                done 7
+                done 8
 
   "test getting keys from a ring": ( done ) ->
     all = []
