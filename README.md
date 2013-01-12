@@ -22,9 +22,9 @@ components.
 
 # Installation
 
-    $ curl https://raw.github.com/philjackson/apiaxle/master/setup-apiaxle.bash | bash
+    $ curl https://raw.github.com/apiaxle/apiaxle/master/setup-apiaxle.bash | bash
 
 # Build
 
-* master: [![Build Status](https://secure.travis-ci.org/philjackson/apiaxle.png?branch=master)](http://travis-ci.org/philjackson/apiaxle)
-* develop: [![Build Status](https://secure.travis-ci.org/philjackson/apiaxle.png?branch=develop)](http://travis-ci.org/philjackson/apiaxle)
+* master: [![Build Status](https://secure.travis-ci.org/apiaxle/apiaxle.png?branch=master)](http://travis-ci.org/apiaxle/apiaxle)
+* develop: [![Build Status](https://secure.travis-ci.org/apiaxle/apiaxle.png?branch=develop)](http://travis-ci.org/apiaxle/apiaxle)
