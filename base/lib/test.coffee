@@ -243,8 +243,8 @@ class exports.AppTest extends TwerpTest
     @app.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
       multi = @app.redisClient.multi()
 
-    @application.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
-      multi = @application.redisClient.multi()
+    @app.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
+      multi = @app.redisClient.multi()
 
       for key in keys
         multi.del key, ( err ) ->

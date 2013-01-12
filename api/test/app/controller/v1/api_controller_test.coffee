@@ -184,7 +184,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @equal json.results.apiFormat, "json"
 
         # check it went in
-        @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+        @app.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
           @equal dbApi.data.apiFormat, "json"
           @equal dbApi.data.protocol, "https"
           @ok dbApi.data.createdAt
