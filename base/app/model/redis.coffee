@@ -127,6 +127,7 @@ redisCommands = {
   "hincrby": "write"
   "hgetall": "read"
   "hexists": "read"
+  "exists": "read"
   "expire": "read"
   "set": "write"
   "get": "read"
