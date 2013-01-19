@@ -140,12 +140,17 @@ redisCommands = {
   "setex": "write"
   "sadd": "write"
   "smembers": "read"
-  "scard": "read"
+  "scard":   "read"
   "linsert": "write"
-  "lrange": "read"
-  "lrem": "write"
-  "rpush": "write"
-  "lpush": "write"
+  "lrange":  "read"
+  "lrem":    "write"
+  "rpush":   "write"
+  "lpush":   "write"
+  "zadd":    "write"
+  "zrem":    "write"
+  "zincrby": "write"
+  "zcard":   "read"
+  "zrangebyscore": "read"
 }
 
 # build up the redis multi commands
