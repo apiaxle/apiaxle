@@ -375,7 +375,7 @@ class exports.ApiStatsTest extends ApiaxleTest
     @fixtures.create fixtures, done
 
   "test GET hits for API": ( done ) ->
-    model = @app.model "stats"
+    model = @app.model "hits"
     hits  = []
     # Wed, December 14th 2011, 20:01
     clock = @getClock 1323892867000
@@ -393,6 +393,32 @@ class exports.ApiStatsTest extends ApiaxleTest
     async.parallel hits, ( err, results ) =>
       @isNull err
       @GET path: "/v1/api/facebook/hits", ( err, res ) =>
+        @isNull err
+
+        res.parseJson ( err, json ) =>
+          @isNull err
+          @ok json
+          @deepEqual json, shouldHave
+          done 5
+
+  "test GET real time hits for API": ( done ) ->
+    model = @app.model "hits"
+    hits  = []
+    # Wed, December 14th 2011, 20:01
+    clock = @getClock 1323892867000
+    hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+
+    shouldHave =
+      meta:
+        version: 1
+        status_code: 200
+      results: 3
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+      @GET path: "/v1/api/facebook/hits/now", ( err, res ) =>
         @isNull err
 
         res.parseJson ( err, json ) =>
