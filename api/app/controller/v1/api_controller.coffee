@@ -202,8 +202,31 @@ class exports.ViewHitsForApi extends ApiaxleController
   path: -> "/v1/api/:api/hits"
 
   execute: ( req, res, next ) ->
-    model = @app.model "stats"
+    model = @app.model "hits"
     model.getCurrentMinute "api", req.params.api, ( err, hits ) =>
+      return @json res, hits
+
+
+class exports.ViewHitsForApiNow extends ApiaxleController
+  @verb = "get"
+
+  desc: -> "Get the statistics for an api."
+
+  docs: ->
+    """
+    ### Returns
+
+    * Integer, the number of hits to the API this second.
+      Designed light weight real time statistics 
+    """
+
+  middleware: -> [ @mwApiDetails( @app ) ]
+
+  path: -> "/v1/api/:api/hits/now"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "hits"
+    model.getRealTime "api", req.params.api, ( err, hits ) =>
       return @json res, hits
 
 class exports.ViewAllStatsForApi extends ApiaxleController
