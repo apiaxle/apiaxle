@@ -2,9 +2,9 @@
 async = require "async"
 { Redis } = require "../redis"
 
-class exports.Stats extends Redis
+class exports.Hits extends Redis
   @instantiateOnStartup = true
-  @smallKeyName         = "stats"
+  @smallKeyName         = "hits"
   # How long each minute of data will remain
   @ttl                  = 120
 
@@ -28,7 +28,7 @@ class exports.Stats extends Redis
         @hincrby db_key, ts, 1, cb
       else
         @hincrby db_key, ts, 1, ( err, res ) =>
-          @expire  db_key, Stats.ttl, cb
+          @expire  db_key, Hits.ttl, cb
 
   hit: ( api, key, response, cb ) ->
     db_keys = [
@@ -45,7 +45,7 @@ class exports.Stats extends Redis
 
   # Return the hits for the most recent second
   # Zero if none found
-  getCurrentHits: ( type, id, cb ) ->
+  getRealTime: ( type, id, cb ) ->
     tsmin  = @getRoundedTimestamp null, 60
     tssec  = @getRoundedTimestamp null
     db_key = [ type, id, "minute", tsmin ]

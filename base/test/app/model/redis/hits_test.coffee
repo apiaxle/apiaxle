@@ -7,8 +7,8 @@ class exports.StatsTest extends FakeAppTest
 
   "test initialisation": ( done ) ->
     @ok @app
-    @ok @model = @app.model "stats"
-    @equal @model.ns, "gk:test:stats"
+    @ok @model = @app.model "hits"
+    @equal @model.ns, "gk:test:hits"
 
     done 3
 
@@ -34,7 +34,7 @@ class exports.StatsTest extends FakeAppTest
 
     async.series all, ( err, results ) =>
       @isNull err
-      @model.getCurrentHits "key", 12345, ( err, hits ) =>
+      @model.getRealTime "key", 12345, ( err, hits ) =>
         @isNull err
         @equal hits, 2
         done 3
@@ -48,12 +48,12 @@ class exports.StatsTest extends FakeAppTest
 
     async.series all, ( err, results ) =>
       @isNull err
-      @model.getCurrentHits "key", 1234, ( err, hits ) =>
+      @model.getRealTime "key", 1234, ( err, hits ) =>
         @isNull err
         @equal hits, 0
         done 3
 
-  "test #get minute of stats data": ( done ) ->
+  "test #get minute of hit data": ( done ) ->
     clock = @getClock 1323892867000
     all = []
     all.push ( cb ) => @model.hit "facebook", 12345, 200, cb
