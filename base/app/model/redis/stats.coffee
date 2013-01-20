@@ -17,7 +17,7 @@ class exports.Stats extends Redis
     return ts
 
   recordHit: ( db_key, cb ) ->
-    tsmin  = @getRoundedTimestamp 60
+    tsmin  = @getRoundedTimestamp null, 60
     db_key.push tsmin
 
     @exists db_key, ( err, res ) =>
@@ -32,8 +32,8 @@ class exports.Stats extends Redis
 
   hit: ( api, key, response, cb ) ->
     db_keys = [
-      [ "api", api, "minute", response ],
-      [ "key", key, "minute", response ]
+      [ "api", api, "minute" ],
+      [ "key", key, "minute" ]
     ]
 
     all = []
@@ -43,5 +43,20 @@ class exports.Stats extends Redis
 
     async.series all, cb
 
-  getMinute: ( ts = null ) ->
-    tsmin = @getRoundedTimestamp ts, 60
+  # Return the hits for the most recent second
+  # Zero if none found
+  getCurrentHits: ( type, id, cb ) ->
+    tsmin  = @getRoundedTimestamp null, 60
+    tssec  = @getRoundedTimestamp null
+    db_key = [ type, id, "minute", tsmin ]
+
+    @hget db_key, tssec, ( err, details ) =>
+      details = 0 unless details
+      cb err, details
+
+  getCurrentMinute: ( type, id, cb ) ->
+    tsmin  = @getRoundedTimestamp null, 60
+    db_key = [ type, id, "minute", tsmin ]
+
+    @hgetall db_key, ( err, details ) =>
+      cb err, details
