@@ -3,3 +3,4 @@ _site/
 node_modules
 /*/log
 *.*.swp
+npm-debug.log
