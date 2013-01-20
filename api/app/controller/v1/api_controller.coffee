@@ -184,6 +184,28 @@ class exports.ListApiKeys extends ListController
         return cb err if err
         return @json res, results
 
+class exports.ViewHitsForApi extends ApiaxleController
+  @verb = "get"
+
+  desc: -> "Get the statistics for an api."
+
+  docs: ->
+    """
+    ### Returns
+
+    * Object where the keys represent timestamp for a given second
+      and the values the amount of hits to the specified API for that second
+    """
+
+  middleware: -> [ @mwApiDetails( @app ) ]
+
+  path: -> "/v1/api/:api/hits"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "stats"
+    model.getCurrentMinute "api", req.params.api, ( err, hits ) =>
+      return @json res, hits
+
 class exports.ViewAllStatsForApi extends ApiaxleController
   @verb = "get"
 
