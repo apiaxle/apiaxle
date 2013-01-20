@@ -15,14 +15,14 @@ class exports.Stats extends Redis
     ts    = Math.ceil( ts / precision ) * precision
     return ts
 
-  hit: ( api, key, response, cb ) ->
-    # Get Redis Key
+  recordHit: ( db_key, cb ) ->
     tsmin  = @getRoundedTimestamp 60
-    db_key = [ "api", api, "minute", response, tsmin ]
+    db_key.push tsmin
+
+    console.log "Recording", db_key
 
     @exists db_key, ( err, res ) =>
       ts    = Math.floor( (new Date()).getTime()/1000 )
-
       # Key already exists, add or inc this second
       # Otherwise we also need to set the expiry
       if res
@@ -30,3 +30,20 @@ class exports.Stats extends Redis
       else
         @hincrby db_key, ts, 1, ( err, res ) =>
           @expire  db_key, Stats.ttl, cb
+
+  hit: ( api, key, response, cb ) ->
+    db_keys = [
+      [ "api", api, "minute", response ],
+      [ "key", key, "minute", response ]
+    ]
+
+    all = []
+    for key in db_keys
+      do( key ) =>
+        all.push ( cb ) => @recordHit key, cb
+
+    async.series all, cb
+
+  getMinute: ( ts = null ) ->
+    if not ts
+      ts = @getRoundedTimestamp 60
