@@ -16,19 +16,17 @@ class exports.Stats extends Redis
     return ts
 
   hit: ( api, key, response, cb ) ->
-    # Get key
-    tsmin = @getRoundedTimestamp 60
-    key   = [ "api", api, "minute", response, tsmin ]
+    # Get Redis Key
+    tsmin  = @getRoundedTimestamp 60
+    db_key = [ "api", api, "minute", response, tsmin ]
 
-    @exists key, ( err, res ) =>
+    @exists db_key, ( err, res ) =>
       ts    = Math.floor( (new Date()).getTime()/1000 )
-      multi = @multi()
 
       # Key already exists, add or inc this second
       # Otherwise we also need to set the expiry
       if res
-        multi.hincrby key, ts, 1
-        multi.exec cb
+        @hincrby db_key, ts, 1, cb
       else
-        @hincrby key, ts, 1, ( err, res ) =>
-          @expire  key, Stats.ttl, cb
+        @hincrby db_key, ts, 1, ( err, res ) =>
+          @expire  db_key, Stats.ttl, cb
