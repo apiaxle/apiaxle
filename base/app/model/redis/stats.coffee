@@ -10,16 +10,15 @@ class exports.Stats extends Redis
 
   # Get a timestamp rounded to the supplied precision
   # 1 = 1 second
-  getRoundedTimestamp: ( precision = 1 ) ->
-    ts    = Math.floor( (new Date()).getTime()/1000 )
+  getRoundedTimestamp: ( ts, precision = 1 ) ->
+    if not ts
+      ts    = Math.floor( (new Date()).getTime()/1000 )
     ts    = Math.ceil( ts / precision ) * precision
     return ts
 
   recordHit: ( db_key, cb ) ->
     tsmin  = @getRoundedTimestamp 60
     db_key.push tsmin
-
-    console.log "Recording", db_key
 
     @exists db_key, ( err, res ) =>
       ts    = Math.floor( (new Date()).getTime()/1000 )
@@ -45,5 +44,4 @@ class exports.Stats extends Redis
     async.series all, cb
 
   getMinute: ( ts = null ) ->
-    if not ts
-      ts = @getRoundedTimestamp 60
+    tsmin = @getRoundedTimestamp ts, 60
