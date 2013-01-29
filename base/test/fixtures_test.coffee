@@ -49,4 +49,4 @@ class exports.ApiTest extends FakeAppTest
 
           cb()
 
-      async.parallel all_tests, ( err ) -> done 11
+      async.parallel all_tests, ( err ) -> done 10
