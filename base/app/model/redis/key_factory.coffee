@@ -63,7 +63,7 @@ class exports.KeyFactory extends Redis
     async.parallel allKeyExistsChecks, ( err, dbApis ) =>
       return cb err if err
 
-      # now that we know the apis exist, link the keys to them
+      # now that we know the apis exist, link the key to them
       allKeysCreate = []
 
       for api in dbApis
