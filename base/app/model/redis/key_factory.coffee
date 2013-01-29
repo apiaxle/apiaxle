@@ -1,4 +1,5 @@
-_ = require "underscore"
+_     = require "underscore"
+async = require "async"
 
 { Redis, Model } = require "../redis"
 { ValidationError } = require "../../../lib/error"
@@ -28,26 +29,51 @@ class exports.KeyFactory extends Redis
         type: "integer"
         default: 2
         docs: "Number of queries that can be called per second. Set to `-1` for no limit."
-      forApi:
-        required: true
-        type: "string"
-        docs: "Name of the Api that this key belongs to."
+      forApis:
+        optional: true
+        type: "array"
+        docs: "Names of the Apis that this key belongs to."
 
   create: ( id, details, cb ) ->
-    # if there isn't a forApi field then `super` will take care of
+    # if there isn't a forApis field then `super` will take care of
     # that
-    if not details?.forApi?
+    if not details?.forApis?
       return super
 
-    @app.model( "apiFactory" ).find details.forApi, ( err, api ) =>
+    allKeyExistsChecks = []
+
+    # grab the apis this should belong to and then delete the key pair
+    # because we don't actually want to store it.
+    forApis = details.forApis
+    delete details.forApis
+
+    # first we need to make sure all of the keys actually
+    # exist. #create should behave atomically if possible
+    for api in forApis
+      do( api ) =>
+        allKeyExistsChecks.push ( cb ) =>
+          @app.model( "apiFactory" ).find api, ( err, dbApi ) ->
+            return cb err if err
+
+            if not dbApi
+              return cb new ValidationError "API '#{ api }' doesn't exist."
+
+            return cb null, dbApi
+
+    async.parallel allKeyExistsChecks, ( err, dbApis ) =>
       return cb err if err
 
-      if not api
-        return cb new ValidationError "API '#{ details.forApi }' doesn't exist."
+      # now that we know the apis exist, link the keys to them
+      allKeysCreate = []
 
-      # Save the key
-      api.addKey id, ( err ) =>
+      for api in dbApis
+        do( api ) ->
+          allKeysCreate.push ( cb ) ->
+            api.addKey id, ( err, dbKey ) ->
+              return cb err if err
+              return cb null, dbKey
+
+      async.parallel allKeysCreate, ( err, dbKeys ) =>
         return cb err if err
 
-        # why won't coffeescript just let me call super here?
         return @constructor.__super__.create.apply @, [ id, details, cb ]
