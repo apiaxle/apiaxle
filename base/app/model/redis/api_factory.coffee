@@ -5,10 +5,26 @@ validationEnv = require( "schema" )( "apiEnv" )
 
 class Api extends Model
   addKey: ( key, cb ) ->
-    @lpush "#{ @id }:keys", key, cb
+    multi = @multi()
+
+    # add to the list of all keys
+    multi.lpush "#{ @id }:keys", key
+
+    # and add to a quick lookup for the keys
+    multi.hset "#{ @id }:keys-lookup", key, 1
+    multi.exec cb
 
   getKeys: ( start, stop, cb ) ->
     @lrange "#{ @id }:keys", start, stop, cb
+
+  supportsKey: ( key, cb ) ->
+    @hexists "#{ @id }:keys-lookup", key, ( err, exists ) ->
+      return cb err if err
+
+      if exists is 0
+        return cb null, false
+
+      return cb null, true
 
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
