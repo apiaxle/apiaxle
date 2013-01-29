@@ -321,7 +321,7 @@ class Fixtures
 
     passed_options  = { }
     default_options =
-      forApi: "twitter"
+      forApis: [ "twitter" ]
 
     # grab the optional args and make sure a name is assigned
     switch args.length

@@ -32,7 +32,7 @@ class exports.KeyTest extends FakeAppTest
     createObj =
       qps: 1
       qpd: 3
-      forApi: "twitter"
+      forApi: [ "twitter" ]
 
     @fixtures.createKey "987654321", createObj, ( err ) =>
       @ok err
@@ -50,7 +50,7 @@ class exports.KeyTest extends FakeAppTest
       createObj =
         qps: 1
         qpd: 3
-        forApi: "twitter"
+        forApi: [ "twitter" ]
 
       @fixtures.createKey "987654321", createObj, ( err ) =>
         @isNull err

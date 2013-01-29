@@ -16,7 +16,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       done()
 
   "test GET a valid key": ( done ) ->
-    @fixtures.createKey "1234", forApi: "twitter", ( err, newKey ) =>
+    @fixtures.createKey "1234", forApi: [ "twitter", ( err, newKey ) =>
       @isNull err
       @ok newKey
 
@@ -190,7 +190,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @fixtures.createKey "key_#{i}", forApi: "twitter", cb
+          @fixtures.createKey "key_#{i}", forApi: [ "twitter" ], cb
 
     async.series fixtures, ( err, newKeys ) =>
       @isNull err
@@ -213,7 +213,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @fixtures.createKey "key_#{i}", forApi: "twitter", qps: i, qpd: i, cb
+          @fixtures.createKey "key_#{i}", forApi: [ "twitter" ], qps: i, qpd: i, cb
 
     async.parallel fixtures, ( err, newKeys ) =>
       @isNull err
@@ -247,7 +247,7 @@ class exports.KeyStatsTest extends ApiaxleTest
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
       keyOptions =
-        forApi: "facebook"
+        forApi: [ "facebook" ]
 
       @fixtures.createKey "1234", keyOptions, ( err ) ->
         done()

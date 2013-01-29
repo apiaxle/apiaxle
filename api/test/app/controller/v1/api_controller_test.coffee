@@ -24,11 +24,11 @@ class exports.ApiControllerTest extends ApiaxleTest
         facebook: {}
       key:
         1234:
-          forApi: "twitter"
+          forApi: [ "twitter" ]
         5678:
-          forApi: "twitter"
+          forApi: [ "twitter" ]
         9876:
-          forApi: "facebook"
+          forApi: [ "facebook" ]
 
     @fixtures.create fixture, ( err ) =>
       @isNull err
