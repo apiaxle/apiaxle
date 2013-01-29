@@ -16,7 +16,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       done()
 
   "test GET a valid key": ( done ) ->
-    @fixtures.createKey "1234", forApi: [ "twitter", ( err, newKey ) =>
+    @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, newKey ) =>
       @isNull err
       @ok newKey
 
@@ -48,7 +48,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       headers:
         "Content-Type": "application/json"
       data: JSON.stringify
-        forApi: "twitter"
+        forApis: [ "twitter" ]
         qps: 1
         qpd: 100
 
@@ -57,7 +57,6 @@ class exports.KeyControllerTest extends ApiaxleTest
         @isNull err
         @equal json.results.qps, "1"
         @equal json.results.qpd, "100"
-        @equal json.results.forApi, "twitter"
 
         # check it went in
         @keyModel.find "1234", ( err, dbKey ) =>
@@ -65,7 +64,6 @@ class exports.KeyControllerTest extends ApiaxleTest
 
           @equal dbKey.data.qps, "1"
           @equal dbKey.data.qpd, "100"
-          @equal dbKey.data.forApi, "twitter"
           @ok dbKey.data.createdAt
 
           @app.model("apiFactory").find "twitter", ( err, api ) =>
@@ -76,7 +74,7 @@ class exports.KeyControllerTest extends ApiaxleTest
               @equal keys.length, 1
               @equal keys[0], "1234"
 
-              done 13
+              done 11
 
   "test POST with an invalid key": ( done ) ->
     options =
@@ -84,7 +82,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       headers:
         "Content-Type": "application/json"
       data: JSON.stringify
-        forApi: "twitter"
+        forApis: [ "twitter" ]
         qps: "invalid"
         qpd: 100
 
@@ -103,11 +101,11 @@ class exports.KeyControllerTest extends ApiaxleTest
       headers:
         "Content-Type": "application/json"
       data: JSON.stringify
-        forApi: "twitter"
+        forApis: [ "twitter" ]
         qps: 30
         qpd: 1000
 
-    @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
+    @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -126,11 +124,11 @@ class exports.KeyControllerTest extends ApiaxleTest
       headers:
         "Content-Type": "application/json"
       data: JSON.stringify
-        forApi: "twitter"
+        forApis: [ "twitter" ]
         qps: "hi"     # invalid
         qpd: 1000
 
-    @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
+    @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -159,7 +157,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         done 6
 
   "test DELETE with valid key": ( done ) ->
-    @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
+    @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -190,7 +188,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @fixtures.createKey "key_#{i}", forApi: [ "twitter" ], cb
+          @fixtures.createKey "key_#{i}", forApis: [ "twitter" ], cb
 
     async.series fixtures, ( err, newKeys ) =>
       @isNull err
@@ -213,7 +211,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @fixtures.createKey "key_#{i}", forApi: [ "twitter" ], qps: i, qpd: i, cb
+          @fixtures.createKey "key_#{i}", forApis: [ "twitter" ], qps: i, qpd: i, cb
 
     async.parallel fixtures, ( err, newKeys ) =>
       @isNull err
@@ -231,9 +229,8 @@ class exports.KeyControllerTest extends ApiaxleTest
             @ok json.results[ name ]
             @equal json.results[ name ].qpd, i
             @equal json.results[ name ].qps, i
-            @equal json.results[ name ].forApi, "twitter"
 
-          done 44
+          done 34
 
 class exports.KeyStatsTest extends ApiaxleTest
   @start_webserver = true
@@ -247,7 +244,7 @@ class exports.KeyStatsTest extends ApiaxleTest
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
       keyOptions =
-        forApi: [ "facebook" ]
+        forApis: [ "facebook" ]
 
       @fixtures.createKey "1234", keyOptions, ( err ) ->
         done()
