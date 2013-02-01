@@ -147,6 +147,7 @@ redisCommands = {
   "lrem": "write"
   "rpush": "write"
   "lpush": "write"
+  "hkeys": "read"
 }
 
 # build up the redis multi commands

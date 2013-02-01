@@ -56,3 +56,29 @@ class exports.KeyTest extends FakeAppTest
         @isNull err
 
         done 2
+
+  "test #linkToApi and #supportedApis": ( done ) ->
+    fixtures =
+      api:
+        twitter: {}
+        facebook: {}
+      key:
+        1234: {}
+        5678: {}
+
+    @fixtures.create fixtures, ( err, [ twitter, facebook, key1, key2 ] ) =>
+      @isNull err
+
+      # the fixture creator associates keys with twitter by default
+      key1.supportedApis ( err, apis ) =>
+        @isNull err
+        @deepEqual apis, [ "twitter" ]
+
+        key1.linkToApi "facebook", ( err ) =>
+          @isNull err
+
+          key1.supportedApis ( err, apis ) =>
+            @isNull err
+            @deepEqual apis, [ "twitter", "facebook" ]
+
+            done 6
