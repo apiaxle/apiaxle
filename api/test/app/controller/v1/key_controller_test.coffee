@@ -7,16 +7,17 @@ class exports.KeyControllerTest extends ApiaxleTest
   @empty_db_on_setup = true
 
   "setup Api": ( done ) ->
-    details =
-      endPoint: "api.twitter.com"
+    fixtures =
+      api:
+        twitter:
+          endPoint: "api.twitter.com"
+        facebook: {}
 
-    @keyModel = @app.model( "keyFactory" )
-
-    @fixtures.createApi "twitter", details, ( err, @newApi ) ->
+    @fixtures.create fixtures, ( err, [ @newApi ] ) ->
       done()
 
   "test GET a valid key": ( done ) ->
-    @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, newKey ) =>
+    @fixtures.createKey "1234", forApis: [ "twitter", "facebook" ], ( err, newKey ) =>
       @isNull err
       @ok newKey
 
@@ -27,7 +28,9 @@ class exports.KeyControllerTest extends ApiaxleTest
           @isNumber parseInt( json.results.qps )
           @isNumber parseInt( json.results.qpd )
 
-          done 5
+          @deepEqual json.results.apis, [ "twitter", "facebook" ]
+
+          done 6
 
   "test GET a non-existant key": ( done ) ->
     # now try and get it
@@ -59,7 +62,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal json.results.qpd, "100"
 
         # check it went in
-        @keyModel.find "1234", ( err, dbKey ) =>
+        @app.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
           @isNull err
 
           @equal dbKey.data.qps, "1"
@@ -112,7 +115,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       @PUT options, ( err, res ) =>
         @equal res.statusCode, 200
 
-        @keyModel.find "1234", ( err, dbKey ) =>
+        @app.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
           @equal dbKey.data.qps, "30"
           @equal dbKey.data.qpd, "1000"
 
