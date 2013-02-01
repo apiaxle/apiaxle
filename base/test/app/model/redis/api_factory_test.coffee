@@ -82,4 +82,4 @@ class exports.ApiTest extends FakeAppTest
             @isNull err
             @equal supported, false
 
-            done 1
+            done 7
