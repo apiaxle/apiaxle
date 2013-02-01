@@ -11,8 +11,8 @@ class Key extends Model
   linkToApi: ( apiName, cb ) ->
     @hset "#{ @id }-apis", apiName, 1, cb
 
-  # TODO: implement me
-  unlinkFromApi: ( apiName, cb ) ->
+  supportedApis: ( cb ) ->
+    @hkeys "#{ @id }-apis", cb
 
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true
