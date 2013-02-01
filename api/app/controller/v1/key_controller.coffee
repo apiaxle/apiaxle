@@ -79,7 +79,16 @@ class exports.ViewKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    @json res, req.key.data
+    # we want to add the list of APIs supported by this key to the
+    # output
+    req.key.supportedApis ( err, apiNameList ) =>
+      return next err if err
+
+      # merge the api names with the current output
+      output = req.key.data
+      output.apis = apiNameList
+
+      @json res, req.key.data
 
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
