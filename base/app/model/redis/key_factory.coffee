@@ -34,22 +34,10 @@ class exports.KeyFactory extends Redis
         type: "array"
         docs: "Names of the Apis that this key belongs to."
 
-  create: ( id, details, cb ) ->
-    # if there isn't a forApis field then `super` will take care of
-    # that
-    if not details?.forApis?
-      return super
-
+  _verifyApisExist: ( apis, cb ) ->
     allKeyExistsChecks = []
 
-    # grab the apis this should belong to and then delete the key pair
-    # because we don't actually want to store it.
-    forApis = details.forApis
-    delete details.forApis
-
-    # first we need to make sure all of the keys actually
-    # exist. #create should behave atomically if possible
-    for api in forApis
+    for api in apis
       do( api ) =>
         allKeyExistsChecks.push ( cb ) =>
           @app.model( "apiFactory" ).find api, ( err, dbApi ) ->
@@ -60,7 +48,22 @@ class exports.KeyFactory extends Redis
 
             return cb null, dbApi
 
-    async.parallel allKeyExistsChecks, ( err, dbApis ) =>
+    async.parallel allKeyExistsChecks, cb
+
+  create: ( id, details, cb ) ->
+    # if there isn't a forApis field then `super` will take care of
+    # that
+    if not details?.forApis?
+      return super
+
+    # grab the apis this should belong to and then delete the key pair
+    # because we don't actually want to store it.
+    forApis = details.forApis
+    delete details.forApis
+
+    # first we need to make sure all of the keys actually
+    # exist. #create should behave atomically if possible
+    @_verifyApisExist forApis, ( err, dbApis ) =>
       return cb err if err
 
       # now that we know the apis exist, link the key to them
