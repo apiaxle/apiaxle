@@ -50,20 +50,17 @@ class exports.KeyFactory extends Redis
 
     async.parallel allKeyExistsChecks, cb
 
-  _linkKeyToApis: ( dbApis, key, cb ) ->
-    allKeysCreate = []
+  _linkKeyToApis: ( dbApis, dbKey, cb ) ->
+    allKeysLink = []
 
     for api in dbApis
       do( api ) ->
-        allKeysCreate.push ( cb ) ->
-          api.addKey key, ( err, dbKey ) ->
+        allKeysLink.push ( cb ) ->
+          api.addKey dbKey.id, ( err ) ->
             return cb err if err
             return cb null, dbKey
 
-    async.parallel allKeysCreate, cb
-
-  _callConstructor: ( id, details, cb ) ->
-    return @constructor.__super__.create.apply @, [ id, details, cb ]
+    async.parallel allKeysLink, cb
 
   create: ( id, details, cb ) ->
     # if there isn't a forApis field then `super` will take care of
@@ -81,7 +78,10 @@ class exports.KeyFactory extends Redis
     @_verifyApisExist forApis, ( err, dbApis ) =>
       return cb err if err
 
-      @_callConstructor id, details, ( err, dbKey ) =>
+      # this creates the actual key
+      @callConstructor id, details, ( err, dbKey ) =>
         return cb err if err
 
-        @_linkKeyToApis dbApis, id, cb
+        @_linkKeyToApis dbApis, dbKey, ( err ) =>
+          return cb err if err
+          return cb null, dbKey

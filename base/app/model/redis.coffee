@@ -21,6 +21,9 @@ class Redis
     catch err
       return cb err, null
 
+  callConstructor: ( id, details, cb ) ->
+    return @constructor.__super__.create.apply @, [ id, details, cb ]
+
   create: ( id, details, cb ) ->
     @validate details, ( err, instance ) =>
       return cb err if err
