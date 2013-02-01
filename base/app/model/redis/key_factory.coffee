@@ -7,6 +7,12 @@ async = require "async"
 validationEnv = require( "schema" )( "keyEnv" )
 
 class Key extends Model
+  # associate this key with that api
+  linkToApi: ( apiName, cb ) ->
+    @hset "#{ @id }-apis", apiName, 1, cb
+
+  # TODO: implement me
+  unlinkFromApi: ( apiName, cb ) ->
 
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true
