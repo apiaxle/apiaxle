@@ -119,7 +119,9 @@ class Model extends Redis
   constructor: ( @app, @id, @data ) ->
     super @app
 
-# adding a command here will make it usable in Redis and RedisMulti
+# adding a command here will make it usable in Redis and
+# RedisMulti. The reason for the read/write attribute is so that when
+# the emitter does its thing you can watch reads/writes/both
 redisCommands = {
   "hset": "write"
   "hget": "read"
