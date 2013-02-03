@@ -252,6 +252,59 @@ class exports.KeyStatsTest extends ApiaxleTest
       @fixtures.createKey "1234", keyOptions, ( err ) ->
         done()
 
+  "test GET hits for Key": ( done ) ->
+    model = @app.model "hits"
+    hits  = []
+    # Wed, December 14th 2011, 20:01
+    clock = @getClock 1323892867000
+    hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+
+    shouldHave =
+      meta:
+        version: 1
+        status_code: 200
+      results:
+        "1323892867": "3"
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+      @GET path: "/v1/key/1234/hits", ( err, res ) =>
+        @isNull err
+
+        res.parseJson ( err, json ) =>
+          @isNull err
+          @ok json
+          @deepEqual json, shouldHave
+          done 5
+
+  "test GET real time hits for Key": ( done ) ->
+    model = @app.model "hits"
+    hits  = []
+    # Wed, December 14th 2011, 20:01
+    clock = @getClock 1323892867000
+    hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+
+    shouldHave =
+      meta:
+        version: 1
+        status_code: 200
+      results: 3
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+      @GET path: "/v1/key/1234/hits/now", ( err, res ) =>
+        @isNull err
+
+        res.parseJson ( err, json ) =>
+          @isNull err
+          @ok json
+          @deepEqual json, shouldHave
+          done 5
+
   "test all counts with range": ( done ) ->
     model = @app.model "counters"
 
