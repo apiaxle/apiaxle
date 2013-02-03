@@ -9,6 +9,11 @@ class exports.AppError extends Error
 
     Error.captureStackTrace @, arguments.callee
 
+class exports.NotFoundError extends exports.AppError
+  @status = 404
+
+class exports.KeyNotFoundError extends exports.NotFoundError
+
 class exports.ValidationError extends exports.AppError
 
 class exports.QpsExceededError extends exports.AppError

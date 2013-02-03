@@ -20,10 +20,11 @@ parser.add "--qps",
   help: "Queries per second."
   default: 1
 
-parser.add "--for-api",
-  type: "string"
-  help: "The api this key works with."
+parser.add "--for-apis",
+  type: "custom"
+  help: "The apis this key works with (can be many seperated by commas)."
   required: true
+  parse: ( value ) -> return value.split ","
 
 parser.add "--shared-secret",
   type: "string"

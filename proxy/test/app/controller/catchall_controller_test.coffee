@@ -98,7 +98,7 @@ class exports.CatchallTest extends ApiaxleTest
     apiOptions =
       endPoint: "graph.facebook.com"
       apiFormat: "json"
-    
+
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
       @isNull err
@@ -122,7 +122,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
 
       keyOptions =
-        forApi: "facebook"
+        forApis: [ "facebook" ]
 
       @app.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
@@ -165,7 +165,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
 
       keyOptions =
-        forApi: "facebook"
+        forApis: [ "facebook" ]
 
       @app.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
@@ -202,7 +202,7 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
 
       keyOptions =
-        forApi: "facebook"
+        forApis: [ "facebook" ]
 
       @app.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err

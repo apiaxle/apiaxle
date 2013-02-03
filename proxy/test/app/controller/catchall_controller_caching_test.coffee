@@ -121,7 +121,7 @@ class exports.CatchallTest extends ApiaxleTest
           globalCache: 20
       key:
         1234:
-          forApi: "facebook"
+          forApis: [ "facebook" ]
 
     @fixtures.create fix, ( err ) =>
       @isNull err
@@ -179,7 +179,7 @@ class exports.CatchallTest extends ApiaxleTest
           apiFormat: "json"
       key:
         1234:
-          forApi: "facebook"
+          forApis: [ "facebook" ]
 
     @fixtures.create fixture, ( err ) =>
       @isNull err
@@ -236,7 +236,7 @@ class exports.CatchallTest extends ApiaxleTest
           globalCache: 30
       key:
         1234:
-          forApi: "facebook"        
+          forApis: [ "facebook"         ]
 
     @fixtures.create fixture, ( err ) =>
       @isNull err
@@ -284,7 +284,7 @@ class exports.CatchallTest extends ApiaxleTest
           globalCache: 30
       key:
         1234:
-          forApi: "facebook"
+          forApis: [ "facebook" ]
 
     @fixtures.create fixture, ( err ) =>
       @isNull err

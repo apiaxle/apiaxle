@@ -37,7 +37,7 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
           protocol:  "https"
       key:
         1234:
-          forApi: "testhttps"
+          forApis: [ "testhttps" ]
           qps: 200
 
     @fixtures.create fixture, ( err ) =>

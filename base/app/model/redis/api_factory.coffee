@@ -1,14 +1,44 @@
-{ ApiUnknown, ValidationError } = require "../../../lib/error"
+{ ApiUnknown, ValidationError, KeyNotFoundError } = require "../../../lib/error"
 { Model, Redis } = require "../redis"
 
 validationEnv = require( "schema" )( "apiEnv" )
 
 class Api extends Model
   addKey: ( key, cb ) ->
-    @lpush "#{ @id }:keys", key, cb
+    @app.model( "keyFactory" ).find key, ( err, dbKey ) =>
+      return cb err if err
+
+      if not dbKey
+        return cb new KeyNotFoundError "#{ key } doesn't exist."
+
+      dbKey.linkToApi @id, ( err ) =>
+        return cb err if err
+
+        multi = @multi()
+
+        # add to the list of all keys
+        multi.lpush "#{ @id }:keys", key
+
+        # and add to a quick lookup for the keys
+        multi.hset "#{ @id }:keys-lookup", key, 1
+
+        multi.exec cb
+
+  # TODO: implement this
+  deleteKey: ( key, cb ) ->
+    # call `dbKey.unlinkFromApi`
 
   getKeys: ( start, stop, cb ) ->
     @lrange "#{ @id }:keys", start, stop, cb
+
+  supportsKey: ( key, cb ) ->
+    @hexists "#{ @id }:keys-lookup", key, ( err, exists ) ->
+      return cb err if err
+
+      if exists is 0
+        return cb null, false
+
+      return cb null, true
 
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true

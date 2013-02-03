@@ -16,7 +16,7 @@ class exports.CatchallTest extends ApiaxleTest
       key:
         1234:
           sharedSecret: "bob-the-builder"
-          forApi: "facebook"
+          forApis: [ "facebook" ]
 
     @fixtures.create fixtures, done
 

@@ -46,7 +46,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
         facebook: {}
       key:
         1234:
-          forApi: "facebook"
+          forApis: [ "facebook" ]
 
     @fixtures.create fixture, ( err ) =>
       @isNull err

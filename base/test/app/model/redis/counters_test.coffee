@@ -62,7 +62,7 @@ class exports.CountersTest extends FakeAppTest
 
       for time in [ min, hour, day, month, year ]
         @equal time, 1
-      
+
       # move on a day
       clock.addMinutes 1
 
