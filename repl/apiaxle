@@ -1,0 +1,52 @@
+#!/usr/bin/env coffee
+# -*- mode: coffee; -*-
+
+read = require "read"
+_    = require "underscore"
+
+{ Application } = require "apiaxle.base"
+
+# create a new application for scripting
+class AxleRepl extends Application
+
+# command loading
+{ Api } = require "./commands/api"
+
+all_commands =
+  api: Api
+
+axle = new AxleRepl()
+axle.script ( cb ) ->
+  topLevelInput axle.logger
+  cb()
+
+topLevelInput = ( logger ) ->
+  read { prompt: "axle> " }, ( err, entry ) ->
+    throw err if err
+
+    # very simple approach to slurping quoted strings, my editor
+    # breaks on the quote, hence that odd comment after the regex
+    regexp = /(["]?)\s*\b(\S[^\1]*?)\b\s*\1/g; #"
+    entered_commands = ( res[2] while res = regexp.exec entry )
+
+    # get the initial highlevel command
+    command = entered_commands.shift()
+
+    # quit/exit are slightly magic
+    return if command in [ "quit", "exit" ]
+
+    if not all_commands[ command ]?
+      console.error "I don't know about '#{ command }'. Try 'help' instead."
+      return topLevelInput()
+
+    # init the class
+    command_object = new all_commands[ command ]( axle )
+
+    # the command exists, is there a method for it though?
+    method = ( entered_commands.shift() or "help" )
+    if not command_object[ method ]?
+      console.error "'#{ command }' doesn't have a '#{ method }' method."
+      return topLevelInput()
+
+    # run the method
+    command_object[ method ]( entered_commands, topLevelInput )
