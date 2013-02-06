@@ -2,7 +2,7 @@
 # -*- mode: coffee; -*-
 
 read = require "read"
-_    = require "underscore"
+parser = require "./lib/parser"
 
 { Application } = require "apiaxle.base"
 
@@ -10,24 +10,22 @@ _    = require "underscore"
 class AxleRepl extends Application
 
 # command loading
-{ Api } = require "./commands/api"
+{ Api } = require "./command/api"
 
 all_commands =
   api: Api
 
 axle = new AxleRepl()
 axle.script ( cb ) ->
-  topLevelInput axle.logger
+  topLevelInput()
   cb()
 
-topLevelInput = ( logger ) ->
+topLevelInput = ( ) ->
   read { prompt: "axle> " }, ( err, entry ) ->
     throw err if err
 
-    # very simple approach to slurping quoted strings, my editor
-    # breaks on the quote, hence that odd comment after the regex
-    regexp = /(["]?)\s*\b(\S[^\1]*?)\b\s*\1/g; #"
-    entered_commands = ( res[2] while res = regexp.exec entry )
+    entered_commands = parser( entry )
+    console.log( entered_commands )
 
     # get the initial highlevel command
     command = entered_commands.shift()
