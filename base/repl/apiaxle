@@ -24,8 +24,7 @@ topLevelInput = ( ) ->
   read { prompt: "axle> " }, ( err, entry ) ->
     throw err if err
 
-    entered_commands = parser( entry )
-    console.log( entered_commands )
+    entered_commands = parser entry
 
     # get the initial highlevel command
     command = entered_commands.shift()
