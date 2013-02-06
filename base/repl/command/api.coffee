@@ -15,19 +15,21 @@ class exports.Api extends Command
 
       # copy the fields
       for k, v of object
-        required_keys_lookup[ k ] = true if required_keys_lookup[ k ]?
-        optional_keys_lookup[ k ] = true if optional_keys_lookup[ k ]?
-
         all[ k ] = v
 
-    # this can't be the best way...
-    missing = _.chain( required_keys_lookup )
-               .pairs()
-               .filter( ([ name, value ]) -> not value )
-               .object()
-               .keys()
-               .value()
-               .join ", "
+        if required_keys_lookup[ k ]?
+          delete required_keys_lookup[ k ]
+          continue
+
+        if optional_keys_lookup[ k ]?
+          delete optional_keys_lookup[ k ]
+          continue
+
+        # if we're here it's an invalid field
+        throw new Error "I can't handle the field '#{ k }'"
+
+    # build a string of the missing bits
+    missing = _.keys( required_keys_lookup ).join ", "
 
     if missing
       throw new Error "Missing required values: '#{ missing }'"
