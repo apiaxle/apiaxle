@@ -2,9 +2,11 @@ _ = require "underscore"
 { Command } = require "../command"
 
 class exports.Api extends Command
-  create: ( commands, cb ) ->
-    model = @axle.model( "apiFactory" )
+  constructor: ( axle ) ->
+    @model = @axle.model( "apiFactory" )
+    super axle
 
+  create: ( commands, cb ) ->
     id = commands.shift()
     if not id or typeof( id ) isnt "string"
       return cb new Error "Expecting an ID (string) as the first argument."
