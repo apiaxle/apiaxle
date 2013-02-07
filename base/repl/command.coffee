@@ -29,10 +29,4 @@ class exports.Command
         # if we're here it's an invalid field
         return cb new Error "I can't handle the field '#{ k }'"
 
-    # build a string of the missing bits
-    missing = _.keys( required_keys_lookup ).join ", "
-
-    if missing
-      return cb new Error "Missing required values: '#{ missing }'"
-
-    return cb null, all
+    return cb null, required_keys_lookup, all
