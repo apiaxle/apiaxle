@@ -1,7 +1,8 @@
 #!/usr/bin/env coffee
 # -*- mode: coffee; -*-
 
-read = require "read"
+async = require "async"
+readline = require "readline"
 parser = require "./lib/parser"
 
 { Application } = require "apiaxle.base"
@@ -15,14 +16,22 @@ class AxleRepl extends Application
 all_commands =
   api: Api
 
+rl = readline.createInterface
+  input: process.stdin
+  output: process.stdout
+
 axle = new AxleRepl()
 axle.script ( cb ) ->
-  topLevelInput()
-  cb()
+  rl.on "close", cb
 
-topLevelInput = ( ) ->
-  read { prompt: "axle> " }, ( err, entry ) ->
-    throw err if err
+  topLevelInput()
+
+topLevelInput = ( err, info ) ->
+  axle.logger.warn err if err
+  axle.logger.info info if info
+
+  rl.question "axle> ", ( entry ) ->
+    axle.logger.error err if err
 
     entered_commands = parser entry
 

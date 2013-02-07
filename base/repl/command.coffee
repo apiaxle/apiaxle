@@ -3,7 +3,7 @@ _ = require "underscore"
 class exports.Command
   constructor: ( @axle ) ->
 
-  _mergeObjects: ( objects, required_keys, optional_keys ) ->
+  _mergeObjects: ( objects, required_keys, optional_keys, cb ) ->
     all = {}
 
     # converts [ "hello", "there" ] -> { hello: false, there: flase }
@@ -12,7 +12,7 @@ class exports.Command
 
     for object in objects
       if ( type = typeof( object ) ) isnt "object"
-        throw new Error "Expecting a keyvalue pair, got '#{ type }' (#{ object })"
+        return cb new Error "Expecting a keyvalue pair, got '#{ type }' (#{ object })"
 
       # copy the fields
       for k, v of object
@@ -27,12 +27,12 @@ class exports.Command
           continue
 
         # if we're here it's an invalid field
-        throw new Error "I can't handle the field '#{ k }'"
+        return cb new Error "I can't handle the field '#{ k }'"
 
     # build a string of the missing bits
     missing = _.keys( required_keys_lookup ).join ", "
 
     if missing
-      throw new Error "Missing required values: '#{ missing }'"
+      return cb new Error "Missing required values: '#{ missing }'"
 
-    return all
+    return cb null, all
