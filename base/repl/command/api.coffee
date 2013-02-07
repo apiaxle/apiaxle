@@ -20,4 +20,7 @@ class exports.Api extends Command
     @_mergeObjects commands, required_keys, optional_keys, ( err, options ) ->
       return cb err if err
 
-      model.create id, options, cb
+      model.create id, options, ( err, dbApi ) ->
+        return cb err if err
+
+        return cb null, dbApi.data

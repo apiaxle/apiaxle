@@ -1,6 +1,7 @@
 #!/usr/bin/env coffee
 # -*- mode: coffee; -*-
 
+util = require "util"
 async = require "async"
 readline = require "readline"
 parser = require "./lib/parser"
@@ -28,7 +29,7 @@ axle.script ( cb ) ->
 
 topLevelInput = ( err, info ) ->
   axle.logger.warn err if err
-  axle.logger.info info if info
+  axle.logger.info util.inspect( info ) if info
 
   rl.question "axle> ", ( entry ) ->
     axle.logger.error err if err
