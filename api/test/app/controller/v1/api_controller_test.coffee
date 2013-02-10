@@ -13,7 +13,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       @isNull err
       res.parseJson ( err, json ) =>
         @isNull err
-        @ok 1
+        @ok json
 
         done 3
 
@@ -29,6 +29,8 @@ class exports.ApiControllerTest extends ApiaxleTest
           forApis: [ "twitter" ]
         9876:
           forApis: [ "facebook" ]
+        hello:
+          forApis: [ "facebook", "twitter" ]
 
     @fixtures.create fixture, ( err ) =>
       @isNull err
@@ -43,7 +45,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @isNull err
 
           res.parseJson ( err, json ) =>
-            @deepEqual json.results, [ "5678", "1234" ]
+            @deepEqual json.results, [ "hello", "5678", "1234" ]
             cb()
 
       # with resolution
@@ -52,13 +54,16 @@ class exports.ApiControllerTest extends ApiaxleTest
           @isNull err
 
           res.parseJson ( err, json ) =>
-            #@equal json.results["1234"].forApi, "twitter"
+            @equal json.results[ "1234" ].qpd, 172800
+            @equal json.results[ "5678" ].qpd, 172800
+            @equal json.results[ "hello" ].qpd, 172800
+
             cb()
 
       async.series all_tests, ( err ) =>
         @isNull err
 
-        done 5
+        done 8
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
