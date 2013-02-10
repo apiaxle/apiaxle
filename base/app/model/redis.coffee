@@ -143,6 +143,7 @@ redisCommands = {
   "ttl": "write"
   "setex": "write"
   "sadd": "write"
+  "hkeys": "read"
   "smembers": "read"
   "scard":   "read"
   "linsert": "write"
