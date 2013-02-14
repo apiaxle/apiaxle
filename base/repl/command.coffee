@@ -39,7 +39,8 @@ class exports.ModelCommand extends exports.Command
     return @_model if @_model
     return ( @_model = @app.model( @constructor.modelName ) )
 
-  modelProps: ( ) -> @model().constructor.structure.properties
+  modelProps: ( ) ->
+    ( @model().constructor.structure.properties or [] )
 
   _getId: ( commands, cb ) ->
     id = commands.shift()
@@ -47,6 +48,9 @@ class exports.ModelCommand extends exports.Command
       return cb new Error "Expecting an ID (string) as the first argument."
 
     return cb null, id
+
+  list: ( [ from, to, rest... ], cb ) ->
+    @model().range ( from or 0 ), ( to or 1000 ), cb
 
   find: ( commands, cb ) ->
     @_getId commands, ( err, id ) =>
