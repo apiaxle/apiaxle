@@ -22,8 +22,6 @@ class exports.ApiTest extends FakeAppTest
       @isNull err
 
       @repl.runCommands [ "api", "delete", "facebook" ], ( err, info ) =>
-        console.log( err )
-
         @isNull err
         @equal info, "'facebook' deleted."
 
