@@ -1,4 +1,5 @@
 #!/usr/bin/env coffee
+# -*- mode: coffee; -*-
 
 util = require "util"
 async = require "async"
