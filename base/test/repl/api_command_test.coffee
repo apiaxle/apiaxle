@@ -92,9 +92,3 @@ class exports.ApiTest extends FakeAppTest
       @equal err.message, "Missing required values: 'endPoint'"
 
       done 1
-
-  "test api with no arguments": ( done ) ->
-    @repl.runCommands [ "api" ], ( err, info ) =>
-      @equal err.message, "'api' doesn't have a 'help' method."
-
-      done 1
