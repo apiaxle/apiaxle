@@ -44,37 +44,43 @@ class Redis
       multi.exec cb
 
   create: ( id, details, cb ) ->
-    @validate details, ( err, instance ) =>
+    @find id, ( err, dbObj ) =>
       return cb err if err
 
-      # need to escape the key so that people don't use colons and
-      # trick redis into overwrting other keys
-      id = @escapeId id
+      update = dbObj?
 
-      multi = @multi()
-
-      details.createdAt = new Date().getTime()
-
-      # first create the object
-      multi.hmset id, instance
-
-      # then add it to its list so that we can do range queries on it
-      # later.
-      multi.rpush "meta:all", id
-
-      multi.exec ( err, results ) =>
+      @validate details, ( err, instance ) =>
         return cb err if err
 
-        # no data means no object
-        return cb null, null unless results
+        # need to escape the key so that people don't use colons and
+        # trick redis into overwrting other keys
+        id = @escapeId id
 
-        # construct a new return object (see @returns on the factory
-        # base class)
-        if @constructor.returns?
-          return cb null, new @constructor.returns( @app, id, details )
+        multi = @multi()
 
-        # no returns object, just throw back the data
-        return cb null, details
+        details.createdAt = new Date().getTime()
+
+        # first create the object
+        multi.hmset id, instance
+
+        # then add it to its list so that we can do range queries on it
+        # later (if we're not doing an update)
+        if not update
+          multi.rpush "meta:all", id
+
+        multi.exec ( err, results ) =>
+          return cb err if err
+
+          # no data means no object
+          return cb null, null unless results
+
+          # construct a new return object (see @returns on the factory
+          # base class)
+          if @constructor.returns?
+            return cb null, new @constructor.returns( @app, id, details )
+
+          # no returns object, just throw back the data
+          return cb null, details
 
   range: ( start, stop, cb ) ->
     @lrange "meta:all", start, stop, cb
