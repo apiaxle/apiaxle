@@ -4,6 +4,8 @@ _ = require "underscore"
 class exports.Api extends Command
   constructor: ( app ) ->
     @model = app.model( "apiFactory" )
+    @props = @model.constructor.structure.properties
+
     super app
 
   help: ( commands, cb ) ->
@@ -19,9 +21,8 @@ class exports.Api extends Command
       return cb new Error "Expecting an ID (string) as the first argument."
 
     # the fields this model supports
-    props = @model.constructor.structure.properties
-    keys  = _.keys( props ).sort()
 
+    keys = _.keys( @props ).sort()
     @model.find id, ( err, dbApi ) =>
       return cb err if err
       return cb new Error "'#{ id }' doesn't exist." if not dbApi
@@ -36,8 +37,7 @@ class exports.Api extends Command
       return cb new Error "Expecting an ID (string) as the first argument."
 
     # the fields this model supports
-    props = @model.constructor.structure.properties
-    keys  = _.keys( props ).sort()
+    keys = _.keys( @props ).sort()
 
     @model.find id, ( err, dbApi ) =>
       return cb err if err
@@ -48,7 +48,6 @@ class exports.Api extends Command
 
         @model.create id, options, ( err, dbApi ) ->
           return cb err if err
-
           return cb null, dbApi.data
 
   create: ( commands, cb ) ->
@@ -57,11 +56,10 @@ class exports.Api extends Command
       return cb new Error "Expecting an ID (string) as the first argument."
 
     # the fields this model supports
-    props = @model.constructor.structure.properties
-    keys  = _.keys( props ).sort()
+    keys  = _.keys( @props ).sort()
 
     # these are the required_keys options
-    required_keys = _.filter keys, ( k ) -> props[ k ].required
+    required_keys = _.filter keys, ( k ) => @props[ k ].required
     optional_keys = _.difference keys, required_keys
 
     @_mergeObjects commands, required_keys, optional_keys, ( err, missing, options ) =>
@@ -74,5 +72,4 @@ class exports.Api extends Command
 
       @model.create id, options, ( err, dbApi ) ->
         return cb err if err
-
         return cb null, dbApi.data
