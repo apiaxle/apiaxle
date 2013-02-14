@@ -27,6 +27,9 @@ class Clock
     # move on the fake clock
     @tick ( now.getTime() - thenTime )
 
+  addSeconds: ( number ) ->
+    @_addTime "addSeconds", number
+
   addMinutes: ( number ) ->
     @_addTime "addMinutes", number
 
