@@ -5,11 +5,13 @@ readline = require "readline"
 # command loading
 { Api } = require "./../command/api"
 { Key } = require "./../command/key"
+{ KeyRing } = require "./../command/keyring"
 
 class exports.ReplHelper
   @all_commands =
     api: Api
     key: Key
+    keyring: KeyRing
 
   constructor: ( @app ) ->
 
