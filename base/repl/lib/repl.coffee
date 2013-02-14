@@ -1,3 +1,4 @@
+_ = require "underscore"
 parser = require "./parser"
 readline = require "readline"
 
@@ -26,6 +27,14 @@ class exports.ReplHelper
     # quit/exit are slightly magic
     return if command in [ "quit", "exit" ]
 
+    # ugh, help is magic too
+    if command is "help"
+      available_commands = _.keys( @constructor.all_commands ).join ", "
+      help = "Available commands are #{ available_commands }. Try one with "
+      help += "help following it. E.G. 'api help'"
+
+      return cb null, help
+
     if not @constructor.all_commands[ command ]?
       return cb new Error "I don't know about '#{ command }'. Try 'help' instead."
 
@@ -45,7 +54,7 @@ class exports.ReplHelper
     console.log info if info
 
     @rl.question "axle> ", ( entry ) =>
-      console.error err if err
+      return @topLevelInput() if /^\s*$/.exec entry
 
       entered_commands = parser entry
 
