@@ -58,7 +58,9 @@ class Redis
 
         multi = @multi()
 
-        details.createdAt = new Date().getTime()
+        # let users know what happened, when
+        time_field = if update then "updatedAt" else "createdAt"
+        details[ time_field ] = new Date().getTime()
 
         # first create the object
         multi.hmset id, instance

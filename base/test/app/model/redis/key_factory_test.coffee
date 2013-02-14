@@ -40,12 +40,12 @@ class exports.KeyTest extends FakeAppTest
 
       done 2
 
-  "test #create with an existant api": ( done ) ->
+  "test #create with an existing api": ( done ) ->
     options =
       endPoint: "api.twitter.com"
 
     @app.model( "apiFactory" ).create "twitter", options, ( err, newApi ) =>
-      @isNull err
+      @isUndefined err?.message
 
       createObj =
         qps: 1
