@@ -39,10 +39,10 @@ class exports.Api extends Command
     @_mergeObjects commands, required_keys, optional_keys, ( err, missing, options ) =>
       return cb err if err
 
-      missing = _.keys(  ).join ", "
+      missing_string = _.keys( missing ).join ", "
 
-      if missing
-        return cb new Error "Missing required values: '#{ missing }'"
+      if missing_string
+        return cb new Error "Missing required values: '#{ missing_string }'"
 
       @model.create id, options, ( err, dbApi ) ->
         return cb err if err
