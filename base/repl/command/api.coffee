@@ -21,7 +21,6 @@ class exports.Api extends Command
 
       @model.delete id, ( err ) ->
         return cb err if err
-
         return cb null, "'#{ id }' deleted."
 
   update: ( commands, cb ) ->
