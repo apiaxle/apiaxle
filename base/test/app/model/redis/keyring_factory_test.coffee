@@ -11,12 +11,25 @@ class exports.KeyringFactoryTest extends FakeAppTest
     done()
 
   "test initialisation": ( done ) ->
-    @ok @app
-    @ok @model
-
     @equal @model.ns, "gk:test:keyringfactory"
 
-    done 3
+    done 1
+
+  "test #update ing an existing keyring": ( done ) ->
+    fixture =
+      keyring:
+        blah: {}
+
+    @fixtures.create fixture, ( err, [ dbKeyring ] ) =>
+      @isNull err
+      @ok dbKeyring.data.createdAt
+      @ok not dbKeyring.data.updatedAt?
+
+      @fixtures.create fixture, ( err, [ dbKeyring2 ] ) =>
+        @ok dbKeyring2.data.updatedAt
+        @equal dbKeyring.data.createdAt, dbKeyring2.data.createdAt
+
+        done 4
 
   "test creating a keyring": ( done ) ->
     @model.create "keyring_one", {}, ( err, keyring ) =>
