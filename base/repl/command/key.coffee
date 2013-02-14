@@ -6,7 +6,7 @@ class exports.Key extends ModelCommand
 
   help: ( commands, cb ) ->
     help = "key [find|update|delete] <id>\n\n"
-    help += "key create <id> endPoint=<endpoint>:\nFields supported:\n"
+    help += "key create <id>\nFields supported:\n"
     help += @model().getValidationDocs()
 
     return cb null, help
