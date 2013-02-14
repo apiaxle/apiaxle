@@ -25,8 +25,7 @@ class exports.ReplHelper
     return if command in [ "quit", "exit" ]
 
     if not @constructor.all_commands[ command ]?
-      console.error "I don't know about '#{ command }'. Try 'help' instead."
-      return @topLevelInput()
+      return cb new Error "I don't know about '#{ command }'. Try 'help' instead."
 
     # init the class
     command_object = new @constructor.all_commands[ command ]( @app )
@@ -34,14 +33,13 @@ class exports.ReplHelper
     # the command exists, is there a method for it though?
     method = ( entered_commands.shift() or "help" )
     if not command_object[ method ]?
-      console.error "'#{ command }' doesn't have a '#{ method }' method."
-      return @topLevelInput()
+      return cb new Error "'#{ command }' doesn't have a '#{ method }' method."
 
     # run the method
     command_object[ method ]( entered_commands, cb )
 
   topLevelInput: ( err, info ) =>
-    console.error err if err
+    console.error err.message if err
     console.log info if info
 
     @rl.question "axle> ", ( entry ) =>
