@@ -2,9 +2,9 @@ _ = require "underscore"
 { Command } = require "../command"
 
 class exports.Api extends Command
-  constructor: ( axle ) ->
-    @model = axle.model( "apiFactory" )
-    super axle
+  constructor: ( app ) ->
+    @model = app.model( "apiFactory" )
+    super app
 
   update: ( commands, cb ) ->
     id = commands.shift()
@@ -15,13 +15,17 @@ class exports.Api extends Command
     props = @model.constructor.structure.properties
     keys  = _.keys( props ).sort()
 
-    @_mergeObjects commands, null, null, ( err, options ) =>
+    @model.find id, ( err, dbApi ) =>
       return cb err if err
+      return cb new Error "'#{ id }' doesn't exist." if not dbApi
 
-      @model.update id, options, ( err, dbApi ) ->
+      @_mergeObjects commands, [], keys, ( err, missing, options ) =>
         return cb err if err
 
-        return cb null, dbApi.data
+        @model.create id, options, ( err, dbApi ) ->
+          return cb err if err
+
+          return cb null, dbApi.data
 
   create: ( commands, cb ) ->
     id = commands.shift()
