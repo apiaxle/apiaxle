@@ -41,59 +41,61 @@ class exports.ModelCommand extends exports.Command
 
   modelProps: ( ) -> @model().constructor.structure.properties
 
-  delete: ( commands, cb ) ->
+  _getId: ( commands, cb ) ->
     id = commands.shift()
     if not id or typeof( id ) isnt "string"
       return cb new Error "Expecting an ID (string) as the first argument."
 
-    keys = _.keys( @modelProps() ).sort()
-    @model().find id, ( err, dbApi ) =>
-      return cb err if err
-      return cb new Error "'#{ id }' doesn't exist." if not dbApi
+    return cb null, id
 
-      @model().delete id, ( err ) ->
+  find: ( commands, cb ) ->
+
+  delete: ( commands, cb ) ->
+    @_getId commands, ( err, id ) =>
+      return cb err if err
+
+      keys = _.keys( @modelProps() ).sort()
+      @model().find id, ( err, dbApi ) =>
         return cb err if err
-        return cb null, "'#{ id }' deleted."
+        return cb new Error "'#{ id }' doesn't exist." if not dbApi
+
+        @model().delete id, ( err ) ->
+          return cb err if err
+          return cb null, "'#{ id }' deleted."
 
   update: ( commands, cb ) ->
-    id = commands.shift()
-    if not id or typeof( id ) isnt "string"
-      return cb new Error "Expecting an ID (string) as the first argument."
+    @_getId commands, ( err, id ) =>
+      # the fields this model supports
+      keys = _.keys( @modelProps() ).sort()
 
-    # the fields this model supports
-    keys = _.keys( @modelProps() ).sort()
-
-    @model().find id, ( err, dbApi ) =>
-      return cb err if err
-      return cb new Error "'#{ id }' doesn't exist." if not dbApi
-
-      @_mergeObjects commands, [], keys, ( err, missing, options ) =>
+      @model().find id, ( err, dbApi ) =>
         return cb err if err
+        return cb new Error "'#{ id }' doesn't exist." if not dbApi
+
+        @_mergeObjects commands, [], keys, ( err, missing, options ) =>
+          return cb err if err
+
+          @model().create id, options, ( err, dbApi ) ->
+            return cb err if err
+            return cb null, dbApi.data
+
+  create: ( commands, cb ) ->
+    @_getId commands, ( err, id ) =>
+      # the fields this model supports
+      keys  = _.keys( @modelProps() ).sort()
+
+      # these are the required_keys options
+      required_keys = _.filter keys, ( k ) => @modelProps()[ k ].required
+      optional_keys = _.difference keys, required_keys
+
+      @_mergeObjects commands, required_keys, optional_keys, ( err, missing, options ) =>
+        return cb err if err
+
+        missing_string = _.keys( missing ).join ", "
+
+        if missing_string
+          return cb new Error "Missing required values: '#{ missing_string }'"
 
         @model().create id, options, ( err, dbApi ) ->
           return cb err if err
           return cb null, dbApi.data
-
-  create: ( commands, cb ) ->
-    id = commands.shift()
-    if not id or typeof( id ) isnt "string"
-      return cb new Error "Expecting an ID (string) as the first argument."
-
-    # the fields this model supports
-    keys  = _.keys( @modelProps() ).sort()
-
-    # these are the required_keys options
-    required_keys = _.filter keys, ( k ) => @modelProps()[ k ].required
-    optional_keys = _.difference keys, required_keys
-
-    @_mergeObjects commands, required_keys, optional_keys, ( err, missing, options ) =>
-      return cb err if err
-
-      missing_string = _.keys( missing ).join ", "
-
-      if missing_string
-        return cb new Error "Missing required values: '#{ missing_string }'"
-
-      @model().create id, options, ( err, dbApi ) ->
-        return cb err if err
-        return cb null, dbApi.data
