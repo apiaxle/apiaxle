@@ -13,6 +13,22 @@ class exports.ApiTest extends FakeAppTest
 
     done()
 
+  "test deleting an api": ( done ) ->
+    fixture =
+      api:
+        facebook: {}
+
+    @fixtures.create fixture, ( err ) =>
+      @isNull err
+
+      @repl.runCommands [ "api", "delete", "facebook" ], ( err, info ) =>
+        console.log( err )
+
+        @isNull err
+        @equal info, "'facebook' deleted."
+
+        done 3
+
   "test updating a non-existant API": ( done ) ->
     commands = [
       "api",

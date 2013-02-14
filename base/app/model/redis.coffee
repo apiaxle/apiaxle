@@ -32,6 +32,17 @@ class Redis
 
       @create id, merged_data, cb
 
+  delete: ( id, cb ) ->
+    @find id, ( err, dbObj ) =>
+      return cb new Error "'#{ id }' not found." if not dbObj
+
+      id = @escapeId id
+
+      multi = @multi()
+      multi.del id
+      multi.lrem "meta:all", 0, id
+      multi.exec cb
+
   create: ( id, details, cb ) ->
     @validate details, ( err, instance ) =>
       return cb err if err

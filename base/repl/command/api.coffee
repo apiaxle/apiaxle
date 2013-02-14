@@ -6,6 +6,24 @@ class exports.Api extends Command
     @model = app.model( "apiFactory" )
     super app
 
+  delete: ( commands, cb ) ->
+    id = commands.shift()
+    if not id or typeof( id ) isnt "string"
+      return cb new Error "Expecting an ID (string) as the first argument."
+
+    # the fields this model supports
+    props = @model.constructor.structure.properties
+    keys  = _.keys( props ).sort()
+
+    @model.find id, ( err, dbApi ) =>
+      return cb err if err
+      return cb new Error "'#{ id }' doesn't exist." if not dbApi
+
+      @model.delete id, ( err ) ->
+        return cb err if err
+
+        return cb null, "'#{ id }' deleted."
+
   update: ( commands, cb ) ->
     id = commands.shift()
     if not id or typeof( id ) isnt "string"
