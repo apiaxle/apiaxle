@@ -49,6 +49,12 @@ class exports.ModelCommand extends exports.Command
     return cb null, id
 
   find: ( commands, cb ) ->
+    @_getId commands, ( err, id ) =>
+      return cb err if err
+
+      @model().find id, ( err, dbApi ) =>
+        return cb err if err
+        return cb null, dbApi.data
 
   delete: ( commands, cb ) ->
     @_getId commands, ( err, id ) =>
