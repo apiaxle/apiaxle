@@ -44,7 +44,8 @@ class exports.ModelCommand extends exports.Command
 
   _getId: ( commands, cb ) ->
     id = commands.shift()
-    if not id or typeof( id ) isnt "string"
+
+    if not id? or typeof( id ) isnt "string"
       return cb new Error "Expecting an ID (string) as the first argument."
 
     return cb null, id
@@ -78,6 +79,8 @@ class exports.ModelCommand extends exports.Command
 
   update: ( commands, cb ) ->
     @_getId commands, ( err, id ) =>
+      return cb err if err
+
       # the fields this model supports
       keys = _.keys( @modelProps() ).sort()
 
@@ -94,6 +97,8 @@ class exports.ModelCommand extends exports.Command
 
   create: ( commands, cb ) ->
     @_getId commands, ( err, id ) =>
+      return cb err if err
+
       # the fields this model supports
       keys = _.keys( @modelProps() ).sort()
 
