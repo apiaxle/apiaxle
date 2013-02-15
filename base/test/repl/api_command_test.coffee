@@ -5,7 +5,7 @@ async = require "async"
 
 { ReplHelper } = require "../../repl/lib/repl"
 
-class exports.ApiTest extends FakeAppTest
+class exports.ApiCommandTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup repl helper": ( done ) ->
