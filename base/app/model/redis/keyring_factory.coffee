@@ -13,7 +13,6 @@ class Keyring extends Model
 
       @lrem "#{ @id }:keys", 0, key_name, ( err ) ->
         return cb err if err
-
         return cb null, key
 
   addKeys: ( key_names, cb ) =>

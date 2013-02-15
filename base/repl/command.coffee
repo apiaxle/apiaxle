@@ -92,7 +92,7 @@ class exports.ModelCommand extends exports.Command
   create: ( commands, cb ) ->
     @_getId commands, ( err, id ) =>
       # the fields this model supports
-      keys  = _.keys( @modelProps() ).sort()
+      keys = _.keys( @modelProps() ).sort()
 
       # these are the required_keys options
       required_keys = _.filter keys, ( k ) => @modelProps()[ k ].required
