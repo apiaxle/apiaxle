@@ -42,6 +42,14 @@ class exports.ModelCommand extends exports.Command
   modelProps: ( ) ->
     ( @model().constructor.structure.properties or [] )
 
+  _getIdAndObject: ( commands, cb ) ->
+    @_getId commands, ( err, id ) =>
+      return cb err if err
+
+      @model().find id, ( err, dbObj ) ->
+        return cb err if err
+        return cb null, dbObj
+
   _getId: ( commands, cb ) ->
     id = commands.shift()
 
