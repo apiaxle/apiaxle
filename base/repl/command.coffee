@@ -49,6 +49,9 @@ class exports.ModelCommand extends exports.Command
 
     return cb null, id
 
+  # pass commands straight through
+  _postProcessOptions: ( commands ) -> commands
+
   list: ( [ from, to, rest... ], cb ) ->
     @model().range ( from or 0 ), ( to or 1000 ), cb
 
@@ -105,6 +108,10 @@ class exports.ModelCommand extends exports.Command
 
         if missing_string
           return cb new Error "Missing required values: '#{ missing_string }'"
+
+        # a command might need to modify the commands somehow before
+        # they go to create
+        options = @_postProcessOptions options
 
         @model().create id, options, ( err, dbApi ) ->
           return cb err if err
