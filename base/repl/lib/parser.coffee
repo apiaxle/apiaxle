@@ -15,7 +15,7 @@ module.exports = ( str ) ->
 
     if type in [ "string", "bare" ]
       # strip the starting and ending " from the string
-      token = token.replace /(?:^"|"$)/g, "" if type is "string"
+      token = token.replace /(?:^['"]|["']$)/g, "" if type is "string"
 
       # the previous string/bare was meant to be a key in a hash
       if assignment
@@ -43,6 +43,9 @@ module.exports = ( str ) ->
   # quoted string
   t.addRule(/^"([^"]|\\")*"$/, 'string') #"
   t.addRule(/^"([^"]|\\")*$/, 'maybe-string') #"
+
+  t.addRule(/^'([^']|\\')*'$/, 'string') #'
+  t.addRule(/^'([^']|\\')*$/, 'maybe-string') #'
 
   # key=value pair
   t.addRule /^=$/, "assignment"
