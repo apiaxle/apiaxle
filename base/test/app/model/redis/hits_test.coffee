@@ -14,7 +14,7 @@ class exports.StatsTest extends FakeAppTest
     @ok @model
     @equal @model.ns, "gk:test:hits"
 
-    done 1
+    done 2
 
   "test #record API hit": ( done ) ->
     clock = @getClock 1323892867000
