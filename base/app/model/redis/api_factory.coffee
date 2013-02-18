@@ -12,16 +12,20 @@ class Api extends Model
       dbKey.linkToApi @id, ( err ) =>
         return cb err if err
 
-        multi = @multi()
-
         # add to the list of all keys if it's not already there
-        @hexists "#{ @id }:keys-lookup", key, ( err, exists ) ->
-          multi.lpush "#{ @id }:keys", key if not exists
+        @supportsKey key, ( err, is_already_added ) =>
+          return cb err if err
 
-        # and add to a quick lookup for the keys
-        multi.hset "#{ @id }:keys-lookup", key, 1
+          multi = @multi()
 
-        multi.exec cb
+          # the list (if need be)
+          if not is_already_added
+            multi.lpush "#{ @id }:keys", key
+
+          # and add to a quick lookup for the keys
+          multi.hset "#{ @id }:keys-lookup", key, 1
+
+          multi.exec cb
 
   # TODO: implement this
   deleteKey: ( key, cb ) ->
