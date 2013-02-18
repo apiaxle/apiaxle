@@ -40,16 +40,14 @@ class exports.ReplHelper
     if not @constructor.all_commands[ command ]?
       return cb new Error "I don't know about '#{ command }'. Try 'help' instead."
 
-    # init the class
-    command_object = new @constructor.all_commands[ command ]( @app )
+    # pull the id from the list
+    id = entered_commands.shift()
 
-    # the command exists, is there a method for it though?
-    method = ( entered_commands.shift() or "help" )
-    if not command_object[ method ]?
-      return cb new Error "'#{ command }' doesn't have a '#{ method }' method."
+    # init the class
+    command_object = new @constructor.all_commands[ command ]( @app, id )
 
     # run the method
-    command_object[ method ]( entered_commands, cb )
+    command_object.exec entered_commands, cb
 
   topLevelInput: ( err, info ) =>
     console.error err.message if err
