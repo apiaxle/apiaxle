@@ -75,9 +75,4 @@ class exports.ApiFactory extends Redis
         type: "string"
         docs: "Regular expression used to extract API key from url. Axle will use the **first** matched grouping and then apply that as the key. Using the `api_key` or `apiaxle_key` will take precedence."
         optional: true
-        pre: ( value ) ->
-          try
-            new RegExp( value )
-            return value
-          catch err
-            throw new ValidationError( err.message )
+        is_valid_regexp: true
