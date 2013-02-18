@@ -94,7 +94,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
-        @equal json.results.error.message, "qps: (type) "
+        @equal json.results.error.message, "qps: The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
 
         done 4
 

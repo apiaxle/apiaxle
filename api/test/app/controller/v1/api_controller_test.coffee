@@ -212,9 +212,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
-
-        # TODO: this is a terrible message...
-        @equal json.results.error.message, "endPoint: (optional) "
+        @equal json.results.error.message, "qps: The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
 
         done 6
 
