@@ -12,7 +12,7 @@ class exports.CatchallTest extends ApiaxleTest
       api:
         facebook:
           apiFormat: "json"
-          globalCache: "30"
+          globalCache: 30
       key:
         1234:
           sharedSecret: "bob-the-builder"
