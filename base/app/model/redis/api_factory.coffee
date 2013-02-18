@@ -45,6 +45,12 @@ class exports.ApiFactory extends Redis
     type: "object"
     additionalProperties: false
     properties:
+      createdAt:
+        type: "string"
+        optional: true
+      updatedAt:
+        type: "string"
+        optional: true
       globalCache:
         type: "integer"
         docs: "The time in seconds that every call under this API should be cached."

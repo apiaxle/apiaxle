@@ -21,6 +21,12 @@ class exports.KeyFactory extends Redis
     type: "object"
     additionalProperties: false
     properties:
+      createdAt:
+        type: "string"
+        optional: true
+      updatedAt:
+        type: "string"
+        optional: true
       sharedSecret:
         type: "string"
         optional: true
