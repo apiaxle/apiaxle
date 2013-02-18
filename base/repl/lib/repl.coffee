@@ -4,14 +4,10 @@ readline = require "readline"
 
 # command loading
 { Api } = require "./../command/api"
-{ Key } = require "./../command/key"
-{ KeyRing } = require "./../command/keyring"
 
 class exports.ReplHelper
   @all_commands =
     api: Api
-    key: Key
-    keyring: KeyRing
 
   constructor: ( @app ) ->
 
@@ -29,22 +25,11 @@ class exports.ReplHelper
     # quit/exit are slightly magic
     return if command in [ "quit", "exit" ]
 
-    # ugh, help is magic too
-    if command is "help"
-      available_commands = _.keys( @constructor.all_commands ).join ", "
-      help = "Available commands are #{ available_commands }. Try one with "
-      help += "help following it. E.G. 'api help'"
-
-      return cb null, help
-
     if not @constructor.all_commands[ command ]?
       return cb new Error "I don't know about '#{ command }'. Try 'help' instead."
 
-    # pull the id from the list
-    id = entered_commands.shift()
-
     # init the class
-    command_object = new @constructor.all_commands[ command ]( @app, id )
+    command_object = new @constructor.all_commands[ command ]( @app )
 
     # run the method
     command_object.exec entered_commands, cb
