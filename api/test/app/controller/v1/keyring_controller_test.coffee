@@ -42,11 +42,6 @@ class exports.KeyringControllerTest extends ApiaxleTest
         3: {}
         4: {}
         5: {}
-        6: {}
-        7: {}
-        8: {}
-        9: {}
-        10: {}
       keyring:
         blah: {}
 
@@ -57,9 +52,9 @@ class exports.KeyringControllerTest extends ApiaxleTest
         @isNull err
         res.parseJson ( err, json ) =>
           @isNull err
-          @equal json.results.length, 10
+          @equal json.results.length, 5
 
-          done 5
+          done 4
 
   "test GET a non-existant keyring": ( done ) ->
     # now try and get it

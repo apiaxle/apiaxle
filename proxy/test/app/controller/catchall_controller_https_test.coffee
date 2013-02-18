@@ -105,4 +105,4 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
         # make sure we stop the server listening
         test_server.close()
 
-        done 10
+        done 12

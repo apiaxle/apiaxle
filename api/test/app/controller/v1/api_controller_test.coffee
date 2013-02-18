@@ -236,7 +236,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal dbApi.data.endPoint, "hi.com"
           @equal dbApi.data.apiFormat, "xml"
 
-          done 7
+          done 6
 
   "test PUT with a bad structure": ( done ) ->
     @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
