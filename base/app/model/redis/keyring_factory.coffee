@@ -44,3 +44,10 @@ class exports.KeyringFactory extends Redis
   @structure =
     type: "object"
     additionalProperties: false
+    properties:
+      createdAt:
+        type: "string"
+        optional: true
+      updatedAt:
+        type: "string"
+        optional: true

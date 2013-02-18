@@ -44,7 +44,7 @@ class CatchAll extends ApiaxleController
         return cb null, mustRevalidate, ttl
 
     # return the global cache
-    return cb null, mustRevalidate, parseInt req.api.data.globalCache
+    return cb null, mustRevalidate, req.api.data.globalCache
 
   # returns an object which looks like this (with all fields being
   # optional):
