@@ -27,4 +27,9 @@ module.exports = ( structure, data, cb ) ->
 
       return cb new ValidationError message
 
+    # set defaults if need be
+    for key, details of structure.properties
+      if not data[ key ]? and details.default?
+        data[ key ] = details.default
+
     return cb null, data
