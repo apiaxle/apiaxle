@@ -1,8 +1,6 @@
 { ApiUnknown, ValidationError, KeyNotFoundError } = require "../../../lib/error"
 { Model, Redis } = require "../redis"
 
-validationEnv = require( "schema" )( "apiEnv" )
-
 class Api extends Model
   addKey: ( key, cb ) ->
     @app.model( "keyFactory" ).find key, ( err, dbKey ) =>
@@ -43,7 +41,7 @@ class Api extends Model
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
   @returns   = Api
-  @structure = validationEnv.Schema.create
+  @structure =
     type: "object"
     additionalProperties: false
     properties:

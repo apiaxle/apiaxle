@@ -3,10 +3,8 @@ async = require "async"
 { FakeAppTest } = require "../../apiaxle_base"
 { Redis }       = require "../../../app/model/redis"
 
-validationEnv = require( "schema" )( "apiEnv" )
-
 class TestModel extends Redis
-  @structure = validationEnv.Schema.create
+  @structure =
     type: "object"
     additionalProperties: false
     properties:

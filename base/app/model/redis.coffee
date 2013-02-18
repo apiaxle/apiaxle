@@ -16,10 +16,8 @@ class Redis
     @ns = "#{ @base_key }:#{ name }"
 
   validate: ( details, cb ) ->
-    try
-      return validate @constructor.structure, details, cb
-    catch err
-      return cb err, null
+    return validate @constructor.structure, details, ( err ) ->
+      return cb err, details
 
   callConstructor: ( id, details, cb ) ->
     return @constructor.__super__.create.apply @, [ id, details, cb ]
