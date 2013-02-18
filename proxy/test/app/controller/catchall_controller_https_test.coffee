@@ -77,10 +77,11 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
           data: JSON.stringify "this is a put body"
 
         @PUT requestOptions, ( err, response ) =>
+          @isNull err
+
           response.parseJson ( err, json ) =>
             @isNull err
             @equal json.method, "put"
-            #@equal json.body, "this is a put body"
 
             cb()
 
@@ -90,6 +91,8 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
           host: "testhttps.api.localhost"
 
         @GET requestOptions, ( err, response ) =>
+          @isNull err
+
           response.parseJson ( err, json ) =>
             @isNull err
             @equal json.method, "get"
