@@ -107,15 +107,11 @@ class exports.ModifyKeyring extends ApiaxleController
     # modify the old keyring struct
     newData = _.extend req.keyring.data, req.body
 
-    # validate it
-    model.validate newData, ( err, instance ) =>
+    # re-apply it to the db
+    model.create req.param.keyring, newData, ( err, newKeyring ) =>
       return next err if err
 
-      # re-apply it to the db
-      model.create req.params.keyring, instance, ( err, newKeyring ) =>
-        return next err if err
-
-        @json res, newKeyring.data
+      @json res, newKeyring.data
 
 class exports.ListKeyrings extends ListController
   @verb = "get"

@@ -212,9 +212,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
-
-        # TODO: this is a terrible message...
-        @equal json.results.error.message, "endPoint: (optional) "
+        @equal json.results.error.message, "endPoint: The ‘endPoint’ property is required."
 
         done 6
 
@@ -225,7 +223,6 @@ class exports.ApiControllerTest extends ApiaxleTest
         "Content-Type": "application/json"
       data: JSON.stringify
         apiFormat: "xml"
-        doesntExist: 1
 
     @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
       @isNull err
@@ -238,9 +235,6 @@ class exports.ApiControllerTest extends ApiaxleTest
         @app.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
           @equal dbApi.data.endPoint, "hi.com"
           @equal dbApi.data.apiFormat, "xml"
-
-          # we shouldn't have added the superfluous field
-          @equal dbApi.data.doesntExist?, false
 
           done 7
 

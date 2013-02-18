@@ -25,8 +25,8 @@ class exports.KeyControllerTest extends ApiaxleTest
       @GET path: "/v1/key/1234", ( err, res ) =>
         res.parseJson ( err, json ) =>
           @isNull err
-          @isNumber parseInt( json.results.qps )
-          @isNumber parseInt( json.results.qpd )
+          @isNumber json.results.qps
+          @isNumber json.results.qpd
 
           @deepEqual json.results.apis, [ "twitter", "facebook" ]
 
@@ -94,7 +94,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
-        @equal json.results.error.message, "qps: (type) "
+        @equal json.results.error.message, "qps: The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
 
         done 4
 

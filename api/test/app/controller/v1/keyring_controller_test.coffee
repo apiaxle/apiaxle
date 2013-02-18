@@ -33,27 +33,33 @@ class exports.KeyringControllerTest extends ApiaxleTest
           done 3
 
   "test GET keys for a valid keyring": ( done ) ->
-    @fixtures.createApi "twitter", ( err ) =>
-      @fixtures.createKeyring "blah", ( err, keyring ) =>
-        new_keys = []
+    fixtures =
+      api:
+        twitter: {}
+      key:
+        1: {}
+        2: {}
+        3: {}
+        4: {}
+        5: {}
+        6: {}
+        7: {}
+        8: {}
+        9: {}
+        10: {}
+      keyring:
+        blah: {}
 
-        # create a bunch of keys
-        for i in [ 1..15 ]
-          new_keys.push ( cb ) =>
-            @fixtures.createKey ( err, key ) =>
-              keyring.addKey key.id, cb
+    @fixtures.create fixtures, ( err ) =>
+      @isNull err
 
-        async.series new_keys, ( err, keys ) =>
+      @GET path: "/v1/keyring/blah/keys?from=0&to=9", ( err, res ) =>
+        @isNull err
+        res.parseJson ( err, json ) =>
           @isNull err
+          @equal json.results.length, 10
 
-          @GET path: "/v1/keyring/blah/keys?from=0&to=9", ( err, res ) =>
-            @isNull err
-            res.parseJson ( err, json ) =>
-              @isNull err
-              @equal json.results.length, 10
-              @deepEqual json.results, _.pluck( keys[ 0..9 ], "id")
-
-              done 5
+          done 5
 
   "test GET a non-existant keyring": ( done ) ->
     # now try and get it

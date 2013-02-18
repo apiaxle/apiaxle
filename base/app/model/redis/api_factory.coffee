@@ -1,8 +1,6 @@
 { ApiUnknown, ValidationError, KeyNotFoundError } = require "../../../lib/error"
 { Model, Redis } = require "../redis"
 
-validationEnv = require( "schema" )( "apiEnv" )
-
 class Api extends Model
   addKey: ( key, cb ) ->
     @app.model( "keyFactory" ).find key, ( err, dbKey ) =>
@@ -43,10 +41,16 @@ class Api extends Model
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
   @returns   = Api
-  @structure = validationEnv.Schema.create
+  @structure =
     type: "object"
     additionalProperties: false
     properties:
+      createdAt:
+        type: "string"
+        optional: true
+      updatedAt:
+        type: "string"
+        optional: true
       globalCache:
         type: "integer"
         docs: "The time in seconds that every call under this API should be cached."
@@ -77,9 +81,4 @@ class exports.ApiFactory extends Redis
         type: "string"
         docs: "Regular expression used to extract API key from url. Axle will use the **first** matched grouping and then apply that as the key. Using the `api_key` or `apiaxle_key` will take precedence."
         optional: true
-        pre: ( value ) ->
-          try
-            new RegExp( value )
-            return value
-          catch err
-            throw new ValidationError( err.message )
+        is_valid_regexp: true

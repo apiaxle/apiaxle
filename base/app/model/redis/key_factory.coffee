@@ -4,8 +4,6 @@ async = require "async"
 { Redis, Model } = require "../redis"
 { ValidationError } = require "../../../lib/error"
 
-validationEnv = require( "schema" )( "keyEnv" )
-
 class Key extends Model
   # associate this key with that api
   linkToApi: ( apiName, cb ) ->
@@ -19,10 +17,16 @@ class exports.KeyFactory extends Redis
   @smallKeyName = "key"
   @returns      = Key
 
-  @structure = validationEnv.Schema.create
+  @structure =
     type: "object"
     additionalProperties: false
     properties:
+      createdAt:
+        type: "string"
+        optional: true
+      updatedAt:
+        type: "string"
+        optional: true
       sharedSecret:
         type: "string"
         optional: true

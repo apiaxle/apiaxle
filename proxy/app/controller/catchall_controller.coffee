@@ -44,7 +44,7 @@ class CatchAll extends ApiaxleController
         return cb null, mustRevalidate, ttl
 
     # return the global cache
-    return cb null, mustRevalidate, parseInt req.api.data.globalCache
+    return cb null, mustRevalidate, req.api.data.globalCache
 
   # returns an object which looks like this (with all fields being
   # optional):
@@ -74,6 +74,8 @@ class CatchAll extends ApiaxleController
     # check for caching, pass straight through if we don't want a
     # cache (the 0 is a string because it comes straight from redis).
     @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
+      return err if err
+
       if cacheTtl is 0 or mustRevalidate
         return @_httpRequest options, req.subdomain, req.key.data.key, outerCb
 
@@ -100,6 +102,7 @@ class CatchAll extends ApiaxleController
         # means we've a cache miss and so need to make a real request
         @_httpRequest options, req.subdomain, req.key.data.key, ( err, apiRes, body ) =>
           return outerCb err if err
+
           # do I really need to check both?
           contentType = apiRes.headers["Content-Type"] or apiRes.headers["content-type"]
 
@@ -149,6 +152,7 @@ class CatchAll extends ApiaxleController
         # collect the type of error (QpsExceededError or
         # QpdExceededError at the moment)
         type = err.constructor.name
+
         return counterModel.apiHit req.subdomain, req.key.data.key, type, ( counterErr, res ) ->
           return next counterErr if counterErr
           return next err

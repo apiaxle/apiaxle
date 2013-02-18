@@ -143,18 +143,14 @@ class exports.ModifyKey extends ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model "keyFactory"
 
-    # validate the input
-    model.validate req.body, ( err ) =>
+    # modify the key
+    newData = _.extend req.key.data, req.body
+
+    # re-apply it to the db
+    model.create req.params.key, newData, ( err, newKey ) =>
       return next err if err
 
-      # modify the key
-      _.extend req.key.data, req.body
-
-      # re-apply it to the db
-      model.create req.params.key, req.key.data, ( err, newKey ) =>
-        return next err if err
-
-        @json res, newKey.json
+      @json res, newKey.json
 
 class exports.ViewHitsForKey extends ApiaxleController
   @verb = "get"
@@ -189,7 +185,7 @@ class exports.ViewHitsForKeyNow extends ApiaxleController
     ### Returns
 
     * Integer, the number of hits to the Key this second.
-      Designed light weight real time statistics 
+      Designed light weight real time statistics
     """
 
   middleware: -> [ @mwKeyDetails( @app ) ]

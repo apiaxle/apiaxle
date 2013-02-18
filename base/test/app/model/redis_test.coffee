@@ -3,10 +3,8 @@ async = require "async"
 { FakeAppTest } = require "../../apiaxle_base"
 { Redis }       = require "../../../app/model/redis"
 
-validationEnv = require( "schema" )( "apiEnv" )
-
 class TestModel extends Redis
-  @structure = validationEnv.Schema.create
+  @structure =
     type: "object"
     additionalProperties: false
     properties:
@@ -19,7 +17,7 @@ class exports.RedisTest extends FakeAppTest
   "test finding an object without @returns set": ( done ) ->
     @ok test_model = new TestModel @app
 
-    test_model.create "hello", { one: 1, two: 2 }, ( err, newObject ) =>
+    test_model.create "hello", { one: 1 }, ( err, newObject ) =>
       @isNull err
       @equal newObject.one, 1
 

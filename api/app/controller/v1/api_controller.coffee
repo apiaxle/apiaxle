@@ -107,15 +107,11 @@ class exports.ModifyApi extends ApiaxleController
     # modify the old api struct
     newData = _.extend req.api.data, req.body
 
-    # validate it
-    model.validate newData, ( err, instance ) =>
+    # re-apply it to the db
+    model.create req.params.api, newData, ( err, newApi ) =>
       return next err if err
 
-      # re-apply it to the db
-      model.create req.params.api, instance, ( err, newApi ) =>
-        return next err if err
-
-        @json res, newApi.data
+      @json res, newApi.data
 
 class exports.ListApis extends ListController
   @verb = "get"
@@ -177,7 +173,7 @@ class exports.ListApiKeys extends ListController
 
   execute: ( req, res, next ) ->
     req.api.getKeys @from( req ), @to( req ), ( err, keys ) =>
-      return next err if err      
+      return next err if err
       return @json res, keys if not req.query.resolve?
 
       @resolve @app.model( "keyFactory" ), keys, ( err, results ) =>
@@ -217,7 +213,7 @@ class exports.ViewHitsForApiNow extends ApiaxleController
     ### Returns
 
     * Integer, the number of hits to the API this second.
-      Designed light weight real time statistics 
+      Designed light weight real time statistics
     """
 
   middleware: -> [ @mwApiDetails( @app ) ]
