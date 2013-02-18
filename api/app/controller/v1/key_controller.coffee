@@ -144,10 +144,10 @@ class exports.ModifyKey extends ApiaxleController
     model = @app.model "keyFactory"
 
     # modify the key
-    _.extend req.key.data, req.body
+    newData = _.extend req.key.data, req.body
 
     # re-apply it to the db
-    model.create req.params.key, req.key.data, ( err, newKey ) =>
+    model.create req.params.key, newData, ( err, newKey ) =>
       return next err if err
 
       @json res, newKey.json

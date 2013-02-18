@@ -108,7 +108,7 @@ class exports.ModifyKeyring extends ApiaxleController
     newData = _.extend req.keyring.data, req.body
 
     # re-apply it to the db
-    model.create req.params.keyring, instance, ( err, newKeyring ) =>
+    model.create req.param.keyring, newData, ( err, newKeyring ) =>
       return next err if err
 
       @json res, newKeyring.data

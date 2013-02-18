@@ -108,7 +108,7 @@ class exports.ModifyApi extends ApiaxleController
     newData = _.extend req.api.data, req.body
 
     # re-apply it to the db
-    model.create req.params.api, instance, ( err, newApi ) =>
+    model.create req.params.api, newData, ( err, newApi ) =>
       return next err if err
 
       @json res, newApi.data
