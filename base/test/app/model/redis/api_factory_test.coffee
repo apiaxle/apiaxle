@@ -27,6 +27,7 @@ class exports.ApiTest extends FakeAppTest
       @ok not dbApi.data.updatedAt?
 
       @fixtures.create fixture, ( err, [ dbApi2 ] ) =>
+        @isNull err
         @ok dbApi2.data.updatedAt
         @equal dbApi.data.createdAt, dbApi2.data.createdAt
 
