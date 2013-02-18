@@ -22,10 +22,10 @@ class exports.KeyFactory extends Redis
     additionalProperties: false
     properties:
       createdAt:
-        type: "string"
+        type: "integer"
         optional: true
       updatedAt:
-        type: "string"
+        type: "integer"
         optional: true
       sharedSecret:
         type: "string"

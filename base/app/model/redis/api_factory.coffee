@@ -51,10 +51,10 @@ class exports.ApiFactory extends Redis
     additionalProperties: false
     properties:
       createdAt:
-        type: "string"
+        type: "integer"
         optional: true
       updatedAt:
-        type: "string"
+        type: "integer"
         optional: true
       globalCache:
         type: "integer"
