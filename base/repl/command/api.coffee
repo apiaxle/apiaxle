@@ -26,30 +26,19 @@ class exports.Api extends ModelCommand
           return cb err if err
           return cb null, json
 
-  update: ( id, commands, keypairs, cb ) =>
+  postOrPut: ( command, id, commands, keypairs, cb ) ->
     options =
       path: "/v1/api/#{ id }"
       headers:
         "content-type": "application/json"
       data: JSON.stringify( keypairs )
 
-    @PUT options, ( err, res ) ->
+    @[ command ] options, ( err, res ) ->
       return cb err if err
 
       res.parseJson ( err, json ) ->
         return cb err if err
         return cb null, json
 
-  create: ( id, commands, keypairs, cb ) =>
-    options =
-      path: "/v1/api/#{ id }"
-      headers:
-        "content-type": "application/json"
-      data: JSON.stringify( keypairs )
-
-    @POST options, ( err, res ) ->
-      return cb err if err
-
-      res.parseJson ( err, json ) ->
-        return cb err if err
-        return cb null, json
+  update: ( args... ) => @postOrPut "PUT", args...
+  create: ( args... ) => @postOrPut "POST", args...
