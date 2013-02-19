@@ -35,7 +35,9 @@ class exports.ReplHelper
     command_object.exec commands, keypairs, cb
 
   topLevelInput: ( err, info ) =>
-    console.error err.message if err
+    if err
+      delete err.stack
+      console.error err.message
     console.log info if info
 
     @rl.question "axle> ", ( entry ) =>
