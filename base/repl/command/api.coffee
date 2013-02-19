@@ -27,6 +27,11 @@ class exports.Api extends ModelCommand
 
       res.parseJson ( err, json ) ->
         return cb err if err
+
+        # the api itself threw an error
+        if json.results?.error?
+          return cb new Error json.results.error.message
+
         return cb null, json
 
   show: ( args... ) => @makeHttpCall "GET", args...
