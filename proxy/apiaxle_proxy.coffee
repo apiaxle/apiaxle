@@ -1,16 +1,10 @@
 #!/usr/bin/env coffee
 
-# extends Date
-_ = require "underscore"
-
 express = require "express"
 fs      = require "fs"
 redis   = require "redis"
 
-{ Application }   = require "apiaxle.base"
-{ StdoutLogger  } = require "./lib/stderrlogger"
-
-{ ApiaxleError, RedisError, NotFoundError } = require "./lib/error"
+{ Application } = require "apiaxle.base"
 
 class exports.ApiaxleProxy extends Application
   @controllersPath = "#{ __dirname }/app/controller"
