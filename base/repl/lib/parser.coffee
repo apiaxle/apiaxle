@@ -3,6 +3,7 @@ Tokenizer = require "tokenizer"
 module.exports = ( str ) ->
   all        = []
   assignment = false
+  allpairs   = {}
 
   buildCommandStruct = ( token, type ) ->
     return if type in [ "seperator" ]
@@ -20,9 +21,7 @@ module.exports = ( str ) ->
       # the previous string/bare was meant to be a key in a hash
       if assignment
         last = all.pop()
-        output = {}
-        output[ last ] = token
-        all.push output
+        allpairs[ last ] = token
         assignment = false
         return
 
@@ -51,4 +50,4 @@ module.exports = ( str ) ->
   t.addRule /^=$/, "assignment"
 
   t.end str
-  return all
+  return [ all, allpairs ]
