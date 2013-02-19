@@ -50,7 +50,7 @@ class exports.CreateApi extends ApiaxleController
   execute: ( req, res, next ) ->
     # error if it exists
     if req.api?
-      return next new AlreadyExists "#{ api } already exists."
+      return next new AlreadyExists "'#{ req.api.id }' already exists."
 
     @app.model( "apiFactory" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err

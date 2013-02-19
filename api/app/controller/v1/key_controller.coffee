@@ -55,7 +55,7 @@ class exports.CreateKey extends ApiaxleController
   execute: ( req, res, next ) ->
     # error if it exists
     if req.key?
-      return next new AlreadyExists "#{ key } already exists."
+      return next new AlreadyExists "'#{ req.key.id }' already exists."
 
     @app.model( "keyFactory" ).create req.params.key, req.body, ( err, newObj ) =>
       return next err if err
