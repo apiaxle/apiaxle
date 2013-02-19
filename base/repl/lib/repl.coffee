@@ -18,9 +18,9 @@ class exports.ReplHelper
 
     @rl.on "close", onCloseCb
 
-  runCommands: ( entered_commands, cb ) ->
+  runCommands: ( [ commands, keypairs ], cb ) ->
     # get the initial highlevel command
-    command = entered_commands.shift()
+    command = commands.shift()
 
     # quit/exit are slightly magic
     return if command in [ "quit", "exit" ]
@@ -32,7 +32,7 @@ class exports.ReplHelper
     command_object = new @constructor.all_commands[ command ]( @app )
 
     # run the method
-    command_object.exec entered_commands, cb
+    command_object.exec commands, keypairs, cb
 
   topLevelInput: ( err, info ) =>
     console.error err.message if err
@@ -41,6 +41,6 @@ class exports.ReplHelper
     @rl.question "axle> ", ( entry ) =>
       return @topLevelInput() if /^\s*$/.exec entry
 
-      entered_commands = parser entry
+      all = parser entry
 
-      @runCommands entered_commands, @topLevelInput
+      @runCommands all, @topLevelInput

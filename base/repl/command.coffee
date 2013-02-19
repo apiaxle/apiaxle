@@ -1,5 +1,4 @@
 _ = require "underscore"
-http = require "http"
 
 { httpHelpers } = require "../lib/mixins/http-helpers"
 { Module } = require "../lib/module"
@@ -35,8 +34,10 @@ class AppResponse
     return callback null, output
 
 class exports.Command extends Module
+  @port = 28902
+
   # mixin the httpHeler functions (POST, GET, etc...)
-  @extend httpHelpers
+  @include httpHelpers
 
   constructor: ( @app, @id ) ->
 
@@ -54,11 +55,9 @@ class exports.ModelCommand extends exports.Command
 
       @model().find id, ( err, dbObj ) ->
         return cb err if err
-        return cb null, dbObj
+        return cb null, id, dbObj
 
-  _getId: ( commands, cb ) ->
-    id = commands.shift()
-
+  _getId: ( id, cb ) ->
     if not id? or typeof( id ) isnt "string"
       return cb new Error "Expecting an ID (string) as the first argument."
 
