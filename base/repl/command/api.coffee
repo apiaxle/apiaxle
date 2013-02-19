@@ -15,18 +15,7 @@ class exports.Api extends ModelCommand
       when null then @show id, commands, keypairs, cb
       when undefined then @show id, commands, keypairs, cb
 
-  show: ( id, commands, keypairs, cb ) =>
-    @_getIdAndObject id, ( err, dbApi ) =>
-      return cb err if err
-
-      @GET path: "/v1/api/#{ id }", ( err, res ) ->
-        return cb err if err
-
-        res.parseJson ( err, json ) ->
-          return cb err if err
-          return cb null, json
-
-  postOrPut: ( command, id, commands, keypairs, cb ) ->
+  makeHttpCall: ( command, id, commands, keypairs, cb ) ->
     options =
       path: "/v1/api/#{ id }"
       headers:
@@ -40,5 +29,6 @@ class exports.Api extends ModelCommand
         return cb err if err
         return cb null, json
 
-  update: ( args... ) => @postOrPut "PUT", args...
-  create: ( args... ) => @postOrPut "POST", args...
+  show: ( args... ) => @makeHttpCall "GET", args...
+  update: ( args... ) => @makeHttpCall "PUT", args...
+  create: ( args... ) => @makeHttpCall "POST", args...
