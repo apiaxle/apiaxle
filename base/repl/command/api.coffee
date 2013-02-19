@@ -7,6 +7,7 @@ class exports.Api extends ModelCommand
     id = commands.shift()
 
     switch command = commands.shift()
+      when "update" then @update id, commands, keypairs, cb
       when "create" then @create id, commands, keypairs, cb
       when "show" then @show id, commands, keypairs, cb
 
@@ -24,6 +25,20 @@ class exports.Api extends ModelCommand
         res.parseJson ( err, json ) ->
           return cb err if err
           return cb null, json
+
+  update: ( id, commands, keypairs, cb ) =>
+    options =
+      path: "/v1/api/#{ id }"
+      headers:
+        "content-type": "application/json"
+      data: JSON.stringify( keypairs )
+
+    @PUT options, ( err, res ) ->
+      return cb err if err
+
+      res.parseJson ( err, json ) ->
+        return cb err if err
+        return cb null, json
 
   create: ( id, commands, keypairs, cb ) =>
     options =
