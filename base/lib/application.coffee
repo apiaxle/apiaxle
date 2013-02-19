@@ -17,7 +17,7 @@ redis        = require "redis"
 class exports.Application
   @env = ( process.env.NODE_ENV or "development" )
 
-  constructor: ( ) ->
+  constructor: ( @binding_host, @port ) ->
     app = module.exports = express.createServer()
 
     @_configure app
@@ -40,8 +40,8 @@ class exports.Application
       throw err if err
       cb ( ) => @redisClient.quit()
 
-  run: ( binding_host, port, callback ) ->
-    @app.listen port, binding_host, callback
+  run: ( callback ) ->
+    @app.listen @port, @binding_host, callback
 
   configureMiddleware: ( ) ->
     return @
@@ -128,16 +128,24 @@ class exports.Application
     return list
 
   _configure: ( app ) ->
+    default_config =
+      redis:
+        host: "localhost"
+        port: 6379
+      app:
+        debug: true
+      logging:
+        path: "./log"
+        filename: "#{ Application.env }-#{ @port }.log"
+
     # load up /our/ configuration (from the files in /config)
     @config = require( "./app_config" )( Application.env )
 
+    @config = _.extend @config, default_config
+
     app.configure ( ) =>
       @configureGeneral app
-
-      app.configure "test",        ( ) => @_configureForTest app
-      app.configure "staging",     ( ) => @_configureForStaging app
-      app.configure "development", ( ) => @_configureForDevelopment app
-      app.configure "production",  ( ) => @_configureForProduction app
+      @configureLogging app
 
       # now let the rest of the class know about app
       @app = app
@@ -148,24 +156,13 @@ class exports.Application
     # offload any errors to onError
     app.error ( args... ) => @onError.apply @, args
 
-  _configureForTest: ( app ) ->
-    @logger = new StreamLogger "log/test.log"
-    @logger.level = @logger.levels.debug
-    @debug = true
+  configureLogging: ( app ) ->
+    logging_config = @config.logging
 
-  _configureForStaging: ( app ) ->
-    @logger = new StreamLogger "log/staging-#{port}.log"
-    @logger.level = @logger.levels.debug
-    @debug = true
-
-  _configureForDevelopment: ( app ) ->
-    @logger = new StdoutLogger
-    @debug = true
-
-  _configureForProduction: ( app ) ->
-    @logger = new StreamLogger "log/production-#{port}.log"
-    @logger.level = @logger.levels.info
-    @debug = false
+    @logger = if logging_config.filename is "-"
+      new StdoutLogger
+    else
+      new StreamLogger "#{ @config.logging.path }/#{ @config.logging.filename }"
 
   onError: ( err, req, res, next ) ->
     output =

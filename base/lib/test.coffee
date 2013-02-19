@@ -86,8 +86,8 @@ class exports.AppTest extends TwerpTest
     @app = if application_mem
       application_mem
     else
-      application_mem = new @constructor.appClass().configureModels()
-                                                   .configureControllers()
+      application_mem = new @constructor.appClass "127.0.0.1", @constructor.port
+      application_mem.configureModels().configureControllers()
 
     @stubs = []
     @spies  = []
@@ -116,7 +116,7 @@ class exports.AppTest extends TwerpTest
     new Clock @sandbox.useFakeTimers( seed )
 
   startWebserver: ( done ) ->
-    @app.run "127.0.0.1", @constructor.port, done
+    @app.run done
 
   # returns a AppResponse object
   httpRequest: ( options, callback ) ->
