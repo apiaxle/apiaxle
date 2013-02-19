@@ -1,3 +1,4 @@
+_ = require "underscore"
 http = require "http"
 
 class AppResponse
@@ -38,11 +39,10 @@ exports.httpHelpers =
 
     # fill in the defaults (though, why port would change, I don't
     # know)
-    for key, val of defaults
-      options[ key ] = val unless options[ key ]
+    options = _.extend options, defaults
 
     @app.logger.debug "Making a #{ options.method} to #{ options.path }"
-    req = http.request options, ( res ) =>
+    req = http.request options, ( res ) ->
       data = ""
       res.setEncoding "utf8"
 

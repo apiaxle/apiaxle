@@ -30,7 +30,7 @@ class exports.Api extends ModelCommand
       path: "/v1/api/#{ id }"
       headers:
         "content-type": "application/json"
-      data: JSON.stringify keypairs
+      data: JSON.stringify( keypairs )
 
     @POST options, ( err, res ) ->
       return cb err if err
