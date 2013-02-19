@@ -8,24 +8,26 @@ module.exports = ( str ) ->
   buildCommandStruct = ( token, type ) ->
     return if type in [ "seperator" ]
 
+
     if type is "digit"
       all.push parseInt( token )
-
-    if type is "assignment"
-      assignment = true
 
     if type in [ "string", "bare" ]
       # strip the starting and ending " from the string
       token = token.replace /(?:^['"]|["']$)/g, "" if type is "string"
 
-      # the previous string/bare was meant to be a key in a hash
-      if assignment
-        last = all.pop()
-        allpairs[ last ] = token
-        assignment = false
-        return
-
       all.push token
+
+    # the previous string/bare was meant to be a key in a hash
+    if assignment
+      val = all.pop()
+      key = all.pop()
+      allpairs[ key ] = val
+      assignment = false
+      return
+
+    if type is "assignment"
+      assignment = true
 
   t = new Tokenizer()
   t.on "token", buildCommandStruct

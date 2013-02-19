@@ -10,6 +10,9 @@ class exports.TestParser extends TwerpTest
       # single quotes
       "This is a 'test parse'": [ [ "This", "is", "a", "test parse" ], {} ]
 
+      # numbers as key value pairs
+      "one cacheTime=20": [ [ "one" ], { cacheTime: 20 } ]
+
       # numbers
       '1 2 3 4': [ [ 1, 2, 3, 4 ], {} ]
 
@@ -24,4 +27,4 @@ class exports.TestParser extends TwerpTest
 
     @deepEqual parser( from ), to for from, to of shoulds
 
-    done 6
+    done 7
