@@ -1,3 +1,5 @@
+http = require "http"
+
 class AppResponse
   constructor: ( @actual_res, @data ) ->
     @statusCode  = @actual_res.statusCode

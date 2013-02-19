@@ -2,17 +2,16 @@
 moduleKeywords = [ "extended", "included" ]
 
 class exports.Module
-  @extend: (obj) ->
+  @extend: ( obj ) ->
     for key, value of obj when key not in moduleKeywords
-      @[key] = value
+      @[ key ] = value
 
     obj.extended?.apply @
     return @
 
-  @include: (obj) ->
+  @include: ( obj ) ->
     for key, value of obj when key not in moduleKeywords
-      # Assign properties to the prototype
-      @::[key] = value
+      @::[ key ] = value
 
     obj.included?.apply @
     return @
