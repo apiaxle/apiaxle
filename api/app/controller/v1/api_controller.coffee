@@ -3,6 +3,29 @@ _ = require "underscore"
 { ApiaxleController, ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
+class exports.AddKeyToApi extends ApiaxleController
+  @verb = "put"
+
+  desc: -> "Associate an existing key with an API."
+
+  docs: ->
+    """
+    ### Returns
+
+    * The key details.
+    """
+
+  middleware: -> [ @mwApiDetails( valid_api_required=true ),
+                   @mwKeyDetails( valid_key_required=true ) ]
+
+  path: -> "/v1/api/:api/addkey/:key"
+
+  execute: ( req, res, next ) ->
+    req.api.addKey req.key.id, ( err ) =>
+      return next err if err
+
+      @json res, req.key.data
+
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
 

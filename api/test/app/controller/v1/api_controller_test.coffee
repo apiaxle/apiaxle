@@ -7,6 +7,45 @@ class exports.ApiControllerTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
+  "test addkey with invalid api": ( done ) ->
+    @PUT path: "/v1/api/bob/addkey/bill", ( err, res ) =>
+      @isNull err
+
+      res.parseJson ( err, json ) =>
+        @isNull err
+        @equal json.results.error.message, "Api 'bob' not found."
+
+        done 3
+
+  "test addkey": ( done ) ->
+    fixture =
+      api:
+        bob: {}
+        twitter: {}
+      key:
+        bill:
+          qps: 201
+
+    @fixtures.create fixture, ( err, [ dbBob ] ) =>
+      @isNull err
+
+      dbBob.getKeys 0, 20, ( err, keys ) =>
+        @isNull err
+        @deepEqual keys, []
+
+        @PUT path: "/v1/api/bob/addkey/bill", ( err, res ) =>
+          @isNull err
+
+          res.parseJson ( err, json ) =>
+            @isNull err
+            @equal json.results.qps, 201
+
+            dbBob.getKeys 0, 20, ( err, keys ) =>
+              @isNull err
+              @deepEqual keys, [ "bill" ]
+
+              done 8
+
   "test GET a valid api": ( done ) ->
     # now try and get it
     @GET path: "/v1/api/1234", ( err, res ) =>
