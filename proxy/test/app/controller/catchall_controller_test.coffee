@@ -234,8 +234,10 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "xml"
 
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
+      @isNull err
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
+
       @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
         @isNull err
 
@@ -247,4 +249,4 @@ class exports.CatchallTest extends ApiaxleTest
           @ok xmlDoc.get "/error/type[text()='KeyError']"
           @ok xmlDoc.get "/error/message[text()='No api_key specified.']"
 
-          done 6
+          done 7
