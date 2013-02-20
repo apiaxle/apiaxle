@@ -2,5 +2,4 @@ env: "NODE_ENV=test"
 language: "node_js"
 node_js:
   - 0.8
-  - 0.6
 script: "./travis-run-script.bash"
