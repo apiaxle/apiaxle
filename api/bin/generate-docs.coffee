@@ -14,9 +14,6 @@ printOnce = ( toPrint ) ->
   print toPrint
 
 gk = new ApiaxleApi()
-gk.logger =
-  debug: ( ) ->
-  info: ( ) ->
 
 outputHeaders = ( ) ->
   """---

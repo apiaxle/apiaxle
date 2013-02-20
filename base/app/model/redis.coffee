@@ -121,6 +121,8 @@ class Redis
 
   getValidationDocs: ( ) ->
     strings = for field, details of @constructor.structure.properties
+      continue unless details.docs?
+
       out = "* #{field}: "
 
       out += "(default: #{ details.default }) " if details.default
