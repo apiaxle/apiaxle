@@ -1,61 +1,7 @@
 { ApiUnknown, ValidationError, KeyNotFoundError } = require "../../../lib/error"
-{ Model, Redis } = require "../redis"
+{ KeyContainerModel, Redis } = require "../redis"
 
-class Api extends Model
-  linkKey: ( key, cb ) =>
-    @app.model( "keyFactory" ).find key, ( err, dbKey ) =>
-      return cb err if err
-
-      if not dbKey
-        return cb new KeyNotFoundError "#{ key } doesn't exist."
-
-      dbKey.linkToApi @id, ( err ) =>
-        return cb err if err
-
-        # add to the list of all keys if it's not already there
-        @supportsKey key, ( err, is_already_added ) =>
-          return cb err if err
-
-          multi = @multi()
-
-          # the list (if need be)
-          if not is_already_added
-            multi.lpush "#{ @id }:keys", key
-
-          # and add to a quick lookup for the keys
-          multi.hset "#{ @id }:keys-lookup", key, 1
-
-          multi.exec cb
-
-  unlinkKey: ( keyName, cb ) ->
-    @app.model( "keyFactory" ).find keyName, ( err, dbKey ) =>
-      return cb err if err
-
-      if not dbKey
-        return cb new KeyNotFoundError "#{ keyName } doesn't exist."
-
-      dbKey.unlinkFromApi keyName, ( err ) =>
-        return cb err if err
-
-        multi = @multi()
-
-        # hopefully only one
-        multi.lrem "#{ @id }:keys", 1, keyName
-        multi.hdel "#{ @id }:keys-lookup", keyName
-
-        multi.exec cb
-
-  getKeys: ( start, stop, cb ) ->
-    @lrange "#{ @id }:keys", start, stop, cb
-
-  supportsKey: ( key, cb ) ->
-    @hexists "#{ @id }:keys-lookup", key, ( err, exists ) ->
-      return cb err if err
-
-      if exists is 0
-        return cb null, false
-
-      return cb null, true
+class Api extends KeyContainerModel
 
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
