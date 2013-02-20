@@ -12,11 +12,14 @@ install:
 
   # symlinks so that people can actually run things
 	install -d "$(bin_dest)"
-	for project in api proxy; do	                                       \
-	  ln -fs "$(dest)/$$project/apiaxle_$${project}.coffee" $(bin_dest); \
+
+	ln -vfs "$(dest)/base/repl/apiaxle" $(bin_dest)
+
+	for project in api proxy; do	                                        \
+	  ln -vfs "$(dest)/$$project/apiaxle_$${project}.coffee" $(bin_dest); \
   done
 
   # emulate an 'npm link' to the base directory
-	for project in api proxy; do	                                   \
-    ln -fs "$(dest)/base" "$(dest)/$$project/node_modules/apiaxle.base"; \
+	for project in api proxy; do	                                          \
+    ln -vfs "$(dest)/base" "$(dest)/$$project/node_modules/apiaxle.base"; \
   done

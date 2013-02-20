@@ -161,6 +161,9 @@ class exports.Application
   configureLogging: ( app ) ->
     logging_config = @config.logging
 
+    if logging_config.path?
+      fs.mkdirSync logging_config.path
+
     @logger = if logging_config.filename is "-"
       new StdoutLogger
     else
