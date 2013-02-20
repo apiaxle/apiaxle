@@ -133,10 +133,11 @@ class exports.Application
         host: "localhost"
         port: 6379
       app:
-        debug: true
+        debug: false
       logging:
         path: "./log"
         filename: "#{ Application.env }-#{ @port }.log"
+        level: "DEBUG"
 
     # load up /our/ configuration (from the files in /config)
     [ config_filename, @config ] = require( "./app_config" )( Application.env )
@@ -166,15 +167,25 @@ class exports.Application
     else
       new StreamLogger "#{ @config.logging.path }/#{ @config.logging.filename }"
 
+    valid_levels_code_map =
+      DEBUG: @logger.levels.debug
+      INFO: @logger.levels.info
+      WARN: @logger.levels.warn
+
+    valid_levels = _.keys valid_levels_code_map
+
+    if logging_config.level not in valid_levels
+      throw new Error "Log level must be one of #{ valid_levels.join ', ' }"
+
+    @logger.level = valid_levels_code_map[ logging_config.level ]
+
   onError: ( err, req, res, next ) ->
     output =
       error:
         type: err.constructor.name
         message: err.message
 
-    if @debug
-      output.error.details = err.details if err.details
-      output.error.stack = err.stack
+    output.error.details = err.details if err.details
 
     # json
     if req.api?.data.apiFormat isnt "xml"
