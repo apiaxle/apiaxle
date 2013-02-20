@@ -50,7 +50,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
       # 1234 doesn't exist
       keyring.linkKey "1234", ( err, key ) =>
         @ok err
-        @match err.message, /Key '1234' not found/
+        @match err.message, /1234 doesn't exist/ #'
 
         done 3
 
@@ -98,7 +98,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
             @isNull err
             @deepEqual keys, [ key2.id, key1.id ]
 
-            keyring.delKey key1.id, ( err, result ) =>
+            keyring.unlinkKey key1.id, ( err, result ) =>
               @isNull err
 
               keyring.getKeys 0, 10, ( err, keys ) =>

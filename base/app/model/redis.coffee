@@ -2,8 +2,9 @@ async = require "async"
 _ = require "underscore"
 validate = require "../../lib/validate"
 events = require "events"
-
 redis = require "redis"
+
+{ KeyNotFoundError } = require "../../lib/error"
 
 class Redis
   constructor: ( @app ) ->
@@ -190,7 +191,9 @@ class KeyContainerModel extends Model
           # and add to a quick lookup for the keys
           multi.hset "#{ @id }:keys-lookup", key, 1
 
-          multi.exec cb
+          multi.exec ( err ) ->
+            return cb err if err
+            return cb null, dbObj
 
   unlinkKey: ( keyName, cb ) ->
     @app.model( "keyFactory" ).find keyName, ( err, dbObj ) =>
@@ -208,7 +211,9 @@ class KeyContainerModel extends Model
         multi.lrem "#{ @id }:keys", 1, keyName
         multi.hdel "#{ @id }:keys-lookup", keyName
 
-        multi.exec cb
+        multi.exec ( err ) ->
+          return cb err if err
+          return cb null, dbObj
 
   getKeys: ( start, stop, cb ) ->
     @lrange "#{ @id }:keys", start, stop, cb
