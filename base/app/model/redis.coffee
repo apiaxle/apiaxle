@@ -168,13 +168,13 @@ class Model extends Redis
 # keyring).
 class KeyContainerModel extends Model
   linkKey: ( key, cb ) =>
-    @app.model( "keyFactory" ).find key, ( err, dbKey ) =>
+    @app.model( "keyFactory" ).find key, ( err, dbObj ) =>
       return cb err if err
 
-      if not dbKey
+      if not dbObj
         return cb new KeyNotFoundError "#{ key } doesn't exist."
 
-      dbKey.linkToApi @id, ( err ) =>
+      dbObj[ @constructor.reverseLinkFunction ] @id, ( err ) =>
         return cb err if err
 
         # add to the list of all keys if it's not already there
@@ -193,13 +193,13 @@ class KeyContainerModel extends Model
           multi.exec cb
 
   unlinkKey: ( keyName, cb ) ->
-    @app.model( "keyFactory" ).find keyName, ( err, dbKey ) =>
+    @app.model( "keyFactory" ).find keyName, ( err, dbObj ) =>
       return cb err if err
 
-      if not dbKey
+      if not dbObj
         return cb new KeyNotFoundError "#{ keyName } doesn't exist."
 
-      dbKey.unlinkFromApi keyName, ( err ) =>
+      dbObj[ @constructor.reverseUnlinkFunction ] keyName, ( err ) =>
         return cb err if err
 
         multi = @multi()

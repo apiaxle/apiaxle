@@ -2,6 +2,8 @@
 { KeyContainerModel, Redis } = require "../redis"
 
 class Api extends KeyContainerModel
+  @reverseLinkFunction = "linkToApi"
+  @reverseUnlinkFunction = "unlinkFromApi"
 
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true

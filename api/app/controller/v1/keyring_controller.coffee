@@ -174,9 +174,9 @@ class exports.ListKeyringKeys extends ListController
   middleware: -> [ @mwKeyringDetails( @app ) ]
 
 class exports.AddKeyringKey extends ApiaxleController
-  @verb = "post"
+  @verb = "put"
 
-  path: -> "/v1/keyring/:keyring/key/:key"
+  path: -> "/v1/keyring/:keyring/linkkey/:key"
 
   desc: -> "Add existing KEY to existing KEYRING."
 
@@ -197,9 +197,9 @@ class exports.AddKeyringKey extends ApiaxleController
       @json res, true
 
 class exports.DelKeyringKey extends ApiaxleController
-  @verb = "post"
+  @verb = "put"
 
-  path: -> "/v1/keyring/:keyring/key/:key"
+  path: -> "/v1/keyring/:keyring/unlinkkey/:key"
 
   desc: -> "Delete and existing KEY from an existing KEYRING."
 

@@ -7,8 +7,8 @@ class exports.ApiControllerTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
-  "test addkey with invalid api": ( done ) ->
-    @PUT path: "/v1/api/bob/addkey/bill", ( err, res ) =>
+  "test linkkey with invalid api": ( done ) ->
+    @PUT path: "/v1/api/bob/linkkey/bill", ( err, res ) =>
       @isNull err
 
       res.parseJson ( err, json ) =>
@@ -17,7 +17,7 @@ class exports.ApiControllerTest extends ApiaxleTest
 
         done 3
 
-  "test addkey": ( done ) ->
+  "test linkkey": ( done ) ->
     fixture =
       api:
         bob: {}
@@ -33,7 +33,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @deepEqual keys, []
 
-        @PUT path: "/v1/api/bob/addkey/bill", ( err, res ) =>
+        @PUT path: "/v1/api/bob/linkkey/bill", ( err, res ) =>
           @isNull err
 
           res.parseJson ( err, json ) =>
