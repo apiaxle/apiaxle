@@ -1,4 +1,4 @@
-#!/usr/bin/env coffee
+#!/usr/bin/env axle-coffee
 
 { OptionParser } = require "parseopt"
 { StdoutLogger } = require "../base/lib/stderrlogger"

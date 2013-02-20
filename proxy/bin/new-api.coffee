@@ -1,4 +1,4 @@
-#!/usr/bin/env coffee
+#!/usr/bin/env alxe-coffee
 
 { OptionParser } = require "parseopt"
 { ApiaxleProxy } = require "../apiaxle_proxy"

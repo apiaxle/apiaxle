@@ -1,4 +1,4 @@
-#!/usr/bin/env coffee
+#!/usr/bin/env axle-coffee
 
 # extends Date
 _ = require "underscore"
