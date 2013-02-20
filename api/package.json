@@ -2,7 +2,7 @@
   "author": "Phil Jackson <phil@shellarchive.co.uk>",
   "name": "apiaxle.api",
   "description": "Provisioning API for apiaxle",
-  "version": "0.0.18",
+  "version": "0.1.0",
   "scripts": {
     "test": "cake test"
   },

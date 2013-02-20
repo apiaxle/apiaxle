@@ -2,7 +2,7 @@
   "author": "Phil Jackson <phil@shellarchive.co.uk>",
   "name": "apiaxle",
   "description": "API gateway",
-  "version": "0.0.18",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://philjackson@bitbucket.org/apiaxle/apiaxle.git"
