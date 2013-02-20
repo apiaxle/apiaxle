@@ -2,7 +2,7 @@
   "author": "Phil Jackson <phil@shellarchive.co.uk>",
   "name": "apiaxle.base",
   "description": "Basic Application class for apiaxle.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "index",
   "scripts": {
     "test": "cake test"
