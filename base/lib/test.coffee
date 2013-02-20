@@ -11,6 +11,17 @@ _      = require "underscore"
 { TwerpTest }   = require "twerp"
 { Redis }       = require "../app/model/redis"
 
+# GET, POST, PUT, HEAD etc.
+{ httpHelpers } = require "./mixins/http-helpers"
+
+# use the extend paradigm without actually using the Module class
+extend = ( obj, mixin ) ->
+  obj[ name ] = method for name, method of mixin
+  return obj
+
+include = (klass, mixin) ->
+  return extend klass.prototype, mixin
+
 class Clock
   constructor: ( @sinonClock ) ->
 
@@ -45,39 +56,10 @@ class Clock
   addYears: ( number ) ->
     @_addTime "addYears", number
 
-class AppResponse
-  constructor: ( @actual_res, @data ) ->
-    @statusCode  = @actual_res.statusCode
-    @headers     = @actual_res.headers
-    @contentType = @headers[ "content-type" ]
-
-  withJquery: ( callback ) ->
-    jsdom.env @data, ( errs, win ) =>
-      throw new Error errs if errs
-
-      jq = require( "jquery" ).create win
-
-      callback jq
-
-  parseXml: ( callback ) ->
-    try
-      output = libxml.parseXmlString @data
-    catch err
-      return callback err, null
-
-    return callback null, output
-
-  parseJson: ( callback ) ->
-    try
-      output = JSON.parse @data, "utf8"
-    catch err
-      return callback err, null
-
-    return callback null, output
-
 application_mem = null
 application_fixtures = null
 
+# note this is extended with httpHelpers
 class exports.AppTest extends TwerpTest
   @port = 26100
 
@@ -118,37 +100,6 @@ class exports.AppTest extends TwerpTest
   startWebserver: ( done ) ->
     @app.run done
 
-  # returns a AppResponse object
-  httpRequest: ( options, callback ) ->
-    unless @constructor.start_webserver
-      throw new Error "Make sure to use @start_webserver for a POST/PUT/DELETE."
-
-    defaults =
-      host: "127.0.0.1"
-      port: @constructor.port
-
-    # fill in the defaults (though, why port would change, I don't
-    # know)
-    for key, val of defaults
-      options[ key ] = val unless options[ key ]
-
-    @app.logger.debug "Making a #{ options.method} to #{ options.path }"
-    req = http.request options, ( res ) =>
-      data = ""
-      res.setEncoding "utf8"
-
-      res.on "data", ( chunk ) -> data += chunk
-      res.on "error", ( err )  -> callback err, null
-      res.on "end", ( )        -> callback null, new AppResponse( res, data )
-
-    req.on "error", ( err ) -> callback err, null
-
-    # write the body if we're meant to
-    if options.data and options.method not in [ "HEAD", "GET" ]
-      req.write options.data
-
-    req.end()
-
   # stub out `fun_name` of `module` with the function `logic`. The
   # teardown function will deal with restoring all stubs.
   getStub: ( module, fun_name, logic ) ->
@@ -161,33 +112,6 @@ class exports.AppTest extends TwerpTest
     newspy = @sandbox.spy module, fun_name
     @spies.push newspy
     return newspy
-
-  # returns a AppResponse object
-  POST: ( options, callback ) ->
-    options.method = "POST"
-
-    @httpRequest options, callback
-
-  # returns a AppResponse object
-  GET: ( options, callback ) ->
-    options.method = "GET"
-
-    # never GET data
-    delete options.data
-
-    @httpRequest options, callback
-
-  # returns a AppResponse object
-  PUT: ( options, callback ) ->
-    options.method = "PUT"
-
-    @httpRequest options, callback
-
-  # returns a AppResponse object
-  DELETE: ( options, callback ) ->
-    options.method = "DELETE"
-
-    @httpRequest options, callback
 
   start: ( done ) ->
     chain = []
@@ -279,6 +203,8 @@ class exports.AppTest extends TwerpTest
 
     res.emit "data", data
     res.emit "end"
+
+include exports.AppTest, httpHelpers
 
 class Fixtures
   constructor: ( @app ) ->

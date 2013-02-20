@@ -26,7 +26,7 @@ class exports.CreateKeyring extends ApiaxleController
   execute: ( req, res, next ) ->
     # error if it exists
     if req.keyring?
-      return next new AlreadyExists "#{ keyring } already exists."
+      return next new AlreadyExists "'#{ req.keyring.id }' already exists."
 
     model = @app.model "keyringFactory"
     model.create req.params.keyring, req.body, ( err, newObj ) =>
@@ -174,9 +174,9 @@ class exports.ListKeyringKeys extends ListController
   middleware: -> [ @mwKeyringDetails( @app ) ]
 
 class exports.AddKeyringKey extends ApiaxleController
-  @verb = "post"
+  @verb = "put"
 
-  path: -> "/v1/keyring/:keyring/key/:key"
+  path: -> "/v1/keyring/:keyring/linkkey/:key"
 
   desc: -> "Add existing KEY to existing KEYRING."
 
@@ -191,15 +191,15 @@ class exports.AddKeyringKey extends ApiaxleController
                    @mwKeyDetails( valid_key_required=true ) ]
 
   execute: ( req, res, next ) ->
-    req.keyring.addKey req.key.id, ( err ) =>
+    req.keyring.linkKey req.key.id, ( err ) =>
       return next err if err
 
       @json res, true
 
 class exports.DelKeyringKey extends ApiaxleController
-  @verb = "post"
+  @verb = "put"
 
-  path: -> "/v1/keyring/:keyring/key/:key"
+  path: -> "/v1/keyring/:keyring/unlinkkey/:key"
 
   desc: -> "Delete and existing KEY from an existing KEYRING."
 

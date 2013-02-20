@@ -11,12 +11,26 @@ class exports.KeyringFactoryTest extends FakeAppTest
     done()
 
   "test initialisation": ( done ) ->
-    @ok @app
-    @ok @model
-
     @equal @model.ns, "gk:test:keyringfactory"
 
-    done 3
+    done 1
+
+  "test #update ing an existing keyring": ( done ) ->
+    fixture =
+      keyring:
+        blah: {}
+
+    @fixtures.create fixture, ( err, [ dbKeyring ] ) =>
+      @isNull err
+      @ok dbKeyring.data.createdAt
+      @ok not dbKeyring.data.updatedAt?
+
+      @fixtures.create fixture, ( err, [ dbKeyring2 ] ) =>
+        @isNull err
+        @ok dbKeyring2.data.updatedAt
+        @equal dbKeyring.data.createdAt, dbKeyring2.data.createdAt
+
+        done 4
 
   "test creating a keyring": ( done ) ->
     @model.create "keyring_one", {}, ( err, keyring ) =>
@@ -34,9 +48,9 @@ class exports.KeyringFactoryTest extends FakeAppTest
       @isNull err
 
       # 1234 doesn't exist
-      keyring.addKey "1234", ( err, key ) =>
+      keyring.linkKey "1234", ( err, key ) =>
         @ok err
-        @match err.message, /Key '1234' not found/
+        @match err.message, /1234 doesn't exist/ #'
 
         done 3
 
@@ -54,7 +68,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
       @fixtures.createKeyring ( err, keyring ) =>
         @isNull err
 
-        keyring.addKey "1234", ( err, key ) =>
+        keyring.linkKey "1234", ( err, key ) =>
           @isNull err
           @ok key
           @equal key.id, "1234"
@@ -74,17 +88,17 @@ class exports.KeyringFactoryTest extends FakeAppTest
     @fixtures.create fixture, ( err, [ api, key1, key2, keyring ] ) =>
       @isNull err
 
-      keyring.addKey key1.id, ( err ) =>
+      keyring.linkKey key1.id, ( err ) =>
         @isNull err
 
-        keyring.addKey key2.id, ( err ) =>
+        keyring.linkKey key2.id, ( err ) =>
           @isNull err
 
           keyring.getKeys 0, 10, ( err, keys ) =>
             @isNull err
             @deepEqual keys, [ key2.id, key1.id ]
 
-            keyring.delKey key1.id, ( err, result ) =>
+            keyring.unlinkKey key1.id, ( err, result ) =>
               @isNull err
 
               keyring.getKeys 0, 10, ( err, keys ) =>
@@ -106,7 +120,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
             @ok key
 
             # add the new key
-            keyring.addKey key.id, ( err, added_key ) =>
+            keyring.linkKey key.id, ( err, added_key ) =>
               @isNull err
               @ok added_key
 

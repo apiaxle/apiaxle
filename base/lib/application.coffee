@@ -139,13 +139,15 @@ class exports.Application
         filename: "#{ Application.env }-#{ @port }.log"
 
     # load up /our/ configuration (from the files in /config)
-    @config = require( "./app_config" )( Application.env )
+    [ config_filename, @config ] = require( "./app_config" )( Application.env )
 
     @config = _.extend @config, default_config
 
     app.configure ( ) =>
       @configureGeneral app
       @configureLogging app
+
+      @logger.info "Loading configuration from '#{ config_filename }'."
 
       # now let the rest of the class know about app
       @app = app

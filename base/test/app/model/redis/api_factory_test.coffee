@@ -12,12 +12,26 @@ class exports.ApiTest extends FakeAppTest
     done()
 
   "test initialisation": ( done ) ->
-    @ok @app
-    @ok @model
-
     @equal @model.ns, "gk:test:apifactory"
 
-    done 3
+    done 1
+
+  "test #update ing an existing api": ( done ) ->
+    fixture =
+      api:
+        twitter: {}
+
+    @fixtures.create fixture, ( err, [ dbApi ] ) =>
+      @isNull err
+      @ok dbApi.data.createdAt
+      @ok not dbApi.data.updatedAt?
+
+      @fixtures.create fixture, ( err, [ dbApi2 ] ) =>
+        @isNull err
+        @ok dbApi2.data.updatedAt
+        @equal dbApi.data.createdAt, dbApi2.data.createdAt
+
+        done 4
 
   "test #create with bad structure": ( done ) ->
     newObj =
@@ -55,6 +69,34 @@ class exports.ApiTest extends FakeAppTest
         @ok api.data.createdAt
 
         done 4
+
+  "test unlinkkey": ( done ) ->
+    fixture =
+      api:
+        facebook: {}
+        twitter: {}
+      key:
+        1234:
+          forApis: [ "facebook", "twitter" ]
+
+    @fixtures.create fixture, ( err, [ dbFacebook, rest... ] ) =>
+      @isNull err
+
+      dbFacebook.supportsKey "1234", ( err, supported ) =>
+        @isNull err
+        @equal supported, true
+
+        dbFacebook.unlinkKey "1234", ( err ) =>
+          @isNull err
+
+          dbFacebook.supportsKey "1234", ( err, supported ) =>
+            @isNull err
+            @equal supported, false
+
+            dbFacebook.getKeys 0, 100, ( err, keys ) =>
+              @deepEqual keys, []
+
+              done 7
 
   "test #supportsKey on an API": ( done ) ->
     fixture =
