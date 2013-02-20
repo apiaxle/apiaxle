@@ -34,6 +34,8 @@ exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
     # sort by the controller path
     sorted = _.sortBy gk.controllers, ( x ) -> x.path()
 
+    print "This documentation was generated from branch '#{ branch }'"
+
     for controller in sorted
       # h1, the path of the controller
       printOnce "# #{controller.path()}"
