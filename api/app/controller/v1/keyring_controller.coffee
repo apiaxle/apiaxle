@@ -178,7 +178,7 @@ class exports.UnlinkKeyToKeyring extends ApiaxleController
 
   desc: ->
     """
-    Disassociate a key with n KEYRING.
+    Disassociate a key with a KEYRING.
 
     The key will still exist and its details won't be affected.
     """
