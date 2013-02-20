@@ -3,17 +3,52 @@ _ = require "underscore"
 { ApiaxleController, ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
-class exports.LinkKeyToApi extends ApiaxleController
+class exports.UnlinkKeyToApi extends ApiaxleController
   @verb = "put"
 
-  desc: -> """Associate an existing key with an API meaning calls to the
-  API can now be made with the key"""
+  desc: ->
+    """
+    Disassociate a key with an API meaning calls to the API can no
+    longer be made with the key.
+
+    The key will still exist and its details won't be affected.
+    """
 
   docs: ->
     """
     ### Returns
 
-    * The key details.
+    * The unlinked key details.
+    """
+
+  middleware: -> [ @mwApiDetails( valid_api_required=true ),
+                   @mwKeyDetails( valid_key_required=true ) ]
+
+  path: -> "/v1/api/:api/unlinkkey/:key"
+
+  execute: ( req, res, next ) ->
+    req.api.unlinkKey req.key.id, ( err ) =>
+      return next err if err
+
+      @json res, req.key.data
+
+class exports.LinkKeyToApi extends ApiaxleController
+  @verb = "put"
+
+  desc: ->
+    """
+    Associate a key with an API meaning calls to the API can be made
+    with the key.
+
+    The key must already exist and will not be modified by this
+    operation.
+    """
+
+  docs: ->
+    """
+    ### Returns
+
+    * The linked key details.
     """
 
   middleware: -> [ @mwApiDetails( valid_api_required=true ),

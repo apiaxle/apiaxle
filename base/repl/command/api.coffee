@@ -3,6 +3,14 @@
 class exports.Api extends Command
   @modelName = "apiFactory"
 
+  unlinkkey: ( id, commands, keypairs, cb ) =>
+    if not key = commands.shift()
+      return cb new Error "Please provide a key name to link to #{ id }."
+
+    options =
+      path: "/v1/api/#{ id }/unlinkkey/#{ key }"
+    @callApi "PUT", options, cb
+
   linkkey: ( id, commands, keypairs, cb ) =>
     if not key = commands.shift()
       return cb new Error "Please provide a key name to link to #{ id }."
