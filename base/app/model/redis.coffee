@@ -170,6 +170,7 @@ class Model extends Redis
 redisCommands = {
   "hset": "write"
   "hget": "read"
+  "hdel": "write"
   "hmset": "write"
   "hincrby": "write"
   "hgetall": "read"

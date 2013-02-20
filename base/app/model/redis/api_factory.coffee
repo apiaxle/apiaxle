@@ -27,9 +27,23 @@ class Api extends Model
 
           multi.exec cb
 
-  # TODO: implement this
-  deleteKey: ( key, cb ) ->
-    # call `dbKey.unlinkFromApi`
+  unlinkKey: ( keyName, cb ) ->
+    @app.model( "keyFactory" ).find keyName, ( err, dbKey ) =>
+      return cb err if err
+
+      if not dbKey
+        return cb new KeyNotFoundError "#{ keyName } doesn't exist."
+
+      dbKey.unlinkFromApi keyName, ( err ) =>
+        return cb err if err
+
+        multi = @multi()
+
+        # hopefully only one
+        multi.lrem "#{ @id }:keys", 1, keyName
+        multi.hdel "#{ @id }:keys-lookup", keyName
+
+        multi.exec cb
 
   getKeys: ( start, stop, cb ) ->
     @lrange "#{ @id }:keys", start, stop, cb

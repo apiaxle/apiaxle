@@ -12,6 +12,9 @@ class Key extends Model
   supportedApis: ( cb ) ->
     @hkeys "#{ @id }-apis", cb
 
+  unlinkFromApi: ( apiName, cb ) ->
+    @hdel "#{ @id }-apis", apiName, cb
+
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "key"
