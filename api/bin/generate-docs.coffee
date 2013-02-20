@@ -1,6 +1,7 @@
 #!/usr/bin/env coffee
 
 _ = require "underscore"
+{ exec } = require "child_process"
 
 { ApiaxleApi } = require "../apiaxle_api"
 
@@ -15,26 +16,29 @@ printOnce = ( toPrint ) ->
 
 gk = new ApiaxleApi()
 
-outputHeaders = ( ) ->
-  """---
-  layout: apidocs
-  title: "Api documentation"
-  ---
-  """
-gk.script ( finish ) ->
-  # we need to know the controllers
-  gk.configureControllers()
+exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
+  branch = stdout.replace /\n/g, ""
 
-  print outputHeaders()
+  outputHeaders = ( ) ->
+    """---
+    layout: apidocs
+    title: "Api documentation (generated from '#{ branch }'"
+    ---
+    """
+  gk.script ( finish ) ->
+    # we need to know the controllers
+    gk.configureControllers()
 
-  # sort by the controller path
-  sorted = _.sortBy gk.controllers, ( x ) -> x.path()
+    print outputHeaders()
 
-  for controller in sorted
-    # h1, the path of the controller
-    printOnce "# #{controller.path()}"
+    # sort by the controller path
+    sorted = _.sortBy gk.controllers, ( x ) -> x.path()
 
-    print "## #{controller.desc()} (#{controller.constructor.verb.toUpperCase()})"
-    print "#{controller.docs()}\n"
+    for controller in sorted
+      # h1, the path of the controller
+      printOnce "# #{controller.path()}"
 
-  finish()
+      print "## #{controller.desc()} (#{controller.constructor.verb.toUpperCase()})"
+      print "#{controller.docs()}\n"
+
+    finish()
