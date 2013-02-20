@@ -1,4 +1,5 @@
 _ = require "underscore"
+libxml = require "libxmljs"
 http = require "http"
 
 class AppResponse
@@ -39,7 +40,7 @@ exports.httpHelpers =
 
     # fill in the defaults (though, why port would change, I don't
     # know)
-    options = _.extend options, defaults
+    options = _.extend defaults, options
 
     @app.logger.debug "Making a #{ options.method} to #{ options.path }"
     req = http.request options, ( res ) ->
