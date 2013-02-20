@@ -39,26 +39,32 @@ class exports.Command extends Module
   # mixin the httpHeler functions (POST, GET, etc...)
   @include httpHelpers
 
-  constructor: ( @app, @id ) ->
+  exec: ( [ id, command, rest... ], keypairs, cb ) ->
+    if not command?
+      return @show id, rest, keypairs, cb
 
-class exports.ModelCommand extends exports.Command
-  model: ( ) ->
-    return @_model if @_model
-    return ( @_model = @app.model( @constructor.modelName ) )
+    if ( command of @ )
+      return @[ command ] id, rest, keypairs, cb
 
-  modelProps: ( ) ->
-    ( @model().constructor.structure.properties or [] )
+  callApi: ( verb, options, cb ) =>
+    default_options =
+      headers:
+        "content-type": "application/json"
 
-  _getIdAndObject: ( commands, cb ) ->
-    @_getId commands, ( err, id ) =>
+    options = _.extend options, default_options
+
+    @[ verb ] options, ( err, res ) =>
+      return cb err if err
+      return @handleApiResults res, cb
+
+  handleApiResults: ( res, cb ) ->
+    res.parseJson ( err, json ) ->
       return cb err if err
 
-      @model().find id, ( err, dbObj ) ->
-        return cb err if err
-        return cb null, id, dbObj
+      # the api itself threw an error
+      if json.results?.error?
+        return cb new Error json.results.error.message
 
-  _getId: ( id, cb ) ->
-    if not id? or typeof( id ) isnt "string"
-      return cb new Error "Expecting an ID (string) as the first argument."
+      return cb null, json
 
-    return cb null, id
+  constructor: ( @app, @id ) ->
