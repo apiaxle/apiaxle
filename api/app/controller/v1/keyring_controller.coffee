@@ -191,7 +191,7 @@ class exports.AddKeyringKey extends ApiaxleController
                    @mwKeyDetails( valid_key_required=true ) ]
 
   execute: ( req, res, next ) ->
-    req.keyring.addKey req.key.id, ( err ) =>
+    req.keyring.linkKey req.key.id, ( err ) =>
       return next err if err
 
       @json res, true

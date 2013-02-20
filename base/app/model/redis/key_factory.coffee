@@ -66,7 +66,7 @@ class exports.KeyFactory extends Redis
     for api in dbApis
       do( api ) ->
         allKeysLink.push ( cb ) ->
-          api.addKey dbKey.id, ( err ) ->
+          api.linkKey dbKey.id, ( err ) ->
             return cb err if err
             return cb null, dbKey
 

@@ -2,7 +2,7 @@
 { Model, Redis } = require "../redis"
 
 class Api extends Model
-  addKey: ( key, cb ) =>
+  linkKey: ( key, cb ) =>
     @app.model( "keyFactory" ).find key, ( err, dbKey ) =>
       return cb err if err
 

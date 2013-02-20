@@ -175,7 +175,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
     @fixtures.create fixture, ( err, [ api, keyring, keys... ] ) =>
       @isNull err
 
-      keyring.addKeys _.pluck( keys, "id" ), ( err ) =>
+      keyring.linkKeys _.pluck( keys, "id" ), ( err ) =>
         @isNull err
 
         keyring.delKey keys[0].id, ( err ) =>
