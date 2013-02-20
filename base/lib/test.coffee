@@ -15,9 +15,12 @@ _      = require "underscore"
 { httpHelpers } = require "./mixins/http-helpers"
 
 # use the extend paradigm without actually using the Module class
-extend = (obj, mixin) ->
-  obj[name] = method for name, method of mixin
+extend = ( obj, mixin ) ->
+  obj[ name ] = method for name, method of mixin
   return obj
+
+include = (klass, mixin) ->
+  return extend klass.prototype, mixin
 
 class Clock
   constructor: ( @sinonClock ) ->
@@ -201,7 +204,7 @@ class exports.AppTest extends TwerpTest
     res.emit "data", data
     res.emit "end"
 
-extend exports.AppTest, httpHelpers
+include exports.AppTest, httpHelpers
 
 class Fixtures
   constructor: ( @app ) ->
