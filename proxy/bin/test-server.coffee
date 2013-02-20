@@ -11,11 +11,11 @@ app.configure ( ) ->
   app.use express.bodyParser()
 
 app.all "*", ( req, res, next ) ->
-  { seconds, data } = req.query
+  { milliseconds, data } = req.query
 
-  seconds or= Math.floor( Math.random() * 11 )
+  milliseconds or= Math.floor( Math.random() * 1000 )
   data or= JSON.stringify
-    time: seconds
+    time: milliseconds
     query: req.query
     body: req.body
 
@@ -25,9 +25,9 @@ app.all "*", ( req, res, next ) ->
     catch err
       res.json err
 
-  if seconds and milli = ( seconds * 1000 )
+  if milliseconds
     console.log( data )
-    setTimeout done, milli
+    setTimeout done, milliseconds
   else
     done()
 

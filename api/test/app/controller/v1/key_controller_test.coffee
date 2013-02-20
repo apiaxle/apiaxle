@@ -7,16 +7,17 @@ class exports.KeyControllerTest extends ApiaxleTest
   @empty_db_on_setup = true
 
   "setup Api": ( done ) ->
-    details =
-      endPoint: "api.twitter.com"
+    fixtures =
+      api:
+        twitter:
+          endPoint: "api.twitter.com"
+        facebook: {}
 
-    @keyModel = @application.model( "keyFactory" )
-
-    @fixtures.createApi "twitter", details, ( err, @newApi ) ->
+    @fixtures.create fixtures, ( err, [ @newApi ] ) ->
       done()
 
   "test GET a valid key": ( done ) ->
-    @fixtures.createKey "1234", forApi: "twitter", ( err, newKey ) =>
+    @fixtures.createKey "1234", forApis: [ "twitter", "facebook" ], ( err, newKey ) =>
       @isNull err
       @ok newKey
 
@@ -24,10 +25,12 @@ class exports.KeyControllerTest extends ApiaxleTest
       @GET path: "/v1/key/1234", ( err, res ) =>
         res.parseJson ( err, json ) =>
           @isNull err
-          @isNumber parseInt( json.results.qps )
-          @isNumber parseInt( json.results.qpd )
+          @isNumber json.results.qps
+          @isNumber json.results.qpd
 
-          done 5
+          @deepEqual json.results.apis, [ "twitter", "facebook" ]
+
+          done 6
 
   "test GET a non-existant key": ( done ) ->
     # now try and get it
@@ -38,7 +41,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       res.parseJson ( err, json ) =>
         @isNull err
         @ok json.results.error
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.type, "KeyNotFoundError"
 
         done 5
 
@@ -48,7 +51,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       headers:
         "Content-Type": "application/json"
       data: JSON.stringify
-        forApi: "twitter"
+        forApis: [ "twitter" ]
         qps: 1
         qpd: 100
 
@@ -57,18 +60,16 @@ class exports.KeyControllerTest extends ApiaxleTest
         @isNull err
         @equal json.results.qps, "1"
         @equal json.results.qpd, "100"
-        @equal json.results.forApi, "twitter"
 
         # check it went in
-        @keyModel.find "1234", ( err, dbKey ) =>
+        @app.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
           @isNull err
 
           @equal dbKey.data.qps, "1"
           @equal dbKey.data.qpd, "100"
-          @equal dbKey.data.forApi, "twitter"
           @ok dbKey.data.createdAt
 
-          @application.model("apiFactory").find "twitter", ( err, api ) =>
+          @app.model("apiFactory").find "twitter", ( err, api ) =>
             @isNull err
             @ok api
 
@@ -76,7 +77,7 @@ class exports.KeyControllerTest extends ApiaxleTest
               @equal keys.length, 1
               @equal keys[0], "1234"
 
-              done 13
+              done 11
 
   "test POST with an invalid key": ( done ) ->
     options =
@@ -84,7 +85,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       headers:
         "Content-Type": "application/json"
       data: JSON.stringify
-        forApi: "twitter"
+        forApis: [ "twitter" ]
         qps: "invalid"
         qpd: 100
 
@@ -93,7 +94,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
-        @equal json.results.error.message, "qps: (type) "
+        @equal json.results.error.message, "qps: The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
 
         done 4
 
@@ -103,18 +104,18 @@ class exports.KeyControllerTest extends ApiaxleTest
       headers:
         "Content-Type": "application/json"
       data: JSON.stringify
-        forApi: "twitter"
+        forApis: [ "twitter" ]
         qps: 30
         qpd: 1000
 
-    @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
+    @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
       @isNull err
       @ok origKey
 
       @PUT options, ( err, res ) =>
         @equal res.statusCode, 200
 
-        @keyModel.find "1234", ( err, dbKey ) =>
+        @app.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
           @equal dbKey.data.qps, "30"
           @equal dbKey.data.qpd, "1000"
 
@@ -126,11 +127,11 @@ class exports.KeyControllerTest extends ApiaxleTest
       headers:
         "Content-Type": "application/json"
       data: JSON.stringify
-        forApi: "twitter"
+        forApis: [ "twitter" ]
         qps: "hi"     # invalid
         qpd: 1000
 
-    @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
+    @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -153,13 +154,13 @@ class exports.KeyControllerTest extends ApiaxleTest
         @ok json.results.error
         @ok json.meta.status_code, 404
 
-        @equal json.results.error.message, "1234 not found."
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.message, "Key '1234' not found."
+        @equal json.results.error.type, "KeyNotFoundError"
 
         done 6
 
   "test DELETE with valid key": ( done ) ->
-    @fixtures.createKey "1234", forApi: "twitter", ( err, origKey ) =>
+    @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
       @isNull err
       @ok origKey
 
@@ -177,7 +178,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @application.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
+          @app.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
             @isNull err
             @isNull dbKey
 
@@ -190,7 +191,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @fixtures.createKey "key_#{i}", forApi: "twitter", cb
+          @fixtures.createKey "key_#{i}", forApis: [ "twitter" ], cb
 
     async.series fixtures, ( err, newKeys ) =>
       @isNull err
@@ -213,7 +214,7 @@ class exports.KeyControllerTest extends ApiaxleTest
     for i in [ 0..10 ]
       do ( i ) =>
         fixtures.push ( cb ) =>
-          @fixtures.createKey "key_#{i}", forApi: "twitter", qps: i, qpd: i, cb
+          @fixtures.createKey "key_#{i}", forApis: [ "twitter" ], qps: i, qpd: i, cb
 
     async.parallel fixtures, ( err, newKeys ) =>
       @isNull err
@@ -231,9 +232,8 @@ class exports.KeyControllerTest extends ApiaxleTest
             @ok json.results[ name ]
             @equal json.results[ name ].qpd, i
             @equal json.results[ name ].qps, i
-            @equal json.results[ name ].forApi, "twitter"
 
-          done 44
+          done 34
 
 class exports.KeyStatsTest extends ApiaxleTest
   @start_webserver = true
@@ -247,13 +247,66 @@ class exports.KeyStatsTest extends ApiaxleTest
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
       keyOptions =
-        forApi: "facebook"
+        forApis: [ "facebook" ]
 
       @fixtures.createKey "1234", keyOptions, ( err ) ->
         done()
 
+  "test GET hits for Key": ( done ) ->
+    model = @app.model "hits"
+    hits  = []
+    # Wed, December 14th 2011, 20:01
+    clock = @getClock 1323892867000
+    hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+
+    shouldHave =
+      meta:
+        version: 1
+        status_code: 200
+      results:
+        "1323892867": "3"
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+      @GET path: "/v1/key/1234/hits", ( err, res ) =>
+        @isNull err
+
+        res.parseJson ( err, json ) =>
+          @isNull err
+          @ok json
+          @deepEqual json, shouldHave
+          done 5
+
+  "test GET real time hits for Key": ( done ) ->
+    model = @app.model "hits"
+    hits  = []
+    # Wed, December 14th 2011, 20:01
+    clock = @getClock 1323892867000
+    hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+
+    shouldHave =
+      meta:
+        version: 1
+        status_code: 200
+      results: 3
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+      @GET path: "/v1/key/1234/hits/now", ( err, res ) =>
+        @isNull err
+
+        res.parseJson ( err, json ) =>
+          @isNull err
+          @ok json
+          @deepEqual json, shouldHave
+          done 5
+
   "test all counts with range": ( done ) ->
-    model = @application.model "counters"
+    model = @app.model "counters"
 
     hits = []
 
@@ -331,7 +384,7 @@ class exports.KeyStatsTest extends ApiaxleTest
               done 9
 
   "test all counts": ( done ) ->
-    model = @application.model "counters"
+    model = @app.model "counters"
 
     hits = []
 

@@ -12,11 +12,11 @@ class exports.CatchallTest extends ApiaxleTest
       api:
         facebook:
           apiFormat: "json"
-          globalCache: "30"
+          globalCache: 30
       key:
         1234:
           sharedSecret: "bob-the-builder"
-          forApi: "facebook"
+          forApis: [ "facebook" ]
 
     @fixtures.create fixtures, done
 
@@ -24,13 +24,13 @@ class exports.CatchallTest extends ApiaxleTest
     date = Math.floor( epoch ).toString()
 
     hmac = crypto.createHmac "sha1", "bob-the-builder"
-    hmac.update Math.floor( epoch ).toString()
+    hmac.update date
     hmac.update "1234"
 
     return hmac.digest "hex"
 
   "test #validateToken": ( done ) ->
-    controller = @application.controllers.GetCatchall
+    controller = @app.controllers.GetCatchall
 
     # pause time and get the current epoch
     clock = @getClock()
@@ -73,7 +73,7 @@ class exports.CatchallTest extends ApiaxleTest
 
       done 39
 
-  "test signatures and expiary times": ( done ) ->
+  "test signatures and expiry times": ( done ) ->
     stub = @stubCatchall 200, "{}",
       "Content-Type": "application/json"
 

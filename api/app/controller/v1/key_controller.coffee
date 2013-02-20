@@ -55,7 +55,7 @@ class exports.CreateKey extends ApiaxleController
   execute: ( req, res, next ) ->
     # error if it exists
     if req.key?
-      return next new AlreadyExists "#{ key } already exists."
+      return next new AlreadyExists "'#{ req.key.id }' already exists."
 
     @app.model( "keyFactory" ).create req.params.key, req.body, ( err, newObj ) =>
       return next err if err
@@ -74,12 +74,21 @@ class exports.ViewKey extends ApiaxleController
     * The key object (including timestamps).
     """
 
-  middleware: -> [ @mwKeyDetails( valid_api_required=true ) ]
+  middleware: -> [ @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    @json res, req.key.data
+    # we want to add the list of APIs supported by this key to the
+    # output
+    req.key.supportedApis ( err, apiNameList ) =>
+      return next err if err
+
+      # merge the api names with the current output
+      output = req.key.data
+      output.apis = apiNameList
+
+      @json res, req.key.data
 
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
@@ -93,7 +102,7 @@ class exports.DeleteKey extends ApiaxleController
     * `true` on success.
     """
 
-  middleware: -> [ @mwKeyDetails( valid_api_required=true ) ]
+  middleware: -> [ @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/key/:key"
 
@@ -126,7 +135,7 @@ class exports.ModifyKey extends ApiaxleController
 
   middleware: -> [
     @mwContentTypeRequired( ),
-    @mwKeyDetails( valid_api_required=true )
+    @mwKeyDetails( valid_key_required=true )
   ]
 
   path: -> "/v1/key/:key"
@@ -134,18 +143,59 @@ class exports.ModifyKey extends ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model "keyFactory"
 
-    # validate the input
-    model.validate req.body, ( err ) =>
+    # modify the key
+    newData = _.extend req.key.data, req.body
+
+    # re-apply it to the db
+    model.create req.params.key, newData, ( err, newKey ) =>
       return next err if err
 
-      # modify the key
-      _.extend req.key.data, req.body
+      @json res, newKey.json
 
-      # re-apply it to the db
-      model.create req.params.key, req.key.data, ( err, newKey ) =>
-        return next err if err
+class exports.ViewHitsForKey extends ApiaxleController
+  @verb = "get"
 
-        @json res, newKey.json
+  desc: -> "Get hits for a key in the past minute."
+
+  docs: ->
+    """
+    ### Returns
+
+    * Object where the keys represent timestamp for a given second
+      and the values the amount of hits to the Key for that second
+    """
+
+  middleware: -> [ @mwKeyDetails( @app ) ]
+
+  path: -> "/v1/key/:key/hits"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "hits"
+    model.getCurrentMinute "key", req.params.key, ( err, hits ) =>
+      return @json res, hits
+
+
+class exports.ViewHitsForKeyNow extends ApiaxleController
+  @verb = "get"
+
+  desc: -> "Get the real time hits for a key."
+
+  docs: ->
+    """
+    ### Returns
+
+    * Integer, the number of hits to the Key this second.
+      Designed light weight real time statistics
+    """
+
+  middleware: -> [ @mwKeyDetails( @app ) ]
+
+  path: -> "/v1/key/:key/hits/now"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "hits"
+    model.getRealTime "key", req.params.key, ( err, hits ) =>
+      return @json res, hits
 
 class exports.ViewAllStatsForKey extends ApiaxleController
   @verb = "get"
@@ -161,7 +211,7 @@ class exports.ViewAllStatsForKey extends ApiaxleController
       example). Each object contains date to hit count pairs.
     """
 
-  middleware: -> [ @mwKeyDetails( valid_api_required=true ) ]
+  middleware: -> [ @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/key/:key/stats"
 

@@ -40,23 +40,26 @@ class exports.ApiaxleController extends Controller
       all = []
 
       # check the key is for this api
-      if keyDetails?.data.forApi isnt req.subdomain
-        return next new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
+      req.api.supportsKey key, ( err, supported ) =>
+        return cb err if err
 
-      if keyDetails?.data.sharedSecret
-        if not providedToken = ( req.query.apiaxle_sig or req.query.api_sig )
-          return next new KeyError "A signature is required for this API."
+        if supported is false
+          return next new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
 
-        all.push ( cb ) =>
-          @validateToken providedToken, key, keyDetails.data.sharedSecret, cb
+        if keyDetails?.data.sharedSecret
+          if not providedToken = ( req.query.apiaxle_sig or req.query.api_sig )
+            return next new KeyError "A signature is required for this API."
 
-      async.series all, ( err, results ) ->
-        return next err if err
+          all.push ( cb ) =>
+            @validateToken providedToken, key, keyDetails.data.sharedSecret, cb
 
-        keyDetails.data.key = key
-        req.key = keyDetails
+        async.series all, ( err, results ) ->
+          return next err if err
 
-        return next()
+          keyDetails.data.key = key
+          req.key = keyDetails
+
+          return next()
 
   validateToken: ( providedToken, key, sharedSecret, cb ) ->
     now = Date.now() / 1000

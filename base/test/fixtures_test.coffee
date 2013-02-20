@@ -14,12 +14,12 @@ class exports.ApiTest extends FakeAppTest
         twitter: {}
       key:
         1234:
-          forApi: "facebook"
+          forApis: [ "facebook" ]
           qpd: 13
           qps: 14
         5678:
-          forApi: "twitter"
-  
+          forApis: [ "twitter" ]
+
     @fixtures.create structure, ( err, results ) =>
       @isNull err
       @ok results
@@ -28,7 +28,7 @@ class exports.ApiTest extends FakeAppTest
       all_tests = []
 
       all_tests.push ( cb ) =>
-        @application.model( "apiFactory" ).find "facebook", ( err, api ) =>
+        @app.model( "apiFactory" ).find "facebook", ( err, api ) =>
           @isNull err
           @ok api
           @equal api.data.endPoint, "graph.facebook.com"
@@ -36,18 +36,17 @@ class exports.ApiTest extends FakeAppTest
           cb()
 
       all_tests.push ( cb ) =>
-        @application.model( "apiFactory" ).find "twitter", ( err, api ) =>
+        @app.model( "apiFactory" ).find "twitter", ( err, api ) =>
           @isNull err
           @ok api
 
           cb()
 
       all_tests.push ( cb ) =>
-        @application.model( "keyFactory" ).find "1234", ( err, key ) =>
+        @app.model( "keyFactory" ).find "1234", ( err, key ) =>
           @isNull err
           @ok key
-          @equal key.data.forApi, "facebook"
 
           cb()
 
-      async.parallel all_tests, ( err ) -> done 11
+      async.parallel all_tests, ( err ) -> done 10

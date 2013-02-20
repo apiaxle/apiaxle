@@ -3,6 +3,65 @@ _ = require "underscore"
 { ApiaxleController, ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
+class exports.UnlinkKeyToApi extends ApiaxleController
+  @verb = "put"
+
+  desc: ->
+    """
+    Disassociate a key with an API meaning calls to the API can no
+    longer be made with the key.
+
+    The key will still exist and its details won't be affected.
+    """
+
+  docs: ->
+    """
+    ### Returns
+
+    * The unlinked key details.
+    """
+
+  middleware: -> [ @mwApiDetails( valid_api_required=true ),
+                   @mwKeyDetails( valid_key_required=true ) ]
+
+  path: -> "/v1/api/:api/unlinkkey/:key"
+
+  execute: ( req, res, next ) ->
+    req.api.unlinkKey req.key.id, ( err ) =>
+      return next err if err
+
+      @json res, req.key.data
+
+class exports.LinkKeyToApi extends ApiaxleController
+  @verb = "put"
+
+  desc: ->
+    """
+    Associate a key with an API meaning calls to the API can be made
+    with the key.
+
+    The key must already exist and will not be modified by this
+    operation.
+    """
+
+  docs: ->
+    """
+    ### Returns
+
+    * The linked key details.
+    """
+
+  middleware: -> [ @mwApiDetails( valid_api_required=true ),
+                   @mwKeyDetails( valid_key_required=true ) ]
+
+  path: -> "/v1/api/:api/linkkey/:key"
+
+  execute: ( req, res, next ) ->
+    req.api.linkKey req.key.id, ( err ) =>
+      return next err if err
+
+      @json res, req.key.data
+
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
 
@@ -27,7 +86,7 @@ class exports.CreateApi extends ApiaxleController
   execute: ( req, res, next ) ->
     # error if it exists
     if req.api?
-      return next new AlreadyExists "#{ api } already exists."
+      return next new AlreadyExists "'#{ req.api.id }' already exists."
 
     @app.model( "apiFactory" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err
@@ -107,15 +166,11 @@ class exports.ModifyApi extends ApiaxleController
     # modify the old api struct
     newData = _.extend req.api.data, req.body
 
-    # validate it
-    model.validate newData, ( err, instance ) =>
+    # re-apply it to the db
+    model.create req.params.api, newData, ( err, newApi ) =>
       return next err if err
 
-      # re-apply it to the db
-      model.create req.params.api, instance, ( err, newApi ) =>
-        return next err if err
-
-        @json res, newApi.data
+      @json res, newApi.data
 
 class exports.ListApis extends ListController
   @verb = "get"
@@ -173,9 +228,61 @@ class exports.ListApiKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "keyFactory"
+  middleware: -> [ @mwApiDetails( @app ) ]
+
+  execute: ( req, res, next ) ->
+    req.api.getKeys @from( req ), @to( req ), ( err, keys ) =>
+      return next err if err
+      return @json res, keys if not req.query.resolve?
+
+      @resolve @app.model( "keyFactory" ), keys, ( err, results ) =>
+        return cb err if err
+        return @json res, results
+
+class exports.ViewHitsForApi extends ApiaxleController
+  @verb = "get"
+
+  desc: -> "Get the statistics for an api."
+
+  docs: ->
+    """
+    ### Returns
+
+    * Object where the keys represent timestamp for a given second
+      and the values the amount of hits to the specified API for that second
+    """
 
   middleware: -> [ @mwApiDetails( @app ) ]
+
+  path: -> "/v1/api/:api/hits"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "hits"
+    model.getCurrentMinute "api", req.params.api, ( err, hits ) =>
+      return @json res, hits
+
+
+class exports.ViewHitsForApiNow extends ApiaxleController
+  @verb = "get"
+
+  desc: -> "Get the statistics for an api."
+
+  docs: ->
+    """
+    ### Returns
+
+    * Integer, the number of hits to the API this second.
+      Designed light weight real time statistics
+    """
+
+  middleware: -> [ @mwApiDetails( @app ) ]
+
+  path: -> "/v1/api/:api/hits/now"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "hits"
+    model.getRealTime "api", req.params.api, ( err, hits ) =>
+      return @json res, hits
 
 class exports.ViewAllStatsForApi extends ApiaxleController
   @verb = "get"

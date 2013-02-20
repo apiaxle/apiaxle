@@ -7,12 +7,12 @@ class exports.KeyTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup model": ( done ) ->
-    @model = @application.model "keyFactory"
+    @model = @app.model "keyFactory"
 
     done()
 
   "test initialisation": ( done ) ->
-    @ok @application
+    @ok @app
     @ok @model
 
     @equal @model.ns, "gk:test:key"
@@ -32,7 +32,7 @@ class exports.KeyTest extends FakeAppTest
     createObj =
       qps: 1
       qpd: 3
-      forApi: "twitter"
+      forApis: [ "twitter" ]
 
     @fixtures.createKey "987654321", createObj, ( err ) =>
       @ok err
@@ -40,19 +40,45 @@ class exports.KeyTest extends FakeAppTest
 
       done 2
 
-  "test #create with an existant api": ( done ) ->
+  "test #create with an existing api": ( done ) ->
     options =
       endPoint: "api.twitter.com"
 
-    @application.model( "apiFactory" ).create "twitter", options, ( err, newApi ) =>
-      @isNull err
+    @app.model( "apiFactory" ).create "twitter", options, ( err, newApi ) =>
+      @isUndefined err?.message
 
       createObj =
         qps: 1
         qpd: 3
-        forApi: "twitter"
+        forApis: [ "twitter" ]
 
       @fixtures.createKey "987654321", createObj, ( err ) =>
         @isNull err
 
         done 2
+
+  "test #linkToApi and #supportedApis": ( done ) ->
+    fixtures =
+      api:
+        twitter: {}
+        facebook: {}
+      key:
+        1234: {}
+        5678: {}
+
+    @fixtures.create fixtures, ( err, [ twitter, facebook, key1, key2 ] ) =>
+      @isNull err
+
+      # the fixture creator associates keys with twitter by default
+      key1.supportedApis ( err, apis ) =>
+        @isNull err
+        @deepEqual apis, [ "twitter" ]
+
+        key1.linkToApi "facebook", ( err ) =>
+          @isNull err
+
+          key1.supportedApis ( err, apis ) =>
+            @isNull err
+            @deepEqual apis, [ "twitter", "facebook" ]
+
+            done 6

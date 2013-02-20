@@ -1,0 +1,15 @@
+upstream apiaxle_api_cluster {
+  server 127.0.0.1:3000;
+  server 127.0.0.1:3001;
+  server 127.0.0.1:3002;
+  server 127.0.0.1:3003;
+}
+
+server {
+  listen 0.0.0.0:81 deferred;
+
+  location / {
+      proxy_pass http://apiaxle_api_cluster;
+      proxy_set_header Host $host;
+  }
+}

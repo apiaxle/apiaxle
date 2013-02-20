@@ -2,15 +2,34 @@ _ = require "underscore"
 
 { ValidationError } = require "./error"
 
+amanda = require "amanda"
+jsonSchemaValidator = amanda "json"
+
+validRegexpAttribute = ( prop, data, value, attrbs, cb ) ->
+  return cb() unless value
+
+  try
+    new RegExp data
+  catch err
+    @addError err
+
+  return cb()
+
+jsonSchemaValidator.addAttribute "is_valid_regexp", validRegexpAttribute
+
 module.exports = ( structure, data, cb ) ->
-  validation = structure.validate data
+  jsonSchemaValidator.validate data, structure, ( err ) ->
+    if err
+      message = ""
 
-  if validation.errors.length > 0
-    errors = []
+      for details in err
+        message += "#{ details.property }: #{ details.message }"
 
-    for e in validation.errors
-      errors.push "#{ e.path.join "." }: (#{ e.attribute }) #{ e.description }"
+      return cb new ValidationError message
 
-    return cb new ValidationError errors.join ","
-  else
-    return cb null, validation.instance
+    # set defaults if need be
+    for key, details of structure.properties
+      if not data[ key ]? and details.default?
+        data[ key ] = details.default
+
+    return cb null, data

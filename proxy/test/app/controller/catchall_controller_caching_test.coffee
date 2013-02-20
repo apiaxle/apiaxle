@@ -10,7 +10,7 @@ class exports.CatchallTest extends ApiaxleTest
     all = []
 
     for type in [ "Post", "Put", "Delete" ]
-      controller = @application.controller "#{type}Catchall"
+      controller = @app.controller "#{type}Catchall"
 
       req =
         headers: {}
@@ -29,7 +29,7 @@ class exports.CatchallTest extends ApiaxleTest
       done 9
 
   _runCacheControlTests: ( tests, cb ) ->
-    controller = @application.controller "GetCatchall"
+    controller = @app.controller "GetCatchall"
 
     runnables = []
 
@@ -121,7 +121,7 @@ class exports.CatchallTest extends ApiaxleTest
           globalCache: 20
       key:
         1234:
-          forApi: "facebook"
+          forApis: [ "facebook" ]
 
     @fixtures.create fix, ( err ) =>
       @isNull err
@@ -160,7 +160,7 @@ class exports.CatchallTest extends ApiaxleTest
             done 10
 
   "test #_parseCacheControl": ( done ) ->
-    controller = @application.controller "GetCatchall"
+    controller = @app.controller "GetCatchall"
 
     res = controller._parseCacheControl
       headers:
@@ -179,7 +179,7 @@ class exports.CatchallTest extends ApiaxleTest
           apiFormat: "json"
       key:
         1234:
-          forApi: "facebook"
+          forApis: [ "facebook" ]
 
     @fixtures.create fixture, ( err ) =>
       @isNull err
@@ -236,7 +236,7 @@ class exports.CatchallTest extends ApiaxleTest
           globalCache: 30
       key:
         1234:
-          forApi: "facebook"        
+          forApis: [ "facebook"         ]
 
     @fixtures.create fixture, ( err ) =>
       @isNull err
@@ -284,7 +284,7 @@ class exports.CatchallTest extends ApiaxleTest
           globalCache: 30
       key:
         1234:
-          forApi: "facebook"
+          forApis: [ "facebook" ]
 
     @fixtures.create fixture, ( err ) =>
       @isNull err

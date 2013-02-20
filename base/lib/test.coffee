@@ -11,6 +11,17 @@ _      = require "underscore"
 { TwerpTest }   = require "twerp"
 { Redis }       = require "../app/model/redis"
 
+# GET, POST, PUT, HEAD etc.
+{ httpHelpers } = require "./mixins/http-helpers"
+
+# use the extend paradigm without actually using the Module class
+extend = ( obj, mixin ) ->
+  obj[ name ] = method for name, method of mixin
+  return obj
+
+include = (klass, mixin) ->
+  return extend klass.prototype, mixin
+
 class Clock
   constructor: ( @sinonClock ) ->
 
@@ -27,6 +38,9 @@ class Clock
     # move on the fake clock
     @tick ( now.getTime() - thenTime )
 
+  addSeconds: ( number ) ->
+    @_addTime "addSeconds", number
+
   addMinutes: ( number ) ->
     @_addTime "addMinutes", number
 
@@ -42,49 +56,20 @@ class Clock
   addYears: ( number ) ->
     @_addTime "addYears", number
 
-class AppResponse
-  constructor: ( @actual_res, @data ) ->
-    @statusCode  = @actual_res.statusCode
-    @headers     = @actual_res.headers
-    @contentType = @headers[ "content-type" ]
-
-  withJquery: ( callback ) ->
-    jsdom.env @data, ( errs, win ) =>
-      throw new Error errs if errs
-
-      jq = require( "jquery" ).create win
-
-      callback jq
-
-  parseXml: ( callback ) ->
-    try
-      output = libxml.parseXmlString @data
-    catch err
-      return callback err, null
-
-    return callback null, output
-
-  parseJson: ( callback ) ->
-    try
-      output = JSON.parse @data, "utf8"
-    catch err
-      return callback err, null
-
-    return callback null, output
-
 application_mem = null
 application_fixtures = null
 
+# note this is extended with httpHelpers
 class exports.AppTest extends TwerpTest
   @port = 26100
 
   constructor: ( options ) ->
     # avoid re-reading configuration and stuff
-    @application = if application_mem
+    @app = if application_mem
       application_mem
     else
-      application_mem = new @constructor.appClass().configureModels()
-                                                   .configureControllers()
+      application_mem = new @constructor.appClass "127.0.0.1", @constructor.port
+      application_mem.configureModels().configureControllers()
 
     @stubs = []
     @spies  = []
@@ -93,56 +78,27 @@ class exports.AppTest extends TwerpTest
     @fixtures = if application_fixtures
       application_fixtures
     else
-      application_fixtures = new Fixtures @application
+      application_fixtures = new Fixtures @app
 
     super options
 
   stubDns: ( mapping ) ->
     # we need to avoid hitting twitter.api.localhost because it won't
     # exist on everyone's machine
-    stub = @getStub dns, "lookup", ( domain, cb ) ->
+    old = dns.lookup
+
+    @getStub dns, "lookup", ( domain, cb ) ->
       for name, address of mapping
         if domain is name
           return cb null, address, 4
 
-      return dns.lookup domain, cb
+      return old domain, cb
 
   getClock: ( seed=new Date().getTime() ) ->
     new Clock @sandbox.useFakeTimers( seed )
 
   startWebserver: ( done ) ->
-    @application.run "127.0.0.1", @constructor.port, done
-
-  # returns a AppResponse object
-  httpRequest: ( options, callback ) ->
-    unless @constructor.start_webserver
-      throw new Error "Make sure to use @start_webserver for a POST/PUT/DELETE."
-
-    defaults =
-      host: "127.0.0.1"
-      port: @constructor.port
-
-    # fill in the defaults (though, why port would change, I don't
-    # know)
-    for key, val of defaults
-      options[ key ] = val unless options[ key ]
-
-    @application.logger.debug "Making a #{ options.method} to #{ options.path }"
-    req = http.request options, ( res ) =>
-      data = ""
-      res.setEncoding "utf8"
-
-      res.on "data", ( chunk ) -> data += chunk
-      res.on "error", ( err )  -> callback err, null
-      res.on "end", ( )        -> callback null, new AppResponse( res, data )
-
-    req.on "error", ( err ) -> callback err, null
-
-    # write the body if we're meant to
-    if options.data and options.method not in [ "HEAD", "GET" ]
-      req.write options.data
-
-    req.end()
+    @app.run done
 
   # stub out `fun_name` of `module` with the function `logic`. The
   # teardown function will deal with restoring all stubs.
@@ -157,33 +113,6 @@ class exports.AppTest extends TwerpTest
     @spies.push newspy
     return newspy
 
-  # returns a AppResponse object
-  POST: ( options, callback ) ->
-    options.method = "POST"
-
-    @httpRequest options, callback
-
-  # returns a AppResponse object
-  GET: ( options, callback ) ->
-    options.method = "GET"
-
-    # never GET data
-    delete options.data
-
-    @httpRequest options, callback
-
-  # returns a AppResponse object
-  PUT: ( options, callback ) ->
-    options.method = "PUT"
-
-    @httpRequest options, callback
-
-  # returns a AppResponse object
-  DELETE: ( options, callback ) ->
-    options.method = "DELETE"
-
-    @httpRequest options, callback
-
   start: ( done ) ->
     chain = []
 
@@ -193,7 +122,7 @@ class exports.AppTest extends TwerpTest
       chain.push ( cb ) =>
         @startWebserver cb
 
-    chain.push @application.redisConnect
+    chain.push @app.redisConnect
 
     wrapCommand = ( access, model, command, fullkey ) ->
       access: access
@@ -203,7 +132,7 @@ class exports.AppTest extends TwerpTest
 
     # capture each redis event as it happens so that we can see what
     # we've been running
-    for name, model of @application.models
+    for name, model of @app.models
       do( name, model ) =>
         model.ee.on "read", ( command, fullkey ) =>
           @runRedisCommands.push wrapCommand( "read", name, command, fullkey )
@@ -217,11 +146,11 @@ class exports.AppTest extends TwerpTest
 
   finish: ( done ) ->
     # this is synchronous
-    @application.app.close( ) if @constructor.start_webserver
-    @application.redisClient.quit( )
+    @app.app.close( ) if @constructor.start_webserver
+    @app.redisClient.quit( )
 
     # remove the redis emitters
-    for name, model of @application.models
+    for name, model of @app.models
       do( name, model ) =>
         model.ee.removeAllListeners "read"
         model.ee.removeAllListeners "write"
@@ -236,11 +165,14 @@ class exports.AppTest extends TwerpTest
     done( )
 
   flushAllKeys: ( cb ) ->
-    base_object = new Redis @application
+    base_object = new Redis @app
 
-    @application.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
-      multi = @application.redisClient.multi()
-      
+    @app.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
+      multi = @app.redisClient.multi()
+
+    @app.redisClient.keys [ "#{ base_object.base_key }*" ], ( err, keys ) =>
+      multi = @app.redisClient.multi()
+
       for key in keys
         multi.del key, ( err ) ->
           return cb err if err
@@ -272,8 +204,10 @@ class exports.AppTest extends TwerpTest
     res.emit "data", data
     res.emit "end"
 
+include exports.AppTest, httpHelpers
+
 class Fixtures
-  constructor: ( @application ) ->
+  constructor: ( @app ) ->
     @api_names  = require "../test/fixtures/api-fixture-names.json"
     @bucket_ids = require "../test/fixtures/key-bucket-fixture-names.json"
     @keys       = [ 1..1000 ]
@@ -285,6 +219,7 @@ class Fixtures
     type_map =
       api: @createApi
       key: @createKey
+      keyring: @createKeyring
 
     # loop over the structure grabbing the names and details
     for type, item of data
@@ -298,12 +233,24 @@ class Fixtures
 
     async.series all, cb
 
-  createKey: ( args..., cb ) =>
+  createKeyring: ( args..., cb ) =>
     name    = null
+    options = { }
+
+    # grab the optional args and make sure a name is assigned
+    switch args.length
+      when 2 then [ name, options ] = args
+      when 1 then [ name ] = args
+      else name = "bucket-#{ @keys.pop() }"
+
+    @app.model( "keyringFactory" ).create "#{ name }", options, cb
+
+  createKey: ( args..., cb ) =>
+    name = null
 
     passed_options  = { }
     default_options =
-      forApi: "twitter"
+      forApis: [ "twitter" ]
 
     # grab the optional args and make sure a name is assigned
     switch args.length
@@ -314,10 +261,10 @@ class Fixtures
     # merge the options
     options = _.extend default_options, passed_options
 
-    @application.model( "keyFactory" ).create name, options, cb
+    @app.model( "keyFactory" ).create "#{ name }", options, cb
 
   createApi: ( args..., cb ) =>
-    name    = null
+    name = null
 
     passed_options  = { }
     default_options =
@@ -333,4 +280,4 @@ class Fixtures
     # merge the options
     options = _.extend default_options, passed_options
 
-    @application.model( "apiFactory" ).create name, options, cb
+    @app.model( "apiFactory" ).create name, options, cb

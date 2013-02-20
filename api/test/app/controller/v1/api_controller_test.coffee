@@ -7,34 +7,102 @@ class exports.ApiControllerTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
+  "test linkkey with invalid api": ( done ) ->
+    @PUT path: "/v1/api/bob/linkkey/bill", ( err, res ) =>
+      @isNull err
+
+      res.parseJson ( err, json ) =>
+        @isNull err
+        @equal json.results.error.message, "Api 'bob' not found."
+
+        done 3
+
+  "test linkkey": ( done ) ->
+    fixture =
+      api:
+        bob: {}
+        twitter: {}
+      key:
+        bill:
+          qps: 201
+
+    @fixtures.create fixture, ( err, [ dbBob ] ) =>
+      @isNull err
+
+      dbBob.getKeys 0, 20, ( err, keys ) =>
+        @isNull err
+        @deepEqual keys, []
+
+        @PUT path: "/v1/api/bob/linkkey/bill", ( err, res ) =>
+          @isNull err
+
+          res.parseJson ( err, json ) =>
+            @isNull err
+            @equal json.results.qps, 201
+
+            dbBob.getKeys 0, 20, ( err, keys ) =>
+              @isNull err
+              @deepEqual keys, [ "bill" ]
+
+              done 8
+
   "test GET a valid api": ( done ) ->
     # now try and get it
     @GET path: "/v1/api/1234", ( err, res ) =>
       @isNull err
       res.parseJson ( err, json ) =>
         @isNull err
-        @ok 1
+        @ok json
 
         done 3
 
   "test GET keys for a valid api": ( done ) ->
-    @fixtures.createApi "twitter", ( err ) =>
-      new_keys = []
-      
-      # create a bunch of keys
-      new_keys.push @fixtures.createKey for i in [ 1..15 ]
+    fixture =
+      api:
+        twitter: {}
+        facebook: {}
+      key:
+        1234:
+          forApis: [ "twitter" ]
+        5678:
+          forApis: [ "twitter" ]
+        9876:
+          forApis: [ "facebook" ]
+        hello:
+          forApis: [ "facebook", "twitter" ]
 
-      async.series new_keys, ( err, keys ) =>
+    @fixtures.create fixture, ( err ) =>
+      @isNull err
+
+      base_call = "/v1/api/twitter/keys?from=0&to=9"
+
+      all_tests = []
+
+      # without resolution
+      all_tests.push ( cb ) =>
+        @GET path: base_call, ( err, res ) =>
+          @isNull err
+
+          res.parseJson ( err, json ) =>
+            @deepEqual json.results, [ "hello", "5678", "1234" ]
+            cb()
+
+      # with resolution
+      all_tests.push ( cb ) =>
+        @GET path: "#{ base_call }&resolve=true", ( err, res ) =>
+          @isNull err
+
+          res.parseJson ( err, json ) =>
+            @equal json.results[ "1234" ].qpd, 172800
+            @equal json.results[ "5678" ].qpd, 172800
+            @equal json.results[ "hello" ].qpd, 172800
+
+            cb()
+
+      async.series all_tests, ( err ) =>
         @isNull err
 
-        @GET path: "/v1/api/twitter/keys?from=0&to=9", ( err, res ) =>
-          @isNull err
-          res.parseJson ( err, json ) =>
-            @isNull err
-            @equal json.results.length, 10
-            @deepEqual json.results, _.pluck( keys[ 0..9 ], "id")
-
-            done 5
+        done 8
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
@@ -45,7 +113,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( err, json ) =>
         @isNull err
         @ok json.results.error
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.type, "ApiNotFoundError"
 
         done 5
 
@@ -58,7 +126,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       res.parseJson ( err, json ) =>
         @isNull err
         @ok json.results.error
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.type, "ApiNotFoundError"
 
         done 5
 
@@ -73,7 +141,6 @@ class exports.ApiControllerTest extends ApiaxleTest
 
     @POST options, ( err, res ) =>
       @isNull err
-    
       @equal res.statusCode, 400
 
       res.parseJson ( err, json ) =>
@@ -137,8 +204,33 @@ class exports.ApiControllerTest extends ApiaxleTest
         @equal json.results.apiFormat, "json"
 
         # check it went in
-        @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+        @app.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
           @equal dbApi.data.apiFormat, "json"
+          @ok dbApi.data.createdAt
+
+          done 7
+
+  "test POST https protocol": ( done ) ->
+    options =
+      path: "/v1/api/1234"
+      headers:
+        "Content-Type": "application/json"
+      data: JSON.stringify
+        endPoint: "api.example.com"
+        protocol: "https"
+
+    @POST options, ( err, res ) =>
+      @isNull err
+      @equal res.statusCode, 200
+
+      res.parseJson ( err, json ) =>
+        @isUndefined json.results.error
+        @equal json.results.apiFormat, "json"
+
+        # check it went in
+        @app.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+          @equal dbApi.data.apiFormat, "json"
+          @equal dbApi.data.protocol, "https"
           @ok dbApi.data.createdAt
 
           done 7
@@ -159,9 +251,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
-
-        # TODO: this is a terrible message...
-        @equal json.results.error.message, "endPoint: (optional) "
+        @equal json.results.error.message, "endPoint: The ‘endPoint’ property is required."
 
         done 6
 
@@ -172,7 +262,6 @@ class exports.ApiControllerTest extends ApiaxleTest
         "Content-Type": "application/json"
       data: JSON.stringify
         apiFormat: "xml"
-        doesntExist: 1
 
     @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
       @isNull err
@@ -182,14 +271,11 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 200
 
-        @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+        @app.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
           @equal dbApi.data.endPoint, "hi.com"
           @equal dbApi.data.apiFormat, "xml"
 
-          # we shouldn't have added the superfluous field
-          @equal dbApi.data.doesntExist?, false
-
-          done 7
+          done 6
 
   "test PUT with a bad structure": ( done ) ->
     @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
@@ -223,8 +309,8 @@ class exports.ApiControllerTest extends ApiaxleTest
         @ok json.results.error
         @ok json.meta.status_code, 404
 
-        @equal json.results.error.message, "1234 not found."
-        @equal json.results.error.type, "NotFoundError"
+        @equal json.results.error.message, "Api '1234' not found."
+        @equal json.results.error.type, "ApiNotFoundError"
 
         done 6
 
@@ -247,7 +333,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @application.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
+          @app.model( "apiFactory" ).find "1234", ( err, dbApi ) =>
             @isNull err
             @isNull dbApi
 
@@ -256,7 +342,7 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test list apis without resolution": ( done ) ->
     # create 11 apis
     fixtures = []
-    model = @application.model( "apiFactory" )
+    model = @app.model( "apiFactory" )
 
     for i in [ 0..10 ]
       do ( i ) =>
@@ -280,7 +366,7 @@ class exports.ApiControllerTest extends ApiaxleTest
     # create 11 apis
     fixtures = []
 
-    model = @application.model( "apiFactory" )
+    model = @app.model( "apiFactory" )
 
     for i in [ 0..10 ]
       do ( i ) =>
@@ -326,8 +412,61 @@ class exports.ApiStatsTest extends ApiaxleTest
 
     @fixtures.create fixtures, done
 
+  "test GET hits for API": ( done ) ->
+    model = @app.model "hits"
+    hits  = []
+    # Wed, December 14th 2011, 20:01
+    clock = @getClock 1323892867000
+    hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+
+    shouldHave =
+      meta:
+        version: 1
+        status_code: 200
+      results:
+        "1323892867": "3"
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+      @GET path: "/v1/api/facebook/hits", ( err, res ) =>
+        @isNull err
+
+        res.parseJson ( err, json ) =>
+          @isNull err
+          @ok json
+          @deepEqual json, shouldHave
+          done 5
+
+  "test GET real time hits for API": ( done ) ->
+    model = @app.model "hits"
+    hits  = []
+    # Wed, December 14th 2011, 20:01
+    clock = @getClock 1323892867000
+    hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+
+    shouldHave =
+      meta:
+        version: 1
+        status_code: 200
+      results: 3
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+      @GET path: "/v1/api/facebook/hits/now", ( err, res ) =>
+        @isNull err
+
+        res.parseJson ( err, json ) =>
+          @isNull err
+          @ok json
+          @deepEqual json, shouldHave
+          done 5
+
   "test GET all counts with range": ( done ) ->
-    model = @application.model "counters"
+    model = @app.model "counters"
 
     hits = []
 
@@ -405,7 +544,7 @@ class exports.ApiStatsTest extends ApiaxleTest
               done 9
 
   "test GET all counts": ( done ) ->
-    model = @application.model "counters"
+    model = @app.model "counters"
 
     hits = []
 

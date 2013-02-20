@@ -6,8 +6,8 @@ class exports.CountersTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "test initialisation": ( done ) ->
-    @ok @application
-    @ok @model = @application.model "counters"
+    @ok @app
+    @ok @model = @app.model "counters"
 
     @equal @model.ns, "gk:test:ct"
 
@@ -62,7 +62,7 @@ class exports.CountersTest extends FakeAppTest
 
       for time in [ min, hour, day, month, year ]
         @equal time, 1
-      
+
       # move on a day
       clock.addMinutes 1
 

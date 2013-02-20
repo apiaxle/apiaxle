@@ -98,7 +98,7 @@ class exports.CatchallTest extends ApiaxleTest
     apiOptions =
       endPoint: "graph.facebook.com"
       apiFormat: "json"
-    
+
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
       @isNull err
@@ -122,9 +122,9 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
 
       keyOptions =
-        forApi: "facebook"
+        forApis: [ "facebook" ]
 
-      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
+      @app.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -165,9 +165,9 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
 
       keyOptions =
-        forApi: "facebook"
+        forApis: [ "facebook" ]
 
-      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
+      @app.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -202,9 +202,9 @@ class exports.CatchallTest extends ApiaxleTest
       @isNull err
 
       keyOptions =
-        forApi: "facebook"
+        forApis: [ "facebook" ]
 
-      @application.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
+      @app.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -234,8 +234,10 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "xml"
 
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
+      @isNull err
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
+
       @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
         @isNull err
 
@@ -247,4 +249,4 @@ class exports.CatchallTest extends ApiaxleTest
           @ok xmlDoc.get "/error/type[text()='KeyError']"
           @ok xmlDoc.get "/error/message[text()='No api_key specified.']"
 
-          done 6
+          done 7

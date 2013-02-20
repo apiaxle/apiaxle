@@ -28,10 +28,10 @@ if not module.parent
   port = ( process.argv[2] or 3000 )
   host = "127.0.0.1"
 
-  api = new exports.ApiaxleApi( )
+  api = new exports.ApiaxleApi host, port
 
   api.redisConnect ( ) ->
-    api.run host, port, ( ) ->
+    api.run ( ) ->
       api.configureModels()
       api.configureControllers()
       api.configureMiddleware()
