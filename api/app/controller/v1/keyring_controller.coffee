@@ -173,48 +173,59 @@ class exports.ListKeyringKeys extends ListController
 
   middleware: -> [ @mwKeyringDetails( @app ) ]
 
-class exports.AddKeyringKey extends ApiaxleController
+class exports.UnlinkKeyToKeyring extends ApiaxleController
   @verb = "put"
 
-  path: -> "/v1/keyring/:keyring/linkkey/:key"
+  desc: ->
+    """
+    Disassociate a key with n KEYRING.
 
-  desc: -> "Add existing KEY to existing KEYRING."
+    The key will still exist and its details won't be affected.
+    """
 
   docs: ->
     """
     ### Returns
 
-    * `true` if the operation is successful.
+    * The unlinked key details.
     """
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
                    @mwKeyDetails( valid_key_required=true ) ]
+
+  path: -> "/v1/keyring/:keyring/unlinkkey/:key"
+
+  execute: ( req, res, next ) ->
+    req.keyring.unlinkKey req.key.id, ( err ) =>
+      return next err if err
+
+      @json res, req.key.data
+
+class exports.LinkKeyToKeyring extends ApiaxleController
+  @verb = "put"
+
+  desc: ->
+    """
+    Associate a key with a KEYRING.
+
+    The key must already exist and will not be modified by this
+    operation.
+    """
+
+  docs: ->
+    """
+    ### Returns
+
+    * The linked key details.
+    """
+
+  middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
+                   @mwKeyDetails( valid_key_required=true ) ]
+
+  path: -> "/v1/keyring/:keyring/linkkey/:key"
 
   execute: ( req, res, next ) ->
     req.keyring.linkKey req.key.id, ( err ) =>
       return next err if err
 
-      @json res, true
-
-class exports.DelKeyringKey extends ApiaxleController
-  @verb = "put"
-
-  path: -> "/v1/keyring/:keyring/unlinkkey/:key"
-
-  desc: -> "Delete and existing KEY from an existing KEYRING."
-
-  docs: ->
-    """
-    ### Returns
-
-    * `true` if the operation is successful.
-    """
-
-  middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
-                   @mwKeyDetails( valid_key_required=true ) ]
-
-  execute: ( req, res, next ) ->
-    req.keyring.delKey req.key.id, ( err ) =>
-      return next err if err
-
-      @json res, true
+      @json res, req.key.data
