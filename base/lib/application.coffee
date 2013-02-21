@@ -58,7 +58,7 @@ class exports.Application
           # this is used by the documentation generator
           @controllers[ cls ] = ctrlr
 
-          @logger.info "Loading controller #{ cls } with path '#{ ctrlr.path() }'"
+          @logger.debug "Loading controller #{ cls } with path '#{ ctrlr.path() }'"
       catch e
         throw new Error( "Failed to load controller #{abs}: #{e}" )
 
@@ -81,7 +81,7 @@ class exports.Application
         modelName = model.charAt( 0 ).toLowerCase() + model.slice( 1 )
 
         if func.instantiateOnStartup
-          @logger.info "Loading model '#{model}'"
+          @logger.debug "Loading model '#{model}'"
 
           # models take an instance of this class as an argument to the
           # constructor. This gives us something like
@@ -165,6 +165,7 @@ class exports.Application
     log4js.configure logging_config
 
     @logger = log4js.getLogger()
+    @logger.setLevel logging_config.level
 
   onError: ( err, req, res, next ) ->
     output =
