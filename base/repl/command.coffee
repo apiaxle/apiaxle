@@ -46,8 +46,7 @@ class exports.Command extends Module
     if not command?
       return @show id, rest, keypairs, cb
 
-    if ( command of @ )
-      return @[ command ] id, rest, keypairs, cb
+    return cb new Error "Invalid syntax. Try 'help'."
 
   callApi: ( verb, options, cb ) =>
     default_options =
