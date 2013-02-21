@@ -40,11 +40,9 @@ class exports.Command extends Module
   @include httpHelpers
 
   exec: ( [ id, command, rest... ], keypairs, cb ) ->
-    if not id or id is ""
-      return cb new Error "api needs an id of an api as the second argument."
-
-    if not command?
-      return @show id, rest, keypairs, cb
+    return cb null, @constructor.help cb if not id or id is ""
+    return @show id, rest, keypairs, cb if not command?
+    return @[ command ] id, rest, keypairs, cb if ( command of @ )
 
     return cb new Error "Invalid syntax. Try 'help'."
 
@@ -55,7 +53,11 @@ class exports.Command extends Module
 
     options = _.extend options, default_options
 
-    @app.logger.info "Calling '#{ options.path }'"
+    log = "Calling (#{ verb }) '#{ options.path }'"
+    if options.data
+      log += " with '#{ options.data }' as the body."
+
+    @app.logger.info log
 
     @[ verb ] options, ( err, res ) =>
       return cb err if err
