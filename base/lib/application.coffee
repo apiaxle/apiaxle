@@ -142,7 +142,7 @@ class exports.Application
     # load up /our/ configuration (from the files in /config)
     [ config_filename, @config ] = require( "./app_config" )( Application.env )
 
-    @config = _.extend @config, default_config
+    @config = _.extend default_config, @config
 
     app.configure ( ) =>
       @configureGeneral app
