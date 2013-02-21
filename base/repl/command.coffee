@@ -56,6 +56,8 @@ class exports.Command extends Module
 
     options = _.extend options, default_options
 
+    @app.logger.info "Calling '#{ options.path }'"
+
     @[ verb ] options, ( err, res ) =>
       return cb err if err
       return @handleApiResults res, cb
