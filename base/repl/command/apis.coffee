@@ -3,6 +3,12 @@
 class exports.Apis extends Command
   @modelName = "apiFactory"
 
+  @help = """Returns a list of APIs. Fieds supported are:
+
+  * from=<int> - count
+  * to=<int>
+  * resolve=[true|false]"""
+
   exec: ( commands, keypairs, cb ) ->
     { from, to, resolve } = keypairs
     from = ( encodeURIComponent( parseInt( from ) or 0 ) )
