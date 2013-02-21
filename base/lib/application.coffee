@@ -1,17 +1,14 @@
 # extends Date
 require "date-utils"
 
-_ = require "underscore"
-
+_            = require "underscore"
+log4js       = require "log4js"
 express      = require "express"
 walkTreeSync = require "./walktree"
 fs           = require "fs"
 redis        = require "redis"
 
-{ Js2Xml }        = require "js2xml"
-{ StreamLogger  } = require "../vendor/streamlogger"
-{ StdoutLogger  } = require "./stderrlogger"
-
+{ Js2Xml }                    = require "js2xml"
 { RedisError, NotFoundError } = require "./error"
 
 class exports.Application
@@ -135,9 +132,13 @@ class exports.Application
       app:
         debug: false
       logging:
-        path: "./log"
-        filename: "#{ Application.env }-#{ @port }.log"
-        level: "DEBUG"
+        level: "INFO"
+        appenders: [
+          {
+            type: "file",
+            filename: "#{ Application.env }-#{ @port }.log"
+          }
+        ]
 
     # load up /our/ configuration (from the files in /config)
     [ config_filename, @config ] = require( "./app_config" )( Application.env )
@@ -161,23 +162,9 @@ class exports.Application
 
   configureLogging: ( app ) ->
     logging_config = @config.logging
+    log4js.configure logging_config
 
-    @logger = if logging_config.filename is "-"
-      new StdoutLogger
-    else
-      new StreamLogger "#{ @config.logging.path }/#{ @config.logging.filename }"
-
-    valid_levels_code_map =
-      DEBUG: @logger.levels.debug
-      INFO: @logger.levels.info
-      WARN: @logger.levels.warn
-
-    valid_levels = _.keys valid_levels_code_map
-
-    if logging_config.level not in valid_levels
-      throw new Error "Log level must be one of #{ valid_levels.join ', ' }"
-
-    @logger.level = valid_levels_code_map[ logging_config.level ]
+    @logger = log4js.getLogger()
 
   onError: ( err, req, res, next ) ->
     output =

@@ -8,6 +8,7 @@
     "test": "cake test"
   },
   "dependencies": {
+    "log4js": "0.5",
     "coffee-script": "~1.2",
     "async": "~0.1",
     "express": "~2",
