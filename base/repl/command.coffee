@@ -40,6 +40,9 @@ class exports.Command extends Module
   @include httpHelpers
 
   exec: ( [ id, command, rest... ], keypairs, cb ) ->
+    if not id or id is ""
+      return cb new Error "api needs an id of an api as the second argument."
+
     if not command?
       return @show id, rest, keypairs, cb
 
