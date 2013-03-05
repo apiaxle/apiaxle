@@ -31,7 +31,7 @@ class exports.ApiTest extends FakeAppTest
         @ok dbApi2.data.updatedAt
         @equal dbApi.data.createdAt, dbApi2.data.createdAt
 
-        done 4
+        done 5
 
   "test #create with bad structure": ( done ) ->
     newObj =

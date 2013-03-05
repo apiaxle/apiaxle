@@ -30,7 +30,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
         @ok dbKeyring2.data.updatedAt
         @equal dbKeyring.data.createdAt, dbKeyring2.data.createdAt
 
-        done 4
+        done 6
 
   "test creating a keyring": ( done ) ->
     @model.create "keyring_one", {}, ( err, keyring ) =>
