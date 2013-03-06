@@ -24,5 +24,8 @@
     "tokenizer": "*",
     "sinon": "~1.1.1",
     "twerp": "=1.0.7"
+  },
+  "devDependencies": {
+    "muffin": "~0.7"
   }
 }

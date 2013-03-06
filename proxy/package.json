@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "twerp":         "=1.0.7",
-    "sinon":         "~1.1.1"
+    "sinon":         "~1.1.1",
+    "muffin": "~0.7"
   }
 }
