@@ -4,7 +4,7 @@
   "keywords": [ "apiaxle", "proxy", "api", "rest", "soap" ],
   "description": "ApiAxle's own API. Provision keys and APIs.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "scripts": {
     "test": "cake test",
     "prepublish": "cake js:build"
