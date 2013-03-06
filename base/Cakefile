@@ -1,13 +1,47 @@
 async  = require "async"
 fs     = require "fs"
-sys    = require "sys"
 util   = require "util"
+muffin = require "muffin"
 
 { spawn }  = require "child_process"
 
-task "test", "Run the tests.", ( options ) ->
+# note that this file serves as a module imported by the other Axle
+# projects to get the various abstractions.
+
+jsBuild = ( options, globs ) ->
+  muffin.run
+    files: globs
+    options: options
+    map:
+      "(.+?).coffee$": ( m ) ->
+        muffin.compileScript m[0], "#{m[1]}.js", { bare: true }
+
+jsClean = ( options, globs ) ->
+  muffin.run
+    files: [ "app/**/*.js",
+             "lib/**/*.js",
+             "apiaxle-api.js" ]
+    options: options
+    map:
+      "(.+?).js": ( m ) -> fs.unlinkSync "#{m[0]}"
+
+test = ( options ) ->
   script = spawn "./bin/run-tests.bash"
 
-  script.stdout.on "data", sys.print
-  script.stderr.on "data", sys.print
+  script.stdout.on "data", util.print
+  script.stderr.on "data", util.print
   script.on "exit", ( code, signal ) -> process.exit code
+
+option "-w", "--watch", "rebuild them when they change"
+task "js:build", "Build the front-end javascript", ( options ) ->
+  jsBuild options, [ "app/**/*.coffee", "lib/**/*.coffee", "apiaxle-api.coffee" ]
+
+task "js:clean", "Build the front-end javascript", ( options ) ->
+  jsClean options, [ "app/**/*.js", "lib/**/*.js", "apiaxle-api.js" ]
+
+task "test", "Run the tests.", test
+
+exports =
+  jsBuild: jsBuild
+  jsClean: jsClean
+  test: test
