@@ -1,13 +1,19 @@
-async  = require "async"
 fs     = require "fs"
-sys    = require "sys"
 util   = require "util"
 
-{ spawn }  = require "child_process"
+{ jsBuild, jsClean, test } = require "../base/lib/cakefile_tasks"
 
-task "test", "Run the tests.", ( options ) ->
-  script = spawn "./bin/run-tests.bash"
+option "-w", "--watch", "rebuild them when they change"
+task "js:build", "Build the front-end javascript", ( options ) ->
+  jsBuild options, [ "app/**/*.coffee",
+                     "lib/**/*.coffee",
+                     "bin/**/*.coffee",
+                     "apiaxle-proxy.coffee" ]
 
-  script.stdout.on "data", sys.print
-  script.stderr.on "data", sys.print
-  script.on "exit", ( code, signal ) -> process.exit code
+task "js:clean", "Build the front-end javascript", ( options ) ->
+  jsClean options, [ "app/**/*.js",
+                     "lib/**/*.js",
+                     "bin/**/*.coffee",
+                     "apiaxle-proxy.js" ]
+
+task "test", "Run the tests.", test

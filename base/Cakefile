@@ -3,9 +3,13 @@
 
 option "-w", "--watch", "rebuild them when they change"
 task "js:build", "Build the front-end javascript", ( options ) ->
-  jsBuild options, [ "app/**/*.coffee", "lib/**/*.coffee", "apiaxle-api.coffee" ]
+  jsBuild options, [ "app/**/*.coffee",
+                     "lib/**/*.coffee",
+                     "index.coffee" ]
 
 task "js:clean", "Build the front-end javascript", ( options ) ->
-  jsClean options, [ "app/**/*.js", "lib/**/*.js", "apiaxle-api.js" ]
+  jsClean options, [ "app/**/*.js",
+                     "lib/**/*.js",
+                     "index.js" ]
 
 task "test", "Run the tests.", test
