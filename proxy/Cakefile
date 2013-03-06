@@ -3,7 +3,6 @@ fs     = require "fs"
 sys    = require "sys"
 util   = require "util"
 
-{ Apiaxle } = require "./apiaxle_proxy"
 { spawn }  = require "child_process"
 
 task "test", "Run the tests.", ( options ) ->

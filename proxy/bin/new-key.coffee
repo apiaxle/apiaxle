@@ -3,7 +3,7 @@
 async = require "async"
 
 { OptionParser } = require "parseopt"
-{ ApiaxleProxy } = require "../apiaxle_proxy"
+{ ApiaxleProxy } = require "../apiaxle-proxy"
 
 parser = new OptionParser
   minargs: 1
