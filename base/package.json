@@ -7,7 +7,8 @@
   "version": "0.0.2",
   "main": "index",
   "scripts": {
-    "test": "cake test"
+    "test": "cake test",
+    "prepublish": "cake js:build"
   },
   "dependencies": {
     "log4js": "0.5",
