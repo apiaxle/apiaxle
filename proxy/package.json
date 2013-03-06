@@ -1,23 +1,25 @@
 {
-  "author": "Phil Jackson <phil@shellarchive.co.uk>",
-  "name": "apiaxle",
-  "description": "API gateway",
-  "version": "0.0.2",
-  "repository": {
-    "type": "git",
-    "url": "https://philjackson@bitbucket.org/apiaxle/apiaxle.git"
-  },
+  "author": "Phil Jackson <phil@apiaxle.com>",
+  "name": "apiaxle-proxy",
+  "keywords": [ "apiaxle", "proxy", "api", "rest", "soap" ],
+  "description": "The actual proxy part of ApiAxle.",
+  "bugs": "https://github.com/apiaxle/apiaxle/issues",
+  "version": "0.0.3",
   "scripts": {
     "test": "cake test"
   },
-  "engines": {
-    "node": ">0.4.8"
+  "bin": {
+    "apiaxle-proxy": "./apiaxle-proxy.js"
+  },
+  "scripts": {
+    "prepublish": "coffee -c ."
   },
   "dependencies": {
+    "apiaxle-base": "0.0.3",
     "request": "~2.1.1",
     "parseopt": "1.0.0",
     "async": "~0.1.9",
-    "coffee-script": "~1.1.2",
+    "coffee-script": "1.6.1",
     "express": "~2.5",
     "underscore": "~1.1.7",
     "redis": "0.8.1",

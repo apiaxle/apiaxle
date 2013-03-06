@@ -6,16 +6,14 @@
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
   "version": "0.0.2",
   "scripts": {
-    "test": "cake test"
+    "test": "cake test",
+    "prepublish": "coffee -bc ."
   },
   "bin": {
     "apiaxle-api": "./apiaxle-api.js"
   },
-  "scripts": {
-    "prepublish": "coffee -c ."
-  },
   "dependencies": {
-    "apiaxle-base": "0.0.2",
+    "apiaxle-base": "0.0.3",
     "async": "~0.1.9",
     "coffee-script": "~1.1.2",
     "express": "~2.5",
