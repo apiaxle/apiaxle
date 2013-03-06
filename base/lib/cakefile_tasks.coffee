@@ -19,15 +19,18 @@ jsClean = ( options, globs ) ->
     map:
       "(.+?).js": ( m ) -> fs.unlinkSync "#{m[0]}"
 
-run = ( command ) ->
-  script = spawn command
+run = ( command, args ) ->
+  script = spawn command, args
 
   script.stdout.on "data", util.print
   script.stderr.on "data", util.print
   script.on "exit", ( code, signal ) -> process.exit code
 
-fixHashbang = ( options, file ) -> run "sed -i '1i\#!/usr/bin/env node' #{file}"
-test = ( options ) -> run "./bin/run-tests.bash"
+fixHashbang = ( options, file ) ->
+  run "sed", [ "-i", "1i\#!/usr/bin/env node", file ]
+
+test = ( options ) ->
+  run "./bin/run-tests.bash"
 
 exports.jsBuild = jsBuild
 exports.jsClean = jsClean

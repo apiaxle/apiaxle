@@ -1,7 +1,10 @@
 fs     = require "fs"
 util   = require "util"
 
-{ jsBuild, jsClean, test } = require "../base/lib/cakefile_tasks"
+{ jsBuild,
+  jsClean,
+  fixHashbang,
+  test } = require "../base/lib/cakefile_tasks"
 
 option "-w", "--watch", "rebuild them when they change"
 task "js:build", "Build the front-end javascript", ( options ) ->
@@ -15,3 +18,6 @@ task "js:clean", "Build the front-end javascript", ( options ) ->
                      "apiaxle-api.js" ]
 
 task "test", "Run the tests.", test
+
+task "fixHashbang", "Fix the hashbangs in the exes", ( options ) ->
+  fixHashbang options, "apiaxle-api.js"
