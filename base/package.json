@@ -1,7 +1,9 @@
 {
-  "author": "Phil Jackson <phil@shellarchive.co.uk>",
-  "name": "apiaxle.base",
-  "description": "Basic Application class for apiaxle.",
+  "author": "Phil Jackson <phil@apiaxle.com>",
+  "name": "apiaxle-base",
+  "keywords": [ "apiaxle", "proxy", "api", "rest", "soap" ],
+  "description": "Shared core functionality for apiaxle.",
+  "bugs": "https://github.com/apiaxle/apiaxle/issues",
   "version": "0.0.2",
   "main": "index",
   "scripts": {
@@ -19,10 +21,8 @@
     "date-utils": "~1",
     "libxmljs": "~0",
     "js2xml": "0.0.2",
-    "tokenizer": "*"
-  },
-  "devDependencies": {
-    "twerp":         "=1.0.7",
-    "sinon":         "~1.1.1"
+    "tokenizer": "*",
+    "sinon": "~1.1.1",
+    "twerp": "=1.0.7"
   }
 }
