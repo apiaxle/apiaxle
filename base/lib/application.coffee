@@ -100,9 +100,9 @@ class exports.Application
     list = []
 
     walkTreeSync initialPath, null, ( path, filename, stats ) ->
-      return unless /\.(coffee|js)$/.exec filename
+      return unless matches = /(.+?)\.(coffee|js)$/.exec filename
 
-      list.push "#{ path }/#{ filename }"
+      list.push "#{ path }/#{ matches[1] }"
 
     return list
 
@@ -111,14 +111,14 @@ class exports.Application
     list = []
 
     walkTreeSync @constructor.controllersPath, null, ( path, filename, stats ) ->
-      return unless /_controller\.(coffee|js)$/.exec filename
+      return unless matches = /(.+?_controller)\.(coffee|js)$/.exec filename
 
-      abs = "#{ path }/#{ filename }"
+      abs = "#{ path }/#{ matches[1] }"
 
-      # strip the controllers and .coffee part from the path and pass it
-      # in so modules can derive thier views/controller paths.
+      # strip the controllers part from the path and pass it in so
+      # modules can derive thier views/controller paths.
       clean_path = abs.replace( "./app/controller/", "" )
-                      .replace( /_controller\.(coffee|js)/, "" )
+                      .replace( /_controller/, "" )
 
       list.push [ abs, clean_path ]
 
