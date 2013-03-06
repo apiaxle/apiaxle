@@ -12,7 +12,7 @@
     "apiaxle-proxy": "./apiaxle-proxy.js"
   },
   "scripts": {
-    "prepublish": "coffee -c ."
+    "prepublish": "cake js:build"
   },
   "dependencies": {
     "apiaxle-base": "0.0.3",

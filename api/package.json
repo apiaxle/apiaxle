@@ -7,7 +7,7 @@
   "version": "0.0.3",
   "scripts": {
     "test": "cake test",
-    "prepublish": "coffee -bc ."
+    "prepublish": "cake js:build"
   },
   "bin": {
     "apiaxle-api": "./apiaxle-api.js"
