@@ -12,7 +12,7 @@
     "apiaxle-proxy": "./apiaxle-proxy.js"
   },
   "scripts": {
-    "prepublish": "cake js:build"
+    "prepublish": "cake js:build && cake fixHashbang"
   },
   "dependencies": {
     "apiaxle-base": "0.0.3",
