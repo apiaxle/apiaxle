@@ -38,6 +38,16 @@ class exports.PackageFileVersionUpdater extends PluginBase
         # update the version to be the new one
         old_version = pkg_details.version
         pkg_details.version = @new_version
+
+        # if any of the projects depend on the *other* projects then
+        # update that dependency version too.
+        for subproj in @projects
+          dep_name = "apiaxle-#{ subproj }"
+          if dep_name of pkg_details.dependencies
+            pkg_details.dependencies[ dep_name ] = @new_version
+            @logger.info "Updating '#{ project }' to use latest '#{ dep_name }'"
+
+        # json it again
         json = JSON.stringify( pkg_details, null, 2 ) + "\n"
 
         @logger.info "Moving #{ filename } from #{ old_version } to #{ @new_version }."

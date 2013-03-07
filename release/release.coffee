@@ -37,7 +37,7 @@ loadPlugins = ( ) ->
     for name, kls of exports
       logger.info "Found '#{ name }'. Loading."
 
-      object = new kls logger, new_version, [ "api", "base", "proxy" ]
+      object = new kls logger, new_version, [ "api", "base", "proxy", "repl" ]
 
       # allow the plugins to define some args
       object.getArguments parser
