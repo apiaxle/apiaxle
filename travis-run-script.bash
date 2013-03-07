@@ -16,12 +16,13 @@ function silence-or-loud-on-error {
 
 # cant do proxy yet because of the tests that rely on host files being
 # set.
-for project in base api proxy; do
+for project in base api proxy repl; do
   pushd ${project}
 
   echo "Installing modules..."
   silence-or-loud-on-error npm install
 
+  # we want to run the development base, not the one in npm!
   if [[ ${project} != "base" ]]; then
     echo "Linking base..."
     silence-or-loud-on-error npm link ../base
