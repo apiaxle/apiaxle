@@ -1,18 +1,21 @@
 {
   "author": "Phil Jackson <phil@apiaxle.com>",
   "name": "apiaxle-proxy",
-  "keywords": [ "apiaxle", "proxy", "api", "rest", "soap" ],
+  "keywords": [
+    "apiaxle",
+    "proxy",
+    "api",
+    "rest",
+    "soap"
+  ],
   "description": "The actual proxy part of ApiAxle.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "0.0.4",
+  "version": "0.5.0",
   "scripts": {
-    "test": "cake test"
+    "prepublish": "cake js:build && cake fixHashbang"
   },
   "bin": {
     "apiaxle-proxy": "./apiaxle-proxy.js"
-  },
-  "scripts": {
-    "prepublish": "cake js:build && cake fixHashbang"
   },
   "dependencies": {
     "apiaxle-base": "0.0.3",
@@ -27,8 +30,8 @@
     "libxmljs": "*"
   },
   "devDependencies": {
-    "twerp":         "=1.0.7",
-    "sinon":         "~1.1.1",
+    "twerp": "=1.0.7",
+    "sinon": "~1.1.1",
     "muffin": "~0.7"
   }
 }

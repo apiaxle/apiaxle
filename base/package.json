@@ -1,10 +1,16 @@
 {
   "author": "Phil Jackson <phil@apiaxle.com>",
   "name": "apiaxle-base",
-  "keywords": [ "apiaxle", "proxy", "api", "rest", "soap" ],
+  "keywords": [
+    "apiaxle",
+    "proxy",
+    "api",
+    "rest",
+    "soap"
+  ],
   "description": "Shared core functionality for apiaxle.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "0.0.4",
+  "version": "0.5.0",
   "main": "index",
   "scripts": {
     "test": "cake test",
