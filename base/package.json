@@ -22,7 +22,6 @@
     "date-utils": "~1",
     "libxmljs": "~0",
     "js2xml": "0.0.2",
-    "tokenizer": "*",
     "sinon": "~1.1.1",
     "twerp": "=1.0.7"
   },
