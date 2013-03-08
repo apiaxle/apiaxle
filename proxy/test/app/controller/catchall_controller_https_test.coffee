@@ -57,6 +57,8 @@ class exports.CatchallHTTPSTest extends ApiaxleTest
           data: JSON.stringify "this is a post body"
 
         @POST requestOptions, ( err, response ) =>
+          @isNull err
+
           # twice because we make one DNS call to the proxy, then the
           # proxy makes another call to the service running on port 8000
           @ok stub.calledTwice

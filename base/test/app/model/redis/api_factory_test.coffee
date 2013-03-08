@@ -1,7 +1,7 @@
 async = require "async"
 
 { ValidationError } = require "../../../../lib/error"
-{ FakeAppTest } = require "../../../apiaxle-base"
+{ FakeAppTest } = require "../../../apiaxle_base"
 
 class exports.ApiTest extends FakeAppTest
   @empty_db_on_setup = true

@@ -1,6 +1,6 @@
 async = require "async"
 
-{ FakeAppTest } = require "../../../apiaxle-base"
+{ FakeAppTest } = require "../../../apiaxle_base"
 { ApiLimits }   = require "../../../../app/model/redis/api_limits"
 { QpsExceededError, QpdExceededError } = require "../../../../lib/error"
 
