@@ -1,6 +1,6 @@
 async = require "async"
 
-{ FakeAppTest } = require "../../apiaxle_base"
+{ FakeAppTest } = require "../../apiaxle-base"
 { Redis }       = require "../../../app/model/redis"
 
 class TestModel extends Redis

@@ -1,6 +1,6 @@
 async = require "async"
 
-{ FakeAppTest } = require "../../../apiaxle_base"
+{ FakeAppTest } = require "../../../apiaxle-base"
 
 class exports.ApiTest extends FakeAppTest
   @empty_db_on_setup = true
