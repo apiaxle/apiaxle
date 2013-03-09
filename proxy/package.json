@@ -18,7 +18,7 @@
     "apiaxle-proxy": "./apiaxle-proxy.js"
   },
   "dependencies": {
-    "apiaxle-base": "0.0.3",
+    "apiaxle-base": "0.5.0",
     "request": "~2.1.1",
     "parseopt": "1.0.0",
     "async": "~0.1.9",
