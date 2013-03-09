@@ -10,7 +10,7 @@
   ],
   "description": "ApiAxle's own API. Provision keys and APIs.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "main": "index",
   "scripts": {
     "test": "cake test",
@@ -20,7 +20,7 @@
     "apiaxle-api": "./apiaxle-api.js"
   },
   "dependencies": {
-    "apiaxle-base": "0.5.0",
+    "apiaxle-base": "0.6.0",
     "async": "~0.1.9",
     "coffee-script": "~1.1.2",
     "express": "~2.5",
