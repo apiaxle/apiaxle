@@ -1,7 +1,7 @@
 moment = require "moment"
 _      = require "underscore"
 
-{ Controller } = require "apiaxle.base"
+{ Controller } = require "apiaxle-base"
 
 { KeyNotFoundError,
   ApiNotFoundError,

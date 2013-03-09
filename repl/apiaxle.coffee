@@ -5,8 +5,8 @@ util = require "util"
 async = require "async"
 
 { ReplHelper } = require "./lib/repl"
-{ Application } = require "../lib/application"
-{ ApiaxleApi } = require "../../api/apiaxle_api"
+{ Application } = require "apiaxle-base"
+{ ApiaxleApi } = require "apiaxle-api"
 
 finish = ( app ) ->
   app.app.close()

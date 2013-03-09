@@ -2,7 +2,7 @@
 
 util = require "util"
 
-{ ApiaxleProxy } = require "../apiaxle_proxy"
+{ ApiaxleProxy } = require "../apiaxle-proxy"
 
 results =
   success: 0

@@ -3,8 +3,8 @@ process.env.NODE_ENV = "test"
 
 _ = require "underscore"
 
-{ ApiaxleProxy } = require "../apiaxle_proxy"
-{ AppTest } = require "apiaxle.base"
+{ ApiaxleProxy } = require "../apiaxle-proxy"
+{ AppTest } = require "apiaxle-base"
 
 { GetCatchall } = require "../app/controller/catchall_controller"
 

@@ -4,7 +4,7 @@ express = require "express"
 fs      = require "fs"
 redis   = require "redis"
 
-{ Application } = require "apiaxle.base"
+{ Application } = require "apiaxle-base"
 
 class exports.ApiaxleProxy extends Application
   @controllersPath = "#{ __dirname }/app/controller"

@@ -4,6 +4,7 @@
 
 async    = require "async"
 walkTree = require "../base/lib/walktree"
+log4js   = require "log4js"
 
 # fetch the arguments (including the ones from the plugins)
 parser = new OptionParser
@@ -23,6 +24,10 @@ catch e
 loadPlugins = ( ) ->
   all_executions = []
 
+  # universal logging
+  logger = log4js.getLogger()
+  logger.setLevel "DEBUG"
+
   walkTree "./release/release.d", null, ( path, filename, stats ) ->
     # just coffeescript or js and must start with a number
     return unless /^\d+.*?\.(js|coffee)$/.exec filename
@@ -30,14 +35,17 @@ loadPlugins = ( ) ->
     # load the file
     exports = require "./release.d/#{ filename }"
     for name, kls of exports
-      object = new kls new_version, [ "api", "base", "proxy" ]
+      logger.info "Found '#{ name }'. Loading."
+
+      object = new kls logger, new_version, [ "api", "base", "proxy", "repl" ]
 
       # allow the plugins to define some args
       object.getArguments parser
 
-      all_executions.push ( cb ) -> object.execute cb
+      all_executions.unshift ( cb ) -> object.execute cb
 
-  async.series all_executions, ( err ) ->
-    throw err if err
+  async.series all_executions, ( err, res ) ->
+    # logging taken care of output
+    process.exit 1 if err
 
 loadPlugins()

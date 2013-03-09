@@ -1,11 +1,20 @@
 {
-  "author": "Phil Jackson <phil@shellarchive.co.uk>",
-  "name": "apiaxle.base",
-  "description": "Basic Application class for apiaxle.",
-  "version": "0.0.2",
+  "author": "Phil Jackson <phil@apiaxle.com>",
+  "name": "apiaxle-base",
+  "keywords": [
+    "apiaxle",
+    "proxy",
+    "api",
+    "rest",
+    "soap"
+  ],
+  "description": "Shared core functionality for apiaxle.",
+  "bugs": "https://github.com/apiaxle/apiaxle/issues",
+  "version": "0.5.0",
   "main": "index",
   "scripts": {
-    "test": "cake test"
+    "test": "cake test",
+    "prepublish": "cake js:build"
   },
   "dependencies": {
     "log4js": "0.5",
@@ -19,10 +28,10 @@
     "date-utils": "~1",
     "libxmljs": "~0",
     "js2xml": "0.0.2",
-    "tokenizer": "*"
+    "sinon": "~1.1.1",
+    "twerp": "=1.0.7"
   },
   "devDependencies": {
-    "twerp":         "=1.0.7",
-    "sinon":         "~1.1.1"
+    "muffin": "~0.7"
   }
 }

@@ -1,7 +1,7 @@
 crypto = require "crypto"
 async  = require "async"
 
-{ Controller } = require "apiaxle.base"
+{ Controller } = require "apiaxle-base"
 { ApiUnknown, KeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller

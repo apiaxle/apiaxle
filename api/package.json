@@ -1,12 +1,26 @@
 {
-  "author": "Phil Jackson <phil@shellarchive.co.uk>",
-  "name": "apiaxle.api",
-  "description": "Provisioning API for apiaxle",
-  "version": "0.0.2",
+  "author": "Phil Jackson <phil@apiaxle.com>",
+  "name": "apiaxle-api",
+  "keywords": [
+    "apiaxle",
+    "proxy",
+    "api",
+    "rest",
+    "soap"
+  ],
+  "description": "ApiAxle's own API. Provision keys and APIs.",
+  "bugs": "https://github.com/apiaxle/apiaxle/issues",
+  "version": "0.0.4",
+  "main": "index",
   "scripts": {
-    "test": "cake test"
+    "test": "cake test",
+    "prepublish": "cake js:build && cake fixHashbang"
+  },
+  "bin": {
+    "apiaxle-api": "./apiaxle-api.js"
   },
   "dependencies": {
+    "apiaxle-base": "0.0.3",
     "async": "~0.1.9",
     "coffee-script": "~1.1.2",
     "express": "~2.5",
@@ -16,7 +30,8 @@
     "moment": "1.7.2"
   },
   "devDependencies": {
-    "twerp":         "=1.0.7",
-    "sinon":         "~1.1.1"
+    "twerp": "=1.0.7",
+    "sinon": "~1.1.1",
+    "muffin": "~0.7"
   }
 }

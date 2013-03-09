@@ -3,10 +3,10 @@ parser = require "./parser"
 readline = require "readline"
 
 # command loading
-{ Api } = require "./../command/api"
-{ Apis } = require "./../command/apis"
-{ Keys } = require "./../command/keys"
-{ Key } = require "./../command/key"
+{ Api } = require "./command/api"
+{ Apis } = require "./command/apis"
+{ Keys } = require "./command/keys"
+{ Key } = require "./command/key"
 
 class exports.ReplHelper
   @all_commands =
