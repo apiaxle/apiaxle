@@ -1,7 +1,6 @@
 _ = require "underscore"
 
-{ httpHelpers } = require "../lib/mixins/http-helpers"
-{ Module } = require "../lib/module"
+{ Module, httpHelpers } = require "apiaxle-base"
 
 class AppResponse
   constructor: ( @actual_res, @data ) ->

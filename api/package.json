@@ -11,6 +11,7 @@
   "description": "ApiAxle's own API. Provision keys and APIs.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
   "version": "0.0.4",
+  "main": "index",
   "scripts": {
     "test": "cake test",
     "prepublish": "cake js:build && cake fixHashbang"

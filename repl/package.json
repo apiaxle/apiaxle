@@ -1,0 +1,35 @@
+{
+  "author": "Phil Jackson <phil@apiaxle.com>",
+  "name": "apiaxle-repl",
+  "keywords": [
+    "apiaxle",
+    "proxy",
+    "api",
+    "rest",
+    "soap",
+    "repl",
+    "cli"
+  ],
+  "description": "ApiAxle's commandline interface.",
+  "bugs": "https://github.com/apiaxle/apiaxle/issues",
+  "version": "0.5.0",
+  "scripts": {
+    "test": "cake test",
+    "prepublish": "cake js:build && cake fixHashbang",
+    "postpublish": "cake js:clean"
+  },
+  "bin": {
+    "apiaxle": "./apiaxle.js"
+  },
+  "dependencies": {
+    "tokenizer": "*",
+    "underscore": "~1",
+    "async": "~0.1.9",
+    "coffee-script": "1.6.1"
+  },
+  "devDependencies": {
+    "twerp": "=1.0.7",
+    "sinon": "~1.1.1",
+    "muffin": "~0.7"
+  }
+}
