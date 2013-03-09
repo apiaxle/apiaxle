@@ -27,6 +27,11 @@ for project in base api proxy repl; do
     echo "Linking base..."
     silence-or-loud-on-error npm link ../base
   fi
+  
+  if [[ ${project} == "repl" ]]; then
+    echo "Linking api..."
+    silence-or-loud-on-error npm link ../api
+  fi
 
   export MY_TWERP_OPTIONS="--exit-on-failure --runner=simple"
   cake test
