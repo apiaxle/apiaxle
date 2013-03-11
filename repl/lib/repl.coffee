@@ -1,9 +1,11 @@
 _ = require "underscore"
+util = require "util"
 parser = require "./parser"
 readline = require "readline"
 
 # command loading
 { Api } = require "./command/api"
+{ Info } = require "./command/info"
 { Apis } = require "./command/apis"
 { Keys } = require "./command/keys"
 { Key } = require "./command/key"
@@ -14,10 +16,9 @@ class exports.ReplHelper
     apis: Apis
     keys: Keys
     key: Key
+    info: Info
 
-  @help = """Available commands are: #{ _.keys( @all_commands ).join ', ' }
-             Try the one of the commands with no arguments for more
-             information."""
+  @help = "Available commands are: #{ _.keys( @all_commands ).join ', ' }"
 
   constructor: ( @app ) ->
 
@@ -47,7 +48,7 @@ class exports.ReplHelper
 
   topLevelInput: ( err, info ) =>
     console.log "Error: #{ err.message }" if err
-    console.log info if info
+    console.log util.inspect( info, false, null ) if info
 
     @rl.question "axle> ", ( entry ) =>
       return @topLevelInput() if /^\s*$/.exec entry
