@@ -1,4 +1,5 @@
 _ = require "underscore"
+util = require "util"
 parser = require "./parser"
 readline = require "readline"
 
@@ -47,7 +48,7 @@ class exports.ReplHelper
 
   topLevelInput: ( err, info ) =>
     console.log "Error: #{ err.message }" if err
-    console.log info if info
+    console.log util.inspect( info, false, null ) if info
 
     @rl.question "axle> ", ( entry ) =>
       return @topLevelInput() if /^\s*$/.exec entry
