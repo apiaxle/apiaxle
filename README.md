@@ -20,9 +20,13 @@ This is the (optional) API for managing users, keys and endpoints.
 This is a set of libraries which is required for both of the above
 components.
 
+## The REPL
+
+A way to administer your ApiAxle installation via a command line.
+
 # Installation
 
-    $ curl https://raw.github.com/apiaxle/apiaxle/master/setup-apiaxle.bash | bash
+Check the [main site](http://apiaxle.com) for installation instructions.
 
 # Build
 
