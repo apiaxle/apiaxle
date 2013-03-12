@@ -15,7 +15,7 @@
   "version": "0.7.0",
   "scripts": {
     "test": "cake test",
-    "prepublish": "cake js:build && cake fixHashbang",
+    "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang",
     "postpublish": "cake js:clean"
   },
   "bin": {
