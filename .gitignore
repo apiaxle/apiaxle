@@ -5,3 +5,7 @@ node_modules
 *.*.swp
 npm-debug.log
 *.js
+/api/README.md
+/base/README.md
+/proxy/README.md
+/repl/README.md
