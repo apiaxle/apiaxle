@@ -9,24 +9,41 @@ There are three components which make up the Api Axle system:
 
 ## The proxy
 
-This is the aspect of the system which does the actual proxying.
+    $ npm install apiaxle-proxy
+
+This is the aspect of the system which does the actual proxying. It
+sits in front of your API and does the authentication, key checking,
+queries per day/second checking. This is the bit you want if you want
+anything. More detail on the [main site](http://apiaxle.com).
 
 ## The API
 
-This is the (optional) API for managing users, keys and endpoints.
+    $ npm install apiaxle-api
 
-## The base libs
+This is the (optional) API for managing users, keys and
+endpoints. Once installed, run it with:
 
-This is a set of libraries which is required for both of the above
-components.
+    $ apiaxle-api
 
 ## The REPL
 
-A way to administer your ApiAxle installation via a command line.
+    $ npm install apiaxle-repl
+
+A way to administer your ApiAxle installation via a command line. Once
+installed, run it with:
+
+    $ apiaxle
+
+You then get a prompt where you can type `help` to find out more.
+
+## The base libs
+
+This is a set of libraries which is required for the above components.
 
 # Installation
 
-Check the [main site](http://apiaxle.com) for installation instructions.
+Check the [main site](http://apiaxle.com) for more detailed
+installation instructions.
 
 # Build
 
