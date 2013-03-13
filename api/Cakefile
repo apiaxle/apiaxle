@@ -10,12 +10,14 @@ option "-w", "--watch", "rebuild them when they change"
 task "js:build", "Build the front-end javascript", ( options ) ->
   jsBuild options, [ "app/**/*.coffee",
                      "lib/**/*.coffee",
+                     "test/**/*.coffee",
                      "apiaxle-api.coffee",
                      "index.coffee" ]
 
 task "js:clean", "Build the front-end javascript", ( options ) ->
   jsClean options, [ "app/**/*.js",
                      "lib/**/*.js",
+                     "test/**/*.js",
                      "apiaxle-api.js",
                      "index.js" ]
 
