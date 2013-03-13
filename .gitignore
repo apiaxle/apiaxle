@@ -9,3 +9,7 @@ npm-debug.log
 /base/README.md
 /proxy/README.md
 /repl/README.md
+/api/coverage
+/repl/coverage
+/base/coverage
+/proxy/coverage

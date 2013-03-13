@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 set -e
 
@@ -33,8 +33,10 @@ for project in base api proxy repl; do
     silence-or-loud-on-error npm link ../api
   fi
 
+  TESTS=$(find test -name '*test.js')
+
   export MY_TWERP_OPTIONS="--exit-on-failure --runner=simple"
-  istanbul cover $(which twerp) ${MY_TWERP_OPTIONS} test/**/*test.js
+  istanbul cover $(which twerp) ${MY_TWERP_OPTIONS} ${TESTS}
 
   popd &> /dev/null
 done
