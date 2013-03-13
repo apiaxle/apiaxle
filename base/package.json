@@ -34,6 +34,6 @@
   },
   "devDependencies": {
     "muffin": "~0.7",
-    "instanbul": "~0"
+    "istanbul": "~0"
   }
 }

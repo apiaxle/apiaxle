@@ -33,6 +33,6 @@
     "twerp": "=1.0.7",
     "sinon": "~1.1.1",
     "muffin": "~0.7",
-    "instanbul": "~0"
+    "istanbul": "~0"
   }
 }
