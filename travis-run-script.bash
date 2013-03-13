@@ -38,5 +38,8 @@ for project in base api proxy repl; do
   export MY_TWERP_OPTIONS="--exit-on-failure --runner=simple"
   istanbul cover $(which twerp) ${MY_TWERP_OPTIONS} ${TESTS}
 
+  # get rid of the js
+  cake js:clean
+
   popd &> /dev/null
 done
