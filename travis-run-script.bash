@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 set -e
 
@@ -34,7 +34,7 @@ for project in base api proxy repl; do
   fi
 
   export MY_TWERP_OPTIONS="--exit-on-failure --runner=simple"
-  cake test
+  istanbul cover $(which twerp) ${MY_TWERP_OPTIONS} test/**/*test.js
 
   popd &> /dev/null
 done

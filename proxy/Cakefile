@@ -9,12 +9,14 @@ util   = require "util"
 option "-w", "--watch", "rebuild them when they change"
 task "js:build", "Build the front-end javascript", ( options ) ->
   jsBuild options, [ "app/**/*.coffee",
+                     "test/**/*.coffee",
                      "lib/**/*.coffee",
                      "bin/**/*.coffee",
                      "apiaxle-proxy.coffee" ]
 
 task "js:clean", "Build the front-end javascript", ( options ) ->
   jsClean options, [ "app/**/*.js",
+                     "test/**/*.coffee",
                      "lib/**/*.js",
                      "bin/**/*.coffee",
                      "apiaxle-proxy.js" ]
