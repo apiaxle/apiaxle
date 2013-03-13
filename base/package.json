@@ -33,6 +33,7 @@
     "twerp": "=1.0.7"
   },
   "devDependencies": {
-    "muffin": "~0.7"
+    "muffin": "~0.7",
+    "instanbul": "~0"
   }
 }
