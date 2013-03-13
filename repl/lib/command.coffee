@@ -39,11 +39,19 @@ class exports.Command extends Module
   @include httpHelpers
 
   exec: ( [ id, command, rest... ], keypairs, cb ) ->
-    return cb null, @constructor.help cb if not id or id is ""
+    return cb null, @help() if not id or id is ""
     return @show id, rest, keypairs, cb if not command?
     return @[ command ] id, rest, keypairs, cb if ( command of @ )
 
     return cb new Error "Invalid syntax. Try 'help'."
+
+  help: ->
+    parent_methods = _.methods Command::
+    my_methods     = _.methods @
+
+    diff = _.difference my_methods, parent_methods
+
+    return "Available methods: #{ diff }"
 
   callApi: ( verb, options, cb ) =>
     default_options =

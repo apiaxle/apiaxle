@@ -18,7 +18,8 @@ class exports.ReplHelper
     key: Key
     info: Info
 
-  @help = "Available commands are: #{ _.keys( @all_commands ).join ', ' }"
+  help: ->
+    "Available commands are: #{ _.keys( @constructor.all_commands ).join ', ' }"
 
   constructor: ( @app ) ->
 
@@ -35,7 +36,7 @@ class exports.ReplHelper
 
     # quit/exit are slightly magic
     return if command in [ "quit", "exit" ]
-    return cb null, @constructor.help if command is "help"
+    return cb null, @help() if command is "help"
 
     if not @constructor.all_commands[ command ]?
       return cb new Error "I don't know about '#{ command }'. Try 'help' instead."
