@@ -13,3 +13,4 @@ npm-debug.log
 /repl/coverage
 /base/coverage
 /proxy/coverage
+*.log
