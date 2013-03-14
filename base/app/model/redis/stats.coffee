@@ -4,7 +4,7 @@ async   = require "async"
 
 class exports.Stats extends Redis
   @instantiateOnStartup = true
-  @smallKeyName         = "hits"
+  @smallKeyName         = "stats"
 
   @granulatities =
     seconds:
@@ -20,12 +20,28 @@ class exports.Stats extends Redis
     return ts
 
   recordHit: ( db_key, granularity, cb ) ->
-    gran  = @granulatities[granularity]
+    gran  = Stats.granulatities[granularity]
     tsmin = @getRoundedTimestamp null, gran.factor
 
     db_key.push granularity
     db_key.push tsmin
 
     ts = Math.floor( (new Date()).getTime()/1000 )
-    @hincrby db_key,  ts, 1, cb
-    @expireat db_key, tsmin + gran.ttl
+    @hincrby db_key,  ts, 1, (err, result) =>
+      @ttl db_key, (err, res) =>
+        if res < 0
+          @expireat db_key, tsmin + gran.ttl
+        cb err, result
+
+  hit: ( api, key, response, cb ) ->
+    db_keys = [
+      [ "api", api ],
+      [ "key", key ]
+    ]
+
+    all = []
+    for key in db_keys
+      do( key ) =>
+        all.push ( cb ) => @recordHit key, "seconds", cb
+
+    async.series all, cb

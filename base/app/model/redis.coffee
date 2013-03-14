@@ -240,6 +240,7 @@ redisCommands = {
   "hexists": "read"
   "exists": "read"
   "expire": "write"
+  "expireat": "write"
   "set": "write"
   "get": "read"
   "incr": "write"

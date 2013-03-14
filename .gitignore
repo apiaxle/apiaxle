@@ -3,6 +3,7 @@ _site/
 node_modules
 /*/log
 *.*.swp
+*.*.swo
 npm-debug.log
 *.js
 /api/README.md
