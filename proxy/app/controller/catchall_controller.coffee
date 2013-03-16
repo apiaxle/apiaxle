@@ -127,10 +127,8 @@ class CatchAll extends ApiaxleController
         # response with the same code as the endpoint
         # TODO: async these.
         statsModel.hit api, api_key, apiRes.statusCode, ( err, res ) ->
-          return cb err if err
-
-          counterModel.apiHit api, api_key, apiRes.statusCode, ( err, res ) ->
-            return cb err, apiRes, body
+          console.log err, res
+          return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
     { pathname, query } = url.parse req.url, true

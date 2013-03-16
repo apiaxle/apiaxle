@@ -22,16 +22,18 @@ class exports.Stats extends Redis
   recordHit: ( db_key, cb ) ->
     multi = @multi()
 
-    for i, gran in Stats.granulatities
-      tsround = @getRoundedTimestamp null, gran.factor
+    console.log Stats.granulatities
+
+    for gran, properties of Stats.granulatities
+      tsround = @getRoundedTimestamp null, properties.factor
 
       temp_key = db_key.splice(0)
-      temp_key.push granularity
+      temp_key.push gran
       temp_key.push tsround
       ts = Math.floor( (new Date()).getTime()/1000 )
 
       multi.hincrby temp_key, ts, 1
-      multi.expireat temp_key, tsmin + gran.ttl
+      multi.expireat temp_key, tsround + properties.ttl
 
     multi.exec cb
 
