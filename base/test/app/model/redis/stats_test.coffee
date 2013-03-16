@@ -15,5 +15,5 @@ class exports.StatsTest extends FakeAppTest
 
     @model.recordHit ["stutest","key", "200"],  ( err, result ) =>
       @isNull err
-      @equal result, true
+      @equal result[0], 1
       done()
