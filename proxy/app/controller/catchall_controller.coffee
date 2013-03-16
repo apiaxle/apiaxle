@@ -111,7 +111,7 @@ class CatchAll extends ApiaxleController
 
   _httpRequest: ( options, api, api_key, cb) ->
     counterModel = @app.model "counters"
-    hitsModel    = @app.model "hits"
+    statsModel   = @app.model "stats"
 
     request[ @constructor.verb ] options, ( err, apiRes, body ) =>
       if err
@@ -126,7 +126,7 @@ class CatchAll extends ApiaxleController
       else
         # response with the same code as the endpoint
         # TODO: async these.
-        hitsModel.hit api, api_key, apiRes.statusCode, ( err, res ) ->
+        statsModel.hit api, api_key, apiRes.statusCode, ( err, res ) ->
           return cb err if err
 
           counterModel.apiHit api, api_key, apiRes.statusCode, ( err, res ) ->

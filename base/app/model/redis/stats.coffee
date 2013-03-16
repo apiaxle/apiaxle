@@ -19,29 +19,31 @@ class exports.Stats extends Redis
     ts = Math.floor( ts / precision ) * precision
     return ts
 
-  recordHit: ( db_key, granularity, cb ) ->
-    gran  = Stats.granulatities[granularity]
-    tsmin = @getRoundedTimestamp null, gran.factor
+  recordHit: ( db_key, cb ) ->
+    multi = @multi()
 
-    db_key.push granularity
-    db_key.push tsmin
+    for i, gran in Stats.granulatities
+      tsround = @getRoundedTimestamp null, gran.factor
 
-    ts = Math.floor( (new Date()).getTime()/1000 )
-    @hincrby db_key,  ts, 1, (err, result) =>
-      @ttl db_key, (err, res) =>
-        if res < 0
-          @expireat db_key, tsmin + gran.ttl
-        cb err, result
+      temp_key = db_key.splice(0)
+      temp_key.push granularity
+      temp_key.push tsround
+      ts = Math.floor( (new Date()).getTime()/1000 )
 
-  hit: ( api, key, response, cb ) ->
+      multi.hincrby temp_key, ts, 1
+      multi.expireat temp_key, tsmin + gran.ttl
+
+    multi.exec cb
+
+  hit: ( api, key, code, cb ) ->
     db_keys = [
-      [ "api", api ],
-      [ "key", key ]
+      [ "api", api, code ],
+      [ "key", key, code ]
     ]
 
     all = []
-    for key in db_keys
-      do( key ) =>
-        all.push ( cb ) => @recordHit key, "seconds", cb
+    for db_key in db_keys
+      do( db_key ) =>
+        all.push ( cb ) => @recordHit db_key, cb
 
     async.series all, cb

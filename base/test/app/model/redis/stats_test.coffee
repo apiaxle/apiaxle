@@ -13,7 +13,7 @@ class exports.StatsTest extends FakeAppTest
   "test #recordHit": ( done ) ->
     clock = @getClock 1323892867000
 
-    @model.recordHit ["stutest","key", "200"], "seconds", ( err, result ) =>
+    @model.recordHit ["stutest","key", "200"],  ( err, result ) =>
       @isNull err
       @equal result, true
       done()
