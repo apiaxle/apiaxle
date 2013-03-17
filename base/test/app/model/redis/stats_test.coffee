@@ -25,12 +25,12 @@ class exports.StatsTest extends FakeAppTest
       clock = @getClock()
       @model.recordHit ["key","1234", "200"], cb
     all.push (cb) =>
-      clock = @getClock now + 2000
+      clock = @getClock now + (2000*60)
       @model.recordHit ["key","1234", "200"], cb
 
     async.series all, (err, result) =>
       @isNull err
-      from = now
+      from = now-3000
 
       @model.get ["key", "1234", "200"], "seconds", from, null, (err, result) =>
         @isNull err
