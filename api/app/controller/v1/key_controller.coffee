@@ -1,4 +1,5 @@
 _ = require "underscore"
+async = require "async"
 
 { ApiaxleController, ListController, CreateController } = require "../controller"
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
@@ -197,10 +198,10 @@ class exports.ViewHitsForKeyNow extends ApiaxleController
     model.getRealTime "key", req.params.key, ( err, hits ) =>
       return @json res, hits
 
-class exports.ViewAllStatsForKey extends ApiaxleController
+class exports.ViewStatsForKey extends ApiaxleController
   @verb = "get"
 
-  desc: -> "Get the statistics for a key."
+  desc: -> "Get stats for a key"
 
   docs: ->
     """
@@ -208,43 +209,29 @@ class exports.ViewAllStatsForKey extends ApiaxleController
 
     * Object where the keys represent the HTTP status code of the
       endpoint or the error returned by apiaxle (QpsExceededError, for
-      example). Each object contains date to hit count pairs.
+      example). Each object contains timestamp to hit count pairs.
     """
 
-  middleware: -> [ @mwKeyDetails( valid_key_required=true ) ]
+  middleware: -> [ @mwKeyDetails( @app ) ]
 
   path: -> "/v1/key/:key/stats"
 
   execute: ( req, res, next ) ->
-    model = @app.model "counters"
-    model.getPossibleResponseTypes "key:#{ req.params.key }", ( err, types ) =>
-      return next err if err
+    model = @app.model "stats"
+    key   = req.params.key
+    from  = req.query["from"]
+    to    = req.query["to"]
+    gran  = req.query["granularity"]
 
-      multi  = model.multi()
-      from   = req.query["from-date"]
-      to     = req.query["to-date"]
-      ranged = from and to
+    codes = [200]
 
-      for type in types
-        do ( type ) =>
-          if ranged
-            multi = @getStatsRange multi, "key", req.params.key, type, from, to
-          else
-            multi.hgetall [ "key", req.params.key, type ]
+    all = []
+    all.push (cb) =>
+      model.get ["key", key, "200"], gran, from, to, cb
 
-      multi.exec ( err, results ) =>
-        return next err if err
-
-        # build up the output structure
-        output = {}
-        processed_results = []
-
-        if ranged
-          processed_results = @combineStatsRange results, from, to
-        else
-          processed_results = results
-
-        for type in types
-          output[ type ] = processed_results.shift()
-
-        return @json res, output
+    async.series all, (err, results) =>
+      processed = {}
+      count     = 0
+      for code in codes
+        processed[code] = results[count]
+      return @json res, processed
