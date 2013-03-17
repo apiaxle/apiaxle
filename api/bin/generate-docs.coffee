@@ -3,7 +3,7 @@
 _ = require "underscore"
 { exec } = require "child_process"
 
-{ ApiaxleApi } = require "../apiaxle_api"
+{ ApiaxleApi } = require "../apiaxle-api"
 
 print = console.log
 
