@@ -7,7 +7,7 @@ class exports.Stats extends Redis
   @instantiateOnStartup = true
   @smallKeyName         = "stats"
 
-  @granulatities =
+  @granularities =
     seconds:       # Available for 1 hour
       size:   3600 # Amount of values stored in each hash, used for ts rounding
       ttl:    7200 # Keys live twice as long to handle overlap
@@ -41,7 +41,7 @@ class exports.Stats extends Redis
   recordHit: ( db_key, cb ) ->
     multi = @multi()
 
-    for gran, properties of Stats.granulatities
+    for gran, properties of Stats.granularities
       tsround = @getRoundedTimestamp null, properties.size
 
       temp_key = _.clone db_key
@@ -58,7 +58,7 @@ class exports.Stats extends Redis
   # from, to should be int, seconds
   get: ( db_key, gran, from, to, cb) ->
     # TODO: fetch codes from redis
-    properties = Stats.granulatities[gran]
+    properties = Stats.granularities[gran]
 
     from = @getFactoredTimestamp(from, properties.factor)
     to   = @getFactoredTimestamp(to, properties.factor)
@@ -96,7 +96,7 @@ class exports.Stats extends Redis
       return cb err, data
 
   getMinFrom: (gran) ->
-    properties = Stats.granulatities[gran]
+    properties = Stats.granularities[gran]
     now = @getSecondsTimestamp()
     # Subtract one for edge case of exactly on expiry time
     return (now - properties.size) - properties.factor
