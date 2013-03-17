@@ -8,10 +8,15 @@ class exports.Stats extends Redis
   @smallKeyName         = "stats"
 
   @granulatities =
-    seconds:
+    seconds:       # Available for 1 hour
       size:   3600 # Amount of values stored in each hash, used for ts rounding
       ttl:    7200 # Keys live twice as long to handle overlap
       factor: 1    # Granularity, in seconds of the ts used for hash keys
+
+    minutes:         # Available for 24 hours
+      size:   1440   # Amount of values stored in each hash, used for ts rounding
+      ttl:    172800 # Keys live twice as long to handle overlap
+      factor: 60     # Granularity, in seconds of the ts used for hash keys
 
   # Helper function to format timestamp in seconds
   # Defaults to curent time
@@ -28,6 +33,9 @@ class exports.Stats extends Redis
     ts = Math.floor( ts / precision ) * precision
     return ts
 
+  getFactoredTimestamp:(ts, factor) ->
+    ts = Math.floor(@getSecondsTimestamp(ts) / factor) * factor
+
   recordHit: ( db_key, cb ) ->
     multi = @multi()
 
@@ -38,7 +46,7 @@ class exports.Stats extends Redis
       temp_key.push gran
       temp_key.push tsround
       # Hash keys are stored at second
-      ts = @getSecondsTimestamp() * properties.factor
+      ts = @getFactoredTimestamp(null, properties.factor)
       multi.hincrby temp_key, ts, 1
       multi.expireat temp_key, tsround + properties.ttl
 
@@ -49,13 +57,13 @@ class exports.Stats extends Redis
     # TODO: fetch codes from redis
     properties = Stats.granulatities[gran]
 
-    from = @getSecondsTimestamp from * properties.factor
-    to   = @getSecondsTimestamp to * properties.factor
+    from = @getFactoredTimestamp(from, properties.factor)
+    to   = @getFactoredTimestamp(to, properties.factor)
 
     # Check if in range
     if from >  to  or from < @getMinFrom gran
       console.log "Error: Invalid from time"
-      cb {error: "Invalid from time"}, []
+      cb {error: "Invalid from time"}, null
       return
 
     multi = @multi()

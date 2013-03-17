@@ -77,12 +77,8 @@ class exports.StatsTest extends FakeAppTest
     all.push (cb) =>
       @model.get ["key", "1234", "200"], "seconds", from-(1000 * 3720), from+1000, cb
 
-
     async.series all, (err, result) =>
       @isNotNull err
       @isNotNull err["error"]
       @isNull result[0]
       done(3)
-
-
-
