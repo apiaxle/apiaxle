@@ -46,7 +46,6 @@ class exports.Stats extends Redis
 
   # Get a single response code for a key or api stat
   get: ( db_key, gran, from, to, cb) ->
-    multi = @multi()
     # TODO: fetch codes from redis
     properties = Stats.granulatities[gran]
 
@@ -56,8 +55,10 @@ class exports.Stats extends Redis
     # Check if in range
     if from >  to  or from < @getMinFrom gran
       console.log "Error: Invalid from time"
-      cb {error: "Invalid from time"}
+      cb {error: "Invalid from time"}, []
+      return
 
+    multi = @multi()
     ts = from
     while ts <= to
       tsround = @getRoundedTimestamp ts, properties.size

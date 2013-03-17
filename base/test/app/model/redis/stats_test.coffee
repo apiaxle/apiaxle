@@ -66,3 +66,23 @@ class exports.StatsTest extends FakeAppTest
         @equal result[now_seconds],1
         @equal result[next_seconds],1
         done(4)
+
+  "test #Invalid time range": (done) ->
+    from  = (new Date()).getTime()
+    all = []
+
+    all.push (cb) =>
+      @model.get ["key", "1234", "200"], "seconds", from, from-1000, cb
+
+    all.push (cb) =>
+      @model.get ["key", "1234", "200"], "seconds", from-(1000 * 3720), from+1000, cb
+
+
+    async.series all, (err, result) =>
+      @isNotNull err
+      @isNotNull err["error"]
+      @equal result[0].length, 0
+      done(3)
+
+
+
