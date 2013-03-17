@@ -81,7 +81,7 @@ class exports.StatsTest extends FakeAppTest
     async.series all, (err, result) =>
       @isNotNull err
       @isNotNull err["error"]
-      @equal result[0].length, 0
+      @isNull result[0]
       done(3)
 
 
