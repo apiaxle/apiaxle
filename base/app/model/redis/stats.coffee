@@ -33,8 +33,10 @@ class exports.Stats extends Redis
     ts = Math.floor( ts / precision ) * precision
     return ts
 
-  getFactoredTimestamp:(ts, factor) ->
-    ts = Math.floor(@getSecondsTimestamp(ts) / factor) * factor
+  getFactoredTimestamp:(ts_seconds, factor) ->
+    if not ts_seconds
+      ts_seconds = @getSecondsTimestamp()
+    ts = Math.floor(ts_seconds / factor) * factor
 
   recordHit: ( db_key, cb ) ->
     multi = @multi()
@@ -53,6 +55,7 @@ class exports.Stats extends Redis
     multi.exec cb
 
   # Get a single response code for a key or api stat
+  # from, to should be int, seconds
   get: ( db_key, gran, from, to, cb) ->
     # TODO: fetch codes from redis
     properties = Stats.granulatities[gran]
@@ -62,12 +65,11 @@ class exports.Stats extends Redis
 
     # Check if in range
     if from >  to  or from < @getMinFrom gran
-      console.log "Error: Invalid from time"
       cb {error: "Invalid from time"}, null
       return
 
     multi = @multi()
-    ts = from
+    ts    = from
     while ts <= to
       tsround = @getRoundedTimestamp ts, properties.size
 

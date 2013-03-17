@@ -33,7 +33,7 @@ class exports.StatsTest extends FakeAppTest
 
     async.series all, (err, result) =>
       @isNull err
-      from = now-3000
+      from = now_seconds-3
 
       @model.get ["key", "1234", "200"], "seconds", from, null, (err, result) =>
         @isNull err
@@ -66,9 +66,10 @@ class exports.StatsTest extends FakeAppTest
       # bring the clock back
       clock = @getClock(now)
       @isNull err
-      from = now - 3000
+      from = now_seconds - 3
+      to   = next_seconds + 1
 
-      @model.get ["key", "1234", "200"], "seconds", from, next+1000, (err, result) =>
+      @model.get ["key", "1234", "200"], "seconds", from, to, (err, result) =>
         @isNull err
         @equal result[now_seconds],1
         @equal result[next_seconds],1
