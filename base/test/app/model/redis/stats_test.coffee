@@ -41,8 +41,6 @@ class exports.StatsTest extends FakeAppTest
         @equal result[now_seconds+1],0
         @equal result[now_seconds+120],1
         @model.get ["key", "1234", "200"], "minutes", from, null, (err, result) =>
-          console.log err, result
-          console.log now_seconds
           time = Math.floor(now_seconds/ 60) * 60
           @equal result[time+120],1
           done(4)
