@@ -69,6 +69,8 @@ class exports.Stats extends Redis
       multi.hget temp_key, ts
       ts += properties.factor
 
+    # We need to format the results into an object ts => hits
+    # Also 0 pads
     multi.exec (err, results) =>
       ts = from
       i  = 0
@@ -86,7 +88,7 @@ class exports.Stats extends Redis
     properties = Stats.granulatities[gran]
     now = @getSecondsTimestamp()
     # Subtract one for edge case of exactly on expiry time
-    return (now - properties.size) - 1
+    return (now - properties.size) - properties.factor
 
   hit: ( api, key, code, cb ) ->
     db_keys = [
