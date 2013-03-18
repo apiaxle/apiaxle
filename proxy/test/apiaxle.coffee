@@ -11,7 +11,7 @@ _ = require "underscore"
 class exports.ApiaxleTest extends AppTest
   @appClass = ApiaxleProxy
 
-  stubCatchall: ( status, body, headers={} ) ->
+  stubCatchallSimple: ( status, body, headers={} ) ->
     # stub out the http request in the controller that we do
     @getStub GetCatchall::, "_httpRequest", ( options, api, key, cb ) =>
       @fakeIncomingMessage status, body, headers, ( err, res ) =>

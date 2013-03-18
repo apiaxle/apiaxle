@@ -74,7 +74,7 @@ class exports.CatchallSigTest extends ApiaxleTest
       done 39
 
   "test signatures and expiry times": ( done ) ->
-    stub = @stubCatchall 200, "{}",
+    stub = @stubCatchallSimple 200, "{}",
       "Content-Type": "application/json"
 
     tests = []

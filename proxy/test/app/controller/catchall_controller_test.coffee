@@ -132,7 +132,7 @@ class exports.CatchallTest extends ApiaxleTest
           one: 1
           two: 2
 
-        stub = @stubCatchall 200, data,
+        stub = @stubCatchallSimple 200, data,
           "Content-Type": "application/json"
 
         requestOptions =
@@ -174,7 +174,7 @@ class exports.CatchallTest extends ApiaxleTest
         data = JSON.stringify
           one: 1
 
-        @stubCatchall 200, data,
+        @stubCatchallSimple 200, data,
           "Content-Type": "application/json"
 
         requestOptions =
@@ -211,7 +211,7 @@ class exports.CatchallTest extends ApiaxleTest
         data = JSON.stringify
           one: 1
 
-        @stubCatchall 200, data,
+        @stubCatchallSimple 200, data,
           "Content-Type": "application/json"
 
         requestOptions =
