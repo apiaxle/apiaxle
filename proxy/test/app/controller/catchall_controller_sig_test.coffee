@@ -3,7 +3,7 @@ async = require "async"
 
 { ApiaxleTest } = require "../../apiaxle"
 
-class exports.CatchallTest extends ApiaxleTest
+class exports.CatchallSigTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
