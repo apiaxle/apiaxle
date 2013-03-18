@@ -110,15 +110,13 @@ class CatchAll extends ApiaxleController
             return outerCb err, apiRes, body
 
   _httpRequest: ( options, api, api_key, cb) ->
-    counterModel = @app.model "counters"
     statsModel   = @app.model "stats"
 
     request[ @constructor.verb ] options, ( err, apiRes, body ) =>
       if err
         # if we timeout then throw an error
         if err.code is "ETIMEDOUT"
-          counterModel.apiHit api, api_key, "timeout", ( counterErr, res ) ->
-            return cb counterErr if counterErr
+          statsModel.hit api, api_key, "timeout", ( err, res ) ->
             return cb new TimeoutError( "API endpoint timed out." )
         else
           error = new Error "'#{ options.url }' yielded '#{ err.message }'"
@@ -127,7 +125,6 @@ class CatchAll extends ApiaxleController
         # response with the same code as the endpoint
         # TODO: async these.
         statsModel.hit api, api_key, apiRes.statusCode, ( err, res ) ->
-          console.log err, res
           return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
@@ -145,13 +142,13 @@ class CatchAll extends ApiaxleController
 
     model.apiHit key, qps, qpd, ( err, [ newQps, newQpd ] ) =>
       if err
-        counterModel = @app.model "counters"
+        statsModel   = @app.model "stats"
 
         # collect the type of error (QpsExceededError or
         # QpdExceededError at the moment)
         type = err.constructor.name
 
-        return counterModel.apiHit req.subdomain, req.key.data.key, type, ( counterErr, res ) ->
+        return statsModel.hit req.subdomain, req.key.data.key, type, ( counterErr, res ) ->
           return next counterErr if counterErr
           return next err
 

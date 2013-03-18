@@ -38,8 +38,12 @@ class exports.Stats extends Redis
       ts_seconds = @getSecondsTimestamp()
     ts = Math.floor(ts_seconds / factor) * factor
 
+  getPossibleResponseTypes: ( db_key, cb ) ->
+    return @smembers [ db_key[0], db_key[1], "all-response-types" ], cb
+
   recordHit: ( db_key, cb ) ->
     multi = @multi()
+    multi.sadd [db_key[0], db_key[1], "all-response-types"], db_key[2]
 
     for gran, properties of Stats.granularities
       tsround = @getRoundedTimestamp null, properties.size
@@ -110,6 +114,6 @@ class exports.Stats extends Redis
     all = []
     for db_key in db_keys
       do( db_key ) =>
-        all.push ( cb ) => @recordHit db_key, cb
+        all.push (cb) => @recordHit db_key, cb
 
     async.series all, cb

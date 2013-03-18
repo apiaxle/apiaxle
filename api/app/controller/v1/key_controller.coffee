@@ -223,15 +223,15 @@ class exports.ViewStatsForKey extends ApiaxleController
     to    = req.query["to"]
     gran  = req.query["granularity"]
 
-    codes = [200]
-
-    all = []
-    all.push (cb) =>
-      model.get ["key", key, "200"], gran, from, to, cb
-
-    async.series all, (err, results) =>
-      processed = {}
-      count     = 0
+    model.getPossibleResponseTypes ["key", key], (err, codes) =>
+      all = []
       for code in codes
-        processed[code] = results[count]
-      return @json res, processed
+        all.push (cb) =>
+          model.get ["key", key, code], gran, from, to, cb
+
+      async.series all, (err, results) =>
+        processed = {}
+        count     = 0
+        for code in codes
+          processed[code] = results[count]
+        return @json res, processed
