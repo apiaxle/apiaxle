@@ -2,7 +2,7 @@ async = require "async"
 
 { ApiaxleTest } = require "../../apiaxle"
 
-class exports.CatchallTest extends ApiaxleTest
+class exports.CatchallCachingTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
@@ -129,7 +129,7 @@ class exports.CatchallTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchall 200, data,
+      stub = @stubCatchallSimple 200, data,
         "Content-Type": "application/json"
 
       requestOptions =
@@ -187,7 +187,7 @@ class exports.CatchallTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchall 202, data,
+      stub = @stubCatchallSimple 202, data,
         "Content-Type": "application/json"
 
       requestOptions =
@@ -244,7 +244,7 @@ class exports.CatchallTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchall 200, data,
+      stub = @stubCatchallSimple 200, data,
         "Content-Type": "application/json"
 
       requestOptions =
@@ -292,7 +292,7 @@ class exports.CatchallTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchall 200, data,
+      stub = @stubCatchallSimple 200, data,
         "Content-Type": "application/json"
 
       requestOptions =

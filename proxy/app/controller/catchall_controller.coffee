@@ -113,6 +113,7 @@ class CatchAll extends ApiaxleController
     counterModel = @app.model "counters"
     hitsModel    = @app.model "hits"
 
+    @app.logger.debug "#{ @constructor.verb }'ing '#{ options.url }'"
     request[ @constructor.verb ] options, ( err, apiRes, body ) =>
       if err
         # if we timeout then throw an error
@@ -161,7 +162,17 @@ class CatchAll extends ApiaxleController
       headers = req.headers
       delete headers.host
 
-      endpointUrl = "#{ req.api.data.protocol }://#{ req.api.data.endPoint }#{ pathname }"
+      endpointUrl = "#{ req.api.data.protocol }://#{ req.api.data.endPoint }"
+
+      # here we support a default path for the request. This makes
+      # sense with people like the BBC who have many APIs all sitting
+      # on the one domain.
+      if ( defaultPath = req.api.data.defaultPath )
+        endpointUrl += defaultPath
+
+      # the bit of the path that was actually requested
+      endpointUrl += pathname
+
       if query
         endpointUrl += "?"
         newStrings = ( "#{ key }=#{ value }" for key, value of query )
