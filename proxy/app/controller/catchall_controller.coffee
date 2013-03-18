@@ -113,6 +113,7 @@ class CatchAll extends ApiaxleController
     counterModel = @app.model "counters"
     hitsModel    = @app.model "hits"
 
+    @app.logger.debug "#{ @constructor.verb }ing '#{ options.url }'"
     request[ @constructor.verb ] options, ( err, apiRes, body ) =>
       if err
         # if we timeout then throw an error
