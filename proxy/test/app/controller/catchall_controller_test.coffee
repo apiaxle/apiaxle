@@ -1,3 +1,4 @@
+url    = require "url"
 async  = require "async"
 libxml = require "libxmljs"
 
@@ -6,6 +7,34 @@ libxml = require "libxmljs"
 class exports.CatchallTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
+
+  "test defaultPath functionality": ( done ) ->
+    fixture =
+      api:
+        programmes:
+          endPoint: "bbc.co.uk"
+          defaultPath: "/tv/programmes"
+      key:
+        phil:
+          forApis: [ "programmes" ]
+
+    @fixtures.create fixture, ( err, [ api, key ] ) =>
+      @isNull err
+
+      stub = @stubCatchall ( options, api, key, cb ) =>
+        { path, query } = url.parse options.url
+        @equal path, "/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json?"
+        @fakeIncomingMessage 200, {}, {}, cb
+
+      requestOptions =
+        path: "/genres/drama/scifiandfantasy/schedules/upcoming.json?api_key=phil"
+        host: "programmes.api.localhost"
+
+      @stubDns { "programmes.api.localhost": "127.0.0.1" }
+      @GET requestOptions, ( err, response ) =>
+        @isNull err
+
+        done 3
 
   "test POST,GET,PUT and DELETE with no subdomain": ( done ) ->
     all = []
