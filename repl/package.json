@@ -26,7 +26,8 @@
     "apiaxle-api": "0.8.1",
     "tokenizer": "*",
     "underscore": "~1",
-    "async": "~0.1.9"
+    "async": "~0.1.9",
+    "libxmljs": "0.7.1"
   },
   "devDependencies": {
     "twerp": "=1.0.7",
