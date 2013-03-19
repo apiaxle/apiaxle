@@ -94,7 +94,7 @@ class exports.Stats extends Redis
         res = results[i]
         if not res
           res = 0
-        data[ts] = res
+        data[ts] = parseInt(res)
         ts += properties.factor
         i += 1
       return cb err, data

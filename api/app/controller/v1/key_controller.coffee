@@ -225,13 +225,19 @@ class exports.ViewStatsForKey extends ApiaxleController
 
     model.getPossibleResponseTypes ["key", key], (err, codes) =>
       all = []
-      for code in codes
+      _.each codes, (code) =>
         all.push (cb) =>
-          model.get ["key", key, code], gran, from, to, cb
+          model.get ["key", key, "cached", code], gran, from, to, cb
+        all.push (cb) =>
+          model.get ["key", key, "uncached", code], gran, from, to, cb
 
       async.series all, (err, results) =>
-        processed = {}
-        count     = 0
-        for code in codes
-          processed[code] = results[count]
+        processed =
+          cached: {}
+          uncached: {}
+
+        for code, idx in codes
+          processed.cached[code]   = results[idx*2]
+          processed.uncached[code] = results[(idx*2)+1]
+
         return @json res, processed

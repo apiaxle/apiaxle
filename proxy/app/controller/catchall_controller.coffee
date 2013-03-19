@@ -148,7 +148,7 @@ class CatchAll extends ApiaxleController
         # QpdExceededError at the moment)
         type = err.constructor.name
 
-        return statsModel.hit req.subdomain, req.key.data.key, "error", type, ( counterErr, res ) ->
+        return statsModel.hit req.subdomain, req.key.data.key, "uncached", type, ( counterErr, res ) ->
           return next counterErr if counterErr
           return next err
 
