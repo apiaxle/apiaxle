@@ -26,13 +26,13 @@
     "apiaxle-api": "0.8.0",
     "tokenizer": "*",
     "underscore": "~1",
-    "async": "~0.1.9",
-    "coffee-script": "1.6.1"
+    "async": "~0.1.9"
   },
   "devDependencies": {
     "twerp": "=1.0.7",
     "sinon": "~1.1.1",
     "muffin": "~0.7",
-    "istanbul": "~0"
+    "istanbul": "~0",
+    "coffee-script": "1.6.2"
   }
 }

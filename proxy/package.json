@@ -20,17 +20,16 @@
   },
   "dependencies": {
     "apiaxle-base": "0.8.0",
-    "request": "~2.1.1",
+    "request": "2.1.1",
     "parseopt": "1.0.0",
-    "async": "~0.1.9",
-    "coffee-script": "1.6.1",
-    "express": "~2.5",
-    "underscore": "~1.1.7",
-    "redis": "0.8.1",
-    "hiredis": "0.1.14",
-    "libxmljs": "*"
+    "async": "0.1.9",
+    "express": "2.5",
+    "underscore": "1.1.7",
+    "redis": "0.8.2",
+    "hiredis": "0.1.15"
   },
   "devDependencies": {
+    "coffee-script": "1.6.2",
     "twerp": "=1.0.7",
     "sinon": "~1.1.1",
     "muffin": "~0",
