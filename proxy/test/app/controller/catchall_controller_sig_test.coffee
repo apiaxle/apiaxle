@@ -69,7 +69,7 @@ class exports.CatchallSigTest extends ApiaxleTest
             cb()
 
     async.series all, ( err ) =>
-      @isNull err
+      @isUndefined err
 
       done 39
 
@@ -125,6 +125,6 @@ class exports.CatchallSigTest extends ApiaxleTest
           cb()
 
     async.series tests, ( err ) =>
-      @isNull err
+      @isUndefined err
 
       done 15
