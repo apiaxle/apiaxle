@@ -43,7 +43,7 @@ class exports.Stats extends Redis
 
   recordHit: ( db_key, cb ) ->
     multi = @multi()
-    multi.sadd [db_key[0], db_key[1], "all-response-types"], db_key[2]
+    multi.sadd [db_key[0], db_key[1], "all-response-types"], db_key[3]
 
     for gran, properties of Stats.granularities
       tsround = @getRoundedTimestamp null, properties.size
@@ -105,10 +105,10 @@ class exports.Stats extends Redis
     # Subtract one for edge case of exactly on expiry time
     return (now - properties.size) - properties.factor
 
-  hit: ( api, key, code, cb ) ->
+  hit: ( api, key, cached, code, cb ) ->
     db_keys = [
-      [ "api", api, code ],
-      [ "key", key, code ]
+      [ "api", api, cached, code ],
+      [ "key", key, cached, code ]
     ]
 
     all = []

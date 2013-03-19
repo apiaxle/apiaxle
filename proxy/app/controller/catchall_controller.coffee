@@ -86,10 +86,10 @@ class CatchAll extends ApiaxleController
         return outerCb err if err
 
         if body
-          counterModel = @app.model( "counters" )
+          statsModel   = @app.model "stats"
 
           @app.logger.debug "Cache hit: #{options.url}"
-          return counterModel.apiHit req.subdomain, req.key.data.key, status, ( err, res ) ->
+          return statsModel.hit req.subdomain, req.key.data.key, "cached", status, ( err, res ) ->
             fakeResponse =
               statusCode: status
               headers:
@@ -124,7 +124,7 @@ class CatchAll extends ApiaxleController
       else
         # response with the same code as the endpoint
         # TODO: async these.
-        statsModel.hit api, api_key, apiRes.statusCode, ( err, res ) ->
+        statsModel.hit api, api_key, "uncached", apiRes.statusCode, ( err, res ) ->
           return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
@@ -148,7 +148,7 @@ class CatchAll extends ApiaxleController
         # QpdExceededError at the moment)
         type = err.constructor.name
 
-        return statsModel.hit req.subdomain, req.key.data.key, type, ( counterErr, res ) ->
+        return statsModel.hit req.subdomain, req.key.data.key, "error", type, ( counterErr, res ) ->
           return next counterErr if counterErr
           return next err
 
