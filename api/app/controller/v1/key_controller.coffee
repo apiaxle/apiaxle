@@ -223,17 +223,16 @@ class exports.ViewStatsForKey extends ApiaxleController
     to    = req.query["to"]
     gran  = req.query["granularity"]
 
+    types = ["uncached", "cached", "error"]
+
     all = []
-    all.push (cb) =>
-      model.get_all ["key", key, "uncached" ], gran, from, to, cb
-    all.push (cb) =>
-      model.get_all ["key", key, "cached" ], gran, from, to, cb
-    all.push (cb) =>
-      model.get_all ["key", key, "error" ], gran, from, to, cb
+    _.each types, (type) =>
+      all.push (cb) =>
+        model.get_all ["key", key, type ], gran, from, to, cb
 
     async.series all, (err, results) =>
       processed = {}
-      for type, idx in ["uncached", "cached", "error"]
+      _.each types, (type, idx) =>
         processed[type] = results[idx]
 
       return @json res, processed
