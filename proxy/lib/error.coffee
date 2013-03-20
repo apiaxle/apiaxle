@@ -1,5 +1,8 @@
 { AppError } = require "apiaxle-base"
 
+class exports.ApiDisabled extends AppError
+  @status = 400
+
 class exports.ApiUnknown extends AppError
   @status = 404
 

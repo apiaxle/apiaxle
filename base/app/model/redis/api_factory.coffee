@@ -5,6 +5,9 @@ class Api extends KeyContainerModel
   @reverseLinkFunction = "linkToApi"
   @reverseUnlinkFunction = "unlinkFromApi"
 
+  isDisabled: ( ) ->
+    @data.disabled is "true"
+
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
   @returns   = Api
@@ -53,3 +56,7 @@ class exports.ApiFactory extends Redis
         type: "string"
         optional: true
         docs: "An optional path part that will always be called when the API is hit."
+      disabled:
+        type: "boolean"
+        default: false
+        docs: "Disable this API causing errors when it's hit."

@@ -8,6 +8,36 @@ class exports.CatchallTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
+  "test disabled API causes error": ( done ) ->
+    fixture =
+      api:
+        programmes:
+          endPoint: "bbc.co.uk"
+          defaultPath: "/tv/programmes"
+          disabled: true
+      key:
+        phil:
+          forApis: [ "programmes" ]
+
+    @fixtures.create fixture, ( err, [ api, key ] ) =>
+      @isNull err
+
+      requestOptions =
+        path: "/?api_key=phil"
+        host: "programmes.api.localhost"
+
+      @stubDns { "programmes.api.localhost": "127.0.0.1" }
+      @GET requestOptions, ( err, response ) =>
+        @isNull err
+        @equal response.statusCode, 400
+
+        response.parseJson ( err, json ) =>
+          @ok error = json.results.error
+          @equal error.type, "ApiDisabled"
+          @equal error.message, "This API has been disabled."
+
+          done 6
+
   "test defaultPath functionality": ( done ) ->
     fixture =
       api:
