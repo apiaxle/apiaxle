@@ -69,8 +69,7 @@ class exports.Stats extends Redis
 
     # Check if in range
     if from >  to  or from < @getMinFrom gran
-      cb {error: "Invalid from time"}, null
-      return
+      return cb new Error "Invalid from time"
 
     multi = @multi()
     ts    = from
@@ -87,6 +86,8 @@ class exports.Stats extends Redis
     # We need to format the results into an object ts => hits
     # Also 0 pads
     multi.exec (err, results) =>
+      return cb err if err
+
       ts = from
       i  = 0
       data = {}
@@ -97,7 +98,8 @@ class exports.Stats extends Redis
         data[ts] = parseInt(res)
         ts += properties.factor
         i += 1
-      return cb err, data
+
+      return cb null, data
 
   getMinFrom: (gran) ->
     properties = Stats.granularities[gran]
