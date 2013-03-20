@@ -113,6 +113,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       @ok origKey
 
       @PUT options, ( err, res ) =>
+        console.log( res.data )
         @equal res.statusCode, 200
 
         @app.model( "keyFactory" ).find "1234", ( err, dbKey ) =>

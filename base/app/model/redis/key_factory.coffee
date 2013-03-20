@@ -13,7 +13,7 @@ class Key extends Model
   supportedKeyrings: ( cb ) -> @hkeys "#{ @id }-keyrings", cb
   unlinkFromKeyring: ( krName, cb ) -> @hdel "#{ @id }-keyrings", krName, cb
 
-  isDisabled: ( ) -> @data.disabled is "true"
+  isDisabled: ( ) -> @data.disabled
 
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true

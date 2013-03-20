@@ -5,8 +5,7 @@ class Api extends KeyContainerModel
   @reverseLinkFunction = "linkToApi"
   @reverseUnlinkFunction = "unlinkFromApi"
 
-  isDisabled: ( ) ->
-    @data.disabled is "true"
+  isDisabled: ( ) -> @data.disabled
 
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true

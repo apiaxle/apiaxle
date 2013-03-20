@@ -113,6 +113,9 @@ class Redis
         if suggested_type and suggested_type is "integer"
           details[ key ] = parseInt( val )
 
+        if suggested_type and suggested_type is "boolean"
+          details[ key ] = ( val is "true" )
+
       if @constructor.returns?
         return cb null, new @constructor.returns @app, id, details
 
