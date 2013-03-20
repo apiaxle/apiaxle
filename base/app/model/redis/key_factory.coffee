@@ -13,6 +13,8 @@ class Key extends Model
   supportedKeyrings: ( cb ) -> @hkeys "#{ @id }-keyrings", cb
   unlinkFromKeyring: ( krName, cb ) -> @hdel "#{ @id }-keyrings", krName, cb
 
+  isDisabled: ( ) -> @data.disabled is "true"
+
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "key"
@@ -44,6 +46,10 @@ class exports.KeyFactory extends Redis
         optional: true
         type: "array"
         docs: "Names of the Apis that this key belongs to."
+      disabled:
+        type: "boolean"
+        default: false
+        docs: "Disable this API causing errors when it's hit."
 
   _verifyApisExist: ( apis, cb ) ->
     allKeyExistsChecks = []

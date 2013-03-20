@@ -3,6 +3,9 @@
 class exports.ApiDisabled extends AppError
   @status = 400
 
+class exports.KeyDisabled extends AppError
+  @status = 401
+
 class exports.ApiUnknown extends AppError
   @status = 404
 
