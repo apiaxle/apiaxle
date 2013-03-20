@@ -139,7 +139,6 @@ class exports.CatchallCachingTest extends ApiaxleTest
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
         @isNull err
-
         @ok stub.calledOnce
 
         response.parseJson ( err, json ) =>

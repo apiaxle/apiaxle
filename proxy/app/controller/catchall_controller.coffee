@@ -2,7 +2,7 @@ url = require "url"
 crypto = require "crypto"
 request = require "request"
 
-{ TimeoutError } = require "../../lib/error"
+{ KeyDisabled, ApiDisabled, TimeoutError } = require "../../lib/error"
 { ApiaxleController } = require "./controller"
 
 class CatchAll extends ApiaxleController
@@ -134,6 +134,12 @@ class CatchAll extends ApiaxleController
             return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
+    if req.api.isDisabled()
+      return next new ApiDisabled "This API has been disabled."
+
+    if req.key.isDisabled()
+      return next new KeyDisabled "This API key has been disabled."
+
     { pathname, query } = url.parse req.url, true
 
     # we should make this optional
