@@ -116,7 +116,7 @@ class CatchAll extends ApiaxleController
       if err
         # if we timeout then throw an error
         if err.code is "ETIMEDOUT"
-          statsModel.hit api, api_key, "timeout", ( err, res ) ->
+          statsModel.hit api, api_key, "error", "timeout", ( err, res ) ->
             return cb new TimeoutError( "API endpoint timed out." )
         else
           error = new Error "'#{ options.url }' yielded '#{ err.message }'"
@@ -148,7 +148,7 @@ class CatchAll extends ApiaxleController
         # QpdExceededError at the moment)
         type = err.constructor.name
 
-        return statsModel.hit req.subdomain, req.key.data.key, "uncached", type, ( counterErr, res ) ->
+        return statsModel.hit req.subdomain, req.key.data.key, "error", type, ( counterErr, res ) ->
           return next counterErr if counterErr
           return next err
 

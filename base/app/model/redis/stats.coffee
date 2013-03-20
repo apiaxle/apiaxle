@@ -26,7 +26,7 @@ class exports.Stats extends Redis
     return Math.floor( ts/1000 )
 
   # Get a timestamp rounded to the supplied precision
-  # 1 = 1 second
+  # Precision is typically the size of the key in question
   getRoundedTimestamp: ( ts, precision = 1 ) ->
     if not ts
       ts    = @getSecondsTimestamp()
@@ -39,11 +39,11 @@ class exports.Stats extends Redis
     ts = Math.floor(ts_seconds / factor) * factor
 
   getPossibleResponseTypes: ( db_key, cb ) ->
-    return @smembers [ db_key[0], db_key[1], "all-response-types" ], cb
+    return @smembers [ db_key[0], db_key[1], db_key[2], "response-types" ], cb
 
   recordHit: ( db_key, cb ) ->
     multi = @multi()
-    multi.sadd [db_key[0], db_key[1], "all-response-types"], db_key[3]
+    multi.sadd [db_key[0], db_key[1], db_key[2], "response-types"], db_key[3]
 
     for gran, properties of Stats.granularities
       tsround = @getRoundedTimestamp null, properties.size
@@ -57,6 +57,24 @@ class exports.Stats extends Redis
       multi.expireat temp_key, tsround + properties.ttl
 
     multi.exec cb
+
+  # Get all response codes for a particular stats entry
+  get_all: (db_key, gran, from, to, cb) ->
+    @getPossibleResponseTypes db_key, (err, codes) =>
+      all = []
+      _.each codes, (code) =>
+        all.push (cb) =>
+          temp_key = _.clone db_key
+          temp_key.push code
+          @get temp_key, gran, from, to, cb
+
+      async.series all, (err, res) =>
+        results = {}
+
+        for code, idx in codes
+          results[code] = res[idx]
+
+        cb err, results
 
   # Get a single response code for a key or api stat
   # from, to should be int, seconds
@@ -73,6 +91,7 @@ class exports.Stats extends Redis
 
     multi = @multi()
     ts    = from
+
     while ts <= to
       tsround = @getRoundedTimestamp ts, properties.size
 
@@ -103,9 +122,9 @@ class exports.Stats extends Redis
 
   getMinFrom: (gran) ->
     properties = Stats.granularities[gran]
-    now = @getSecondsTimestamp()
-    # Subtract one for edge case of exactly on expiry time
-    return (now - properties.size) - properties.factor
+    min = @getRoundedTimestamp null, properties.size
+    # Subtract size from the most recent rounded timestamp to allow for overlap
+    return (min - properties.size)
 
   hit: ( api, key, cached, code, cb ) ->
     db_keys = [
