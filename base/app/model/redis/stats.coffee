@@ -96,8 +96,8 @@ class exports.Stats extends Redis
       multi.hget temp_key, ts
       ts += properties.factor
 
-    # We need to format the results into an object ts => hits
-    # Also 0 pads
+    # we need to format the results into an object ts => hits
+    # also 0 pads
     multi.exec ( err, results ) =>
       return cb err if err
 
@@ -107,17 +107,17 @@ class exports.Stats extends Redis
       while ts <= to
         res = ( results[i] or 0 )
 
-        data[ts] = parseInt(res)
+        data[ts] = parseInt res
         ts += properties.factor
         i += 1
 
       return cb null, data
 
-  getMinFrom: (gran) ->
+  getMinFrom: ( gran ) ->
     properties = Stats.granularities[gran]
     min = @getRoundedTimestamp null, properties.size
 
-    # Subtract size from the most recent rounded timestamp to allow
+    # subtract size from the most recent rounded timestamp to allow
     # for overlap
     return ( min - properties.size )
 
