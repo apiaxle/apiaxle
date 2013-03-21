@@ -20,30 +20,23 @@ class exports.Stats extends Redis
 
   # Helper function to format timestamp in seconds
   # Defaults to curent time
-  getSecondsTimestamp: (ts) ->
-    if not ts
-      ts = (new Date()).getTime()
-    return Math.floor( ts/1000 )
+  getSecondsTimestamp: ( ts=( new Date() ).getTime() ) ->
+    return Math.floor( ts / 1000 )
 
   # Get a timestamp rounded to the supplied precision
   # Precision is typically the size of the key in question
-  getRoundedTimestamp: ( ts, precision = 1 ) ->
-    if not ts
-      ts    = @getSecondsTimestamp()
-    ts = Math.floor( ts / precision ) * precision
-    return ts
+  getRoundedTimestamp: ( ts=@getSecondsTimestamp(), precision=1 ) ->
+    return Math.floor( ts / precision ) * precision
 
-  getFactoredTimestamp:(ts_seconds, factor) ->
-    if not ts_seconds
-      ts_seconds = @getSecondsTimestamp()
-    ts = Math.floor(ts_seconds / factor) * factor
+  getFactoredTimestamp: ( ts_seconds=@getSecondsTimestamp(), factor ) ->
+    return Math.floor(ts_seconds / factor) * factor
 
   getPossibleResponseTypes: ( db_key, cb ) ->
     return @smembers [ db_key[0], db_key[1], db_key[2], "response-types" ], cb
 
   recordHit: ( db_key, cb ) ->
     multi = @multi()
-    multi.sadd [db_key[0], db_key[1], db_key[2], "response-types"], db_key[3]
+    multi.sadd [ db_key[0], db_key[1], db_key[2], "response-types" ], db_key[3]
 
     for gran, properties of Stats.granularities
       tsround = @getRoundedTimestamp null, properties.size
@@ -51,8 +44,9 @@ class exports.Stats extends Redis
       temp_key = _.clone db_key
       temp_key.push gran
       temp_key.push tsround
-      # Hash keys are stored at second
-      ts = @getFactoredTimestamp(null, properties.factor)
+
+      # hash keys are stored at second
+      ts = @getFactoredTimestamp null, properties.factor
       multi.hincrby temp_key, ts, 1
       multi.expireat temp_key, tsround + properties.ttl
 
@@ -62,8 +56,8 @@ class exports.Stats extends Redis
   get_all: (db_key, gran, from, to, cb) ->
     @getPossibleResponseTypes db_key, (err, codes) =>
       all = []
-      _.each codes, (code) =>
-        all.push (cb) =>
+      _.each codes, ( code ) =>
+        all.push ( cb ) =>
           temp_key = _.clone db_key
           temp_key.push code
           @get temp_key, gran, from, to, cb
@@ -74,7 +68,7 @@ class exports.Stats extends Redis
         for code, idx in codes
           results[code] = res[idx]
 
-        cb err, results
+        return cb err, results
 
   # Get a single response code for a key or api stat
   # from, to should be int, seconds
@@ -86,7 +80,7 @@ class exports.Stats extends Redis
     to   = @getFactoredTimestamp(to, properties.factor)
 
     # Check if in range
-    if from >  to  or from < @getMinFrom gran
+    if from > to or from < @getMinFrom gran
       return cb new Error "Invalid from time"
 
     multi = @multi()
@@ -95,7 +89,7 @@ class exports.Stats extends Redis
     while ts <= to
       tsround = @getRoundedTimestamp ts, properties.size
 
-      temp_key = _.clone(db_key)
+      temp_key = _.clone db_key
       temp_key.push gran
       temp_key.push tsround
 
@@ -104,16 +98,15 @@ class exports.Stats extends Redis
 
     # We need to format the results into an object ts => hits
     # Also 0 pads
-    multi.exec (err, results) =>
+    multi.exec ( err, results ) =>
       return cb err if err
 
       ts = from
       i  = 0
       data = {}
       while ts <= to
-        res = results[i]
-        if not res
-          res = 0
+        res = ( results[i] or 0 )
+
         data[ts] = parseInt(res)
         ts += properties.factor
         i += 1
@@ -123,8 +116,10 @@ class exports.Stats extends Redis
   getMinFrom: (gran) ->
     properties = Stats.granularities[gran]
     min = @getRoundedTimestamp null, properties.size
-    # Subtract size from the most recent rounded timestamp to allow for overlap
-    return (min - properties.size)
+
+    # Subtract size from the most recent rounded timestamp to allow
+    # for overlap
+    return ( min - properties.size )
 
   hit: ( api, key, cached, code, cb ) ->
     db_keys = [
@@ -135,6 +130,6 @@ class exports.Stats extends Redis
     all = []
     for db_key in db_keys
       do( db_key ) =>
-        all.push (cb) => @recordHit db_key, cb
+        all.push ( cb ) => @recordHit db_key, cb
 
-    async.series all, cb
+    return async.series all, cb
