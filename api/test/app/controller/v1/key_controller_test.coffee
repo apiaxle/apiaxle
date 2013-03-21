@@ -113,7 +113,6 @@ class exports.KeyControllerTest extends ApiaxleTest
       @ok origKey
 
       @PUT options, ( err, res ) =>
-        console.log( res.data )
         @equal res.statusCode, 200
 
         @app.model( "keyFactory" ).find "1234", ( err, dbKey ) =>
@@ -486,3 +485,5 @@ class exports.KeyStatsTest extends ApiaxleTest
                 @deepEqual json, shouldHave
 
               done 9
+
+  "test updating qpd mid-session resets users qpd": ( done ) ->
