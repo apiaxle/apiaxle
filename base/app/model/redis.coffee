@@ -169,8 +169,7 @@ class Model extends Redis
     super @app
 
   update: ( data, cb ) ->
-    @app.model( @constructor.factory ).update @id, data, ( err ) =>
-      return cb err
+    @app.model( @constructor.factory ).update @id, data, cb
 
 # Used to extend something that can 'hold' keys (like an API or a
 # keyring).

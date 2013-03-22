@@ -163,7 +163,7 @@ class exports.ModifyApi extends ApiaxleController
   execute: ( req, res, next ) ->
     req.api.update req.body, ( err, new_api ) =>
       return next err if err
-      return @json res, new_api
+      return @json res, new_api.json
 
 class exports.ListApis extends ListController
   @verb = "get"
