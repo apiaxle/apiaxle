@@ -141,16 +141,9 @@ class exports.ModifyKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "keyFactory"
-
-    # modify the key
-    newData = _.extend req.key.data, req.body
-
-    # re-apply it to the db
-    model.create req.params.key, newData, ( err, newKey ) =>
+    req.key.update req.body, ( err, new_key ) =>
       return next err if err
-
-      @json res, newKey.json
+      return @json res, new_key
 
 class exports.ViewHitsForKey extends ApiaxleController
   @verb = "get"

@@ -5,6 +5,8 @@ async = require "async"
 { ValidationError } = require "../../../lib/error"
 
 class Key extends Model
+  @factory = "keyFactory"
+
   linkToApi: ( apiName, cb ) -> @hset "#{ @id }-apis", apiName, 1, cb
   supportedApis: ( cb ) -> @hkeys "#{ @id }-apis", cb
   unlinkFromApi: ( apiName, cb ) -> @hdel "#{ @id }-apis", apiName, cb

@@ -161,16 +161,9 @@ class exports.ModifyApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    model = @app.model "apiFactory"
-
-    # modify the old api struct
-    newData = _.extend req.api.data, req.body
-
-    # re-apply it to the db
-    model.create req.params.api, newData, ( err, newApi ) =>
+    req.api.update req.body, ( err, new_api ) =>
       return next err if err
-
-      @json res, newApi.data
+      return @json res, new_api
 
 class exports.ListApis extends ListController
   @verb = "get"

@@ -4,6 +4,7 @@
 class Api extends KeyContainerModel
   @reverseLinkFunction = "linkToApi"
   @reverseUnlinkFunction = "unlinkFromApi"
+  @factory = "apiFactory"
 
   isDisabled: ( ) -> @data.disabled
 
