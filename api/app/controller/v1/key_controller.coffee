@@ -143,7 +143,7 @@ class exports.ModifyKey extends ApiaxleController
   execute: ( req, res, next ) ->
     req.key.update req.body, ( err, new_key ) =>
       return next err if err
-      return @json res, new_key.json
+      return @json res, new_key.data
 
 class exports.ViewHitsForKey extends ApiaxleController
   @verb = "get"
