@@ -76,6 +76,9 @@ class exports.Stats extends Redis
     # TODO: fetch codes from redis
     properties = Stats.granularities[gran]
 
+    if not properties
+      return cb new Error "Invalid granularity"
+
     from = @getFactoredTimestamp(from, properties.factor)
     to   = @getFactoredTimestamp(to, properties.factor)
 

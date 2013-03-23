@@ -1,4 +1,5 @@
 _ = require "underscore"
+async = require "async"
 
 { ApiaxleController, ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
@@ -284,10 +285,11 @@ class exports.ViewHitsForApiNow extends ApiaxleController
     model.getRealTime "api", req.params.api, ( err, hits ) =>
       return @json res, hits
 
+
 class exports.ViewAllStatsForApi extends ApiaxleController
   @verb = "get"
 
-  desc: -> "Get the statistics for an api."
+  desc: -> "Get stats for a api"
 
   docs: ->
     """
@@ -295,7 +297,7 @@ class exports.ViewAllStatsForApi extends ApiaxleController
 
     * Object where the keys represent the HTTP status code of the
       endpoint or the error returned by apiaxle (QpsExceededError, for
-      example). Each object contains date to hit count pairs.
+      example). Each object contains timestamp to hit count pairs.
     """
 
   middleware: -> [ @mwApiDetails( @app ) ]
@@ -303,35 +305,22 @@ class exports.ViewAllStatsForApi extends ApiaxleController
   path: -> "/v1/api/:api/stats"
 
   execute: ( req, res, next ) ->
-    model = @app.model "counters"
-    model.getPossibleResponseTypes "api:#{ req.params.api }", ( err, types ) =>
-      return next err if err
+    model = @app.model "stats"
+    api   = req.params.api
+    from  = req.query["from"]
+    to    = req.query["to"]
+    gran  = req.query["granularity"]
 
-      multi  = model.multi()
-      from   = req.query["from-date"]
-      to     = req.query["to-date"]
-      ranged = from and to
+    types = ["uncached", "cached", "error"]
 
-      for type in types
-        do ( type ) =>
-          if ranged
-            multi = @getStatsRange multi, "api", req.params.api, type, from, to
-          else
-            multi.hgetall [ "api", req.params.api, type ]
+    all = []
+    _.each types, (type) =>
+      all.push (cb) =>
+        model.get_all ["api", api, type ], gran, from, to, cb
 
-      multi.exec ( err, results ) =>
-        return next err if err
+    async.series all, (err, results) =>
+      processed = {}
+      _.each types, (type, idx) =>
+        processed[type] = results[idx]
 
-        # build up the output structure
-        output = {}
-        processed_results = []
-
-        if ranged
-          processed_results = @combineStatsRange results, from, to
-        else
-          processed_results = results
-
-        for type in types
-          output[ type ] = processed_results.shift()
-
-        return @json res, output
+      return @json res, processed
