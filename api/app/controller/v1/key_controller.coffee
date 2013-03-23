@@ -121,7 +121,10 @@ class exports.ModifyKey extends ApiaxleController
 
   docs: ->
     """
-    Fields passed in will will be merged with the old key details.
+    Fields passed in will will be merged with the old key
+    details. Note that in the case of updating a key's `QPD` it will
+    get the new amount of calls minus the amount of calls it has
+    already made.
 
     ### JSON fields supported
 
