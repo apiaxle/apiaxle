@@ -87,6 +87,4 @@ class exports.StatsTest extends FakeAppTest
 
     async.series all, (err, result) =>
       @isNotNull err
-      @isTypeOf err, Error
-      @isNull result[0]
       done(3)
