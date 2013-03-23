@@ -11,7 +11,7 @@ class exports.StatsTest extends FakeAppTest
     done()
 
   "test #recordHit": ( done ) ->
-    @model.recordHit ["key","1234", "200"],  ( err, result ) =>
+    @model.recordHit ["key","1234", "cached", "200"],  ( err, result ) =>
       @isNull err
       @equal result[0], 1
       done()
@@ -23,24 +23,24 @@ class exports.StatsTest extends FakeAppTest
     all = []
     all.push (cb) =>
       clock = @getClock()
-      @model.recordHit ["key","1234", "200"], cb
+      @model.recordHit ["key","1234", "cached", "200"], cb
     all.push (cb) =>
       clock = @getClock now + (2000)
-      @model.recordHit ["key","1234", "200"], cb
+      @model.recordHit ["key","1234", "cached", "200"], cb
     all.push (cb) =>
       clock = @getClock now + (2000*60)
-      @model.recordHit ["key","1234", "200"], cb
+      @model.recordHit ["key","1234", "cached", "200"], cb
 
     async.series all, (err, result) =>
       @isNull err
       from = now_seconds-3
 
-      @model.get ["key", "1234", "200"], "seconds", from, null, (err, result) =>
+      @model.get ["key", "1234", "cached", "200"], "seconds", from, null, (err, result) =>
         @isNull err
         @equal result[now_seconds],1
         @equal result[now_seconds+1],0
         @equal result[now_seconds+120],1
-        @model.get ["key", "1234", "200"], "minutes", from, null, (err, result) =>
+        @model.get ["key", "1234", "cached", "200"], "minutes", from, null, (err, result) =>
           time = Math.floor(now_seconds/ 60) * 60
           @equal result[time+120],1
           done(4)
@@ -80,13 +80,13 @@ class exports.StatsTest extends FakeAppTest
     all = []
 
     all.push (cb) =>
-      @model.get ["key", "1234", "200"], "seconds", from, from-1000, cb
+      @model.get ["key", "1234", "cached", "200"], "seconds", from, from-1000, cb
 
     all.push (cb) =>
-      @model.get ["key", "1234", "200"], "seconds", from-(1000 * 3720), from+1000, cb
+      @model.get ["key", "1234", "cached", "200"], "seconds", from-(1000 * 3720), from+1000, cb
 
     async.series all, (err, result) =>
       @isNotNull err
-      @isNotNull err["error"]
+      @isTypeOf err, Error
       @isNull result[0]
       done(3)
