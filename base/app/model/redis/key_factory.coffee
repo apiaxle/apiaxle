@@ -17,6 +17,28 @@ class Key extends Model
 
   isDisabled: ( ) -> @data.disabled
 
+  update: ( new_data, cb ) ->
+    # if someone has upped the qpd then we need to take account as
+    # their current qpd counter might be at a value below what they
+    # would now be allowed
+    limits_model = @app.model "apiLimits"
+    redis_key_name = limits_model.qpdKey @id
+
+    all_actions = []
+    limits_model.get redis_key_name, ( err, current_qpd ) =>
+      return cb err if err
+
+      # if the qpd changes we might need to take note
+      if new_data.qpd isnt @data.qpd
+        all_actions.push ( cb ) ->
+          limits_model.updateQpValue redis_key_name, new_data.qpd, cb
+
+      # run the original update
+      all_actions.push ( cb ) =>
+        @constructor.__super__.update.apply @, [ new_data, cb ]
+
+      async.parallel all_actions, cb
+
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "key"

@@ -90,6 +90,8 @@ class exports.KeyControllerTest extends ApiaxleTest
         qpd: 100
 
     @POST options, ( err, res ) =>
+      @isNull err
+
       res.parseJson ( err, json ) =>
         @isNull err
         @ok json.results.error
@@ -487,3 +489,46 @@ class exports.KeyStatsTest extends ApiaxleTest
               done 9
 
   "test updating qpd mid-session resets users qpd": ( done ) ->
+    fixtures =
+      api:
+        facebook:
+          endPoint: "graph.facebook.com"
+      key:
+        phil:
+          forApis: [ "facebook" ]
+          qpd: 1
+          qps: 300
+
+    @fixtures.create fixtures, ( err, [ api, key ] ) =>
+      @isNull err
+
+      limitModel = @app.model "apiLimits"
+
+      # key, qps, qpd
+      limitModel.apiHit "phil", 200, 1, ( err, [ qpsLeft, qpdLeft ] ) =>
+        @isNull err
+
+        @equal qpdLeft, 0
+
+        # now we try to update the qpd count so that this user gets
+        # more hits
+        options =
+          path: "/v1/key/phil"
+          headers:
+            "Content-Type": "application/json"
+          data: JSON.stringify
+            qpd: 100
+
+        @PUT options, ( err, res ) =>
+          @isNull err
+
+          res.parseJson ( err, json ) =>
+            @isNull err
+
+            # this should no longer error because we've updated the
+            # qpd via the API
+            limitModel.apiHit "phil", 200, 100, ( err, [ qpsLeft, qpdLeft ] ) =>
+              @isNull err
+              @equal qpdLeft, 99
+
+              done 1

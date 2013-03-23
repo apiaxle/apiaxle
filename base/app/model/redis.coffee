@@ -31,7 +31,9 @@ class Redis
       # merge the new and old details
       merged_data = _.extend dbObj.data, details
 
-      @create id, merged_data, cb
+      @create id, merged_data, ( err ) =>
+        return cb err if err
+        return cb null, merged_data, dbObj.data, cb
 
   delete: ( id, cb ) ->
     @find id, ( err, dbObj ) =>
