@@ -496,7 +496,7 @@ class exports.KeyStatsTest extends ApiaxleTest
       key:
         phil:
           forApis: [ "facebook" ]
-          qpd: 1
+          qpd: 10
           qps: 300
 
     @fixtures.create fixtures, ( err, [ api, key ] ) =>
@@ -504,31 +504,42 @@ class exports.KeyStatsTest extends ApiaxleTest
 
       limitModel = @app.model "apiLimits"
 
-      # key, qps, qpd
-      limitModel.apiHit "phil", 200, 1, ( err, [ qpsLeft, qpdLeft ] ) =>
+      # use up five of their hits, which should leave another five
+      hits_to_run = []
+      for i in [ 1..5 ]
+        hits_to_run.push ( cb ) ->
+          limitModel.apiHit "phil", 200, 10, cb
+
+      async.series hits_to_run, ( err, results ) =>
         @isNull err
 
-        @equal qpdLeft, 0
+        limits_model = @app.model "apiLimits"
+        redis_key_name = limits_model.qpdKey "phil"
+        limits_model.get redis_key_name, ( err, current_qpd ) =>
+          @equal current_qpd, 5
 
-        # now we try to update the qpd count so that this user gets
-        # more hits
-        options =
-          path: "/v1/key/phil"
-          headers:
-            "Content-Type": "application/json"
-          data: JSON.stringify
-            qpd: 100
+          # now we try to update the qpd count so that this user gets
+          # more hits
+          options =
+            path: "/v1/key/phil"
+            headers:
+              "Content-Type": "application/json"
+            data: JSON.stringify
+              qpd: 100
 
-        @PUT options, ( err, res ) =>
-          @isNull err
-
-          res.parseJson ( err, json ) =>
+          @PUT options, ( err, res ) =>
             @isNull err
 
-            # this should no longer error because we've updated the
-            # qpd via the API
-            limitModel.apiHit "phil", 200, 100, ( err, [ qpsLeft, qpdLeft ] ) =>
+            res.parseJson ( err, json ) =>
               @isNull err
-              @equal qpdLeft, 99
 
-              done 1
+              # this should no longer error because we've updated the
+              # qpd via the API
+              limitModel.apiHit "phil", 200, 100, ( err, [ qpsLeft, qpdLeft ] ) =>
+                @isNull err
+
+                # 100 - 1 because we've hit the api
+                # 99 - 5 because this user had already used 5 hits today
+                @equal qpdLeft, 94
+
+                done 1

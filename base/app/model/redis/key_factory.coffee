@@ -28,10 +28,15 @@ class Key extends Model
     limits_model.get redis_key_name, ( err, current_qpd ) =>
       return cb err if err
 
+      # string from redis
+      current_qpd = parseInt current_qpd
+
       # if the qpd changes we might need to take note
       if new_data.qpd isnt @data.qpd
-        all_actions.push ( cb ) ->
-          limits_model.updateQpValue redis_key_name, new_data.qpd, cb
+        all_actions.push ( cb ) =>
+          # now find out how many of their current qpd they've used.
+          used = ( @data.qpd - current_qpd )
+          limits_model.updateQpValue redis_key_name, ( new_data.qpd - used ), cb
 
       # run the original update
       all_actions.push ( cb ) =>
