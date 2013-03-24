@@ -245,62 +245,69 @@ class exports.KeyStatsTest extends ApiaxleTest
       apiFormat: "json"
 
     # we create the API
-    @fixtures.createApi "facebook", apiOptions, ( err ) =>
+    @fixtures.createApi "test_stats", apiOptions, ( err ) =>
       keyOptions =
-        forApis: [ "facebook" ]
+        forApis: [ "test_stats" ]
 
       @fixtures.createKey "1234", keyOptions, ( err ) ->
         done()
 
-  "test GET hits for Key": ( done ) ->
-    model = @app.model "hits"
-    hits  = []
-    # Wed, December 14th 2011, 20:01
-    clock = @getClock 1323892867000
-    hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
-    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
-    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+   "test GET seconds stats for Key": ( done ) ->
+     model = @app.model "stats"
+     hits  = []
+     # Wed, December 14th 2011, 20:01
+     now = (new Date).getTime()
+     now_seconds = Math.floor(now/1000)
+     clock = @getClock now
 
-    shouldHave =
-      meta:
-        version: 1
-        status_code: 200
-      results:
-        "1323892867": "3"
+     hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
+     hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
+     hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
 
-    async.parallel hits, ( err, results ) =>
-      @isNull err
-      @GET path: "/v1/key/1234/hits", ( err, res ) =>
-        @isNull err
+     async.parallel hits, ( err, results ) =>
+       @isNull err
+       @GET path: "/v1/key/1234/stats?granularity=seconds&from=#{now_seconds}", ( err, res ) =>
+         res.parseJson ( err, json ) =>
+           @isNull err
+           @ok json
 
-        res.parseJson ( err, json ) =>
-          @isNull err
-          @ok json
-          @deepEqual json, shouldHave
-          done 5
+           # A little bit complex as the ts may have shifted by 1
+           for code, result of json.results.uncached
+             @equal code, 200
+             for ts, count of result
+               @equal count, 1
+           for code, result of json.results.cached
+             @equal code, 400
+             for ts, count of result
+               @ok count > 0
+           done 7
 
-  "test GET real time hits for Key": ( done ) ->
-    model = @app.model "hits"
-    hits  = []
-    # Wed, December 14th 2011, 20:01
-    clock = @getClock 1323892867000
-    hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
-    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
-    hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
+   "test GET minutes stats for Key": ( done ) ->
+     model = @app.model "stats"
+     hits  = []
+     # Wed, December 14th 2011, 20:01
+     now = (new Date).getTime()
+     now_seconds = Math.floor(now/1000)
+     clock = @getClock now
 
-    shouldHave =
-      meta:
-        version: 1
-        status_code: 200
-      results: 3
+     hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
+     hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
+     hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
 
-    async.parallel hits, ( err, results ) =>
-      @isNull err
-      @GET path: "/v1/key/1234/hits/now", ( err, res ) =>
-        @isNull err
+     async.parallel hits, ( err, results ) =>
+       @isNull err
+       @GET path: "/v1/key/1234/stats?granularity=minutes&from=#{now_seconds}", ( err, res ) =>
+         res.parseJson ( err, json ) =>
+           @isNull err
+           @ok json
 
-        res.parseJson ( err, json ) =>
-          @isNull err
-          @ok json
-          @deepEqual json, shouldHave
-          done 5
+           # A little bit complex as the ts may have shifted by 1
+           for code, result of json.results.uncached
+             @equal code, 200
+             for ts, count of result
+               @equal count, 1
+           for code, result of json.results.cached
+             @equal code, 400
+             for ts, count of result
+               @ok count > 0
+           done 7
