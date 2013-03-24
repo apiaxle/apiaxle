@@ -127,7 +127,9 @@ class exports.Stats extends Redis
   hit: ( api, key, cached, code, cb ) ->
     db_keys = [
       [ "api", api, cached, code ],
-      [ "key", key, cached, code ]
+      [ "key", key, cached, code ],
+      [ "key-api", key, api, cached, code ],
+      [ "api-key", api, key, cached, code ],
     ]
 
     all = []
