@@ -178,6 +178,14 @@ class exports.ViewStatsForKey extends StatsController
   path: -> "/v1/key/:key/stats"
 
   execute: ( req, res, next ) ->
-    @getStatsRange req, "key", [ req.params.key ], ( err, results ) =>
+    axle_type      = "key"
+    redis_key_part = [ req.key.id ]
+
+    # narrow down to a particular key
+    if for_key = req.query.forapi
+      axle_type      = "key-api"
+      redis_key_part = [ req.key.id, for_key ]
+
+    @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
       return next err if err
       return @json res, results
