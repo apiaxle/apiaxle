@@ -246,7 +246,7 @@ class exports.ListApiKeys extends ListController
 class exports.ViewAllStatsForApi extends StatsController
   @verb = "get"
 
-  desc: -> "Get stats for a api"
+  desc: -> "Get stats for an api."
 
   docs: ->
     """

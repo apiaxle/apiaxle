@@ -160,7 +160,7 @@ class exports.ModifyKey extends ApiaxleController
 class exports.ViewStatsForKey extends StatsController
   @verb = "get"
 
-  desc: -> "Get stats for a key"
+  desc: -> "Get stats for a key."
 
   docs: ->
     """
