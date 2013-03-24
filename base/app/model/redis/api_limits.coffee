@@ -21,8 +21,7 @@ class exports.ApiLimits extends Redis
   setInitialQp: ( key, expires, qp, cb ) ->
     @setex key, expires, qp, ( err ) ->
       return cb err if err
-
-      cb null, qp
+      return cb null, qp
 
   apiHit: ( key, qpsLimit, qpdLimit, cb ) ->
     both = []
