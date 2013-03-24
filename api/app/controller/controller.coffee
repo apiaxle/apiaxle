@@ -8,6 +8,7 @@ async  = require "async"
   ApiNotFoundError,
   KeyringNotFoundError,
   InvalidContentType,
+  InvalidGranularityType,
   ApiUnknown,
   ApiKeyError } = require "../../lib/error"
 
@@ -179,28 +180,42 @@ class exports.StatsController extends exports.ApiaxleController
   to: ( req ) ->
     return ( req.query.to or ( new Date() ).getTime() / 1000 )
 
-  granularity: ( req ) ->
-    return ( req.query.granularity or "minutes" )
+  granularity: ( req, cb ) ->
+    # check if the user has set it
+    if gran_input = req.query.granularity
+      gran_details = @app.model( "stats" ).constructor.granularities
+      valid = _.keys gran_details
+
+      # is it in the range of valid entries?
+      if not ( gran_input in valid )
+        return cb new InvalidGranularityType "Valid granularities are #{ valid.join ', ' }"
+
+      return cb null, gran_input
+
+    # return the default
+    return cb null, "minutes"
 
   getStatsRange: ( req, axle_type, id, cb ) ->
     model = @app.model "stats"
     types = [ "uncached", "cached", "error" ]
 
-    granularity = @granularity req
     from        = @from req
     to          = @to req
 
-    all = []
-    _.each types, ( type ) =>
-      all.push ( cb ) =>
-        # axle_type probably one of "key" or "api" at the moment
-        model.get_all [ axle_type, id, type ], granularity, from, to, cb
-
-    async.series all, ( err, results ) =>
+    @granularity req, ( err, granularity ) =>
       return cb err if err
 
-      processed = {}
-      _.each types, ( type, idx ) ->
-        processed[type] = results[idx]
+      all = []
+      _.each types, ( type ) =>
+        all.push ( cb ) =>
+          # axle_type probably one of "key" or "api" at the moment
+          model.get_all [ axle_type, id, type ], granularity, from, to, cb
 
-      return cb null, processed
+      async.series all, ( err, results ) =>
+        return cb err if err
+
+        processed = {}
+        _.each types, ( type, idx ) ->
+          processed[type] = results[idx]
+
+        return cb null, processed

@@ -471,3 +471,18 @@ class exports.ApiStatsTest extends ApiaxleTest
              for ts, count of result
                @ok count > 0
            done 7
+
+   "test invalid granularity input": ( done ) ->
+     @GET path: "/v1/api/test_stats/stats?granularity=nanoparsecs", ( err, res ) =>
+      @isNull err
+
+      res.parseJson ( err, json ) =>
+        @isNull err
+        @ok error = json.results.error
+
+        @equal error.message, "Valid granularities are seconds, minutes"
+        @equal error.type, "InvalidGranularityType"
+        @equal res.statusCode, 400
+        @equal json.meta.status_code, 400
+
+        done 7
