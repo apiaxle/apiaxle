@@ -217,8 +217,8 @@ class exports.StatsController extends exports.ApiaxleController
     model = @app.model "stats"
     types = [ "uncached", "cached", "error" ]
 
-    from        = @from req
-    to          = @to req
+    from = @from req
+    to   = @to req
 
     @granularity req, ( err, granularity ) =>
       return cb err if err
