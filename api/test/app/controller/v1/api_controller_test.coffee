@@ -397,48 +397,51 @@ class exports.ApiControllerTest extends ApiaxleTest
 
           done 34
 
-# class exports.ApiStatsTest extends ApiaxleTest
-#   @start_webserver = true
-#   @empty_db_on_setup = true
-# 
-#   "setup api and key": ( done ) ->
-#     fixtures =
-#       api:
-#         facebook:
-#           endPoint: "graph.facebook.com"
-#           apiFormat: "json"
-#       key:
-#         1234: {}
-# 
-#     @fixtures.create fixtures, done
-# 
-#   "test GET hits for API": ( done ) ->
-#     model = @app.model "hits"
-#     hits  = []
-#     # Wed, December 14th 2011, 20:01
-#     clock = @getClock 1323892867000
-#     hits.push ( cb ) => model.hit "facebook", "1234", 200, cb
-#     hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
-#     hits.push ( cb ) => model.hit "facebook", "1234", 400, cb
-# 
-#     shouldHave =
-#       meta:
-#         version: 1
-#         status_code: 200
-#       results:
-#         "1323892867": "3"
-# 
-#     async.parallel hits, ( err, results ) =>
-#       @isNull err
-#       @GET path: "/v1/api/facebook/hits", ( err, res ) =>
-#         @isNull err
-# 
-#         res.parseJson ( err, json ) =>
-#           @isNull err
-#           @ok json
-#           @deepEqual json, shouldHave
-#           done 5
-# 
+class exports.ApiStatsTest extends ApiaxleTest
+  @start_webserver = true
+  @empty_db_on_setup = true
+
+  "setup api and key": ( done ) ->
+    fixtures =
+      api:
+        test_stats:
+          endPoint:  "graph.facebook.com"
+          apiFormat: "json"
+      key:
+        1234: {}
+
+    @fixtures.create fixtures, done
+
+   "test GET stats for API": ( done ) ->
+     model = @app.model "stats"
+     hits  = []
+     # Wed, December 14th 2011, 20:01
+     now = (new Date).getTime()
+     now_seconds = Math.floor(now/1000)
+     clock = @getClock now
+
+     hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
+     hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
+     hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
+
+     async.parallel hits, ( err, results ) =>
+       @isNull err
+       @GET path: "/v1/api/test_stats/stats?granularity=minutes&from=#{now_seconds}", ( err, res ) =>
+         res.parseJson ( err, json ) =>
+           @isNull err
+           @ok json
+
+           # A little bit complex as the ts may have shifted by 1
+           for code, result of json.results.uncached
+             @equal code, 200
+             for ts, count of result
+               @equal count, 1
+           for code, result of json.results.cached
+             @equal code, 400
+             for ts, count of result
+               @ok count > 0
+           done 7
+
 #   "test GET real time hits for API": ( done ) ->
 #     model = @app.model "hits"
 #     hits  = []
