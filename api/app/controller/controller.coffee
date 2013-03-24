@@ -213,7 +213,7 @@ class exports.StatsController extends exports.ApiaxleController
     # return the default
     return cb null, "minutes"
 
-  getStatsRange: ( req, axle_type, id, cb ) ->
+  getStatsRange: ( req, axle_type, key_parts, cb ) ->
     model = @app.model "stats"
     types = [ "uncached", "cached", "error" ]
 
@@ -226,8 +226,13 @@ class exports.StatsController extends exports.ApiaxleController
       all = []
       _.each types, ( type ) =>
         all.push ( cb ) =>
-          # axle_type probably one of "key" or "api" at the moment
-          model.getAll [ axle_type, id, type ], granularity, from, to, cb
+          # axle_type probably one of "key", "api", "api-key",
+          # "key-api" at the moment
+          redis_key = [ axle_type ]
+          redis_key = redis_key.concat key_parts
+          redis_key.push type
+
+          model.getAll redis_key, granularity, from, to, cb
 
       async.series all, ( err, results ) =>
         return cb err if err

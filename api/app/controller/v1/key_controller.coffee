@@ -178,6 +178,6 @@ class exports.ViewStatsForKey extends StatsController
   path: -> "/v1/key/:key/stats"
 
   execute: ( req, res, next ) ->
-    @getStatsRange req, "key", req.params.key, ( err, results ) =>
+    @getStatsRange req, "key", [ req.params.key ], ( err, results ) =>
       return next err if err
       return @json res, results

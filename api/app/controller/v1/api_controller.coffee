@@ -264,6 +264,6 @@ class exports.ViewAllStatsForApi extends StatsController
   path: -> "/v1/api/:api/stats"
 
   execute: ( req, res, next ) ->
-    @getStatsRange req, "api", req.params.api, ( err, results ) =>
+    @getStatsRange req, "api", [ req.params.api ], ( err, results ) =>
       return next err if err
       return @json res, results
