@@ -53,7 +53,7 @@ class exports.Stats extends Redis
     multi.exec cb
 
   # Get all response codes for a particular stats entry
-  get_all: (db_key, gran, from, to, cb) ->
+  getAll: (db_key, gran, from, to, cb) ->
     @getPossibleResponseTypes db_key, (err, codes) =>
       all = []
       _.each codes, ( code ) =>

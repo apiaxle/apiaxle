@@ -227,7 +227,7 @@ class exports.StatsController extends exports.ApiaxleController
       _.each types, ( type ) =>
         all.push ( cb ) =>
           # axle_type probably one of "key" or "api" at the moment
-          model.get_all [ axle_type, id, type ], granularity, from, to, cb
+          model.getAll [ axle_type, id, type ], granularity, from, to, cb
 
       async.series all, ( err, results ) =>
         return cb err if err
