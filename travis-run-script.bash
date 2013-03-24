@@ -18,9 +18,6 @@ function silence-or-loud-on-error {
 for project in base api proxy repl; do
   pushd ${project}
 
-  echo "Installing modules..."
-  silence-or-loud-on-error npm install
-
   # we want to run the development base, not the one in npm!
   if [[ ${project} != "base" ]]; then
     echo "Linking base..."
@@ -31,6 +28,9 @@ for project in base api proxy repl; do
     echo "Linking api..."
     silence-or-loud-on-error npm link ../api
   fi
+
+  echo "Installing modules..."
+  silence-or-loud-on-error npm install
 
   TESTS=$(find test -name '*test.js')
 
