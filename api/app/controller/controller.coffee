@@ -174,12 +174,6 @@ class exports.ListController extends exports.ApiaxleController
         @json res, results
 
 class exports.StatsController extends exports.ApiaxleController
-  constructor: ( args... ) ->
-    super args...
-
-    gran_details = @app.model( "stats" ).constructor.granularities
-    @valid_granularities = _.keys gran_details
-
   paramDocs: ( ) ->
     """
     ### Supported query params
@@ -201,6 +195,11 @@ class exports.StatsController extends exports.ApiaxleController
     return ( req.query.to or ( new Date() ).getTime() / 1000 )
 
   granularity: ( req, cb ) ->
+    # memoize the valid granularities
+    if not @valid_granularities
+      gran_details = @app.model( "stats" ).constructor.granularities
+      @valid_granularities = _.keys gran_details
+
     # check if the user has set it
     if gran_input = req.query.granularity
       # is it in the range of valid entries?
@@ -231,6 +230,8 @@ class exports.StatsController extends exports.ApiaxleController
           redis_key = [ axle_type ]
           redis_key = redis_key.concat key_parts
           redis_key.push type
+
+          console.log( redis_key )
 
           model.getAll redis_key, granularity, from, to, cb
 
