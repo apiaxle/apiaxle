@@ -165,9 +165,9 @@ class exports.ViewStatsForKey extends StatsController
 
     ### Returns
 
-    * Object where the keys represent the HTTP status code of the
-      endpoint or the error returned by apiaxle (QpsExceededError, for
-      example). Each object contains timestamp to hit count pairs.
+    * Object where the keys represent the cache status (cached, uncached or
+      error), each containing an object with response codes or error name,
+      these in turn contain objects with timestamp:count
     """
 
   middleware: -> [ @mwKeyDetails( @app ) ]
