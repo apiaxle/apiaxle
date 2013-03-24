@@ -1,5 +1,6 @@
 moment = require "moment"
 _      = require "underscore"
+async  = require "async"
 
 { Controller } = require "apiaxle-base"
 
@@ -30,7 +31,7 @@ class exports.ApiaxleController extends Controller
     # hash
     multi = model.multi()
     for result in keys
-      multi.hgetall result 
+      multi.hgetall result
 
     final = {}
 
@@ -170,3 +171,36 @@ class exports.ListController extends exports.ApiaxleController
         return next err if err
 
         @json res, results
+
+class exports.StatsController extends exports.ApiaxleController
+  from: ( req ) ->
+    return ( req.query.from or ( ( new Date() ).getTime() / 1000 ) - 600 )
+
+  to: ( req ) ->
+    return ( req.query.to or ( new Date() ).getTime() / 1000 )
+
+  granularity: ( req ) ->
+    return ( req.query.granularity or "minutes" )
+
+  getStatsRange: ( req, axle_type, id, cb ) ->
+    model = @app.model "stats"
+    types = [ "uncached", "cached", "error" ]
+
+    granularity = @granularity req
+    from        = @from req
+    to          = @to req
+
+    all = []
+    _.each types, ( type ) =>
+      all.push ( cb ) =>
+        # axle_type probably one of "key" or "api" at the moment
+        model.get_all [ axle_type, id, type ], granularity, from, to, cb
+
+    async.series all, ( err, results ) =>
+      return cb err if err
+
+      processed = {}
+      _.each types, ( type, idx ) ->
+        processed[type] = results[idx]
+
+      return cb null, processed

@@ -1,7 +1,10 @@
 _ = require "underscore"
 async = require "async"
 
-{ ApiaxleController, ListController, CreateController } = require "../controller"
+{ StatsController,
+  ApiaxleController,
+  ListController } = require "../controller"
+
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
 
 class exports.ListKeys extends ListController
@@ -154,7 +157,7 @@ class exports.ModifyKey extends ApiaxleController
       @json res, newKey.json
 
 
-class exports.ViewStatsForKey extends ApiaxleController
+class exports.ViewStatsForKey extends StatsController
   @verb = "get"
 
   desc: -> "Get stats for a key"
@@ -173,22 +176,6 @@ class exports.ViewStatsForKey extends ApiaxleController
   path: -> "/v1/key/:key/stats"
 
   execute: ( req, res, next ) ->
-    model = @app.model "stats"
-    key   = req.params.key
-    from  = req.query["from"]
-    to    = req.query["to"]
-    gran  = req.query["granularity"]
-
-    types = ["uncached", "cached", "error"]
-
-    all = []
-    _.each types, (type) =>
-      all.push (cb) =>
-        model.get_all ["key", key, type ], gran, from, to, cb
-
-    async.series all, (err, results) =>
-      processed = {}
-      _.each types, (type, idx) =>
-        processed[type] = results[idx]
-
-      return @json res, processed
+    @getStatsRange req, "key", req.params.key, ( err, results ) =>
+      return next err if err
+      return @json res, results

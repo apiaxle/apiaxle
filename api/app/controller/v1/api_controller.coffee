@@ -1,7 +1,9 @@
 _ = require "underscore"
 async = require "async"
 
-{ ApiaxleController, ListController } = require "../controller"
+{ StatsController,
+  ApiaxleController,
+  ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
 class exports.UnlinkKeyToApi extends ApiaxleController
@@ -260,22 +262,6 @@ class exports.ViewAllStatsForApi extends ApiaxleController
   path: -> "/v1/api/:api/stats"
 
   execute: ( req, res, next ) ->
-    model = @app.model "stats"
-    api   = req.params.api
-    from  = req.query["from"]
-    to    = req.query["to"]
-    gran  = req.query["granularity"]
-
-    types = ["uncached", "cached", "error"]
-
-    all = []
-    _.each types, (type) =>
-      all.push (cb) =>
-        model.get_all ["api", api, type ], gran, from, to, cb
-
-    async.series all, (err, results) =>
-      processed = {}
-      _.each types, (type, idx) =>
-        processed[type] = results[idx]
-
-      return @json res, processed
+    @getStatsRange req, "api", req.params.api, ( err, results ) =>
+      return next err if err
+      return @json res, results
