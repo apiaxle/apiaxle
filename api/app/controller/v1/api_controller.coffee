@@ -243,7 +243,7 @@ class exports.ListApiKeys extends ListController
         return @json res, results
 
 
-class exports.ViewAllStatsForApi extends ApiaxleController
+class exports.ViewAllStatsForApi extends StatsController
   @verb = "get"
 
   desc: -> "Get stats for a api"
