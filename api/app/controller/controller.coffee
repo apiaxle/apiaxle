@@ -174,6 +174,26 @@ class exports.ListController extends exports.ApiaxleController
         @json res, results
 
 class exports.StatsController extends exports.ApiaxleController
+  constructor: ( args... ) ->
+    super args...
+
+    gran_details = @app.model( "stats" ).constructor.granularities
+    @valid_granularities = _.keys gran_details
+
+  paramDocs: ( ) ->
+    """
+    ### Supported query params
+
+    * from: Integer representing the unix epoch from which to start
+      gathering the statistics. Defaults to `now - 10 minutes`.
+    * to: Integer representing the unix epoch from which to finish
+      gathering the statistics. Defaults to `now`.
+    * granularity: One of #{ @valid_granularities.join ', ' }. Allows
+      you to gather statistics tuned to this level of
+      granularity. Results will still arrive in the form of an epoch
+      to results pair but will be rounded off to the nearest unit.
+    """
+
   from: ( req ) ->
     return ( req.query.from or ( ( new Date() ).getTime() / 1000 ) - 600 )
 
@@ -183,12 +203,10 @@ class exports.StatsController extends exports.ApiaxleController
   granularity: ( req, cb ) ->
     # check if the user has set it
     if gran_input = req.query.granularity
-      gran_details = @app.model( "stats" ).constructor.granularities
-      valid = _.keys gran_details
-
       # is it in the range of valid entries?
-      if not ( gran_input in valid )
-        return cb new InvalidGranularityType "Valid granularities are #{ valid.join ', ' }"
+      if not ( gran_input in @valid_granularities )
+        msg = "Valid granularities are #{ @valid_granularities.join ', ' }"
+        return cb new InvalidGranularityType msg
 
       return cb null, gran_input
 

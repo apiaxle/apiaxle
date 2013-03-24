@@ -250,6 +250,8 @@ class exports.ViewAllStatsForApi extends StatsController
 
   docs: ->
     """
+    #{ @paramDocs() }
+
     ### Returns
 
     * Object where the keys represent the HTTP status code of the
