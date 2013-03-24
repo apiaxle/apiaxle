@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-
 export NODE_ENV=test
 export MY_TWERP_OPTIONS="--exit-on-failure --runner=simple"
 
@@ -11,6 +9,7 @@ function silence-or-loud-on-error {
 
   if [[ ${?} != 0 ]]; then
     echo "${output}"
+    exit ${?}
   fi
 }
 
