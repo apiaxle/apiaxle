@@ -135,4 +135,4 @@ class exports.Stats extends Redis
       do( db_key ) =>
         all.push ( cb ) => @recordHit db_key, cb
 
-    return async.series all, cb
+    return async.parallel all, cb
