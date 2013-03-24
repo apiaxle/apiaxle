@@ -32,16 +32,16 @@ class exports.Stats extends Redis
     return Math.floor(ts_seconds / factor) * factor
 
   getPossibleResponseTypes: ( db_key, cb ) ->
-    return @smembers [ db_key[0], db_key[1], db_key[2], "response-types" ], cb
+    return @smembers db_key.concat( "response-types" ), cb
 
-  recordHit: ( db_key, cb ) ->
+  recordHit: ( [ db_key..., axle_type ], cb ) ->
     multi = @multi()
-    multi.sadd [ db_key[0], db_key[1], db_key[2], "response-types" ], db_key[3]
+    multi.sadd db_key.concat( "response-types" ), axle_type
 
     for gran, properties of Stats.granularities
       tsround = @getRoundedTimestamp null, properties.size
 
-      temp_key = _.clone db_key
+      temp_key = db_key.concat axle_type
       temp_key.push gran
       temp_key.push tsround
 

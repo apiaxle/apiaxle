@@ -264,6 +264,14 @@ class exports.ViewAllStatsForApi extends StatsController
   path: -> "/v1/api/:api/stats"
 
   execute: ( req, res, next ) ->
-    @getStatsRange req, "api", [ req.params.api ], ( err, results ) =>
+    axle_type      = "api"
+    redis_key_part = [ req.api.id ]
+
+    # narrow down to a particular api
+    if for_key = req.query.forkey
+      axle_type      = "api-key"
+      redis_key_part = [ req.api.id, for_key ]
+
+    @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
       return next err if err
       return @json res, results

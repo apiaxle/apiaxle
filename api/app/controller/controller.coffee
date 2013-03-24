@@ -231,8 +231,6 @@ class exports.StatsController extends exports.ApiaxleController
           redis_key = redis_key.concat key_parts
           redis_key.push type
 
-          console.log( redis_key )
-
           model.getAll redis_key, granularity, from, to, cb
 
       async.series all, ( err, results ) =>
