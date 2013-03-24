@@ -251,6 +251,7 @@ class exports.ViewAllStatsForApi extends StatsController
   docs: ->
     """
     #{ @paramDocs() }
+    * forkey: Narrow results down to all statistics for the specified key.
 
     ### Returns
 
