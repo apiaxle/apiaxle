@@ -153,50 +153,6 @@ class exports.ModifyKey extends ApiaxleController
 
       @json res, newKey.json
 
-class exports.ViewHitsForKey extends ApiaxleController
-  @verb = "get"
-
-  desc: -> "Get hits for a key in the past minute."
-
-  docs: ->
-    """
-    ### Returns
-
-    * Object where the keys represent timestamp for a given second
-      and the values the amount of hits to the Key for that second
-    """
-
-  middleware: -> [ @mwKeyDetails( @app ) ]
-
-  path: -> "/v1/key/:key/hits"
-
-  execute: ( req, res, next ) ->
-    model = @app.model "hits"
-    model.getCurrentMinute "key", req.params.key, ( err, hits ) =>
-      return @json res, hits
-
-
-class exports.ViewHitsForKeyNow extends ApiaxleController
-  @verb = "get"
-
-  desc: -> "Get the real time hits for a key."
-
-  docs: ->
-    """
-    ### Returns
-
-    * Integer, the number of hits to the Key this second.
-      Designed light weight real time statistics
-    """
-
-  middleware: -> [ @mwKeyDetails( @app ) ]
-
-  path: -> "/v1/key/:key/hits/now"
-
-  execute: ( req, res, next ) ->
-    model = @app.model "hits"
-    model.getRealTime "key", req.params.key, ( err, hits ) =>
-      return @json res, hits
 
 class exports.ViewStatsForKey extends ApiaxleController
   @verb = "get"
