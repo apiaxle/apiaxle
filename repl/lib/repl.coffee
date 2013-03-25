@@ -19,7 +19,11 @@ class exports.ReplHelper
     info: Info
 
   help: ->
-    "Available commands are: #{ _.keys( @constructor.all_commands ).join ', ' }"
+    """
+    Available commands are: #{ _.keys( @constructor.all_commands ).join ', ' }
+
+    For specific help on a command try 'help <command>'.
+    """
 
   constructor: ( @app ) ->
 

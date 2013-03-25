@@ -3,8 +3,8 @@
 class exports.Apis extends Command
   @modelName = "apiFactory"
 
-  help: ->
-    """Returns a list of APIs. Fieds supported are:
+  help: ( cb ) ->
+    return cb null, """Returns a list of APIs. Fieds supported are:
 
      * from=<int> - count
      * to=<int>
