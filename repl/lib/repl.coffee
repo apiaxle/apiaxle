@@ -36,7 +36,14 @@ class exports.ReplHelper
 
     # quit/exit are slightly magic
     return if command in [ "quit", "exit" ]
-    return cb null, @help() if command is "help"
+
+    if command is "help"
+      if subcommand = commands.shift()
+        # init the class
+        command_object = new @constructor.all_commands[ subcommand ]( @app )
+        return command_object.help cb
+
+      return cb null, @help()
 
     if not @constructor.all_commands[ command ]?
       return cb new Error "I don't know about '#{ command }'. Try 'help' instead."
