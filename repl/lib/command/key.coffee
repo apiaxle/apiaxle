@@ -19,6 +19,8 @@ class exports.Key extends Command
         ## valid options for creation/updating:
 
         #{ @app.model( @constructor.modelName ).getValidationDocs() }
+
+        See the API documentation for more: http://apiaxle.com/api.html
         """
 
   delete: ( id, commnads, keypairs, cb ) ->
