@@ -22,3 +22,6 @@ class exports.Key extends Command
 
   show: ( id, commnads, keypairs, cb ) ->
     @callApi "GET", path: "/v1/key/#{ id }", cb
+
+  stats: ( id, commands, keypairs, cb ) ->
+    @callApi "GET", path: "/v1/key/#{ id }/stats", cb
