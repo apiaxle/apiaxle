@@ -3,6 +3,24 @@
 class exports.Api extends Command
   @modelName = "apiFactory"
 
+  help: ( cb ) ->
+    super ( err, help ) =>
+      return cb null, help + """\n
+        ## Examples:
+
+        To create an API:
+
+            axle> api "twitter" create endPoint="api.twitter.com"
+
+        To delete an API:
+
+            axle> api "twitter" delete
+
+        ## valid options for creation/updating:
+
+        #{ @app.model( @constructor.modelName ).getValidationDocs() }
+        """
+
   unlinkkey: ( id, commands, keypairs, cb ) ->
     if not key = commands.shift()
       return cb new Error "Please provide a key name to link to #{ id }."

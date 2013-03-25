@@ -60,7 +60,12 @@ class exports.ReplHelper
 
   topLevelInput: ( err, info ) =>
     console.log "Error: #{ err.message }" if err
-    console.log util.inspect( info, false, null ) if info
+
+    if info
+      if typeof info is "string"
+        console.log info
+      else
+        console.log util.inspect( info, false, null ) if info
 
     @rl.question "axle> ", ( entry ) =>
       return @topLevelInput() if /^\s*$/.exec entry
