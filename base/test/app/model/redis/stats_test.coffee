@@ -59,16 +59,15 @@ class exports.StatsTest extends FakeAppTest
 
     all = []
     all.push (cb) =>
-      clock = @getClock now
+      clock.set now
       @model.recordHit ["key","1234", "200"], cb
+
+    # jump into the next hour
     all.push (cb) =>
-      # Jump into the next hour
-      clock = @getClock next
+      clock.set next
       @model.recordHit ["key","1234", "200"], cb
 
     async.series all, (err, result) =>
-      # bring the clock back
-      clock = @getClock(now)
       @isNull err
       from = now_seconds - 3
       to   = next_seconds + 1

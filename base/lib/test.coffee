@@ -28,6 +28,14 @@ class Clock
   tick: ( time ) ->
     @sinonClock.tick time
 
+  set: ( to_ms ) ->
+    current = ( new Date() ).getTime()
+
+    if to_ms > current
+      @tick to_ms - current
+    else
+      @tick current - to_ms
+
   _addTime: ( modifier, number=1 ) ->
     now = new Date()
     thenTime = now.getTime()
