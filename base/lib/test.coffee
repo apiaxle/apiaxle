@@ -19,7 +19,7 @@ extend = ( obj, mixin ) ->
   obj[ name ] = method for name, method of mixin
   return obj
 
-include = (klass, mixin) ->
+include = ( klass, mixin ) ->
   return extend klass.prototype, mixin
 
 class Clock

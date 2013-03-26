@@ -29,7 +29,7 @@ class exports.Stats extends Redis
     return Math.floor( ts / precision ) * precision
 
   getFactoredTimestamp: ( ts_seconds=@getSecondsTimestamp(), factor ) ->
-    return Math.floor(ts_seconds / factor) * factor
+    return Math.floor( ts_seconds / factor ) * factor
 
   getPossibleResponseTypes: ( db_key, cb ) ->
     return @smembers db_key.concat( "response-types" ), cb
@@ -53,8 +53,8 @@ class exports.Stats extends Redis
     multi.exec cb
 
   # Get all response codes for a particular stats entry
-  getAll: (db_key, gran, from, to, cb) ->
-    @getPossibleResponseTypes db_key, (err, codes) =>
+  getAll: ( db_key, gran, from, to, cb ) ->
+    @getPossibleResponseTypes db_key, ( err, codes ) =>
       all = []
       _.each codes, ( code ) =>
         all.push ( cb ) =>
@@ -62,7 +62,7 @@ class exports.Stats extends Redis
           temp_key.push code
           @get temp_key, gran, from, to, cb
 
-      async.series all, (err, res) =>
+      async.series all, ( err, res ) =>
         results = {}
 
         for code, idx in codes
@@ -72,15 +72,15 @@ class exports.Stats extends Redis
 
   # Get a single response code for a key or api stat
   # from, to should be int, seconds
-  get: ( db_key, gran, from, to, cb) ->
+  get: ( db_key, gran, from, to, cb ) ->
     # TODO: fetch codes from redis
     properties = Stats.granularities[gran]
 
     if not properties
       return cb new Error "Invalid granularity"
 
-    from = @getFactoredTimestamp(from, properties.factor)
-    to   = @getFactoredTimestamp(to, properties.factor)
+    from = @getFactoredTimestamp( from, properties.factor )
+    to   = @getFactoredTimestamp( to, properties.factor )
 
     # Check if in range
     if from > to or from < @getMinFrom gran
