@@ -40,12 +40,12 @@ class exports.StatsTest extends FakeAppTest
 
       @model.get ["key", "1234", "cached", "200"], "seconds", from, null, ( err, result ) =>
         @isNull err
-        @equal result[now_seconds],1
-        @equal result[now_seconds + 1],0
-        @equal result[now_seconds + 120 + 2 ],1
+        @equal result[now_seconds], 1
+        @equal result[now_seconds + 1], 0
+        @equal result[now_seconds + 120 + 2 ], 1
         @model.get ["key", "1234", "cached", "200"], "minutes", from, null, ( err, result ) =>
           time = Math.floor( now_seconds/ 60 ) * 60
-          @equal result[time+120],1
+          @equal result[time + 120], 1
 
           done 6
 
@@ -53,7 +53,7 @@ class exports.StatsTest extends FakeAppTest
   "test #get rolling period": ( done ) ->
     clock = @getClock()
     now  = ( new Date() ).getTime()
-    next = now + ( 3600+1 )*1000
+    next = now + ( 3600 + 1 ) * 1000
     now_seconds = Math.floor( now/1000 )
     next_seconds = Math.floor( next/1000 )
 
@@ -83,10 +83,10 @@ class exports.StatsTest extends FakeAppTest
     all = []
 
     all.push ( cb ) =>
-      @model.get ["key", "1234", "cached", "200"], "seconds", from, from-1000, cb
+      @model.get ["key", "1234", "cached", "200"], "seconds", from, from - 1000, cb
 
     all.push ( cb ) =>
-      @model.get ["key", "1234", "cached", "200"], "seconds", from-( 1000 * 3720 ), from+1000, cb
+      @model.get ["key", "1234", "cached", "200"], "seconds", from - ( 1000 * 3720 ), from + 1000, cb
 
     async.series all, ( err, result ) =>
       @isNotNull err
