@@ -69,7 +69,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal dbKey.data.qpd, "100"
           @ok dbKey.data.createdAt
 
-          @app.model("apiFactory").find "twitter", ( err, api ) =>
+          @app.model( "apiFactory" ).find "twitter", ( err, api ) =>
             @isNull err
             @ok api
 
@@ -258,8 +258,8 @@ class exports.KeyStatsTest extends ApiaxleTest
      model = @app.model "stats"
      hits  = []
      # Wed, December 14th 2011, 20:01
-     now = (new Date).getTime()
-     now_seconds = Math.floor(now/1000)
+     now = ( new Date ).getTime()
+     now_seconds = Math.floor( now/1000 )
      clock = @getClock now
 
      hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
@@ -288,8 +288,8 @@ class exports.KeyStatsTest extends ApiaxleTest
      model = @app.model "stats"
      hits  = []
      # Wed, December 14th 2011, 20:01
-     now = (new Date).getTime()
-     now_seconds = Math.floor(now/1000)
+     now = ( new Date ).getTime()
+     now_seconds = Math.floor( now/1000 )
      clock = @getClock now
 
      hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb

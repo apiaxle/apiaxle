@@ -119,8 +119,8 @@ class exports.ApiaxleController extends Controller
   # Stats are keyed by stat_type ('api' or 'key') and day
   # Returns a Redis multi
   getStatsRange: ( multi, stat_type, stat_key, response_type, from_date, to_date ) ->
-    from  = moment(from_date)
-    to    = moment(to_date)
+    from  = moment( from_date )
+    to    = moment( to_date )
     days  = to.diff from, "days"
 
     for i in [0..days]
@@ -131,8 +131,8 @@ class exports.ApiaxleController extends Controller
     return multi
 
   combineStatsRange: ( results, from_date, to_date ) ->
-    from  = moment(from_date)
-    to    = moment(to_date)
+    from  = moment( from_date )
+    to    = moment( to_date )
     days  = to.diff from, "days"
 
     processed_results = []

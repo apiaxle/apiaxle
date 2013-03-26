@@ -416,8 +416,8 @@ class exports.ApiStatsTest extends ApiaxleTest
      model = @app.model "stats"
      hits  = []
      # Wed, December 14th 2011, 20:01
-     now = (new Date).getTime()
-     now_seconds = Math.floor(now/1000)
+     now = ( new Date ).getTime()
+     now_seconds = Math.floor( now/1000 )
      clock = @getClock now
 
      hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
@@ -446,8 +446,8 @@ class exports.ApiStatsTest extends ApiaxleTest
      model = @app.model "stats"
      hits  = []
      # Wed, December 14th 2011, 20:01
-     now = (new Date).getTime()
-     now_seconds = Math.floor(now/1000)
+     now = ( new Date ).getTime()
+     now_seconds = Math.floor( now/1000 )
      clock = @getClock now
 
      hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
