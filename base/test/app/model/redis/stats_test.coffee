@@ -47,7 +47,7 @@ class exports.StatsTest extends FakeAppTest
           time = Math.floor(now_seconds/ 60) * 60
           @equal result[time+120],1
 
-          done 4
+          done 6
 
   # Ensure we get a senible response when rolling across minute boundary
   "test #get rolling period": (done) ->
@@ -76,7 +76,7 @@ class exports.StatsTest extends FakeAppTest
         @isNull err
         @equal result[now_seconds],1
         @equal result[next_seconds],1
-        done(4)
+        done 4
 
   "test #Invalid time range": (done) ->
     from  = (new Date()).getTime()
@@ -90,4 +90,4 @@ class exports.StatsTest extends FakeAppTest
 
     async.series all, (err, result) =>
       @isNotNull err
-      done(3)
+      done 1
