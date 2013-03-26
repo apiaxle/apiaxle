@@ -1,3 +1,4 @@
+url    = require "url"
 async  = require "async"
 libxml = require "libxmljs"
 
@@ -6,6 +7,94 @@ libxml = require "libxmljs"
 class exports.CatchallTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
+
+  "test disabled API causes error": ( done ) ->
+    fixture =
+      api:
+        programmes:
+          endPoint: "bbc.co.uk"
+          defaultPath: "/tv/programmes"
+          disabled: true
+      key:
+        phil:
+          forApis: [ "programmes" ]
+
+    @fixtures.create fixture, ( err, [ api, key ] ) =>
+      @isNull err
+
+      requestOptions =
+        path: "/?api_key=phil"
+        host: "programmes.api.localhost"
+
+      @stubDns { "programmes.api.localhost": "127.0.0.1" }
+      @GET requestOptions, ( err, response ) =>
+        @isNull err
+        @equal response.statusCode, 400
+
+        response.parseJson ( err, json ) =>
+          @ok error = json.results.error
+          @equal error.type, "ApiDisabled"
+          @equal error.message, "This API has been disabled."
+
+          done 6
+
+  "test disabled Key causes error": ( done ) ->
+    fixture =
+      api:
+        programmes:
+          endPoint: "bbc.co.uk"
+          defaultPath: "/tv/programmes"
+      key:
+        phil:
+          forApis: [ "programmes" ]
+          disabled: true
+
+    @fixtures.create fixture, ( err, [ api, key ] ) =>
+      @isNull err
+
+      requestOptions =
+        path: "/?api_key=phil"
+        host: "programmes.api.localhost"
+
+      @stubDns { "programmes.api.localhost": "127.0.0.1" }
+      @GET requestOptions, ( err, response ) =>
+        @isNull err
+        @equal response.statusCode, 401
+
+        response.parseJson ( err, json ) =>
+          @ok error = json.results.error
+          @equal error.type, "KeyDisabled"
+          @equal error.message, "This API key has been disabled."
+
+          done 6
+
+  "test defaultPath functionality": ( done ) ->
+    fixture =
+      api:
+        programmes:
+          endPoint: "bbc.co.uk"
+          defaultPath: "/tv/programmes"
+      key:
+        phil:
+          forApis: [ "programmes" ]
+
+    @fixtures.create fixture, ( err, [ api, key ] ) =>
+      @isNull err
+
+      stub = @stubCatchall ( options, api, key, cb ) =>
+        { path, query } = url.parse options.url
+        @equal path, "/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json?"
+        @fakeIncomingMessage 200, {}, {}, cb
+
+      requestOptions =
+        path: "/genres/drama/scifiandfantasy/schedules/upcoming.json?api_key=phil"
+        host: "programmes.api.localhost"
+
+      @stubDns { "programmes.api.localhost": "127.0.0.1" }
+      @GET requestOptions, ( err, response ) =>
+        @isNull err
+
+        done 3
 
   "test POST,GET,PUT and DELETE with no subdomain": ( done ) ->
     all = []
@@ -35,7 +124,7 @@ class exports.CatchallTest extends ApiaxleTest
               cb()
 
     async.parallel all, ( err, results ) =>
-      @isNull err
+      @isUndefined err
       @equal results.length, 4
 
       done 34
@@ -68,7 +157,7 @@ class exports.CatchallTest extends ApiaxleTest
               cb()
 
     async.series all, ( err, results ) =>
-      @isNull err
+      @isUndefined err
       @equal results.length, 4
 
       done 26
@@ -132,7 +221,7 @@ class exports.CatchallTest extends ApiaxleTest
           one: 1
           two: 2
 
-        stub = @stubCatchall 200, data,
+        stub = @stubCatchallSimple 200, data,
           "Content-Type": "application/json"
 
         requestOptions =
@@ -174,7 +263,7 @@ class exports.CatchallTest extends ApiaxleTest
         data = JSON.stringify
           one: 1
 
-        @stubCatchall 200, data,
+        @stubCatchallSimple 200, data,
           "Content-Type": "application/json"
 
         requestOptions =
@@ -211,7 +300,7 @@ class exports.CatchallTest extends ApiaxleTest
         data = JSON.stringify
           one: 1
 
-        @stubCatchall 200, data,
+        @stubCatchallSimple 200, data,
           "Content-Type": "application/json"
 
         requestOptions =

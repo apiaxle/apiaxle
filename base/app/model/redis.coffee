@@ -24,14 +24,16 @@ class Redis
     return @constructor.__super__.create.apply @, [ id, details, cb ]
 
   update: ( id, details, cb ) ->
-    @find id, ( err, dbObj ) ->
+    @find id, ( err, dbObj ) =>
       if not dbObj
         return cb new Error "Failed to update, can't find '#{ id }'."
 
       # merge the new and old details
       merged_data = _.extend dbObj.data, details
 
-      @create id, merged_data, cb
+      @create id, merged_data, ( err ) =>
+        return cb err if err
+        return cb null, merged_data, dbObj.data, cb
 
   delete: ( id, cb ) ->
     @find id, ( err, dbObj ) =>
@@ -113,6 +115,9 @@ class Redis
         if suggested_type and suggested_type is "integer"
           details[ key ] = parseInt( val )
 
+        if suggested_type and suggested_type is "boolean"
+          details[ key ] = ( val is "true" )
+
       if @constructor.returns?
         return cb null, new @constructor.returns @app, id, details
 
@@ -164,6 +169,9 @@ class RedisMulti extends redis.Multi
 class Model extends Redis
   constructor: ( @app, @id, @data ) ->
     super @app
+
+  update: ( data, cb ) ->
+    @app.model( @constructor.factory ).update @id, data, cb
 
 # Used to extend something that can 'hold' keys (like an API or a
 # keyring).

@@ -90,6 +90,8 @@ class exports.KeyControllerTest extends ApiaxleTest
         qpd: 100
 
     @POST options, ( err, res ) =>
+      @isNull err
+
       res.parseJson ( err, json ) =>
         @isNull err
         @ok json.results.error

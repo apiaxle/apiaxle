@@ -2,7 +2,7 @@ url = require "url"
 crypto = require "crypto"
 request = require "request"
 
-{ TimeoutError } = require "../../lib/error"
+{ KeyDisabled, ApiDisabled, TimeoutError } = require "../../lib/error"
 { ApiaxleController } = require "./controller"
 
 class CatchAll extends ApiaxleController
@@ -112,6 +112,7 @@ class CatchAll extends ApiaxleController
   _httpRequest: ( options, api, api_key, cb) ->
     statsModel   = @app.model "stats"
 
+    @app.logger.debug "#{ @constructor.verb }'ing '#{ options.url }'"
     request[ @constructor.verb ] options, ( err, apiRes, body ) =>
       if err
         # if we timeout then throw an error
@@ -128,6 +129,12 @@ class CatchAll extends ApiaxleController
           return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
+    if req.api.isDisabled()
+      return next new ApiDisabled "This API has been disabled."
+
+    if req.key.isDisabled()
+      return next new KeyDisabled "This API key has been disabled."
+
     { pathname, query } = url.parse req.url, true
 
     # we should make this optional
@@ -156,7 +163,17 @@ class CatchAll extends ApiaxleController
       headers = req.headers
       delete headers.host
 
-      endpointUrl = "#{ req.api.data.protocol }://#{ req.api.data.endPoint }#{ pathname }"
+      endpointUrl = "#{ req.api.data.protocol }://#{ req.api.data.endPoint }"
+
+      # here we support a default path for the request. This makes
+      # sense with people like the BBC who have many APIs all sitting
+      # on the one domain.
+      if ( defaultPath = req.api.data.defaultPath )
+        endpointUrl += defaultPath
+
+      # the bit of the path that was actually requested
+      endpointUrl += pathname
+
       if query
         endpointUrl += "?"
         newStrings = ( "#{ key }=#{ value }" for key, value of query )

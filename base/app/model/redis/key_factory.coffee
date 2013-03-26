@@ -5,6 +5,8 @@ async = require "async"
 { ValidationError } = require "../../../lib/error"
 
 class Key extends Model
+  @factory = "keyFactory"
+
   linkToApi: ( apiName, cb ) -> @hset "#{ @id }-apis", apiName, 1, cb
   supportedApis: ( cb ) -> @hkeys "#{ @id }-apis", cb
   unlinkFromApi: ( apiName, cb ) -> @hdel "#{ @id }-apis", apiName, cb
@@ -12,6 +14,35 @@ class Key extends Model
   linkToKeyring: ( krName, cb ) -> @hset "#{ @id }-keyrings", krName, 1, cb
   supportedKeyrings: ( cb ) -> @hkeys "#{ @id }-keyrings", cb
   unlinkFromKeyring: ( krName, cb ) -> @hdel "#{ @id }-keyrings", krName, cb
+
+  isDisabled: ( ) -> @data.disabled
+
+  update: ( new_data, cb ) ->
+    # if someone has upped the qpd then we need to take account as
+    # their current qpd counter might be at a value below what they
+    # would now be allowed
+    limits_model = @app.model "apiLimits"
+    redis_key_name = limits_model.qpdKey @id
+
+    all_actions = []
+    limits_model.get redis_key_name, ( err, current_qpd ) =>
+      return cb err if err
+
+      # string from redis
+      current_qpd = parseInt current_qpd
+
+      # if the qpd changes we might need to take note
+      if new_data.qpd isnt @data.qpd
+        all_actions.push ( cb ) =>
+          # now find out how many of their current qpd they've used.
+          used = ( @data.qpd - current_qpd )
+          limits_model.updateQpValue redis_key_name, ( new_data.qpd - used ), cb
+
+      # run the original update
+      all_actions.push ( cb ) =>
+        @constructor.__super__.update.apply @, [ new_data, cb ]
+
+      async.parallel all_actions, cb
 
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true
@@ -44,6 +75,10 @@ class exports.KeyFactory extends Redis
         optional: true
         type: "array"
         docs: "Names of the Apis that this key belongs to."
+      disabled:
+        type: "boolean"
+        default: false
+        docs: "Disable this API causing errors when it's hit."
 
   _verifyApisExist: ( apis, cb ) ->
     allKeyExistsChecks = []

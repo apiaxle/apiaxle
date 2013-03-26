@@ -19,7 +19,11 @@ class exports.ReplHelper
     info: Info
 
   help: ->
-    "Available commands are: #{ _.keys( @constructor.all_commands ).join ', ' }"
+    """
+    Available commands are: #{ _.keys( @constructor.all_commands ).join ', ' }
+
+    For specific help on a command try 'help <command>'.
+    """
 
   constructor: ( @app ) ->
 
@@ -36,7 +40,14 @@ class exports.ReplHelper
 
     # quit/exit are slightly magic
     return if command in [ "quit", "exit" ]
-    return cb null, @help() if command is "help"
+
+    if command is "help"
+      if subcommand = commands.shift()
+        # init the class
+        command_object = new @constructor.all_commands[ subcommand ]( @app )
+        return command_object.help cb
+
+      return cb null, @help()
 
     if not @constructor.all_commands[ command ]?
       return cb new Error "I don't know about '#{ command }'. Try 'help' instead."
@@ -49,7 +60,12 @@ class exports.ReplHelper
 
   topLevelInput: ( err, info ) =>
     console.log "Error: #{ err.message }" if err
-    console.log util.inspect( info, false, null ) if info
+
+    if info
+      if typeof info is "string"
+        console.log info
+      else
+        console.log util.inspect( info, false, null ) if info
 
     @rl.question "axle> ", ( entry ) =>
       return @topLevelInput() if /^\s*$/.exec entry

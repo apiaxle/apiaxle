@@ -3,7 +3,7 @@ async = require "async"
 
 { ApiaxleTest } = require "../../apiaxle"
 
-class exports.CatchallTest extends ApiaxleTest
+class exports.CatchallSigTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
@@ -69,12 +69,12 @@ class exports.CatchallTest extends ApiaxleTest
             cb()
 
     async.series all, ( err ) =>
-      @isNull err
+      @isUndefined err
 
       done 39
 
   "test signatures and expiry times": ( done ) ->
-    stub = @stubCatchall 200, "{}",
+    stub = @stubCatchallSimple 200, "{}",
       "Content-Type": "application/json"
 
     tests = []
@@ -125,6 +125,6 @@ class exports.CatchallTest extends ApiaxleTest
           cb()
 
     async.series tests, ( err ) =>
-      @isNull err
+      @isUndefined err
 
       done 15

@@ -3,6 +3,26 @@
 class exports.Key extends Command
   @modelName = "keyFactory"
 
+  help: ( cb ) ->
+    super ( err, help ) =>
+      return cb null, help + """\n
+        ## Examples:
+
+        To create a Key:
+
+            axle> key "bobskey" create qps=2 qpd=20
+
+        To delete a Key:
+
+            axle> key "twitter" delete
+
+        ## valid options for creation/updating:
+
+        #{ @app.model( @constructor.modelName ).getValidationDocs() }
+
+        See the API documentation for more: http://apiaxle.com/api.html
+        """
+
   delete: ( id, commnads, keypairs, cb ) ->
     options =
       path: "/v1/key/#{ id }"

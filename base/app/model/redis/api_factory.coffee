@@ -4,6 +4,9 @@
 class Api extends KeyContainerModel
   @reverseLinkFunction = "linkToApi"
   @reverseUnlinkFunction = "unlinkFromApi"
+  @factory = "apiFactory"
+
+  isDisabled: ( ) -> @data.disabled
 
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
@@ -49,3 +52,11 @@ class exports.ApiFactory extends Redis
         docs: "Regular expression used to extract API key from url. Axle will use the **first** matched grouping and then apply that as the key. Using the `api_key` or `apiaxle_key` will take precedence."
         optional: true
         is_valid_regexp: true
+      defaultPath:
+        type: "string"
+        optional: true
+        docs: "An optional path part that will always be called when the API is hit."
+      disabled:
+        type: "boolean"
+        default: false
+        docs: "Disable this API causing errors when it's hit."
