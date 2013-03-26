@@ -18,32 +18,36 @@ class exports.StatsTest extends FakeAppTest
 
   "test #get": ( done ) ->
     now = (new Date()).getTime()
-    now_seconds = Math.floor(now/1000)
+    now_seconds = Math.floor( now / 1000 )
+
+    clock = @getClock()
 
     all = []
     all.push (cb) =>
-      clock = @getClock()
       @model.recordHit ["key","1234", "cached", "200"], cb
+
     all.push (cb) =>
-      clock = @getClock now + (2000)
+      clock.addSeconds 2
       @model.recordHit ["key","1234", "cached", "200"], cb
+
     all.push (cb) =>
-      clock = @getClock now + (2000*60)
+      clock.addMinutes 2
       @model.recordHit ["key","1234", "cached", "200"], cb
 
     async.series all, (err, result) =>
       @isNull err
-      from = now_seconds-3
+      from = now_seconds - 3
 
       @model.get ["key", "1234", "cached", "200"], "seconds", from, null, (err, result) =>
         @isNull err
         @equal result[now_seconds],1
-        @equal result[now_seconds+1],0
-        @equal result[now_seconds+120],1
+        @equal result[now_seconds + 1],0
+        @equal result[now_seconds + 120 + 2 ],1
         @model.get ["key", "1234", "cached", "200"], "minutes", from, null, (err, result) =>
           time = Math.floor(now_seconds/ 60) * 60
           @equal result[time+120],1
-          done(4)
+
+          done 4
 
   # Ensure we get a senible response when rolling across minute boundary
   "test #get rolling period": (done) ->
