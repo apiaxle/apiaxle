@@ -189,7 +189,7 @@ class exports.UnlinkKeyToKeyring extends ApiaxleController
   path: -> "/v1/keyring/:keyring/unlinkkey/:key"
 
   execute: ( req, res, next ) ->
-    req.keyring.unlinkKey req.key.id, ( err ) =>
+    req.keyring.unlinkKeyById req.key.id, ( err ) =>
       return next err if err
 
       @json res, req.key.data

@@ -108,7 +108,7 @@ class exports.ApiTest extends FakeAppTest
         @isNull err
         @equal supported, true
 
-        dbFacebook.unlinkKey "1234", ( err ) =>
+        dbFacebook.unlinkKeyById "1234", ( err ) =>
           @isNull err
 
           dbFacebook.supportsKey "1234", ( err, supported ) =>

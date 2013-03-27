@@ -27,7 +27,7 @@ class exports.UnlinkKeyToApi extends ApiaxleController
   path: -> "/v1/api/:api/unlinkkey/:key"
 
   execute: ( req, res, next ) ->
-    req.api.unlinkKey req.key.id, ( err ) =>
+    req.api.unlinkKeyById req.key.id, ( err ) =>
       return next err if err
 
       @json res, req.key.data
