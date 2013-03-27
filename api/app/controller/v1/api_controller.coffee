@@ -224,7 +224,8 @@ class exports.ListApiKeys extends ListController
   execute: ( req, res, next ) ->
     req.api.getKeys @from( req ), @to( req ), ( err, keys ) =>
       return next err if err
-      return @json res, keys if not req.query.resolve?
+      if not req.query.resolve? or req.query.resolve isnt "true"
+        return @json res, keys
 
       @resolve @app.model( "keyFactory" ), keys, ( err, results ) =>
         return cb err if err
