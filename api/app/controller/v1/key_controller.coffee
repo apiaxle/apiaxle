@@ -169,7 +169,6 @@ class exports.ViewHitsForKey extends ApiaxleController
     model.getCurrentMinute "key", req.params.key, ( err, hits ) =>
       return @json res, hits
 
-
 class exports.ViewHitsForKeyNow extends ApiaxleController
   @verb = "get"
 
@@ -243,3 +242,38 @@ class exports.ViewAllStatsForKey extends ApiaxleController
           output[ type ] = processed_results.shift()
 
         return @json res, output
+
+class exports.ListKeyApis extends ListController
+  @verb = "get"
+
+  path: -> "/v1/key/:key/apis"
+
+  desc: -> "List apis belonging to a key."
+
+  docs: ->
+    """
+    ### Supported query params
+
+    * resolve: if set to `true` then the details concerning the listed
+      apis will also be printed. Be aware that this will come with a
+      minor performace hit.
+
+    ### Returns
+
+    * Without `resolve` the result will be an array with one key per
+      entry.
+    * If `resolve` is passed then results will be an object with the
+      key name as the key and the details as the value.
+    """
+
+  middleware: -> [ @mwKeyDetails( @app ) ]
+
+  execute: ( req, res, next ) ->
+    req.key.supportedApis ( err, apis ) =>
+      return next err if err
+      if not req.query.resolve? or req.query.resolve isnt "true"
+        return @json res, apis
+
+      @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
+        return cb err if err
+        return @json res, results

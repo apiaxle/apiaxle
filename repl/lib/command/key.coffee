@@ -42,3 +42,11 @@ class exports.Key extends Command
 
   show: ( id, commnads, keypairs, cb ) ->
     @callApi "GET", path: "/v1/key/#{ id }", cb
+
+  apis: ( id, commands, keypairs, cb ) ->
+    resolve = if keypairs.resolve is "true" then "true" else "false"
+
+    options =
+      path: "/v1/key/#{ id }/apis?resolve=#{ resolve }"
+
+    @callApi "GET", options, cb
