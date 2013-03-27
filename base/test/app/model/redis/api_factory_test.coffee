@@ -4,6 +4,8 @@ async = require "async"
 { FakeAppTest } = require "../../../apiaxle_base"
 
 class exports.ApiKeyLinkTest extends FakeAppTest
+  @empty_db_on_setup = true
+
   "test deleting unlinks keys": ( done ) ->
     fixture =
       api:

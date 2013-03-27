@@ -109,9 +109,8 @@ class exports.DeleteKey extends ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model "keyFactory"
 
-    model.del req.params.key, ( err, newKey ) =>
+    req.key.delete ( err ) =>
       return next err if err
-
       @json res, true
 
 class exports.ModifyKey extends ApiaxleController

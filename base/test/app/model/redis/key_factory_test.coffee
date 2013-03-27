@@ -82,3 +82,29 @@ class exports.KeyTest extends FakeAppTest
             @deepEqual apis, [ "twitter", "facebook" ]
 
             done 6
+
+class exports.KeyApiLinkTest extends FakeAppTest
+  @empty_db_on_setup = true
+
+  "test deleting keys unlinks them from APIs": ( done ) ->
+    fixture =
+      api:
+        facebook: {}
+        twitter: {}
+      key:
+        phil: { forApis: [ "facebook", "twitter" ] }
+        bob: { forApis: [ "facebook", "twitter" ] }
+
+    @fixtures.create fixture, ( err, [ facebook, twitter, phil, bob ] ) =>
+      @isNull err
+
+      phil.delete ( err ) =>
+        @isNull err
+
+        facebook.getKeys 0, 100, ( err, key_list ) =>
+          @isNull err
+
+          # facebook should no longer know of phil
+          @ok "phil" not in key_list
+
+          done 3
