@@ -129,9 +129,7 @@ class exports.DeleteApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    model = @app.model "apiFactory"
-
-    model.del req.params.api, ( err, newApi ) =>
+    req.api.delete ( err, result ) =>
       return next err if err
 
       @json res, true

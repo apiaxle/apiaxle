@@ -1,4 +1,6 @@
-{ ApiUnknown, ValidationError, KeyNotFoundError } = require "../../../lib/error"
+{ ApiUnknown,
+  ValidationError,
+  KeyNotFoundError } = require "../../../lib/error"
 { KeyContainerModel, Redis } = require "../redis"
 
 class Api extends KeyContainerModel
