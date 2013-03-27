@@ -18,6 +18,16 @@ class exports.Stats extends Redis
       ttl:    172800 # Keys live twice as long to handle overlap
       factor: 60     # Granularity, in seconds of the ts used for hash keys
 
+     hours:            # Available for 7 days
+       size:   168     # Amount of values stored in each hash, used for ts rounding
+       ttl:    1209600 # Seconds in a week * 2
+       factor: 3600    # 60 seconds in minute, 60 minutes in hour
+
+     days:               # Available for 24 hours
+       size:   365       # Amount of values stored in each hash, used for ts rounding
+       ttl:    63113880  # Keys live twice as long to handle overlap
+       factor: 86400     # Granularity, in seconds of the ts used for hash keys
+
   # Helper function to format timestamp in seconds
   # Defaults to curent time
   getSecondsTimestamp: ( ts=( new Date() ).getTime() ) ->
