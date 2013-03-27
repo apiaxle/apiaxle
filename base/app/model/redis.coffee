@@ -210,7 +210,7 @@ class KeyContainerModel extends Model
       if not dbObj
         return cb new KeyNotFoundError "#{ keyName } doesn't exist."
 
-      dbObj[ @constructor.reverseUnlinkFunction ] keyName, ( err ) =>
+      dbObj[ @constructor.reverseUnlinkFunction ] @id, ( err ) =>
         return cb err if err
 
         multi = @multi()
