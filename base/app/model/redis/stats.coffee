@@ -73,7 +73,6 @@ class exports.Stats extends Redis
   # Get a single response code for a key or api stat
   # from, to should be int, seconds
   get: ( db_key, gran, from, to, cb ) ->
-    # TODO: fetch codes from redis
     properties = Stats.granularities[gran]
 
     if not properties
