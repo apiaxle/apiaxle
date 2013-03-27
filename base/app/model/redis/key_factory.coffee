@@ -23,6 +23,7 @@ class Key extends Model
 
       unlink_from_api = []
 
+      # find each of the apis and unlink ourselves from it
       for api in api_list
         do( api ) =>
           unlink_from_api.push ( cb ) =>
