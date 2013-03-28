@@ -275,5 +275,5 @@ class exports.ListKeyApis extends ListController
         return @json res, apis
 
       @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
-        return cb err if err
+        return next err if err
         return @json res, results

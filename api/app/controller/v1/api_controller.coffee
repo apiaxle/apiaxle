@@ -29,8 +29,7 @@ class exports.UnlinkKeyToApi extends ApiaxleController
   execute: ( req, res, next ) ->
     req.api.unlinkKeyById req.key.id, ( err ) =>
       return next err if err
-
-      @json res, req.key.data
+      return @json res, req.key.data
 
 class exports.LinkKeyToApi extends ApiaxleController
   @verb = "put"
@@ -59,8 +58,7 @@ class exports.LinkKeyToApi extends ApiaxleController
   execute: ( req, res, next ) ->
     req.api.linkKey req.key.id, ( err ) =>
       return next err if err
-
-      @json res, req.key.data
+      return @json res, req.key.data
 
 class exports.CreateApi extends ApiaxleController
   @verb = "post"
@@ -90,8 +88,7 @@ class exports.CreateApi extends ApiaxleController
 
     @app.model( "apiFactory" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err
-
-      @json res, newObj.data
+      return @json res, newObj.data
 
 class exports.ViewApi extends ApiaxleController
   @verb = "get"
@@ -110,7 +107,7 @@ class exports.ViewApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    @json res, req.api.data
+    return @json res, req.api.data
 
 class exports.DeleteApi extends ApiaxleController
   @verb = "delete"
@@ -131,8 +128,7 @@ class exports.DeleteApi extends ApiaxleController
   execute: ( req, res, next ) ->
     req.api.delete ( err, result ) =>
       return next err if err
-
-      @json res, true
+      return @json res, true
 
 class exports.ModifyApi extends ApiaxleController
   @verb = "put"
@@ -224,11 +220,12 @@ class exports.ListApiKeys extends ListController
   execute: ( req, res, next ) ->
     req.api.getKeys @from( req ), @to( req ), ( err, keys ) =>
       return next err if err
+
       if not req.query.resolve? or req.query.resolve isnt "true"
         return @json res, keys
 
       @resolve @app.model( "keyFactory" ), keys, ( err, results ) =>
-        return cb err if err
+        return next err if err
         return @json res, results
 
 class exports.ViewHitsForApi extends ApiaxleController
