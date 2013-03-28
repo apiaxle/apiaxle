@@ -2,6 +2,7 @@ util       = require "util"
 fs         = require "fs"
 muffin     = require "muffin"
 coffeelint = require "coffeelint"
+colors     = require "colors"
 
 { spawn }  = require "child_process"
 
@@ -12,7 +13,7 @@ lint_config =
     level: "error"
   max_line_length:
     value: 80
-    level: "ignore"
+    level: "warn"
   camel_case_classes:
     level: "error"
   indentation:
@@ -34,9 +35,13 @@ lint_config =
   no_implicit_parens:
     level: "ignore"
   no_stand_alone_at:
-    level: "error"
+    level: "warn"
 
 lint = ( options, globs ) ->
+  colors.setTheme
+    warn: "yellow"
+    error: "red"
+
   muffin.run
     files: globs
     options: options
@@ -50,7 +55,7 @@ lint = ( options, globs ) ->
         if output.length > 0
           for line in output
             { lineNumber, rule, message, level } = line
-            console.log "#{ filename }:#{ lineNumber }: #{ rule } - #{ message }"
+            console.log "#{ filename }:#{ lineNumber }: #{ rule } - #{ message }"[ level ]
             exit_code = 1 if level is "error"
 
         process.exit exit_code
