@@ -541,7 +541,7 @@ class exports.ApiStatsTest extends ApiaxleTest
                 @ok json
                 @deepEqual json, shouldHave
 
-              done 9
+                done 9
 
   "test GET all counts": ( done ) ->
     model = @app.model "counters"
@@ -644,4 +644,4 @@ class exports.ApiStatsTest extends ApiaxleTest
                 @ok json
                 @deepEqual json, shouldHave
 
-              done 9
+                done 9
