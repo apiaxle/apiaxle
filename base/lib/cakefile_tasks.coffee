@@ -42,6 +42,8 @@ lint = ( options, globs ) ->
     options: options
     map:
       "(.+?).coffee$": ( [ filename ] ) ->
+        exit_code = 0
+
         input = fs.readFileSync( filename, "utf-8" )
         output = coffeelint.lint( input, lint_config )
 
@@ -49,8 +51,9 @@ lint = ( options, globs ) ->
           for line in output
             { lineNumber, rule, message, level } = line
             console.log "#{ filename }:#{ lineNumber }: #{ rule } - #{ message }"
+            exit_code = 1 if level is "error"
 
-          process.exit 1
+        process.exit exit_code
 
 jsBuild = ( options, globs ) ->
   muffin.run

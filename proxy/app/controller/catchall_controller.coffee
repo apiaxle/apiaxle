@@ -23,7 +23,7 @@ class CatchAll extends ApiaxleController
 
   _cacheTtl: ( req, cb ) ->
     # no caching
-    if not @.constructor.cachable
+    if not this.constructor.cachable
       return cb null, false, 0
 
     mustRevalidate = false
