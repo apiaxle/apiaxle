@@ -34,6 +34,7 @@
     "twerp": "=1.0.7",
     "sinon": "~1.1.1",
     "muffin": "~0",
+    "coffeelint": "0.5",
     "istanbul": "~0"
   }
 }

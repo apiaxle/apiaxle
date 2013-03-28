@@ -34,6 +34,8 @@
     "coffee-script": "1.6.2",
     "libxmljs": "0.7.1",
     "muffin": "~0.7",
-    "istanbul": "~0"
+    "istanbul": "~0",
+    "colors": "0.6",
+    "coffeelint": "0.5"
   }
 }
