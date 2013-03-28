@@ -1,12 +1,14 @@
-{ test, jsBuild, jsClean } = require "./lib/cakefile_tasks"
+{ test, lint, jsBuild, jsClean } = require "./lib/cakefile_tasks"
 { spawn }  = require "child_process"
+
+coffee_globs = [ "app/**/*.coffee",
+                 "test/**/*.coffee",
+                 "lib/**/*.coffee",
+                 "index.coffee" ]
 
 option "-w", "--watch", "rebuild them when they change"
 task "js:build", "Build the front-end javascript", ( options ) ->
-  jsBuild options, [ "app/**/*.coffee",
-                     "test/**/*.coffee",
-                     "lib/**/*.coffee",
-                     "index.coffee" ]
+  jsBuild options, coffee_globs
 
 task "js:clean", "Build the front-end javascript", ( options ) ->
   jsClean options, [ "app/**/*.js",
@@ -14,4 +16,5 @@ task "js:clean", "Build the front-end javascript", ( options ) ->
                      "lib/**/*.js",
                      "index.js" ]
 
+task "lint", "Lint the coffeescript", ( o ) -> lint o, coffee_globs
 task "test", "Run the tests.", test

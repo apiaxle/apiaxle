@@ -22,7 +22,7 @@ class Redis
 
   # TODO: huh?
   callConstructor: ( id, details, cb ) ->
-    return @constructor.__super__.create.apply @, [ id, details, cb ]
+    return @constructor.__super__.create.apply this, [ id, details, cb ]
 
   update: ( id, details, cb ) ->
     @find id, ( err, dbObj ) =>
@@ -186,7 +186,7 @@ class KeyContainerModel extends Model
 
       # no need to unlink anything
       if parseInt count < 1
-        return KeyContainerModel.__super__.delete.apply @, [ cb ]
+        return KeyContainerModel.__super__.delete.apply this, [ cb ]
 
       @getKeys 0, count - 1, ( err, keys ) =>
         return cb err if err
@@ -200,7 +200,7 @@ class KeyContainerModel extends Model
 
         async.parallel unlink_keys, ( err, results ) =>
           return cb err if err
-          return KeyContainerModel.__super__.delete.apply @, [ cb ]
+          return KeyContainerModel.__super__.delete.apply this, [ cb ]
 
   linkKey: ( key, cb ) =>
     @app.model( "keyFactory" ).find key, ( err, dbKey ) =>
@@ -314,7 +314,7 @@ for command, access of redisCommands
       full_key = @getKey( key )
 
       @ee.emit access, command, key, full_key
-      RedisMulti.__super__[ command ].apply @, [ full_key, args... ]
+      RedisMulti.__super__[ command ].apply this, [ full_key, args... ]
 
     # Redis just offloads to the attached redis client. Perhaps we
     # should inherit from redis as RedisMulti does
