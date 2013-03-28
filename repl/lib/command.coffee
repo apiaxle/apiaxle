@@ -41,13 +41,13 @@ class exports.Command extends Module
   exec: ( [ id, command, rest... ], keypairs, cb ) ->
     return @help cb if not id or id is ""
     return @show id, rest, keypairs, cb if not command?
-    return @[ command ] id, rest, keypairs, cb if ( command of @ )
+    return this[ command ] id, rest, keypairs, cb if ( command of this )
 
     return cb new Error "Invalid syntax. Try 'help'."
 
   help: ( cb ) ->
     parent_methods = _.methods Command::
-    my_methods     = _.methods @
+    my_methods     = _.methods this
 
     diff = _.difference my_methods, parent_methods
 
@@ -66,7 +66,7 @@ class exports.Command extends Module
 
     @app.logger.info log
 
-    @[ verb ] options, ( err, res ) =>
+    this[ verb ] options, ( err, res ) =>
       return cb err if err
       return @handleApiResults res, cb
 
