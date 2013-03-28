@@ -30,7 +30,7 @@ class exports.ApiaxleController extends Controller
     # hash
     multi = model.multi()
     for result in keys
-      multi.hgetall result 
+      multi.hgetall result
 
     final = {}
 
@@ -162,7 +162,7 @@ class exports.ListController extends exports.ApiaxleController
 
       # if we're not asked to resolve the items then just bung the
       # list back
-      if not req.query.resolve?
+      if not req.query.resolve? or req.query.resolve isnt "true"
         return @json res, keys
 
       # now bind the actual results to the keys

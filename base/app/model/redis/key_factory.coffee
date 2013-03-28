@@ -17,6 +17,24 @@ class Key extends Model
 
   isDisabled: ( ) -> @data.disabled
 
+  delete: ( cb ) ->
+    @supportedApis ( err, api_list ) =>
+      return cb err if err
+
+      unlink_from_api = []
+
+      # find each of the apis and unlink ourselves from it
+      for api in api_list
+        do( api ) =>
+          unlink_from_api.push ( cb ) =>
+            @app.model( "apiFactory" ).find api, ( err, dbApi ) =>
+              return cb err if err
+              return dbApi.unlinkKey @, cb
+
+      async.parallel unlink_from_api, ( err ) =>
+        return cb err if err
+        return Key.__super__.delete.apply @, [ cb ]
+
   update: ( new_data, cb ) ->
     # if someone has upped the qpd then we need to take account as
     # their current qpd counter might be at a value below what they

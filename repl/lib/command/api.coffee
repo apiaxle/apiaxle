@@ -50,6 +50,17 @@ class exports.Api extends Command
       data: JSON.stringify( keypairs )
     @callApi "PUT", options, cb
 
+  keys: ( id, commands, keypairs, cb ) ->
+    { from, to, resolve } = keypairs
+    from = ( encodeURIComponent( parseInt( from ) or 0 ) )
+    to = ( encodeURIComponent( parseInt( to ) or 100 ) )
+    resolve = if resolve is "true" then "true" else "false"
+
+    options =
+      path: "/v1/api/#{ id }/keys?resolve=#{ resolve }&to=#{ to }&from=#{ from }"
+
+    @callApi "GET", options, cb
+
   create: ( id, commands, keypairs, cb ) ->
     options =
       path: "/v1/api/#{ id }"

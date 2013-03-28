@@ -27,7 +27,7 @@ class exports.UnlinkKeyToApi extends ApiaxleController
   path: -> "/v1/api/:api/unlinkkey/:key"
 
   execute: ( req, res, next ) ->
-    req.api.unlinkKey req.key.id, ( err ) =>
+    req.api.unlinkKeyById req.key.id, ( err ) =>
       return next err if err
 
       @json res, req.key.data
@@ -129,9 +129,7 @@ class exports.DeleteApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    model = @app.model "apiFactory"
-
-    model.del req.params.api, ( err, newApi ) =>
+    req.api.delete ( err, result ) =>
       return next err if err
 
       @json res, true
@@ -226,7 +224,8 @@ class exports.ListApiKeys extends ListController
   execute: ( req, res, next ) ->
     req.api.getKeys @from( req ), @to( req ), ( err, keys ) =>
       return next err if err
-      return @json res, keys if not req.query.resolve?
+      if not req.query.resolve? or req.query.resolve isnt "true"
+        return @json res, keys
 
       @resolve @app.model( "keyFactory" ), keys, ( err, results ) =>
         return cb err if err

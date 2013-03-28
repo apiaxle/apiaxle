@@ -20,6 +20,7 @@ class Redis
     return validate @constructor.structure, details, ( err ) ->
       return cb err, details
 
+  # TODO: huh?
   callConstructor: ( id, details, cb ) ->
     return @constructor.__super__.create.apply @, [ id, details, cb ]
 
@@ -173,17 +174,42 @@ class Model extends Redis
   update: ( data, cb ) ->
     @app.model( @constructor.factory ).update @id, data, cb
 
+  delete: ( cb ) ->
+    @app.model( @constructor.factory ).delete @id, cb
+
 # Used to extend something that can 'hold' keys (like an API or a
 # keyring).
 class KeyContainerModel extends Model
-  linkKey: ( key, cb ) =>
-    @app.model( "keyFactory" ).find key, ( err, dbObj ) =>
+  delete: ( cb ) ->
+    @llen "#{ @id }:keys", ( err, count ) =>
       return cb err if err
 
-      if not dbObj
+      # no need to unlink anything
+      if parseInt count < 1
+        return KeyContainerModel.__super__.delete.apply @, [ cb ]
+
+      @getKeys 0, count - 1, ( err, keys ) =>
+        return cb err if err
+
+        # make sure we unlink all of the keys
+        unlink_keys = []
+        for key in keys
+          do( key ) =>
+            unlink_keys.push ( cb ) =>
+              @unlinkKeyById key, cb
+
+        async.parallel unlink_keys, ( err, results ) =>
+          return cb err if err
+          return KeyContainerModel.__super__.delete.apply @, [ cb ]
+
+  linkKey: ( key, cb ) =>
+    @app.model( "keyFactory" ).find key, ( err, dbKey ) =>
+      return cb err if err
+
+      if not dbKey
         return cb new KeyNotFoundError "#{ key } doesn't exist."
 
-      dbObj[ @constructor.reverseLinkFunction ] @id, ( err ) =>
+      dbKey[ @constructor.reverseLinkFunction ] @id, ( err ) =>
         return cb err if err
 
         # add to the list of all keys if it's not already there
@@ -201,27 +227,31 @@ class KeyContainerModel extends Model
 
           multi.exec ( err ) ->
             return cb err if err
-            return cb null, dbObj
+            return cb null, dbKey
 
-  unlinkKey: ( keyName, cb ) ->
-    @app.model( "keyFactory" ).find keyName, ( err, dbObj ) =>
+  unlinkKey: ( dbKey, cb ) ->
+    # the key needs to know it's being disassociated with the API
+    dbKey[ @constructor.reverseUnlinkFunction ] @id, ( err ) =>
       return cb err if err
 
-      if not dbObj
+      multi = @multi()
+
+      # hopefully only one
+      multi.lrem "#{ @id }:keys", 1, dbKey.id
+      multi.hdel "#{ @id }:keys-lookup", dbKey.id
+
+      multi.exec ( err ) ->
+        return cb err if err
+        return cb null, dbKey
+
+  unlinkKeyById: ( keyName, cb ) ->
+    @app.model( "keyFactory" ).find keyName, ( err, dbKey ) =>
+      return cb err if err
+
+      if not dbKey
         return cb new KeyNotFoundError "#{ keyName } doesn't exist."
 
-      dbObj[ @constructor.reverseUnlinkFunction ] @id, ( err ) =>
-        return cb err if err
-
-        multi = @multi()
-
-        # hopefully only one
-        multi.lrem "#{ @id }:keys", 1, keyName
-        multi.hdel "#{ @id }:keys-lookup", keyName
-
-        multi.exec ( err ) ->
-          return cb err if err
-          return cb null, dbObj
+      return @unlinkKey dbKey, cb
 
   getKeys: ( start, stop, cb ) ->
     @lrange "#{ @id }:keys", start, stop, cb
@@ -263,6 +293,7 @@ redisCommands = {
   "linsert": "write"
   "lrange":  "read"
   "lrem":    "write"
+  "llen":    "read"
   "rpush":   "write"
   "lpush":   "write"
   "zadd":    "write"
