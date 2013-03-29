@@ -6,36 +6,7 @@ colors     = require "colors"
 
 { spawn }  = require "child_process"
 
-lint_config =
-  no_tabs:
-    level: "error"
-  no_trailing_whitespace:
-    level: "error"
-  max_line_length:
-    value: 80
-    level: "warn"
-  camel_case_classes:
-    level: "error"
-  indentation:
-    value: 2
-    level: "error"
-  no_implicit_braces:
-    level: "ignore"
-  no_trailing_semicolons:
-    level: "error"
-  no_plusplus:
-    level: "ignore"
-  no_throwing_strings:
-    level: "error"
-  cyclomatic_complexity:
-    value: 11
-  line_endings:
-    value: "unix"
-    level: "error"
-  no_implicit_parens:
-    level: "ignore"
-  no_stand_alone_at:
-    level: "warn"
+lint_config = require "../../coffeelint.json"
 
 lint = ( options, globs ) ->
   colors.setTheme
