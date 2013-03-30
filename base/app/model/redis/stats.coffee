@@ -7,26 +7,34 @@ class exports.Stats extends Redis
   @instantiateOnStartup = true
   @smallKeyName         = "stats"
 
+  # A list of granularities at which we store statistics. For each of
+  # them the following fields are required:
+  #
+  # * size - amount of values stored in each hash, used for ts
+  #   rounding.
+  # * ttl - how long the keys will live in redis.
+  # * factor - granularity in seconds. This value is used to round off
+  #   the timestamps
   @granularities =
-    seconds:       # Available for 1 hour
-      size:   3600 # Amount of values stored in each hash, used for ts rounding
-      ttl:    7200 # Keys live twice as long to handle overlap
-      factor: 1    # Granularity, in seconds of the ts used for hash keys
+    seconds: # kept for 1 hour
+      size:   3600
+      ttl:    7200
+      factor: 1
 
-    minutes:         # Available for 24 hours
-      size:   1440   # Amount of values stored in each hash, used for ts rounding
-      ttl:    172800 # Keys live twice as long to handle overlap
-      factor: 60     # Granularity, in seconds of the ts used for hash keys
+    minutes: # Available for 24 hours
+      size:   1440
+      ttl:    172800
+      factor: 60
 
-     hours:            # Available for 7 days
-       size:   168     # Amount of values stored in each hash, used for ts rounding
-       ttl:    1209600 # Seconds in a week * 2
-       factor: 3600    # 60 seconds in minute, 60 minutes in hour
+     hours: # Available for 7 days
+       size:   168
+       ttl:    1209600
+       factor: 3600
 
-     days:               # Available for 24 hours
-       size:   365       # Amount of values stored in each hash, used for ts rounding
-       ttl:    63113880  # Keys live twice as long to handle overlap
-       factor: 86400     # Granularity, in seconds of the ts used for hash keys
+     days: # Available for 24 hours
+       size:   365
+       ttl:    63113880
+       factor: 86400
 
   # Helper function to format timestamp in seconds
   # Defaults to curent time
