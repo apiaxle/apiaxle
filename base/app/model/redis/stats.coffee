@@ -57,7 +57,7 @@ class exports.Stats extends Redis
     multi.sadd db_key.concat( "response-types" ), axle_type
 
     for gran, properties of Stats.granularities
-      tsround = @getRoundedTimestamp null, properties.size
+      tsround = @getRoundedTimestamp null, (properties.size * properties.factor)
 
       temp_key = db_key.concat axle_type
       temp_key.push gran
@@ -107,7 +107,7 @@ class exports.Stats extends Redis
     ts    = from
 
     while ts <= to
-      tsround = @getRoundedTimestamp ts, properties.size
+      tsround = @getRoundedTimestamp ts, ( properties.factor * properties.size )
 
       temp_key = _.clone db_key
       temp_key.push gran
@@ -135,11 +135,11 @@ class exports.Stats extends Redis
 
   getMinFrom: ( gran ) ->
     properties = Stats.granularities[gran]
-    min = @getRoundedTimestamp null, properties.size
+    min = @getRoundedTimestamp null, (properties.factor * properties.size)
 
-    # subtract size from the most recent rounded timestamp to allow
+    # subtract ttl from the most recent rounded timestamp to allow
     # for overlap
-    return ( min - properties.size )
+    return ( min - properties.ttl )
 
   hit: ( api, key, cached, code, cb ) ->
     db_keys = [
