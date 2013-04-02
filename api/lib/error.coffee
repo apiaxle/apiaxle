@@ -9,6 +9,9 @@ class exports.ApiNotFoundError extends exports.NotFoundError
 
 class exports.KeyringNotFoundError extends exports.NotFoundError
 
+class exports.InvalidGranularityType extends AppError
+  @status = 400
+
 class exports.AlreadyExists extends AppError
   @status = 400
 

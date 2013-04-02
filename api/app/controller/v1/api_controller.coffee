@@ -1,6 +1,9 @@
 _ = require "underscore"
+async = require "async"
 
-{ ApiaxleController, ListController } = require "../controller"
+{ StatsController,
+  ApiaxleController,
+  ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
 class exports.UnlinkKeyToApi extends ApiaxleController
@@ -228,63 +231,22 @@ class exports.ListApiKeys extends ListController
         return next err if err
         return @json res, results
 
-class exports.ViewHitsForApi extends ApiaxleController
+
+class exports.ViewAllStatsForApi extends StatsController
   @verb = "get"
 
-  desc: -> "Get the statistics for an api."
+  desc: -> "Get stats for an api."
 
   docs: ->
     """
+    #{ @paramDocs() }
+    * forkey: Narrow results down to all statistics for the specified key.
+
     ### Returns
 
-    * Object where the keys represent timestamp for a given second
-      and the values the amount of hits to the specified API for that second
-    """
-
-  middleware: -> [ @mwApiDetails( @app ) ]
-
-  path: -> "/v1/api/:api/hits"
-
-  execute: ( req, res, next ) ->
-    model = @app.model "hits"
-    model.getCurrentMinute "api", req.params.api, ( err, hits ) =>
-      return @json res, hits
-
-
-class exports.ViewHitsForApiNow extends ApiaxleController
-  @verb = "get"
-
-  desc: -> "Get the statistics for an api."
-
-  docs: ->
-    """
-    ### Returns
-
-    * Integer, the number of hits to the API this second.
-      Designed light weight real time statistics
-    """
-
-  middleware: -> [ @mwApiDetails( @app ) ]
-
-  path: -> "/v1/api/:api/hits/now"
-
-  execute: ( req, res, next ) ->
-    model = @app.model "hits"
-    model.getRealTime "api", req.params.api, ( err, hits ) =>
-      return @json res, hits
-
-class exports.ViewAllStatsForApi extends ApiaxleController
-  @verb = "get"
-
-  desc: -> "Get the statistics for an api."
-
-  docs: ->
-    """
-    ### Returns
-
-    * Object where the keys represent the HTTP status code of the
-      endpoint or the error returned by apiaxle (QpsExceededError, for
-      example). Each object contains date to hit count pairs.
+    * Object where the keys represent the cache status (cached, uncached or
+      error), each containing an object with response codes or error name,
+      these in turn contain objects with timestamp:count
     """
 
   middleware: -> [ @mwApiDetails( @app ) ]
@@ -292,35 +254,14 @@ class exports.ViewAllStatsForApi extends ApiaxleController
   path: -> "/v1/api/:api/stats"
 
   execute: ( req, res, next ) ->
-    model = @app.model "counters"
-    model.getPossibleResponseTypes "api:#{ req.params.api }", ( err, types ) =>
+    axle_type      = "api"
+    redis_key_part = [ req.api.id ]
+
+    # narrow down to a particular api
+    if for_key = req.query.forkey
+      axle_type      = "api-key"
+      redis_key_part = [ req.api.id, for_key ]
+
+    @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
       return next err if err
-
-      multi  = model.multi()
-      from   = req.query["from-date"]
-      to     = req.query["to-date"]
-      ranged = from and to
-
-      for type in types
-        do ( type ) =>
-          if ranged
-            multi = @getStatsRange multi, "api", req.params.api, type, from, to
-          else
-            multi.hgetall [ "api", req.params.api, type ]
-
-      multi.exec ( err, results ) =>
-        return next err if err
-
-        # build up the output structure
-        output = {}
-        processed_results = []
-
-        if ranged
-          processed_results = @combineStatsRange results, from, to
-        else
-          processed_results = results
-
-        for type in types
-          output[ type ] = processed_results.shift()
-
-        return @json res, output
+      return @json res, results

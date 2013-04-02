@@ -89,7 +89,7 @@ class exports.RedisTest extends FakeAppTest
         @equal value, "hello"
 
         # make sure we've called read and write before we go on.
-        async.until(
+        async.until( 
           ( ) -> ( readCalled and writeCalled ),
           ( cb ) -> setTimeout cb, 100,
           ( ) -> done 7
@@ -125,7 +125,7 @@ class exports.RedisTest extends FakeAppTest
       @ok results
 
       # make sure we've called read and write before we go on.
-      async.until(
+      async.until( 
         ( ) -> ( readCalled and writeCalled ),
         ( cb ) -> setTimeout cb, 100,
         ( ) -> done 7

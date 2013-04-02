@@ -19,7 +19,7 @@ extend = ( obj, mixin ) ->
   obj[ name ] = method for name, method of mixin
   return obj
 
-include = (klass, mixin) ->
+include = ( klass, mixin ) ->
   return extend klass.prototype, mixin
 
 class Clock
@@ -27,6 +27,14 @@ class Clock
 
   tick: ( time ) ->
     @sinonClock.tick time
+
+  set: ( to_ms ) ->
+    current = ( new Date() ).getTime()
+
+    if to_ms > current
+      @tick to_ms - current
+    else
+      @tick current - to_ms
 
   _addTime: ( modifier, number=1 ) ->
     now = new Date()

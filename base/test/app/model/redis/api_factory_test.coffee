@@ -70,7 +70,7 @@ class exports.ApiTest extends FakeAppTest
     newObj =
       apiFormat: "xml"
       endPoint: "api.twitter.com"
-      extractKeyRegex: "hello("
+      extractKeyRegex: "hello( "
 
     @fixtures.createApi "twitter", newObj, ( err ) =>
       @ok err

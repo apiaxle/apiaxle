@@ -50,3 +50,6 @@ class exports.Key extends Command
       path: "/v1/key/#{ id }/apis?resolve=#{ resolve }"
 
     @callApi "GET", options, cb
+
+  stats: ( id, commands, keypairs, cb ) ->
+    @callApi "GET", path: "/v1/key/#{ id }/stats", cb

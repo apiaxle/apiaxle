@@ -3,6 +3,7 @@ _site/
 node_modules
 /*/log
 *.*.swp
+*.*.swo
 npm-debug.log
 *.js
 /api/README.md
@@ -13,3 +14,4 @@ npm-debug.log
 /repl/coverage
 /base/coverage
 /proxy/coverage
+*.log

@@ -69,3 +69,6 @@ class exports.Api extends Command
 
   show: ( id, commands, keypairs, cb ) ->
     @callApi "GET", path: "/v1/api/#{ id }", cb
+
+  stats: ( id, commands, keypairs, cb ) ->
+    @callApi "GET", path: "/v1/api/#{ id }/stats", cb

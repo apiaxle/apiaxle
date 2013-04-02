@@ -1,6 +1,8 @@
 _ = require "underscore"
 
-{ ApiaxleController, ListController, CreateController } = require "../controller"
+{ StatsController,
+  ApiaxleController,
+  ListController } = require "../controller"
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
 
 class exports.ListKeys extends ListController
@@ -111,6 +113,7 @@ class exports.DeleteKey extends ApiaxleController
 
     req.key.delete ( err ) =>
       return next err if err
+
       @json res, true
 
 class exports.ModifyKey extends ApiaxleController
@@ -147,14 +150,15 @@ class exports.ModifyKey extends ApiaxleController
       return next err if err
       return @json res, new_key.data
 
-class exports.ViewHitsForKey extends ApiaxleController
+class exports.ViewStatsForKey extends StatsController
   @verb = "get"
 
-  desc: -> "Get hits for a key in the past minute."
+  desc: -> "Get stats for a key."
 
   docs: ->
     """
-    ### Returns
+    #{ @paramDocs() }
+    * forapi: Narrow results down to all statistics for the specified api.
 
     * Object where the keys represent timestamp for a given second
       and the values the amount of hits to the Key for that second
@@ -169,6 +173,7 @@ class exports.ViewHitsForKey extends ApiaxleController
     model.getCurrentMinute "key", req.params.key, ( err, hits ) =>
       return @json res, hits
 
+
 class exports.ViewHitsForKeyNow extends ApiaxleController
   @verb = "get"
 
@@ -178,102 +183,25 @@ class exports.ViewHitsForKeyNow extends ApiaxleController
     """
     ### Returns
 
-    * Integer, the number of hits to the Key this second.
-      Designed light weight real time statistics
+    * Object where the keys represent the cache status (cached, uncached or
+      error), each containing an object with response codes or error name,
+      these in turn contain objects with timestamp:count
     """
 
   middleware: -> [ @mwKeyDetails( @app ) ]
-
-  path: -> "/v1/key/:key/hits/now"
-
-  execute: ( req, res, next ) ->
-    model = @app.model "hits"
-    model.getRealTime "key", req.params.key, ( err, hits ) =>
-      return @json res, hits
-
-class exports.ViewAllStatsForKey extends ApiaxleController
-  @verb = "get"
-
-  desc: -> "Get the statistics for a key."
-
-  docs: ->
-    """
-    ### Returns
-
-    * Object where the keys represent the HTTP status code of the
-      endpoint or the error returned by apiaxle (QpsExceededError, for
-      example). Each object contains date to hit count pairs.
-    """
-
-  middleware: -> [ @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/key/:key/stats"
 
   execute: ( req, res, next ) ->
-    model = @app.model "counters"
-    model.getPossibleResponseTypes "key:#{ req.params.key }", ( err, types ) =>
+    axle_type      = "key"
+    redis_key_part = [ req.key.id ]
+
+    # narrow down to a particular key
+    if for_key = req.query.forapi
+      axle_type      = "key-api"
+      redis_key_part = [ req.key.id, for_key ]
+
+    @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
       return next err if err
 
-      multi  = model.multi()
-      from   = req.query["from-date"]
-      to     = req.query["to-date"]
-      ranged = from and to
-
-      for type in types
-        do ( type ) =>
-          if ranged
-            multi = @getStatsRange multi, "key", req.params.key, type, from, to
-          else
-            multi.hgetall [ "key", req.params.key, type ]
-
-      multi.exec ( err, results ) =>
-        return next err if err
-
-        # build up the output structure
-        output = {}
-        processed_results = []
-
-        if ranged
-          processed_results = @combineStatsRange results, from, to
-        else
-          processed_results = results
-
-        for type in types
-          output[ type ] = processed_results.shift()
-
-        return @json res, output
-
-class exports.ListKeyApis extends ListController
-  @verb = "get"
-
-  path: -> "/v1/key/:key/apis"
-
-  desc: -> "List apis belonging to a key."
-
-  docs: ->
-    """
-    ### Supported query params
-
-    * resolve: if set to `true` then the details concerning the listed
-      apis will also be printed. Be aware that this will come with a
-      minor performace hit.
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one key per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      key name as the key and the details as the value.
-    """
-
-  middleware: -> [ @mwKeyDetails( @app ) ]
-
-  execute: ( req, res, next ) ->
-    req.key.supportedApis ( err, apis ) =>
-      return next err if err
-      if not req.query.resolve? or req.query.resolve isnt "true"
-        return @json res, apis
-
-      @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
-        return next err if err
-        return @json res, results
+      return @json res, results

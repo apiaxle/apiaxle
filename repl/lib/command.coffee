@@ -75,8 +75,10 @@ class exports.Command extends Module
       return cb err if err
 
       # the api itself threw an error
-      if json.results?.error?
-        return cb new Error json.results.error.message
+      status = res.statusCode
+      if status > 200 and status < 400 and json.results?.error?
+        { type, message } = json.results.error
+        return cb new Error "#{ type }: #{ message }"
 
       return cb null, json
 
