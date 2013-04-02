@@ -1,10 +1,8 @@
 _ = require "underscore"
-async = require "async"
 
 { StatsController,
   ApiaxleController,
   ListController } = require "../controller"
-
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
 
 class exports.ListKeys extends ListController
@@ -113,7 +111,7 @@ class exports.DeleteKey extends ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model "keyFactory"
 
-    model.del req.params.key, ( err, newKey ) =>
+    req.key.delete ( err ) =>
       return next err if err
 
       @json res, true
@@ -152,7 +150,6 @@ class exports.ModifyKey extends ApiaxleController
       return next err if err
       return @json res, new_key.data
 
-
 class exports.ViewStatsForKey extends StatsController
   @verb = "get"
 
@@ -163,6 +160,27 @@ class exports.ViewStatsForKey extends StatsController
     #{ @paramDocs() }
     * forapi: Narrow results down to all statistics for the specified api.
 
+    * Object where the keys represent timestamp for a given second
+      and the values the amount of hits to the Key for that second
+    """
+
+  middleware: -> [ @mwKeyDetails( @app ) ]
+
+  path: -> "/v1/key/:key/hits"
+
+  execute: ( req, res, next ) ->
+    model = @app.model "hits"
+    model.getCurrentMinute "key", req.params.key, ( err, hits ) =>
+      return @json res, hits
+
+
+class exports.ViewHitsForKeyNow extends ApiaxleController
+  @verb = "get"
+
+  desc: -> "Get the real time hits for a key."
+
+  docs: ->
+    """
     ### Returns
 
     * Object where the keys represent the cache status (cached, uncached or
@@ -185,4 +203,5 @@ class exports.ViewStatsForKey extends StatsController
 
     @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
       return next err if err
+
       return @json res, results

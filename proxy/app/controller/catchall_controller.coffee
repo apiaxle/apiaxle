@@ -23,7 +23,7 @@ class CatchAll extends ApiaxleController
 
   _cacheTtl: ( req, cb ) ->
     # no caching
-    if not @.constructor.cachable
+    if not this.constructor.cachable
       return cb null, false, 0
 
     mustRevalidate = false
@@ -74,7 +74,7 @@ class CatchAll extends ApiaxleController
     # check for caching, pass straight through if we don't want a
     # cache (the 0 is a string because it comes straight from redis).
     @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
-      return err if err
+      return outerCb err if err
 
       if cacheTtl is 0 or mustRevalidate
         return @_httpRequest options, req.subdomain, req.key.data.key, outerCb

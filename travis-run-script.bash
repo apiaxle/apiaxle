@@ -40,5 +40,10 @@ for project in base api proxy repl; do
   # get rid of the js
   cake js:clean
 
+  # lint (fails on error)
+  if ! cake lint; then
+    exit 1
+  fi
+
   popd &> /dev/null
 done

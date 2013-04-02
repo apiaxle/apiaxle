@@ -1,8 +1,35 @@
-util   = require "util"
-fs     = require "fs"
-muffin = require "muffin"
+util       = require "util"
+fs         = require "fs"
+muffin     = require "muffin"
+coffeelint = require "coffeelint"
+colors     = require "colors"
 
 { spawn }  = require "child_process"
+
+lint_config = require "../../coffeelint.json"
+
+lint = ( options, globs ) ->
+  colors.setTheme
+    warn: "yellow"
+    error: "red"
+
+  muffin.run
+    files: globs
+    options: options
+    map:
+      "(.+?).coffee$": ( [ filename ] ) ->
+        exit_code = 0
+
+        input = fs.readFileSync( filename, "utf-8" )
+        output = coffeelint.lint( input, lint_config )
+
+        if output.length > 0
+          for line in output
+            { lineNumber, rule, message, level } = line
+            console.log "#{ filename }:#{ lineNumber }: #{ rule } - #{ message }"[ level ]
+            exit_code = 1 if level is "error"
+
+        process.exit exit_code
 
 jsBuild = ( options, globs ) ->
   muffin.run
@@ -36,3 +63,4 @@ exports.jsBuild = jsBuild
 exports.jsClean = jsClean
 exports.test = test
 exports.fixHashbang = fixHashbang
+exports.lint = lint

@@ -3,6 +3,30 @@ async = require "async"
 { ValidationError } = require "../../../../lib/error"
 { FakeAppTest } = require "../../../apiaxle_base"
 
+class exports.ApiKeyLinkTest extends FakeAppTest
+  @empty_db_on_setup = true
+
+  "test deleting unlinks keys": ( done ) ->
+    fixture =
+      api:
+        facebook: {}
+        twitter: {}
+      key:
+        phil: { forApis: [ "facebook", "twitter" ] }
+        bob: { forApis: [ "facebook", "twitter" ] }
+
+    @fixtures.create fixture, ( err, [ facebook, twitter, phil, bob ] ) =>
+      @isNull err
+
+      facebook.delete ( err ) =>
+        @isNull err
+
+        phil.supportedApis ( err, api_list ) =>
+          # the keys should no longet know about facebook
+          @ok "facebook" not in api_list
+
+          done 3
+
 class exports.ApiTest extends FakeAppTest
   @empty_db_on_setup = true
 
@@ -86,7 +110,7 @@ class exports.ApiTest extends FakeAppTest
         @isNull err
         @equal supported, true
 
-        dbFacebook.unlinkKey "1234", ( err ) =>
+        dbFacebook.unlinkKeyById "1234", ( err ) =>
           @isNull err
 
           dbFacebook.supportsKey "1234", ( err, supported ) =>
