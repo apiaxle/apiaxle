@@ -61,8 +61,7 @@ class exports.CreateKey extends ApiaxleController
 
     @app.model( "keyFactory" ).create req.params.key, req.body, ( err, newObj ) =>
       return next err if err
-
-      @json res, newObj.data
+      return @json res, newObj.data
 
 class exports.ViewKey extends ApiaxleController
   @verb = "get"
@@ -88,9 +87,9 @@ class exports.ViewKey extends ApiaxleController
 
       # merge the api names with the current output
       output = req.key.data
-      output.apis = apiNameList
-
-      @json res, req.key.data
+      output.apis = _.map apiNameList, ( a ) ->
+        "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
+      return @json res, req.key.data
 
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
@@ -113,8 +112,7 @@ class exports.DeleteKey extends ApiaxleController
 
     req.key.delete ( err ) =>
       return next err if err
-
-      @json res, true
+      return @json res, true
 
 class exports.ModifyKey extends ApiaxleController
   @verb = "put"
@@ -179,7 +177,6 @@ class exports.ViewHitsForKeyNow extends ApiaxleController
 
     @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
       return next err if err
-
       return @json res, results
 
 class exports.ListKeyApis extends ListController
@@ -215,4 +212,7 @@ class exports.ListKeyApis extends ListController
 
       @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
         return cb err if err
-        return @json res, results
+
+        output = _.map apiNameList, ( a ) ->
+          "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
+        return @json res, output
