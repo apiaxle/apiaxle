@@ -83,10 +83,10 @@ class exports.KeyTest extends FakeAppTest
             @deepEqual apis, [ "twitter", "facebook" ]
 
             key1.isLinkedToApi "facebook", ( err, res ) =>
-              @equal res, 1
+              @equal res, true
 
               key1.isLinkedToApi "hello", ( err, res ) =>
-                @equal res, 0
+                @equal res, false
 
                 done 8
 
