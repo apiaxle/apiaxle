@@ -87,8 +87,8 @@ class exports.ViewKey extends ApiaxleController
 
       # merge the api names with the current output
       output = req.key.data
-      output.apis = apiNameList
-
+      output.apis = _.map apiNameList, ( a ) ->
+        "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
       return @json res, req.key.data
 
 class exports.DeleteKey extends ApiaxleController
@@ -212,4 +212,7 @@ class exports.ListKeyApis extends ListController
 
       @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
         return cb err if err
-        return @json res, results
+
+        output = _.map apiNameList, ( a ) ->
+          "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
+        return @json res, output

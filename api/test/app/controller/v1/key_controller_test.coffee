@@ -28,7 +28,8 @@ class exports.KeyControllerTest extends ApiaxleTest
           @isNumber json.results.qps
           @isNumber json.results.qpd
 
-          @deepEqual json.results.apis, [ "twitter", "facebook" ]
+          @deepEqual json.results.apis, [ "#{ @host_name }/v1/api/twitter",
+                                          "#{ @host_name }/v1/api/facebook" ]
 
           done 6
 

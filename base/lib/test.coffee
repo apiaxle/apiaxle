@@ -79,6 +79,8 @@ class exports.AppTest extends TwerpTest
       application_mem = new @constructor.appClass "127.0.0.1", @constructor.port
       application_mem.configureModels().configureControllers()
 
+    @host_name = "http://127.0.0.1:#{ @constructor.port }"
+
     @stubs = []
     @spies  = []
 
