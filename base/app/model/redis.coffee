@@ -159,6 +159,11 @@ class Redis
 
     strings.join "\n"
 
+  fHexists: ( key, field, cb ) ->
+    @hexists key, field, ( err, result ) ->
+      return cb err if err
+      return cb null, ( result is 1 )
+
 class RedisMulti extends redis.Multi
   constructor: ( @ns, client, args ) ->
     @ee = new events.EventEmitter()
@@ -257,13 +262,9 @@ class KeyContainerModel extends Model
     @lrange "#{ @id }:keys", start, stop, cb
 
   supportsKey: ( key, cb ) ->
-    @hexists "#{ @id }:keys-lookup", key, ( err, exists ) ->
+    @fHexists "#{ @id }:keys-lookup", key, ( err, exists ) ->
       return cb err if err
-
-      if exists is 0
-        return cb null, false
-
-      return cb null, true
+      return cb null, exists
 
 # adding a command here will make it usable in Redis and
 # RedisMulti. The reason for the read/write attribute is so that when
