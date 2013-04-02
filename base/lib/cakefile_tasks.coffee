@@ -44,7 +44,9 @@ jsClean = ( options, globs ) ->
     files: globs
     options: options
     map:
-      "(.+?).js": ( m ) -> fs.unlinkSync "#{m[0]}"
+      "(.+?).js": ( m ) ->
+        console.log( "Unlinking #{m[0]}" )
+        fs.unlinkSync "#{m[0]}"
 
 run = ( command, args ) ->
   script = spawn command, args
