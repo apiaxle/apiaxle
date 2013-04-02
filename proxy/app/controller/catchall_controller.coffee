@@ -112,20 +112,24 @@ class CatchAll extends ApiaxleController
           cache.add key, cacheTtl, apiRes.statusCode, contentType, body, ( err ) =>
             return outerCb err, apiRes, body
 
+  @ENDPOINT_ERROR_MAP =
+    ETIMEOUT: ( ) -> new EndpointTimeoutError "API endpoint timed out."
+    ENOTFOUND: ( ) -> new EndpointMissingError "API endpoint could not be reached."
+
   _httpRequest: ( options, api, api_key, cb) ->
     statsModel = @app.model "stats"
 
     @app.logger.debug "#{ @constructor.verb }ing '#{ options.url }'"
     request[ @constructor.verb ] options, ( err, apiRes, body ) =>
       if err
-        if err.code is "ETIMEDOUT"
-          return statsModel.hit api, api_key, "error", "EndpointTimeoutError", ( err, res ) ->
-            return cb new EndpointTimeoutError "API endpoint timed out."
+        if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
+          new_err = err_func()
+          console.log( new_err )
+          return statsModel.hit api, api_key, "error", new_err.name, ( err, res ) ->
+            return cb new_err
 
-        if err.code is "ENOTFOUND"
-          return statsModel.hit api, api_key, "error", "EndpointMissingError", ( err, res ) ->
-            return cb new EndpointMissingError "API endpoint could not be reached."
-
+        # if we're here its a new kind of error, don't want to call
+        # statsModel.hit without knowing what it is for now
         @app.logger.warn "Error won't be statistically logged: '#{ err.message }'"
         error = new Error "'#{ options.url }' yielded '#{ err.message }'."
         return cb error, null
