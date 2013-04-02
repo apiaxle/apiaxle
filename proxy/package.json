@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "apiaxle-base": "0.8.5",
-    "request": "2.1.1",
+    "request": "~2.16",
     "parseopt": "1.0.0",
     "async": "0.1.9",
     "express": "2.5",
