@@ -95,7 +95,7 @@ class CatchAll extends ApiaxleController
               headers:
                 "Content-Type": contentType
 
-            outerCb err, fakeResponse, body
+            return outerCb err, fakeResponse, body
 
         @app.logger.debug "Cache miss: #{options.url}"
 
@@ -110,23 +110,22 @@ class CatchAll extends ApiaxleController
             return outerCb err, apiRes, body
 
   _httpRequest: ( options, api, api_key, cb) ->
-    statsModel   = @app.model "stats"
+    statsModel = @app.model "stats"
 
-    @app.logger.debug "#{ @constructor.verb }'ing '#{ options.url }'"
+    @app.logger.debug "#{ @constructor.verb }ing '#{ options.url }'"
     request[ @constructor.verb ] options, ( err, apiRes, body ) =>
       if err
         # if we timeout then throw an error
         if err.code is "ETIMEDOUT"
-          statsModel.hit api, api_key, "error", "timeout", ( err, res ) ->
+          return statsModel.hit api, api_key, "error", "timeout", ( err, res ) ->
             return cb new TimeoutError( "API endpoint timed out." )
-        else
-          error = new Error "'#{ options.url }' yielded '#{ err.message }'"
-          return cb error, null
-      else
-        # response with the same code as the endpoint
-        # TODO: async these.
-        statsModel.hit api, api_key, "uncached", apiRes.statusCode, ( err, res ) ->
-          return cb err, apiRes, body
+
+        error = new Error "'#{ options.url }' yielded '#{ err.message }'"
+        return cb error, null
+
+      # response with the same code as the endpoint
+      return statsModel.hit api, api_key, "uncached", apiRes.statusCode, ( err, res ) ->
+        return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
     if req.api.isDisabled()
