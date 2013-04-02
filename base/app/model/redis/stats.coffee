@@ -5,7 +5,7 @@ _       = require "underscore"
 
 class exports.Stats extends Redis
   @instantiateOnStartup = true
-  @smallKeyName         = "stats"
+  @smallKeyName         = "stats2"
 
   # A list of granularities at which we store statistics. For each of
   # them the following fields are required:
