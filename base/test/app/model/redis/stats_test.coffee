@@ -17,10 +17,10 @@ class exports.StatsTest extends FakeAppTest
       done()
 
   "test #get": ( done ) ->
-    now = ( new Date() ).getTime()
+    now = 1364899967489
     now_seconds = Math.floor( now / 1000 )
 
-    clock = @getClock()
+    clock = @getClock now
 
     all = []
     all.push ( cb ) =>
