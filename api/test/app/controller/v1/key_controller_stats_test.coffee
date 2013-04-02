@@ -44,11 +44,14 @@ class exports.KeyStatsTest extends ApiaxleTest
             @equal code, 200
             for ts, count of result
               @equal count, 1
+
           for code, result of json.results.cached
             @equal code, 400
+
             for ts, count of result
               @ok count > 0
-          done 7
+
+          done 3
 
   "test GET minutes stats for Key": ( done ) ->
     model = @app.model "stats"
@@ -80,4 +83,4 @@ class exports.KeyStatsTest extends ApiaxleTest
             for ts, count of result
               @ok count > 0
 
-          done 7
+          done 3

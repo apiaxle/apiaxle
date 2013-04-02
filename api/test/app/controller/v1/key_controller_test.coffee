@@ -98,7 +98,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal json.results.error.type, "ValidationError"
         @equal json.results.error.message, "qps: The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
 
-        done 4
+        done 5
 
   "test PUT with an existing key": ( done ) ->
     options =
@@ -308,4 +308,4 @@ class exports.KeyStatsTest extends ApiaxleTest
                 # 99 - 5 because this user had already used 5 hits today
                 @equal qpdLeft, 94
 
-                done 1
+                done 7
