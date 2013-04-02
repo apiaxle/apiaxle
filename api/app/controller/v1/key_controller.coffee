@@ -150,30 +150,6 @@ class exports.ModifyKey extends ApiaxleController
       return next err if err
       return @json res, new_key.data
 
-class exports.ViewStatsForKey extends StatsController
-  @verb = "get"
-
-  desc: -> "Get stats for a key."
-
-  docs: ->
-    """
-    #{ @paramDocs() }
-    * forapi: Narrow results down to all statistics for the specified api.
-
-    * Object where the keys represent timestamp for a given second
-      and the values the amount of hits to the Key for that second
-    """
-
-  middleware: -> [ @mwKeyDetails( @app ) ]
-
-  path: -> "/v1/key/:key/hits"
-
-  execute: ( req, res, next ) ->
-    model = @app.model "hits"
-    model.getCurrentMinute "key", req.params.key, ( err, hits ) =>
-      return @json res, hits
-
-
 class exports.ViewHitsForKeyNow extends ApiaxleController
   @verb = "get"
 
