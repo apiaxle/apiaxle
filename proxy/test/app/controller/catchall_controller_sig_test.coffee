@@ -47,7 +47,6 @@ class exports.CatchallSigTest extends ApiaxleTest
 
           controller.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
             @isNull err
-
             @ok token
 
             cb()
@@ -64,7 +63,7 @@ class exports.CatchallSigTest extends ApiaxleTest
               "There should be an error for a token that's #{ validSeconds } out."
 
             @match err.message, /Invalid signature/
-            @equal err.name, "AppError"
+            @equal err.name, "KeyError"
 
             cb()
 

@@ -170,7 +170,7 @@ class exports.Application
   onError: ( err, req, res, next ) ->
     output =
       error:
-        type: err.constructor.name
+        type: err.name
         message: err.message
 
     output.error.details = err.details if err.details

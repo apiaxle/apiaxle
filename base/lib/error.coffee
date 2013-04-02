@@ -2,7 +2,7 @@ class exports.AppError extends Error
   @status = 400
 
   constructor: ( msg, @options ) ->
-    @name = arguments.callee.name
+    @name = @constructor.name
     @message = msg
 
     @details = @options?.details
