@@ -12,7 +12,7 @@ task "js:build", "Build the front-end javascript", ( options ) ->
 
 task "js:clean", "Build the front-end javascript", ( options ) ->
   jsClean options, [ "app/**/*.js",
-                     "test/**/*.coffee",
+                     "test/**/*.js",
                      "lib/**/*.js",
                      "index.js" ]
 
