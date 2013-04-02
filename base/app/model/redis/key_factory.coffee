@@ -10,10 +10,12 @@ class Key extends Model
   linkToApi: ( apiName, cb ) -> @hset "#{ @id }-apis", apiName, 1, cb
   supportedApis: ( cb ) -> @hkeys "#{ @id }-apis", cb
   unlinkFromApi: ( apiName, cb ) -> @hdel "#{ @id }-apis", apiName, cb
+  isLinkedToApi: ( api_name, cb ) -> @hexists "#{ @id }-apis", api_name, cb
 
   linkToKeyring: ( krName, cb ) -> @hset "#{ @id }-keyrings", krName, 1, cb
   supportedKeyrings: ( cb ) -> @hkeys "#{ @id }-keyrings", cb
   unlinkFromKeyring: ( krName, cb ) -> @hdel "#{ @id }-keyrings", krName, cb
+  isLinkedToKeyring: ( api_name, cb ) -> @hexists "#{ @id }-keyrings", api_name, cb
 
   isDisabled: ( ) -> @data.disabled
 

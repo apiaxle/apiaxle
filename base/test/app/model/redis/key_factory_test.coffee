@@ -62,11 +62,12 @@ class exports.KeyTest extends FakeAppTest
       api:
         twitter: {}
         facebook: {}
+        hello: {}
       key:
         1234: {}
         5678: {}
 
-    @fixtures.create fixtures, ( err, [ twitter, facebook, key1, key2 ] ) =>
+    @fixtures.create fixtures, ( err, [ twitter, facebook, hello, key1, key2 ] ) =>
       @isNull err
 
       # the fixture creator associates keys with twitter by default
@@ -81,7 +82,13 @@ class exports.KeyTest extends FakeAppTest
             @isNull err
             @deepEqual apis, [ "twitter", "facebook" ]
 
-            done 6
+            key1.isLinkedToApi "facebook", ( err, res ) =>
+              @equal res, 1
+
+              key1.isLinkedToApi "hello", ( err, res ) =>
+                @equal res, 0
+
+                done 8
 
 class exports.KeyApiLinkTest extends FakeAppTest
   @empty_db_on_setup = true
