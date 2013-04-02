@@ -65,7 +65,7 @@ class exports.Application
     return @
 
   configureModels: ( ) ->
-    @.models or= {}
+    @models or= {}
 
     modelPaths = @_modelList( "#{ __dirname }/../app/model" )
 
@@ -86,15 +86,15 @@ class exports.Application
           # models take an instance of this class as an argument to the
           # constructor. This gives us something like
           # `application.models.metaCache`.
-          @.models[ modelName ] = new func @
+          @models[ modelName ] = new func @
 
-    return @
+    return this
 
   model: ( name ) ->
-    @.models[ name ] or null
+    @models[ name ] or null
 
   controller: ( name ) ->
-    @.controllers[ name ] or null
+    @controllers[ name ] or null
 
   _modelList: ( initialPath ) ->
     list = []
