@@ -2,7 +2,10 @@ url = require "url"
 crypto = require "crypto"
 request = require "request"
 
-{ KeyDisabled, ApiDisabled, TimeoutError } = require "../../lib/error"
+{ KeyDisabled,
+  ApiDisabled,
+  EndpointMissingError,
+  EndpointTimeoutError } = require "../../lib/error"
 { ApiaxleController } = require "./controller"
 
 class CatchAll extends ApiaxleController
@@ -115,12 +118,16 @@ class CatchAll extends ApiaxleController
     @app.logger.debug "#{ @constructor.verb }ing '#{ options.url }'"
     request[ @constructor.verb ] options, ( err, apiRes, body ) =>
       if err
-        # if we timeout then throw an error
         if err.code is "ETIMEDOUT"
-          return statsModel.hit api, api_key, "error", "timeout", ( err, res ) ->
-            return cb new TimeoutError( "API endpoint timed out." )
+          return statsModel.hit api, api_key, "error", "EndpointTimeoutError", ( err, res ) ->
+            return cb new EndpointTimeoutError "API endpoint timed out."
 
-        error = new Error "'#{ options.url }' yielded '#{ err.message }'"
+        if err.code is "ENOTFOUND"
+          return statsModel.hit api, api_key, "error", "EndpointMissingError", ( err, res ) ->
+            return cb new EndpointMissingError "API endpoint could not be reached."
+
+        @app.logger.warn "Error won't be statistically logged: '#{ err.message }'"
+        error = new Error "'#{ options.url }' yielded '#{ err.message }'."
         return cb error, null
 
       # response with the same code as the endpoint
