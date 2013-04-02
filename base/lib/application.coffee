@@ -15,7 +15,7 @@ class exports.Application
   @env = ( process.env.NODE_ENV or "development" )
 
   constructor: ( @binding_host, @port ) ->
-    app = module.exports = express.createServer()
+    app = express.createServer()
 
     @_configure app
 
