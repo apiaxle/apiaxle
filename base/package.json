@@ -14,8 +14,7 @@
   "main": "index",
   "scripts": {
     "test": "cake test",
-    "prepublish": "cake js:build && cp ../README.md .",
-    "postpublish": "cake js:clean"
+    "prepublish": "cake js:build && cp ../README.md ."
   },
   "dependencies": {
     "log4js": "0.5",

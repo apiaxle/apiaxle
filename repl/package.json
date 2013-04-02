@@ -15,8 +15,7 @@
   "version": "0.8.5",
   "scripts": {
     "test": "cake test",
-    "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang",
-    "postpublish": "cake js:clean"
+    "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang"
   },
   "bin": {
     "apiaxle": "./apiaxle.js"
