@@ -124,7 +124,7 @@ class CatchAll extends ApiaxleController
       if err
         if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
           new_err = err_func()
-          console.log( new_err )
+
           return statsModel.hit api, api_key, "error", new_err.name, ( err, res ) ->
             return cb new_err
 
@@ -159,7 +159,7 @@ class CatchAll extends ApiaxleController
 
     model.apiHit key, qps, qpd, ( err, [ newQps, newQpd ] ) =>
       if err
-        statsModel   = @app.model "stats"
+        statsModel = @app.model "stats"
 
         # collect the type of error (QpsExceededError or
         # QpdExceededError at the moment)
