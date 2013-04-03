@@ -172,7 +172,7 @@ class exports.ListApis extends ListController
 
   desc: -> "List all APIs."
 
-  queryParams: ( req ) ->
+  queryParams: ->
     params =
       type: "object"
       additionalProperties: false
@@ -220,7 +220,7 @@ class exports.ListApiKeys extends ListController
 
   desc: -> "List keys belonging to an API."
 
-  queryParams: ( req ) ->
+  queryParams: ->
     params =
       type: "object"
       additionalProperties: false
@@ -280,8 +280,8 @@ class exports.ViewAllStatsForApi extends StatsController
 
   desc: -> "Get stats for an api."
 
-  queryParams: ( req ) ->
-    current = super req
+  queryParams: ->
+    current = super()
 
     # extends the base class queryParams
     _.extend current,

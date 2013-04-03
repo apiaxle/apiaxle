@@ -5,6 +5,8 @@ _ = require "underscore"
 
 { ApiaxleApi } = require "../apiaxle-api"
 
+process.env.NODE_ENV = "docs"
+
 print = console.log
 
 alreadyPrinted = {}

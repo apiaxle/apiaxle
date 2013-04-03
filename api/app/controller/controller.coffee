@@ -13,6 +13,17 @@ async  = require "async"
   ApiKeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
+  queryParamDocs: ( ) ->
+    strings = for field, details of @queryParams().properties
+      continue unless details.docs?
+
+      out = "* #{ field }: "
+
+      out += "(default: #{ details.default }) " if details.default
+      out += "#{ details.docs or 'undocumented.'}"
+
+    strings.join "\n"
+
   # Used output data conforming to a standard Api Axle
   # format. Includes a metadata field
   json: ( res, results ) ->
@@ -27,7 +38,7 @@ class exports.ApiaxleController extends Controller
   # By default there are no query parameters and adding them will
   # cause an error. Only affects controllers which use the
   # `mwValidateQueryParams` middleware.
-  queryParams: ( req ) ->
+  queryParams: ->
     params =
       type: "object"
       additionalProperties: false
@@ -58,7 +69,7 @@ class exports.ApiaxleController extends Controller
     ( req, res, next ) =>
       return next() if not @queryParams?
 
-      validators = @queryParams req
+      validators = @queryParams()
 
       for key, val of req.query
         # find out what type we expect
@@ -199,9 +210,7 @@ class exports.ListController extends exports.ApiaxleController
         return @json res, results
 
 class exports.StatsController extends exports.ApiaxleController
-  console.log( @valid_granularities )
-
-  queryParams: ( req ) ->
+  queryParams: ->
     # get the correct granularities from the model itself.
     if not @valid_granularities
       gran_details = @app.model( "stats" ).constructor.granularities
