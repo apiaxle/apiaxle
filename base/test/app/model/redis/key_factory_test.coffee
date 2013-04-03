@@ -114,4 +114,4 @@ class exports.KeyApiLinkTest extends FakeAppTest
           # facebook should no longer know of phil
           @ok "phil" not in key_list
 
-          done 3
+          done 4
