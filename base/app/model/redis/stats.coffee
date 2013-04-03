@@ -75,8 +75,9 @@ class exports.Stats extends Redis
 
       all = []
       for code in codes
-        all.push ( cb ) =>
-          @get db_key.concat([ code ]), gran, from, to, cb
+        do( code ) =>
+          all.push ( cb ) =>
+            @get db_key.concat([ code ]), gran, from, to, cb
 
       async.series all, ( err, res ) =>
         return cb err if err
