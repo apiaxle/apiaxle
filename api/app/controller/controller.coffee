@@ -17,10 +17,14 @@ class exports.ApiaxleController extends Controller
     strings = for field, details of @queryParams().properties
       continue unless details.docs?
 
+      docs = "Undocumented."
+      if details.docs
+        docs = details.docs.replace( /[ \n]+/g, " " )
+
       out = "* #{ field }: "
       out += "(default: #{ details.default }) " if details.default
-      out += "\nvalue must be one of: #{ details.enum.join ', ' }" if details.enum
-      out += "\n#{ details.docs or 'undocumented.'}"
+      out += "One of: #{ details.enum.join ', ' }. " if details.enum
+      out += "#{ docs }"
 
     return strings.join "\n"
 
