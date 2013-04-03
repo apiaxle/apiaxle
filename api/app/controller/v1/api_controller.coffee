@@ -169,6 +169,21 @@ class exports.ListApis extends ListController
 
   desc: -> "List all APIs."
 
+  query_params: ( req ) ->
+    params =
+      type: "object"
+      additionalProperties: false
+      properties:
+        from:
+          type: "integer"
+          default: 0
+        to:
+          type: "integer"
+          default: 10
+        resolve:
+          type: "boolean"
+          default: false
+
   docs: ->
     """
     ### Supported query params
@@ -190,6 +205,8 @@ class exports.ListApis extends ListController
     """
 
   modelName: -> "apiFactory"
+
+  middleware: -> [ @mwValidateQueryParams() ]
 
 class exports.ListApiKeys extends ListController
   @verb = "get"
@@ -221,7 +238,9 @@ class exports.ListApiKeys extends ListController
   middleware: -> [ @mwApiDetails( @app ) ]
 
   execute: ( req, res, next ) ->
-    req.api.getKeys @from( req ), @to( req ), ( err, keys ) =>
+    { from, to } = req.query
+
+    req.api.getKeys from, to, ( err, keys ) =>
       return next err if err
 
       if not req.query.resolve? or req.query.resolve isnt "true"
