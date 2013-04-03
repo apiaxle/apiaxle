@@ -180,20 +180,19 @@ class exports.ListApis extends ListController
         from:
           type: "integer"
           default: 0
-          description: "Integer for the index of the first api you
-                        want to see. Starts at zero."
+          docs: "Integer for the index of the first api you
+                 want to see. Starts at zero."
         to:
           type: "integer"
           default: 10
-          description: "Integer for the index of the last api you want
-                        to see. Starts at zero."
+          docs: "Integer for the index of the last api you want
+                 to see. Starts at zero."
         resolve:
           type: "boolean"
           default: false
-          description: "If set to `true` then the details concerning
-                        the listed apis will also be printed. Be aware
-                        that this will come with a minor performace
-                        hit."
+          docs: "If set to `true` then the details concerning the
+                 listed apis will also be printed. Be aware that this
+                 will come with a minor performace hit."
 
   docs: ->
     """
@@ -228,20 +227,19 @@ class exports.ListApiKeys extends ListController
         from:
           type: "integer"
           default: 0
-          description: "The index of the first key you want to
-                        see. Starts at zero."
+          docs: "The index of the first key you want to
+                 see. Starts at zero."
         to:
           type: "integer"
           default: 10
-          description: "The index of the last key you want to
-                        see. Starts at zero."
+          docs: "The index of the last key you want to see. Starts at
+                 zero."
         resolve:
           type: "boolean"
           default: false
-          description: "If set to `true` then the details concerning
-                        the listed keys will also be printed. Be aware
-                        that this will come with a minor performace
-                        hit."
+          docs: "If set to `true` then the details concerning the
+                 listed keys will also be printed. Be aware that this
+                 will come with a minor performace hit."
 
   docs: ->
     """
@@ -288,8 +286,8 @@ class exports.ViewAllStatsForApi extends StatsController
       forkey:
         type: "string"
         optional: true
-        description: "Narrow results down to all statistics for the
-                      specified key."
+        docs: "Narrow results down to all statistics for the specified
+               key."
 
     return current
 

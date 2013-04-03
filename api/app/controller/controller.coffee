@@ -18,11 +18,11 @@ class exports.ApiaxleController extends Controller
       continue unless details.docs?
 
       out = "* #{ field }: "
-
       out += "(default: #{ details.default }) " if details.default
-      out += "#{ details.docs or 'undocumented.'}"
+      out += "\nvalue must be one of: #{ details.enum.join ', ' }" if details.enum
+      out += "\n#{ details.docs or 'undocumented.'}"
 
-    strings.join "\n"
+    return strings.join "\n"
 
   # Used output data conforming to a standard Api Axle
   # format. Includes a metadata field
@@ -223,21 +223,21 @@ class exports.StatsController extends exports.ApiaxleController
         from:
           type: "integer"
           default: ( ( new Date() ).getTime() / 1000 ) - 600
-          description: "The unix epoch from which to start gathering
-                        the statistics. Defaults to `now - 10 minutes`."
+          docs: "The unix epoch from which to start gathering
+                 the statistics. Defaults to `now - 10 minutes`."
         to:
           type: "integer"
           default: ( new Date() ).getTime() / 1000
-          description: "The unix epoch from which to finish gathering
-                        the statistics. Defaults to `now`."
+          docs: "The unix epoch from which to finish gathering
+                 the statistics. Defaults to `now`."
         granularity:
           type: "string"
           enum: @valid_granularities
           default: "minutes"
-          description: "Allows you to gather statistics tuned to this
-                        level of granularity. Results will still
-                        arrive in the form of an epoch to results pair
-                        but will be rounded off to the nearest unit."
+          docs: "Allows you to gather statistics tuned to this level
+                 of granularity. Results will still arrive in the form
+                 of an epoch to results pair but will be rounded off
+                 to the nearest unit."
 
   getStatsRange: ( req, axle_type, key_parts, cb ) ->
     model = @app.model "stats"
