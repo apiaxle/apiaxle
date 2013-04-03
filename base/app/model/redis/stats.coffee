@@ -114,7 +114,6 @@ class exports.Stats extends Redis
       ts += properties.factor
 
     # we need to format the results into an object ts => hits
-    # also 0 pads
     multi.exec ( err, results ) =>
       return cb err if err
 
@@ -122,9 +121,9 @@ class exports.Stats extends Redis
       i  = 0
       data = {}
       while ts <= to
-        res = ( results[i] or 0 )
+        if res = results[i]
+          data[ts] = parseInt res
 
-        data[ts] = parseInt res
         ts += properties.factor
         i += 1
 
