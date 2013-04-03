@@ -74,18 +74,15 @@ class exports.Stats extends Redis
   getAll: ( db_key, gran, from, to, cb ) ->
     @getPossibleResponseTypes db_key, ( err, codes ) =>
       all = []
-      _.each codes, ( code ) =>
+
+      for code in codes
         all.push ( cb ) =>
-          temp_key = _.clone db_key
-          temp_key.push code
-          @get temp_key, gran, from, to, cb
+          @get db_key.concat( code ), gran, from, to, cb
 
       async.series all, ( err, res ) =>
         results = {}
 
-        for code, idx in codes
-          results[code] = res[idx]
-
+        results[code] = res[idx] for code, idx in codes
         return cb err, results
 
   # Get a single response code for a key or api stat
