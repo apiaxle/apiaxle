@@ -24,6 +24,14 @@ class exports.ApiaxleController extends Controller
 
     return res.json output
 
+  # By default there are no query parameters and adding them will
+  # cause an error. Only affects controllers which use the
+  # `mwValidateQueryParams` middleware.
+  queryParams: ( req ) ->
+    params =
+      type: "object"
+      additionalProperties: false
+
   # This function is used to satisfy the `?resolve=true` type
   # parameters. Given a bunch of keys, go off to the respective bits
   # of redis to resolve the data.
@@ -48,13 +56,13 @@ class exports.ApiaxleController extends Controller
 
   mwValidateQueryParams: ( ) ->
     ( req, res, next ) =>
-      return next() if not @query_params? or not req.params
+      return next() if not @queryParams?
 
-      validators = @query_params req
+      validators = @queryParams req
 
       for key, val of req.query
         # find out what type we expect
-        break unless validators.properties[ key ]?
+        break unless validators.properties?[ key ]?
         suggested_type = validators.properties[ key ].type
 
         # convert int if need be
@@ -191,69 +199,60 @@ class exports.ListController extends exports.ApiaxleController
         return @json res, results
 
 class exports.StatsController extends exports.ApiaxleController
-  paramDocs: ( ) ->
-    """
-    ### Supported query params
+  console.log( @valid_granularities )
 
-    * from: Integer representing the unix epoch from which to start
-      gathering the statistics. Defaults to `now - 10 minutes`.
-    * to: Integer representing the unix epoch from which to finish
-      gathering the statistics. Defaults to `now`.
-    * granularity: One of #{ @valid_granularities.join ', ' }. Allows
-      you to gather statistics tuned to this level of
-      granularity. Results will still arrive in the form of an epoch
-      to results pair but will be rounded off to the nearest unit.
-    """
-
-  from: ( req ) ->
-    return ( req.query.from or ( ( new Date() ).getTime() / 1000 ) - 600 )
-
-  to: ( req ) ->
-    return ( req.query.to or ( new Date() ).getTime() / 1000 )
-
-  granularity: ( req, cb ) ->
-    # memoize the valid granularities
+  queryParams: ( req ) ->
+    # get the correct granularities from the model itself.
     if not @valid_granularities
       gran_details = @app.model( "stats" ).constructor.granularities
       @valid_granularities = _.keys gran_details
 
-    # check if the user has set it
-    if gran_input = req.query.granularity
-      # is it in the range of valid entries?
-      if not ( gran_input in @valid_granularities )
-        msg = "Valid granularities are #{ @valid_granularities.join ', ' }"
-        return cb new InvalidGranularityType msg
-
-      return cb null, gran_input
-
-    # return the default
-    return cb null, "minutes"
+    params =
+      type: "object"
+      additionalProperties: false
+      properties:
+        from:
+          type: "integer"
+          default: ( ( new Date() ).getTime() / 1000 ) - 600
+          description: "The unix epoch from which to start gathering
+                        the statistics. Defaults to `now - 10 minutes`."
+        to:
+          type: "integer"
+          default: ( new Date() ).getTime() / 1000
+          description: "The unix epoch from which to finish gathering
+                        the statistics. Defaults to `now`."
+        granularity:
+          type: "string"
+          enum: @valid_granularities
+          default: "minutes"
+          description: "Allows you to gather statistics tuned to this
+                        level of granularity. Results will still
+                        arrive in the form of an epoch to results pair
+                        but will be rounded off to the nearest unit."
 
   getStatsRange: ( req, axle_type, key_parts, cb ) ->
     model = @app.model "stats"
     types = [ "uncached", "cached", "error" ]
 
-    { from, to } = req.query
+    # all managed by queryParams
+    { from, to, granularity } = req.query
 
-    @granularity req, ( err, granularity ) =>
+    all = []
+    _.each types, ( type ) =>
+      all.push ( cb ) =>
+        # axle_type probably one of "key", "api", "api-key",
+        # "key-api" at the moment
+        redis_key = [ axle_type ]
+        redis_key = redis_key.concat key_parts
+        redis_key.push type
+
+        model.getAll redis_key, granularity, from, to, cb
+
+    async.series all, ( err, results ) =>
       return cb err if err
 
-      all = []
-      _.each types, ( type ) =>
-        all.push ( cb ) =>
-          # axle_type probably one of "key", "api", "api-key",
-          # "key-api" at the moment
-          redis_key = [ axle_type ]
-          redis_key = redis_key.concat key_parts
-          redis_key.push type
+      processed = {}
+      for type, idx in types
+        processed[type] = results[idx]
 
-          model.getAll redis_key, granularity, from, to, cb
-
-      async.series all, ( err, results ) =>
-        return cb err if err
-
-        processed = {}
-        for type, idx in types
-          processed[type] = results[idx]
-
-        return cb null, processed
+      return cb null, processed

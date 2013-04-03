@@ -24,7 +24,8 @@ class exports.UnlinkKeyToApi extends ApiaxleController
     * The unlinked key details.
     """
 
-  middleware: -> [ @mwApiDetails( valid_api_required=true ),
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ),
                    @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/api/:api/unlinkkey/:key"
@@ -53,7 +54,8 @@ class exports.LinkKeyToApi extends ApiaxleController
     * The linked key details.
     """
 
-  middleware: -> [ @mwApiDetails( valid_api_required=true ),
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ),
                    @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/api/:api/linkkey/:key"
@@ -79,7 +81,8 @@ class exports.CreateApi extends ApiaxleController
     * The inserted structure (including the new timestamp fields).
     """
 
-  middleware: -> [ @mwContentTypeRequired(),
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwContentTypeRequired(),
                    @mwApiDetails( ) ]
 
   path: -> "/v1/api/:api"
@@ -105,7 +108,8 @@ class exports.ViewApi extends ApiaxleController
     * The API structure (including the timestamp fields).
     """
 
-  middleware: -> [ @mwApiDetails( valid_api_required=true ) ]
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
 
   path: -> "/v1/api/:api"
 
@@ -150,10 +154,9 @@ class exports.ModifyApi extends ApiaxleController
     * The merged structure (including the timestamp fields).
     """
 
-  middleware: -> [
-    @mwContentTypeRequired( ),
-    @mwApiDetails( valid_api_required=true )
-  ]
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwContentTypeRequired( ),
+                   @mwApiDetails( valid_api_required=true ) ]
 
   path: -> "/v1/api/:api"
 
@@ -169,7 +172,7 @@ class exports.ListApis extends ListController
 
   desc: -> "List all APIs."
 
-  query_params: ( req ) ->
+  queryParams: ( req ) ->
     params =
       type: "object"
       additionalProperties: false
@@ -217,17 +220,34 @@ class exports.ListApiKeys extends ListController
 
   desc: -> "List keys belonging to an API."
 
+  queryParams: ( req ) ->
+    params =
+      type: "object"
+      additionalProperties: false
+      properties:
+        from:
+          type: "integer"
+          default: 0
+          description: "The index of the first key you want to
+                        see. Starts at zero."
+        to:
+          type: "integer"
+          default: 10
+          description: "The index of the last key you want to
+                        see. Starts at zero."
+        resolve:
+          type: "boolean"
+          default: false
+          description: "If set to `true` then the details concerning
+                        the listed keys will also be printed. Be aware
+                        that this will come with a minor performace
+                        hit."
+
   docs: ->
     """
     ### Supported query params
 
-    * from: Integer for the index of the first key you want to
-      see. Starts at zero.
-    * to: Integer for the index of the last key you want to
-      see. Starts at zero.
-    * resolve: if set to `true` then the details concerning the listed
-      keys will also be printed. Be aware that this will come with a
-      minor performace hit.
+    #{ @queryParamDocs() }
 
     ### Returns
 
@@ -237,7 +257,8 @@ class exports.ListApiKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  middleware: -> [ @mwApiDetails( @app ) ]
+  middleware: -> [ @mwApiDetails( @app ),
+                   @mwValidateQueryParams() ]
 
   execute: ( req, res, next ) ->
     { from, to } = req.query
@@ -245,8 +266,7 @@ class exports.ListApiKeys extends ListController
     req.api.getKeys from, to, ( err, keys ) =>
       return next err if err
 
-      if not req.query.resolve? or req.query.resolve isnt "true"
-        return @json res, keys
+      return @json res, keys if not req.query.resolve
 
       @resolve @app.model( "keyFactory" ), keys, ( err, results ) =>
         return next err if err
@@ -260,10 +280,24 @@ class exports.ViewAllStatsForApi extends StatsController
 
   desc: -> "Get stats for an api."
 
+  queryParams: ( req ) ->
+    current = super req
+
+    # extends the base class queryParams
+    _.extend current,
+      forkey:
+        type: "string"
+        optional: true
+        description: "Narrow results down to all statistics for the
+                      specified key."
+
+    return current
+
   docs: ->
     """
-    #{ @paramDocs() }
-    * forkey: Narrow results down to all statistics for the specified key.
+    ### Supported query params
+
+    #{ @queryParamDocs() }
 
     ### Returns
 
@@ -272,7 +306,8 @@ class exports.ViewAllStatsForApi extends StatsController
       these in turn contain objects with timestamp:count
     """
 
-  middleware: -> [ @mwApiDetails( @app ) ]
+  middleware: -> [ @mwApiDetails( @app ),
+                   @mwValidateQueryParams() ]
 
   path: -> "/v1/api/:api/stats"
 

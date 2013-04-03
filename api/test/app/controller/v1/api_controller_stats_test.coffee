@@ -77,8 +77,8 @@ class exports.ApiStatsTest extends ApiaxleTest
         @isNull err
         @ok error = json.results.error
 
-        @equal error.message, "Valid granularities are seconds, minutes, hours, days"
-        @equal error.type, "InvalidGranularityType"
+        @equal error.message, "granularity: Value of the ‘granularity’ must be seconds or minutes or hours or days."
+        @equal error.type, "ValidationError"
         @equal res.statusCode, 400
         @equal json.meta.status_code, 400
 
