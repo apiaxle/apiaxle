@@ -50,18 +50,16 @@ class exports.Stats extends Redis
     return Math.floor( ts_seconds / factor ) * factor
 
   getPossibleResponseTypes: ( db_key, cb ) ->
-    return @smembers db_key.concat( "response-types" ), cb
+    return @smembers db_key.concat([ "response-types" ]), cb
 
   recordHit: ( [ db_key..., axle_type ], cb ) ->
     multi = @multi()
-    multi.sadd db_key.concat( "response-types" ), axle_type
+    multi.sadd db_key.concat([ "response-types" ]), axle_type
 
     for gran, properties of Stats.granularities
       tsround = @getRoundedTimestamp null, (properties.size * properties.factor)
 
-      temp_key = db_key.concat axle_type
-      temp_key.push gran
-      temp_key.push tsround
+      temp_key = db_key.concat [ axle_type, gran, tsround ]
 
       # hash keys are stored at second
       ts = @getFactoredTimestamp null, properties.factor
@@ -77,7 +75,7 @@ class exports.Stats extends Redis
 
       for code in codes
         all.push ( cb ) =>
-          @get db_key.concat( code ), gran, from, to, cb
+          @get db_key.concat([ code ]), gran, from, to, cb
 
       async.series all, ( err, res ) =>
         results = {}
