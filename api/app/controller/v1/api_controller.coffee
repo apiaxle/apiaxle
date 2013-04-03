@@ -177,24 +177,26 @@ class exports.ListApis extends ListController
         from:
           type: "integer"
           default: 0
+          description: "Integer for the index of the first api you
+                        want to see. Starts at zero."
         to:
           type: "integer"
           default: 10
+          description: "Integer for the index of the last api you want
+                        to see. Starts at zero."
         resolve:
           type: "boolean"
           default: false
+          description: "If set to `true` then the details concerning
+                        the listed apis will also be printed. Be aware
+                        that this will come with a minor performace
+                        hit."
 
   docs: ->
     """
     ### Supported query params
 
-    * from: Integer for the index of the first api you want to
-      see. Starts at zero.
-    * to: Integer for the index of the last api you want to
-      see. Starts at zero.
-    * resolve: if set to `true` then the details concerning the listed
-      apis  will also be printed. Be aware that this will come with a
-      minor performace hit.
+    #{ @queryParamDocs() }
 
     ### Returns
 
