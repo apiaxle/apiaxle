@@ -12,16 +12,33 @@ class exports.ListKeys extends ListController
 
   desc: -> "List all of the available keys."
 
+  queryParams: ->
+    params =
+      type: "object"
+      additionalProperties: false
+      properties:
+        from:
+          type: "integer"
+          default: 0
+          docs: "The index of the first key you want to see. Starts at
+                 zero."
+        to:
+          type: "integer"
+          default: 10
+          docs: "The index of the last key you want to see. Starts at
+                 zero."
+        resolve:
+          type: "boolean"
+          default: false
+          docs: "If set to `true` then the details concerning the
+                 listed keys will also be printed. Be aware that this
+                 will come with a minor performace hit."
+
   docs: ->
     """
     ### Supported query params
-    * from: Integer for the index of the first key you want to
-      see. Starts at zero.
-    * to: Integer for the index of the last key you want to
-      see. Starts at zero.
-    * resolve: if set to `true` then the details concerning the listed
-      keys will also be printed. Be aware that this will come with a
-      minor performace hit.
+
+    #{ @queryParamDocs() }
 
     ### Returns
 
@@ -32,6 +49,8 @@ class exports.ListKeys extends ListController
     """
 
   modelName: -> "keyFactory"
+
+  middleware: -> [ @mwValidateQueryParams() ]
 
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
@@ -50,7 +69,9 @@ class exports.CreateKey extends ApiaxleController
       fields).
     """
 
-  middleware: -> [ @mwContentTypeRequired( ), @mwKeyDetails( ) ]
+  middleware: -> [ @mwContentTypeRequired(),
+                   @mwValidateQueryParams(),
+                   @mwKeyDetails() ]
 
   path: -> "/v1/key/:key"
 
@@ -75,7 +96,8 @@ class exports.ViewKey extends ApiaxleController
     * The key object (including timestamps).
     """
 
-  middleware: -> [ @mwKeyDetails( valid_key_required=true ) ]
+  middleware: -> [ @mwValidateQueryParams(),
+                   @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/key/:key"
 
@@ -103,7 +125,8 @@ class exports.DeleteKey extends ApiaxleController
     * `true` on success.
     """
 
-  middleware: -> [ @mwKeyDetails( valid_key_required=true ) ]
+  middleware: -> [ @mwValidateQueryParams(),
+                   @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/key/:key"
 
@@ -138,7 +161,8 @@ class exports.ModifyKey extends ApiaxleController
 
   middleware: -> [
     @mwContentTypeRequired( ),
-    @mwKeyDetails( valid_key_required=true )
+    @mwKeyDetails( valid_key_required=true ),
+    @mwValidateQueryParams()
   ]
 
   path: -> "/v1/key/:key"
@@ -162,7 +186,8 @@ class exports.ViewHitsForKeyNow extends ApiaxleController
       these in turn contain objects with timestamp:count
     """
 
-  middleware: -> [ @mwKeyDetails( @app ) ]
+  middleware: -> [ @mwKeyDetails( @app ),
+                   @mwValidateQueryParams() ]
 
   path: -> "/v1/key/:key/stats"
 
@@ -186,13 +211,33 @@ class exports.ListKeyApis extends ListController
 
   desc: -> "List apis belonging to a key."
 
+  queryParams: ->
+    params =
+      type: "object"
+      additionalProperties: false
+      properties:
+        from:
+          type: "integer"
+          default: 0
+          docs: "The index of the first api you want to
+                 see. Starts at zero."
+        to:
+          type: "integer"
+          default: 10
+          docs: "The index of the last api you want to see. Starts at
+                 zero."
+        resolve:
+          type: "boolean"
+          default: false
+          docs: "If set to `true` then the details concerning the
+                 listed apis will also be printed. Be aware that this
+                 will come with a minor performace hit."
+
   docs: ->
     """
     ### Supported query params
 
-    * resolve: if set to `true` then the details concerning the listed
-      apis will also be printed. Be aware that this will come with a
-      minor performace hit.
+    #{ @queryParamDocs() }
 
     ### Returns
 
@@ -202,13 +247,13 @@ class exports.ListKeyApis extends ListController
       key name as the key and the details as the value.
     """
 
-  middleware: -> [ @mwKeyDetails( @app ) ]
+  middleware: -> [ @mwKeyDetails( @app ),
+                   @mwValidateQueryParams() ]
 
   execute: ( req, res, next ) ->
     req.key.supportedApis ( err, apis ) =>
       return next err if err
-      if not req.query.resolve? or req.query.resolve isnt "true"
-        return @json res, apis
+      return @json res, apis if not req.query.resolve
 
       @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
         return cb err if err
