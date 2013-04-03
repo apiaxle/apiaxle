@@ -6,7 +6,7 @@ async = require "async"
   ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
-class exports.UnlinkKeyToApi extends ApiaxleController
+class exports.UnlinkKeyFromApi extends ApiaxleController
   @verb = "put"
 
   desc: ->
@@ -164,53 +164,6 @@ class exports.ModifyApi extends ApiaxleController
     req.api.update req.body, ( err, new_api ) =>
       return next err if err
       return @json res, new_api.data
-
-class exports.ListApis extends ListController
-  @verb = "get"
-
-  path: -> "/v1/apis"
-
-  desc: -> "List all APIs."
-
-  queryParams: ->
-    params =
-      type: "object"
-      additionalProperties: false
-      properties:
-        from:
-          type: "integer"
-          default: 0
-          docs: "Integer for the index of the first api you
-                 want to see. Starts at zero."
-        to:
-          type: "integer"
-          default: 10
-          docs: "Integer for the index of the last api you want
-                 to see. Starts at zero."
-        resolve:
-          type: "boolean"
-          default: false
-          docs: "If set to `true` then the details concerning the
-                 listed apis will also be printed. Be aware that this
-                 will come with a minor performace hit."
-
-  docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one api per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      api name as the api and the details as the value.
-    """
-
-  modelName: -> "apiFactory"
-
-  middleware: -> [ @mwValidateQueryParams() ]
 
 class exports.ListApiKeys extends ListController
   @verb = "get"
