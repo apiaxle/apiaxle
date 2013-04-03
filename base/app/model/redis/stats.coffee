@@ -83,7 +83,11 @@ class exports.Stats extends Redis
         return cb err if err
 
         results = {}
-        results[code] = res[idx] for code, idx in codes
+        for code, idx in codes
+          for ts, amount of res[idx]
+            results[ts] ||= {}
+            results[ts][code] = amount
+
         return cb null, results
 
   # Get a single response code for a key or api stat

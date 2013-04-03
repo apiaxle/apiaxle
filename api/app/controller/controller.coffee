@@ -237,7 +237,7 @@ class exports.StatsController extends exports.ApiaxleController
         return cb err if err
 
         processed = {}
-        _.each types, ( type, idx ) ->
+        for type, idx in types
           processed[type] = results[idx]
 
         return cb null, processed

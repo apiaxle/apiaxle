@@ -22,9 +22,11 @@ class exports.ApiStatsTest extends ApiaxleTest
     model = @app.model "stats"
     hits  = []
 
-    now = ( new Date ).getTime()
-    now_seconds = Math.floor( now/1000 )
+    now = 1364951741939
+    now_seconds = Math.floor( now / 1000 )
     clock = @getClock now
+
+    last_minute = 1364951700
 
     hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
     hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
@@ -37,23 +39,15 @@ class exports.ApiStatsTest extends ApiaxleTest
           @isNull err
           @ok json
 
-          # A little bit complex as the ts may have shifted by 1
-          for code, result of json.results.uncached
-            @equal code, 200
-            for ts, count of result
-              @equal count, 1
+          @equal json.results.cached[ last_minute ]["400"], 2
+          @equal json.results.uncached[ last_minute ]["200"], 1
 
-          for code, result of json.results.cached
-            @equal code, 400
-            for ts, count of result
-              @ok count > 0
-
-          done 7
+          done 5
 
   "test GET seconds stats for API": ( done ) ->
     model = @app.model "stats"
     hits  = []
-    # Wed, December 14th 2011, 20:01
+
     now = ( new Date ).getTime()
     now_seconds = Math.floor( now/1000 )
     clock = @getClock now
@@ -69,18 +63,11 @@ class exports.ApiStatsTest extends ApiaxleTest
           @isNull err
           @ok json
 
-          # A little bit complex as the ts may have shifted by 1
-          for code, result of json.results.uncached
-            @equal code, 200
-            for ts, count of result
-              @equal count, 1
+          # a little bit complex as the ts may have shifted by 1
+          @equal json.results.cached[ now_seconds ]["400"], 2
+          @equal json.results.uncached[ now_seconds ]["200"], 1
 
-          for code, result of json.results.cached
-            @equal code, 400
-            for ts, count of result
-              @ok count > 0
-
-          done 7
+          done 5
 
   "test invalid granularity input": ( done ) ->
     @GET path: "/v1/api/test_stats/stats?granularity=nanoparsecs", ( err, res ) =>
