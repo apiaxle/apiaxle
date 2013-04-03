@@ -71,17 +71,19 @@ class exports.Stats extends Redis
   # Get all response codes for a particular stats entry
   getAll: ( db_key, gran, from, to, cb ) ->
     @getPossibleResponseTypes db_key, ( err, codes ) =>
-      all = []
+      return cb err if err
 
+      all = []
       for code in codes
         all.push ( cb ) =>
           @get db_key.concat([ code ]), gran, from, to, cb
 
       async.series all, ( err, res ) =>
-        results = {}
+        return cb err if err
 
+        results = {}
         results[code] = res[idx] for code, idx in codes
-        return cb err, results
+        return cb null, results
 
   # Get a single response code for a key or api stat
   # from, to should be int, seconds
