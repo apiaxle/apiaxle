@@ -1,4 +1,5 @@
 { Command } = require "../command"
+querystring = require "querystring"
 
 class exports.Key extends Command
   @modelName = "keyFactory"
@@ -52,4 +53,5 @@ class exports.Key extends Command
     @callApi "GET", options, cb
 
   stats: ( id, commands, keypairs, cb ) ->
-    @callApi "GET", path: "/v1/key/#{ id }/stats", cb
+    qs = querystring.stringify keypairs
+    @callApi "GET", path: "/v1/key/#{ id }/stats?#{ qs }", cb
