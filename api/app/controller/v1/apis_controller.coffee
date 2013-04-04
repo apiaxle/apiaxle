@@ -1,6 +1,4 @@
-{ StatsController,
-  ApiaxleController,
-  ListController } = require "../controller"
+{ ListController } = require "../controller"
 
 class exports.ListApis extends ListController
   @verb = "get"

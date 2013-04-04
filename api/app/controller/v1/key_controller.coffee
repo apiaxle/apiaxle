@@ -5,12 +5,12 @@ _ = require "underscore"
   ListController } = require "../controller"
 { NotFoundError, AlreadyExists } = require "../../../lib/error"
 
-class exports.ListKeys extends ListController
+class exports.ListKeyApis extends ListController
   @verb = "get"
 
-  path: -> "/v1/keys"
+  path: -> "/v1/key/:key/apis"
 
-  desc: -> "List all of the available keys."
+  desc: -> "List apis belonging to a key."
 
   queryParams: ->
     params =
@@ -20,18 +20,18 @@ class exports.ListKeys extends ListController
         from:
           type: "integer"
           default: 0
-          docs: "The index of the first key you want to see. Starts at
-                 zero."
+          docs: "The index of the first api you want to
+                 see. Starts at zero."
         to:
           type: "integer"
           default: 10
-          docs: "The index of the last key you want to see. Starts at
+          docs: "The index of the last api you want to see. Starts at
                  zero."
         resolve:
           type: "boolean"
           default: false
           docs: "If set to `true` then the details concerning the
-                 listed keys will also be printed. Be aware that this
+                 listed apis will also be printed. Be aware that this
                  will come with a minor performace hit."
 
   docs: ->
@@ -48,9 +48,20 @@ class exports.ListKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "keyFactory"
+  middleware: -> [ @mwKeyDetails( @app ),
+                   @mwValidateQueryParams() ]
 
-  middleware: -> [ @mwValidateQueryParams() ]
+  execute: ( req, res, next ) ->
+    req.key.supportedApis ( err, apis ) =>
+      return next err if err
+      return @json res, apis if not req.query.resolve
+
+      @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
+        return cb err if err
+
+        output = _.map apiNameList, ( a ) ->
+          "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
+        return @json res, output
 
 class exports.CreateKey extends ApiaxleController
   @verb = "post"

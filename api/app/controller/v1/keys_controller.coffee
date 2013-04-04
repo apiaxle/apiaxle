@@ -1,13 +1,11 @@
-{ StatsController,
-  ApiaxleController,
-  ListController } = require "../controller"
+{ ListController } = require "../controller"
 
-class exports.ListKeyApis extends ListController
+class exports.ListKeys extends ListController
   @verb = "get"
 
-  path: -> "/v1/key/:key/apis"
+  path: -> "/v1/keys"
 
-  desc: -> "List apis belonging to a key."
+  desc: -> "List all of the available keys."
 
   queryParams: ->
     params =
@@ -17,18 +15,18 @@ class exports.ListKeyApis extends ListController
         from:
           type: "integer"
           default: 0
-          docs: "The index of the first api you want to
-                 see. Starts at zero."
+          docs: "The index of the first key you want to see. Starts at
+                 zero."
         to:
           type: "integer"
           default: 10
-          docs: "The index of the last api you want to see. Starts at
+          docs: "The index of the last key you want to see. Starts at
                  zero."
         resolve:
           type: "boolean"
           default: false
           docs: "If set to `true` then the details concerning the
-                 listed apis will also be printed. Be aware that this
+                 listed keys will also be printed. Be aware that this
                  will come with a minor performace hit."
 
   docs: ->
@@ -45,17 +43,6 @@ class exports.ListKeyApis extends ListController
       key name as the key and the details as the value.
     """
 
-  middleware: -> [ @mwKeyDetails( @app ),
-                   @mwValidateQueryParams() ]
+  modelName: -> "keyFactory"
 
-  execute: ( req, res, next ) ->
-    req.key.supportedApis ( err, apis ) =>
-      return next err if err
-      return @json res, apis if not req.query.resolve
-
-      @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
-        return cb err if err
-
-        output = _.map apiNameList, ( a ) ->
-          "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
-        return @json res, output
+  middleware: -> [ @mwValidateQueryParams() ]
