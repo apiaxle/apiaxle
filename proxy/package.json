@@ -10,7 +10,7 @@
   ],
   "description": "The actual proxy part of ApiAxle.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "0.8.5",
+  "version": "0.9.0",
   "scripts": {
     "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang"
   },
@@ -18,7 +18,7 @@
     "apiaxle-proxy": "./apiaxle-proxy.js"
   },
   "dependencies": {
-    "apiaxle-base": "0.8.5",
+    "apiaxle-base": "0.9.0",
     "request": "~2.16",
     "parseopt": "1.0.0",
     "async": "0.1.9",
