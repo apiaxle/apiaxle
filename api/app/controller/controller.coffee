@@ -2,7 +2,7 @@ moment = require "moment"
 _      = require "underscore"
 async  = require "async"
 
-{ Controller } = require "apiaxle-base"
+{ Controller, validate } = require "apiaxle-base"
 
 { KeyNotFoundError,
   ApiNotFoundError,
@@ -13,6 +13,21 @@ async  = require "async"
   ApiKeyError } = require "../../lib/error"
 
 class exports.ApiaxleController extends Controller
+  queryParamDocs: ( ) ->
+    strings = for field, details of @queryParams().properties
+      continue unless details.docs?
+
+      docs = "Undocumented."
+      if details.docs
+        docs = details.docs.replace( /[ \n]+/g, " " )
+
+      out = "* #{ field }: "
+      out += "(default: #{ details.default }) " if details.default
+      out += "One of: #{ details.enum.join ', ' }. " if details.enum
+      out += "#{ docs }"
+
+    return strings.join "\n"
+
   # Used output data conforming to a standard Api Axle
   # format. Includes a metadata field
   json: ( res, results ) ->
@@ -23,6 +38,14 @@ class exports.ApiaxleController extends Controller
       results: results
 
     return res.json output
+
+  # By default there are no query parameters and adding them will
+  # cause an error. Only affects controllers which use the
+  # `mwValidateQueryParams` middleware.
+  queryParams: ->
+    params =
+      type: "object"
+      additionalProperties: false
 
   # This function is used to satisfy the `?resolve=true` type
   # parameters. Given a bunch of keys, go off to the respective bits
@@ -45,6 +68,33 @@ class exports.ApiaxleController extends Controller
         final[ result ] = accKeys[ i++ ]
 
       return cb null, final
+
+  mwValidateQueryParams: ( ) ->
+    ( req, res, next ) =>
+      return next() if not @queryParams?
+
+      validators = @queryParams()
+
+      for key, val of req.query
+        # find out what type we expect
+        break unless validators.properties?[ key ]?
+        suggested_type = validators.properties[ key ].type
+
+        # convert int if need be
+        if suggested_type is "integer"
+          req.query[ key ] = parseInt( val )
+          continue
+
+        if suggested_type is "boolean"
+          req.query[ key ] = ( val is "true" )
+          continue
+
+      validate validators, req.query, ( err, with_defaults ) ->
+        return next err if err
+
+        # replace the old ones
+        req.query = with_defaults
+        return next()
 
   # Will decorate `req.key` with details of the key specified in the
   # `:key` parameter. If `valid_key_required` is truthful then an
@@ -146,98 +196,76 @@ class exports.ApiaxleController extends Controller
     return processed_results
 
 class exports.ListController extends exports.ApiaxleController
-  @default_from = 0
-  @default_to   = 100
-
-  # calculate from and to
-  from: ( req ) ->
-    return ( req.query.from or @constructor.default_from )
-
-  to: ( req ) ->
-    return ( req.query.to or @constructor.default_to )
-
   execute: ( req, res, next ) ->
-    model = @app.model( @modelName() )
+    model = @app.model @modelName()
 
-    model.range @from( req ), @to( req ), ( err, keys ) =>
+    { from, to } = req.query
+
+    model.range from, to, ( err, keys ) =>
       return next err if err
 
       # if we're not asked to resolve the items then just bung the
       # list back
-      if not req.query.resolve? or req.query.resolve isnt "true"
-        return @json res, keys
+      return @json res, keys if not req.query.resolve
 
       # now bind the actual results to the keys
       @resolve model, keys, ( err, results ) =>
         return next err if err
-
-        @json res, results
+        return @json res, results
 
 class exports.StatsController extends exports.ApiaxleController
-  paramDocs: ( ) ->
-    """
-    ### Supported query params
-
-    * from: Integer representing the unix epoch from which to start
-      gathering the statistics. Defaults to `now - 10 minutes`.
-    * to: Integer representing the unix epoch from which to finish
-      gathering the statistics. Defaults to `now`.
-    * granularity: One of #{ @valid_granularities.join ', ' }. Allows
-      you to gather statistics tuned to this level of
-      granularity. Results will still arrive in the form of an epoch
-      to results pair but will be rounded off to the nearest unit.
-    """
-
-  from: ( req ) ->
-    return ( req.query.from or ( ( new Date() ).getTime() / 1000 ) - 600 )
-
-  to: ( req ) ->
-    return ( req.query.to or ( new Date() ).getTime() / 1000 )
-
-  granularity: ( req, cb ) ->
-    # memoize the valid granularities
+  queryParams: ->
+    # get the correct granularities from the model itself.
     if not @valid_granularities
       gran_details = @app.model( "stats" ).constructor.granularities
       @valid_granularities = _.keys gran_details
 
-    # check if the user has set it
-    if gran_input = req.query.granularity
-      # is it in the range of valid entries?
-      if not ( gran_input in @valid_granularities )
-        msg = "Valid granularities are #{ @valid_granularities.join ', ' }"
-        return cb new InvalidGranularityType msg
-
-      return cb null, gran_input
-
-    # return the default
-    return cb null, "minutes"
+    params =
+      type: "object"
+      additionalProperties: false
+      properties:
+        from:
+          type: "integer"
+          default: Math.floor( ( new Date() ).getTime() / 1000 ) - 600
+          docs: "The unix epoch from which to start gathering
+                 the statistics. Defaults to `now - 10 minutes`."
+        to:
+          type: "integer"
+          default: Math.floor( ( new Date() ).getTime() / 1000 )
+          docs: "The unix epoch from which to finish gathering
+                 the statistics. Defaults to `now`."
+        granularity:
+          type: "string"
+          enum: @valid_granularities
+          default: "minutes"
+          docs: "Allows you to gather statistics tuned to this level
+                 of granularity. Results will still arrive in the form
+                 of an epoch to results pair but will be rounded off
+                 to the nearest unit."
 
   getStatsRange: ( req, axle_type, key_parts, cb ) ->
     model = @app.model "stats"
     types = [ "uncached", "cached", "error" ]
 
-    from = @from req
-    to   = @to req
+    # all managed by queryParams
+    { from, to, granularity } = req.query
 
-    @granularity req, ( err, granularity ) =>
+    all = []
+    _.each types, ( type ) =>
+      all.push ( cb ) =>
+        # axle_type probably one of "key", "api", "api-key",
+        # "key-api" at the moment
+        redis_key = [ axle_type ]
+        redis_key = redis_key.concat key_parts
+        redis_key.push type
+
+        model.getAll redis_key, granularity, from, to, cb
+
+    async.series all, ( err, results ) =>
       return cb err if err
 
-      all = []
-      _.each types, ( type ) =>
-        all.push ( cb ) =>
-          # axle_type probably one of "key", "api", "api-key",
-          # "key-api" at the moment
-          redis_key = [ axle_type ]
-          redis_key = redis_key.concat key_parts
-          redis_key.push type
+      processed = {}
+      for type, idx in types
+        processed[type] = results[idx]
 
-          model.getAll redis_key, granularity, from, to, cb
-
-      async.series all, ( err, results ) =>
-        return cb err if err
-
-        processed = {}
-        for type, idx in types
-          processed[type] = results[idx]
-
-        return cb null, processed
+      return cb null, processed

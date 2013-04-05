@@ -6,7 +6,7 @@ async = require "async"
   ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
-class exports.UnlinkKeyToApi extends ApiaxleController
+class exports.UnlinkKeyFromApi extends ApiaxleController
   @verb = "put"
 
   desc: ->
@@ -24,7 +24,8 @@ class exports.UnlinkKeyToApi extends ApiaxleController
     * The unlinked key details.
     """
 
-  middleware: -> [ @mwApiDetails( valid_api_required=true ),
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ),
                    @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/api/:api/unlinkkey/:key"
@@ -53,7 +54,8 @@ class exports.LinkKeyToApi extends ApiaxleController
     * The linked key details.
     """
 
-  middleware: -> [ @mwApiDetails( valid_api_required=true ),
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ),
                    @mwKeyDetails( valid_key_required=true ) ]
 
   path: -> "/v1/api/:api/linkkey/:key"
@@ -79,7 +81,8 @@ class exports.CreateApi extends ApiaxleController
     * The inserted structure (including the new timestamp fields).
     """
 
-  middleware: -> [ @mwContentTypeRequired(),
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwContentTypeRequired(),
                    @mwApiDetails( ) ]
 
   path: -> "/v1/api/:api"
@@ -105,7 +108,8 @@ class exports.ViewApi extends ApiaxleController
     * The API structure (including the timestamp fields).
     """
 
-  middleware: -> [ @mwApiDetails( valid_api_required=true ) ]
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
 
   path: -> "/v1/api/:api"
 
@@ -150,10 +154,9 @@ class exports.ModifyApi extends ApiaxleController
     * The merged structure (including the timestamp fields).
     """
 
-  middleware: -> [
-    @mwContentTypeRequired( ),
-    @mwApiDetails( valid_api_required=true )
-  ]
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwContentTypeRequired( ),
+                   @mwApiDetails( valid_api_required=true ) ]
 
   path: -> "/v1/api/:api"
 
@@ -162,35 +165,6 @@ class exports.ModifyApi extends ApiaxleController
       return next err if err
       return @json res, new_api.data
 
-class exports.ListApis extends ListController
-  @verb = "get"
-
-  path: -> "/v1/apis"
-
-  desc: -> "List all APIs."
-
-  docs: ->
-    """
-    ### Supported query params
-
-    * from: Integer for the index of the first api you want to
-      see. Starts at zero.
-    * to: Integer for the index of the last api you want to
-      see. Starts at zero.
-    * resolve: if set to `true` then the details concerning the listed
-      apis  will also be printed. Be aware that this will come with a
-      minor performace hit.
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one api per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      api name as the api and the details as the value.
-    """
-
-  modelName: -> "apiFactory"
-
 class exports.ListApiKeys extends ListController
   @verb = "get"
 
@@ -198,17 +172,33 @@ class exports.ListApiKeys extends ListController
 
   desc: -> "List keys belonging to an API."
 
+  queryParams: ->
+    params =
+      type: "object"
+      additionalProperties: false
+      properties:
+        from:
+          type: "integer"
+          default: 0
+          docs: "The index of the first key you want to
+                 see. Starts at zero."
+        to:
+          type: "integer"
+          default: 10
+          docs: "The index of the last key you want to see. Starts at
+                 zero."
+        resolve:
+          type: "boolean"
+          default: false
+          docs: "If set to `true` then the details concerning the
+                 listed keys will also be printed. Be aware that this
+                 will come with a minor performace hit."
+
   docs: ->
     """
     ### Supported query params
 
-    * from: Integer for the index of the first key you want to
-      see. Starts at zero.
-    * to: Integer for the index of the last key you want to
-      see. Starts at zero.
-    * resolve: if set to `true` then the details concerning the listed
-      keys will also be printed. Be aware that this will come with a
-      minor performace hit.
+    #{ @queryParamDocs() }
 
     ### Returns
 
@@ -218,14 +208,15 @@ class exports.ListApiKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  middleware: -> [ @mwApiDetails( @app ) ]
+  middleware: -> [ @mwApiDetails( @app ),
+                   @mwValidateQueryParams() ]
 
   execute: ( req, res, next ) ->
-    req.api.getKeys @from( req ), @to( req ), ( err, keys ) =>
-      return next err if err
+    { from, to } = req.query
 
-      if not req.query.resolve? or req.query.resolve isnt "true"
-        return @json res, keys
+    req.api.getKeys from, to, ( err, keys ) =>
+      return next err if err
+      return @json res, keys if not req.query.resolve
 
       @resolve @app.model( "keyFactory" ), keys, ( err, results ) =>
         return next err if err
@@ -239,10 +230,24 @@ class exports.ViewAllStatsForApi extends StatsController
 
   desc: -> "Get stats for an api."
 
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current,
+      forkey:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               key."
+
+    return current
+
   docs: ->
     """
-    #{ @paramDocs() }
-    * forkey: Narrow results down to all statistics for the specified key.
+    ### Supported query params
+
+    #{ @queryParamDocs() }
 
     ### Returns
 
@@ -251,7 +256,8 @@ class exports.ViewAllStatsForApi extends StatsController
       these in turn contain objects with timestamp:count
     """
 
-  middleware: -> [ @mwApiDetails( @app ) ]
+  middleware: -> [ @mwApiDetails( @app ),
+                   @mwValidateQueryParams() ]
 
   path: -> "/v1/api/:api/stats"
 

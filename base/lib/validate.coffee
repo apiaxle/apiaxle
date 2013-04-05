@@ -23,7 +23,12 @@ module.exports = ( structure, data, cb ) ->
       message = ""
 
       for details in err
-        message += "#{ details.property }: #{ details.message }"
+        message += "#{ details.property }: "
+
+        if details.attributeName is "additionalProperties"
+          message += "isn't a valid attribute. "
+        else
+          message += details.message
 
       return cb new ValidationError message
 

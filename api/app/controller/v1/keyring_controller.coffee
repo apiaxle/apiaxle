@@ -19,7 +19,8 @@ class exports.CreateKeyring extends ApiaxleController
     * The inserted structure (including the new timestamp fields).
     """
 
-  middleware: -> [ @mwKeyringDetails( ) ]
+  middleware: -> [ @mwValidateQueryParams(),
+                   @mwKeyringDetails( ) ]
 
   path: -> "/v1/keyring/:keyring"
 
@@ -46,7 +47,8 @@ class exports.ViewKeyring extends ApiaxleController
     * The KEYRING structure (including the timestamp fields).
     """
 
-  middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ) ]
+  middleware: -> [ @mwValidateQueryParams(),
+                   @mwKeyringDetails( valid_keyring_required=true ) ]
 
   path: -> "/v1/keyring/:keyring"
 
@@ -65,7 +67,8 @@ class exports.DeleteKeyring extends ApiaxleController
     * `true` on success.
     """
 
-  middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ) ]
+  middleware: -> [ @mwValidateQueryParams(),
+                   @mwKeyringDetails( valid_keyring_required=true ) ]
 
   path: -> "/v1/keyring/:keyring"
 
@@ -96,7 +99,8 @@ class exports.ModifyKeyring extends ApiaxleController
 
   middleware: -> [
     @mwContentTypeRequired( ),
-    @mwKeyringDetails( valid_keyring_required=true )
+    @mwKeyringDetails( valid_keyring_required=true ),
+    @mwValidateQueryParams()
   ]
 
   path: -> "/v1/keyring/:keyring"
@@ -106,35 +110,6 @@ class exports.ModifyKeyring extends ApiaxleController
       return next err if err
       return @json res, new_keyring.data
 
-class exports.ListKeyrings extends ListController
-  @verb = "get"
-
-  path: -> "/v1/keyrings"
-
-  desc: -> "List all KEYRINGs."
-
-  docs: ->
-    """
-    ### Supported query params
-
-    * from: Integer for the index of the first keyring you want to
-      see. Starts at zero.
-    * to: Integer for the index of the last keyring you want to
-      see. Starts at zero.
-    * resolve: if set to `true` then the details concerning the listed
-      keyrings  will also be printed. Be aware that this will come with a
-      minor performace hit.
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one keyring per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      keyring name as the keyring and the details as the value.
-    """
-
-  modelName: -> "keyringFactory"
-
 class exports.ListKeyringKeys extends ListController
   @verb = "get"
 
@@ -142,17 +117,33 @@ class exports.ListKeyringKeys extends ListController
 
   desc: -> "List keys belonging to an KEYRING."
 
+  queryParams: ->
+    params =
+      type: "object"
+      additionalProperties: false
+      properties:
+        from:
+          type: "integer"
+          default: 0
+          docs: "The index of the first key you want to
+                 see. Starts at zero."
+        to:
+          type: "integer"
+          default: 10
+          docs: "The index of the last key you want to see. Starts at
+                 zero."
+        resolve:
+          type: "boolean"
+          default: false
+          docs: "If set to `true` then the details concerning the
+                 listed keys will also be printed. Be aware that this
+                 will come with a minor performace hit."
+
   docs: ->
     """
     ### Supported query params
 
-    * from: Integer for the index of the first key you want to
-      see. Starts at zero.
-    * to: Integer for the index of the last key you want to
-      see. Starts at zero.
-    * resolve: if set to `true` then the details concerning the listed
-      keys will also be printed. Be aware that this will come with a
-      minor performace hit.
+    #{ @queryParamDocs() }
 
     ### Returns
 
@@ -164,7 +155,8 @@ class exports.ListKeyringKeys extends ListController
 
   modelName: -> "keyFactory"
 
-  middleware: -> [ @mwKeyringDetails( @app ) ]
+  middleware: -> [ @mwValidateQueryParams(),
+                   @mwKeyringDetails( @app ) ]
 
 class exports.UnlinkKeyToKeyring extends ApiaxleController
   @verb = "put"
@@ -184,7 +176,8 @@ class exports.UnlinkKeyToKeyring extends ApiaxleController
     """
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
-                   @mwKeyDetails( valid_key_required=true ) ]
+                   @mwKeyDetails( valid_key_required=true ),
+                   @mwValidateQueryParams() ]
 
   path: -> "/v1/keyring/:keyring/unlinkkey/:key"
 
@@ -213,7 +206,8 @@ class exports.LinkKeyToKeyring extends ApiaxleController
     """
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
-                   @mwKeyDetails( valid_key_required=true ) ]
+                   @mwKeyDetails( valid_key_required=true ),
+                   @mwValidateQueryParams() ]
 
   path: -> "/v1/keyring/:keyring/linkkey/:key"
 

@@ -34,6 +34,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
     async.parallel hits, ( err, results ) =>
       @isNull err
+
       @GET path: "/v1/api/test_stats/stats?granularity=minutes&from=#{now_seconds}", ( err, res ) =>
         res.parseJson ( err, json ) =>
           @isNull err
@@ -58,7 +59,10 @@ class exports.ApiStatsTest extends ApiaxleTest
 
     async.parallel hits, ( err, results ) =>
       @isNull err
+
       @GET path: "/v1/api/test_stats/stats?granularity=seconds&from=#{now_seconds}", ( err, res ) =>
+        @isNull err
+
         res.parseJson ( err, json ) =>
           @isNull err
           @ok json
@@ -67,7 +71,7 @@ class exports.ApiStatsTest extends ApiaxleTest
           @equal json.results.cached[ now_seconds ]["400"], 2
           @equal json.results.uncached[ now_seconds ]["200"], 1
 
-          done 5
+          done 6
 
   "test invalid granularity input": ( done ) ->
     @GET path: "/v1/api/test_stats/stats?granularity=nanoparsecs", ( err, res ) =>
@@ -77,8 +81,8 @@ class exports.ApiStatsTest extends ApiaxleTest
         @isNull err
         @ok error = json.results.error
 
-        @equal error.message, "Valid granularities are seconds, minutes, hours, days"
-        @equal error.type, "InvalidGranularityType"
+        @equal error.message, "granularity: Value of the ‘granularity’ must be seconds or minutes or hours or days."
+        @equal error.type, "ValidationError"
         @equal res.statusCode, 400
         @equal json.meta.status_code, 400
 

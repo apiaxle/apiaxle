@@ -11,6 +11,11 @@ while /bin/true; do
     continue
   fi
 
+  # not on emacs swap files
+  if echo "${change}" | egrep '#$' &>/dev/null; then
+    continue
+  fi
+
   # not on log files
   if echo "${change}" | egrep '\.log$' &>/dev/null; then
     continue
