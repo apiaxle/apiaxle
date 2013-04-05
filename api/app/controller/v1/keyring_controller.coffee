@@ -161,15 +161,12 @@ class exports.ListKeyringKeys extends ListController
 class exports.UnlinkKeyToKeyring extends ApiaxleController
   @verb = "put"
 
-  desc: ->
-    """
-    Disassociate a key with a KEYRING.
-
-    The key will still exist and its details won't be affected.
-    """
+  desc: -> "Disassociate a key with a KEYRING."
 
   docs: ->
     """
+    The key will still exist and its details won't be affected.
+
     ### Returns
 
     * The unlinked key details.
@@ -190,16 +187,13 @@ class exports.UnlinkKeyToKeyring extends ApiaxleController
 class exports.LinkKeyToKeyring extends ApiaxleController
   @verb = "put"
 
-  desc: ->
-    """
-    Associate a key with a KEYRING.
-
-    The key must already exist and will not be modified by this
-    operation.
-    """
+  desc: -> "Associate a key with a KEYRING."
 
   docs: ->
     """
+    The key must already exist and will not be modified by this
+    operation.
+
     ### Returns
 
     * The linked key details.

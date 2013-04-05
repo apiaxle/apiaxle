@@ -9,16 +9,15 @@ async = require "async"
 class exports.UnlinkKeyFromApi extends ApiaxleController
   @verb = "put"
 
-  desc: ->
-    """
-    Disassociate a key with an API meaning calls to the API can no
-    longer be made with the key.
-
-    The key will still exist and its details won't be affected.
-    """
+  desc: -> "Disassociate a key with an API."
 
   docs: ->
     """
+    Calls to the API can no longer be made with the key once this has
+    been called.
+
+    The key will still exist and its details won't be affected.
+
     ### Returns
 
     * The unlinked key details.
@@ -38,17 +37,15 @@ class exports.UnlinkKeyFromApi extends ApiaxleController
 class exports.LinkKeyToApi extends ApiaxleController
   @verb = "put"
 
-  desc: ->
-    """
-    Associate a key with an API meaning calls to the API can be made
-    with the key.
-
-    The key must already exist and will not be modified by this
-    operation.
-    """
+  desc: -> "Associate a key with an API"
 
   docs: ->
     """
+    Calls to the API can be made with the key once this is run.
+
+    The key must already exist and will not be modified by this
+    operation.
+
     ### Returns
 
     * The linked key details.
