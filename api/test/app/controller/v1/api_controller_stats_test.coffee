@@ -22,11 +22,13 @@ class exports.ApiStatsTest extends ApiaxleTest
     model = @app.model "stats"
     hits  = []
 
-    now = 1364951741939
+    # this needs to be in the future because redis will expire a key
+    # in the past instantly
+    now = 1464951741939         # Fri, 03 Jun 2016
     now_seconds = Math.floor( now / 1000 )
     clock = @getClock now
 
-    last_minute = 1364951700
+    last_minute = 1464951720
 
     hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
     hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
@@ -35,7 +37,10 @@ class exports.ApiStatsTest extends ApiaxleTest
     async.parallel hits, ( err, results ) =>
       @isNull err
 
-      @GET path: "/v1/api/test_stats/stats?granularity=minutes&from=#{now_seconds}", ( err, res ) =>
+      from = now_seconds
+      to = now_seconds + 500
+
+      @GET path: "/v1/api/test_stats/stats?granularity=minutes&from=#{from}&to=#{to}", ( err, res ) =>
         @isNull err
 
         res.parseJson ( err, json ) =>
