@@ -36,6 +36,8 @@ class exports.ApiStatsTest extends ApiaxleTest
       @isNull err
 
       @GET path: "/v1/api/test_stats/stats?granularity=minutes&from=#{now_seconds}", ( err, res ) =>
+        @isNull err
+
         res.parseJson ( err, json ) =>
           @isNull err
           @ok json
@@ -43,7 +45,7 @@ class exports.ApiStatsTest extends ApiaxleTest
           @equal json.results.cached[ last_minute ]["400"], 2
           @equal json.results.uncached[ last_minute ]["200"], 1
 
-          done 5
+          done 6
 
   "test GET seconds stats for API": ( done ) ->
     model = @app.model "stats"
