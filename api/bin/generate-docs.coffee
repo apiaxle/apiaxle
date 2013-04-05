@@ -42,7 +42,7 @@ exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
       # h1, the path of the controller
       printOnce "# #{controller.path()}"
 
-      print "## #{controller.desc()} (#{controller.constructor.verb.toUpperCase()})"
+      print "## #{controller.desc()} (#{controller.constructor.verb.toUpperCase()})\n"
       print "#{controller.docs()}\n"
 
     finish()
