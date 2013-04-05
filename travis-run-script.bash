@@ -35,7 +35,9 @@ for project in base api proxy repl; do
   TESTS=$(find test -name '*test.js')
 
   export MY_TWERP_OPTIONS="--exit-on-failure --runner=simple"
-  istanbul cover $(which twerp) ${MY_TWERP_OPTIONS} ${TESTS}
+  if ! istanbul cover $(which twerp) ${MY_TWERP_OPTIONS} ${TESTS}; then
+    exit 1
+  fi
 
   # get rid of the js
   cake js:clean
