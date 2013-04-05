@@ -251,15 +251,16 @@ class exports.StatsController extends exports.ApiaxleController
     { from, to, granularity } = req.query
 
     all = []
-    _.each types, ( type ) =>
-      all.push ( cb ) =>
-        # axle_type probably one of "key", "api", "api-key",
-        # "key-api" at the moment
-        redis_key = [ axle_type ]
-        redis_key = redis_key.concat key_parts
-        redis_key.push type
+    for type in types
+      do( type ) =>
+        all.push ( cb ) =>
+          # axle_type probably one of "key", "api", "api-key",
+          # "key-api" at the moment
+          redis_key = [ axle_type ]
+          redis_key = redis_key.concat key_parts
+          redis_key.push type
 
-        model.getAll redis_key, granularity, from, to, cb
+          model.getAll redis_key, granularity, from, to, cb
 
     async.series all, ( err, results ) =>
       return cb err if err
