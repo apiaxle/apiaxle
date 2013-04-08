@@ -20,13 +20,13 @@ for project in base api proxy repl; do
 
   # we want to run the development base, not the one in npm!
   if [[ ${project} != "base" ]]; then
-    echo "Linking base..."
-    silence-or-loud-on-error npm link ../base
+    echo "Installing base..."
+    silence-or-loud-on-error npm install ../base
   fi
   
   if [[ ${project} == "repl" ]]; then
-    echo "Linking api..."
-    silence-or-loud-on-error npm link ../api
+    echo "Installing api..."
+    silence-or-loud-on-error npm install ../api
   fi
 
   echo "Installing modules..."
