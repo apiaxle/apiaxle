@@ -195,7 +195,7 @@ class CatchAll extends ApiaxleController
         headers: headers
         strictSSL: req.api.data.strictSSL
 
-      options.body = req.body
+      options.body = req.body if req.body
 
       @_fetch req, options, ( err, apiRes, body ) =>
         return next err if err
