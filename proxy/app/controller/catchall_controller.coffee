@@ -195,6 +195,7 @@ class CatchAll extends ApiaxleController
         maxRedirects: req.api.data.endPointMaxRedirects
         timeout: req.api.data.endPointTimeout * 1000
         headers: headers
+        strictSSL: req.api.data.strictSSL
 
       options.body = req.body
 

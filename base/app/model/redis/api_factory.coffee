@@ -62,3 +62,7 @@ class exports.ApiFactory extends Redis
         type: "boolean"
         default: false
         docs: "Disable this API causing errors when it's hit."
+      strictSSL:
+        type: "boolean"
+        default: true
+        docs: "Set to true to require that SSL certificates be valid"
