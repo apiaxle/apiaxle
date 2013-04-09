@@ -71,11 +71,9 @@ class CatchAll extends ApiaxleController
 
     return res
 
-  # TODO: We need to fix the response code (it should match the
-  # original one).
   _fetch: ( req, options, outerCb ) ->
     # check for caching, pass straight through if we don't want a
-    # cache (the 0 is a string because it comes straight from redis).
+    # cache.
     @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
       return outerCb err if err
 
@@ -89,7 +87,7 @@ class CatchAll extends ApiaxleController
         return outerCb err if err
 
         if body
-          statsModel   = @app.model "stats"
+          statsModel = @app.model "stats"
 
           @app.logger.debug "Cache hit: #{options.url}"
           return statsModel.hit req.subdomain, req.key.data.key, "cached", status, ( err, res ) ->
