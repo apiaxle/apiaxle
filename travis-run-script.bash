@@ -21,12 +21,12 @@ for project in base api proxy repl; do
   # we want to run the development base, not the one in npm!
   if [[ ${project} != "base" ]]; then
     echo "Installing base..."
-    silence-or-loud-on-error npm install ../base
+    silence-or-loud-on-error npm link ../base
   fi
   
   if [[ ${project} == "repl" ]]; then
     echo "Installing api..."
-    silence-or-loud-on-error npm install ../api
+    silence-or-loud-on-error npm link ../api
   fi
 
   echo "Installing modules..."
@@ -41,9 +41,6 @@ for project in base api proxy repl; do
   if ! istanbul cover $(which twerp) ${MY_TWERP_OPTIONS} ${TESTS}; then
     exit 1
   fi
-
-  # get rid of the js
-  cake js:clean
 
   # lint (fails on error)
   if ! cake lint; then
