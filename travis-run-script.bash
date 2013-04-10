@@ -34,8 +34,8 @@ for project in base api proxy repl; do
 
   TESTS=$(find test -name '*test.js')
 
-  echo "Installing instanbul..."
-  npm install -g istanbul
+  # circleci seems to need this
+  export PATH="node_modules/.bin:${PATH}"
 
   export MY_TWERP_OPTIONS="--exit-on-failure --runner=simple"
   if ! istanbul cover $(which twerp) ${MY_TWERP_OPTIONS} ${TESTS}; then
