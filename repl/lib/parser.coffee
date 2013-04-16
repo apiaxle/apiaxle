@@ -8,6 +8,8 @@ module.exports = ( str ) ->
   buildCommandStruct = ( token, type ) ->
     return if type in [ "seperator" ]
 
+    if type is "boolean"
+      all.push ( token is "true" )
 
     if type is "digit"
       all.push parseInt( token )
@@ -31,6 +33,9 @@ module.exports = ( str ) ->
 
   t = new Tokenizer()
   t.on "token", buildCommandStruct
+
+  # bools
+  t.addRule(/(true|false)/, "boolean")
 
   # int
   t.addRule(/^(\d+)$/, "digit")
