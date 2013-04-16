@@ -23,18 +23,18 @@ class exports.ApiaxleController extends Controller
     return next new ApiUnknown "No api specified (via subdomain)"
 
   api: ( req, res, next ) =>
-    @app.model( "apiFactory" ).find [ req.subdomain ], ( err, [ api ] ) ->
+    @app.model( "apiFactory" ).find [ req.subdomain ], ( err, results ) ->
       return next err if err
 
-      if not api?
+      if not results[req.subdomain]?
         # no api found
         return next new ApiUnknown "'#{ req.subdomain }' is not known to us."
 
-      req.api = api
+      req.api = results[req.subdomain]
       return next()
 
   authenticateWithKey: ( key, req, next ) ->
-    @app.model( "keyFactory" ).find [ key ], ( err, [ keyDetails ] ) =>
+    @app.model( "keyFactory" ).find [ key ], ( err, results ) =>
       return next err if err
 
       all = []
@@ -46,18 +46,18 @@ class exports.ApiaxleController extends Controller
         if supported is false
           return next new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
 
-        if keyDetails?.data.sharedSecret
+        if results[key]?.data.sharedSecret
           if not providedToken = ( req.query.apiaxle_sig or req.query.api_sig )
             return next new KeyError "A signature is required for this API."
 
           all.push ( cb ) =>
-            @validateToken providedToken, key, keyDetails.data.sharedSecret, cb
+            @validateToken providedToken, key, results[key].data.sharedSecret, cb
 
-        async.series all, ( err, results ) ->
+        async.series all, ( err ) ->
           return next err if err
 
-          keyDetails.data.key = key
-          req.key = keyDetails
+          results[key].data.key = key
+          req.key = results[key]
 
           return next()
 
