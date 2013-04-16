@@ -29,9 +29,9 @@ class Key extends Model
       for api in api_list
         do( api ) =>
           unlink_from_api.push ( cb ) =>
-            @app.model( "apiFactory" ).find [ api ], ( err, [ dbApi ] ) =>
+            @app.model( "apiFactory" ).find [ api ], ( err, results ) =>
               return cb err if err
-              return dbApi.unlinkKey @, cb
+              return results[api].unlinkKey @, cb
 
       async.parallel unlink_from_api, ( err ) =>
         return cb err if err
@@ -106,13 +106,13 @@ class exports.KeyFactory extends Redis
     for api in apis
       do( api ) =>
         allKeyExistsChecks.push ( cb ) =>
-          @app.model( "apiFactory" ).find [ api ], ( err, [ dbApi ] ) ->
+          @app.model( "apiFactory" ).find [ api ], ( err, results ) ->
             return cb err if err
 
-            if not dbApi
+            if not results[api]
               return cb new ValidationError "API '#{ api }' doesn't exist."
 
-            return cb null, dbApi
+            return cb null, results[api]
 
     async.parallel allKeyExistsChecks, cb
 

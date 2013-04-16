@@ -25,20 +25,20 @@ class Redis
     return @constructor.__super__.create.apply this, [ id, details, cb ]
 
   update: ( id, details, cb ) ->
-    @find [ id ], ( err, { dbObj } ) =>
-      if not dbObj
+    @find [ id ], ( err, results ) =>
+      if not results[id]
         return cb new Error "Failed to update, can't find '#{ id }'."
 
       # merge the new and old details
-      merged_data = _.extend dbObj.data, details
+      merged_data = _.extend results[id].data, details
 
       @create id, merged_data, ( err ) =>
         return cb err if err
-        return cb null, merged_data, dbObj.data, cb
+        return cb null, merged_data, results[id].data, cb
 
   delete: ( id, cb ) ->
-    @find [ id ], ( err, { dbObj } ) =>
-      return cb new Error "'#{ id }' not found." if not dbObj
+    @find [ id ], ( err, results ) =>
+      return cb new Error "'#{ id }' not found." if not results[id]
 
       id = @escapeId id
 
@@ -48,10 +48,10 @@ class Redis
       multi.exec cb
 
   create: ( id, details, cb ) ->
-    @find [ id ], ( err, { dbObj } ) =>
+    @find [ id ], ( err, results ) =>
       return cb err if err
 
-      update = dbObj?
+      update = results[id]?
 
       @validate details, ( err, instance ) =>
         return cb err if err
@@ -65,7 +65,7 @@ class Redis
         # let users know what happened, when
         if update
           details.updatedAt = new Date().getTime()
-          details.createdAt = dbObj.data.createdAt
+          details.createdAt = results[id].data.createdAt
         else
           details.createdAt = new Date().getTime()
 
@@ -106,7 +106,7 @@ class Redis
 
       # return cb null, [ details ]
 
-  _convertData: ( data ) =>
+  _convertData: ( id, data ) =>
     for key, val of data
       continue if not val?
 
@@ -120,20 +120,23 @@ class Redis
       if suggested_type and suggested_type is "boolean"
         data[ key ] = ( val is "true" )
 
+      if @constructor.returns?
+        return new @constructor.returns @app, id, data
+
     return data
 
   find: ( ids, cb ) ->
     # fetch all of the hits from redis
     multi = @multi()
-    multi.hgetall @escapeId( id ) for id in ids
+    for id in ids
+      multi.hgetall @escapeId( id )
 
     multi.exec ( err, results ) =>
       return cb err if err
 
       # update types to match
-      all = _.object ids, _.map results, @_convertData
-
-      return cb null, all
+      converted = ( @_convertData( id, results[index] ) for index, id of ids )
+      return cb null, _.object( ids, converted )
 
   multi: ( args ) ->
     return new RedisMulti( @ns, @app.redisClient, args )
@@ -219,13 +222,13 @@ class KeyContainerModel extends Model
           return KeyContainerModel.__super__.delete.apply this, [ cb ]
 
   linkKey: ( key, cb ) =>
-    @app.model( "keyFactory" ).find [ key ], ( err, { dbKey } ) =>
+    @app.model( "keyFactory" ).find [ key ], ( err, results ) =>
       return cb err if err
 
-      if not dbKey
+      if not results[key]
         return cb new KeyNotFoundError "#{ key } doesn't exist."
 
-      dbKey[ @constructor.reverseLinkFunction ] @id, ( err ) =>
+      results[key][ @constructor.reverseLinkFunction ] @id, ( err ) =>
         return cb err if err
 
         # add to the list of all keys if it's not already there
@@ -243,7 +246,7 @@ class KeyContainerModel extends Model
 
           multi.exec ( err ) ->
             return cb err if err
-            return cb null, dbKey
+            return cb null, results[key]
 
   unlinkKey: ( dbKey, cb ) ->
     # the key needs to know it's being disassociated with the API
@@ -261,13 +264,13 @@ class KeyContainerModel extends Model
         return cb null, dbKey
 
   unlinkKeyById: ( keyName, cb ) ->
-    @app.model( "keyFactory" ).find [ keyName ], ( err, { dbKey } ) =>
+    @app.model( "keyFactory" ).find [ keyName ], ( err, results ) =>
       return cb err if err
 
-      if not dbKey
+      if not results[keyName]
         return cb new KeyNotFoundError "#{ keyName } doesn't exist."
 
-      return @unlinkKey dbKey, cb
+      return @unlinkKey results[keyName], cb
 
   getKeys: ( start, stop, cb ) ->
     @lrange "#{ @id }:keys", start, stop, cb

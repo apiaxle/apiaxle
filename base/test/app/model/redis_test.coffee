@@ -21,11 +21,11 @@ class exports.RedisTest extends FakeAppTest
       @isNull err
       @equal newObject.one, 1
 
-      test_model.find [ "hello" ], ( err, [ data ] ) =>
+      test_model.find [ "hello" ], ( err, results ) =>
         @isNull err
-        @ok data
+        @ok results
 
-        @equal data.one, 1
+        @equal results.hello.one, 1
 
         done 6
 
@@ -177,10 +177,10 @@ class exports.RedisTest extends FakeAppTest
     model.create "this:is:an:id", { one: 2 }, ( err ) =>
       @isNull err
 
-      model.find [ "this:is:an:id" ], ( err, [ dbObj ] ) =>
+      model.find [ "this:is:an:id" ], ( err, results ) =>
         @isNull err
-        @ok dbObj
-        @equal dbObj.one, 2
+        @ok results["this:is:an:id"]
+        @equal results["this:is:an:id"].one, 2
 
         done 6
 
@@ -193,9 +193,9 @@ class exports.RedisTest extends FakeAppTest
       @isNull err
 
       # finding 'all' should return the details we expect
-      model.find [ "all" ], ( err, [ dbApi ] ) =>
+      model.find [ "all" ], ( err, results ) =>
         @isNull err
-        @ok dbApi
-        @equal dbApi.one, 1
+        @ok results.all
+        @equal results.all.one, 1
 
         done 4

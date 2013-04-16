@@ -86,11 +86,11 @@ class exports.ApiTest extends FakeAppTest
     @fixtures.createApi "twitter", newObj, ( err ) =>
       @isNull err
 
-      @model.find [ "twitter" ], ( err, [ api ] ) =>
+      @model.find [ "twitter" ], ( err, results ) =>
         @isNull err
 
-        @equal api.data.apiFormat, "xml"
-        @ok api.data.createdAt
+        @equal results.twitter.data.apiFormat, "xml"
+        @ok results.twitter.data.createdAt
 
         done 4
 
@@ -134,17 +134,17 @@ class exports.ApiTest extends FakeAppTest
     @fixtures.create fixture, ( err, objects ) =>
       @isNull err
 
-      @app.model( "apiFactory" ).find [ "facebook" ], ( err, [ api ] ) =>
+      @app.model( "apiFactory" ).find [ "facebook" ], ( err, results ) =>
         @isNull err
-        @ok api
+        @ok results.facebook
 
         # is supported
-        api.supportsKey "1234", ( err, supported ) =>
+        results.facebook.supportsKey "1234", ( err, supported ) =>
           @isNull err
           @equal supported, true
 
           # isn't supported
-          api.supportsKey "hello", ( err, supported ) =>
+          results.facebook.supportsKey "hello", ( err, supported ) =>
             @isNull err
             @equal supported, false
 

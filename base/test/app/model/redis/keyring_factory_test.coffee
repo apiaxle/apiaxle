@@ -37,9 +37,9 @@ class exports.KeyringFactoryTest extends FakeAppTest
       @isNull err
       @ok keyring
 
-      @model.find [ "keyring_one" ], ( err, [ keyring ] ) =>
+      @model.find [ "keyring_one" ], ( err, results ) =>
         @isNull err
-        @equal keyring.id, "keyring_one"
+        @equal results.keyring_one.id, "keyring_one"
 
         done 4
 
