@@ -51,23 +51,14 @@ class exports.ApiaxleController extends Controller
   # parameters. Given a bunch of keys, go off to the respective bits
   # of redis to resolve the data.
   resolve: ( model, keys, cb ) ->
-    # build up the requests, grab the keys and zip into a new
-    # hash
-    multi = model.multi()
-    for result in keys
-      multi.hgetall result
-
-    final = {}
-
-    # grab the accumulated keys
-    multi.exec ( err, accKeys ) ->
+    model.find keys, ( err, results ) ->
       return cb err if err
 
-      i = 0
-      for result in keys
-        final[ result ] = accKeys[ i++ ]
+      all = {}
+      for id, data of results
+        all[id] = if data.data? then data.data else data
 
-      return cb null, final
+      return cb null, all
 
   mwValidateQueryParams: ( ) ->
     ( req, res, next ) =>
