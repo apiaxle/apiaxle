@@ -124,10 +124,10 @@ class exports.KeyringControllerTest extends ApiaxleTest
       @isNull err
 
       model = @app.model( "keyringFactory" )
-      model.find [ "ring1" ], ( err, [ keyring ] ) =>
+      model.find [ "ring1" ], ( err, results ) =>
         @isNull err
-        @ok keyring
-        @equal keyring.id, "ring1"
+        @ok results.ring1
+        @equal results.ring1.id, "ring1"
 
         add_key_functions = []
         add_key_functions.push ( cb ) =>
@@ -138,7 +138,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
               @equal json.results.qps, 2
 
               # get all of the keys, check there's just one
-              keyring.getKeys 0, 100, ( err, keys ) =>
+              results.ring1.getKeys 0, 100, ( err, keys ) =>
                 @deepEqual keys, [ "1234" ]
 
                 cb()
@@ -151,7 +151,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
               @equal json.results.qps, 2
 
               # get all of the keys, check there's just one
-              keyring.getKeys 0, 100, ( err, keys ) =>
+              results.ring1.getKeys 0, 100, ( err, keys ) =>
                 @deepEqual keys, [ "5678", "1234" ]
 
                 cb()

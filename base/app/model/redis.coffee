@@ -107,6 +107,8 @@ class Redis
       # return cb null, [ details ]
 
   _convertData: ( id, data ) =>
+    return null unless data
+
     for key, val of data
       continue if not val?
 
@@ -120,8 +122,9 @@ class Redis
       if suggested_type and suggested_type is "boolean"
         data[ key ] = ( val is "true" )
 
-      if @constructor.returns?
-        return new @constructor.returns @app, id, data
+    # its created as a special model
+    if @constructor.returns?
+      return new @constructor.returns @app, id, data
 
     return data
 

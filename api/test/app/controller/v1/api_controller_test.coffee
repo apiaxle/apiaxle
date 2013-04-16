@@ -204,9 +204,9 @@ class exports.ApiControllerTest extends ApiaxleTest
         @equal json.results.apiFormat, "json"
 
         # check it went in
-        @app.model( "apiFactory" ).find [ "1234" ], ( err, [ dbApi ] ) =>
-          @equal dbApi.data.apiFormat, "json"
-          @ok dbApi.data.createdAt
+        @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
+          @equal results["1234"].data.apiFormat, "json"
+          @ok results["1234"].data.createdAt
 
           done 7
 
@@ -228,10 +228,10 @@ class exports.ApiControllerTest extends ApiaxleTest
         @equal json.results.apiFormat, "json"
 
         # check it went in
-        @app.model( "apiFactory" ).find [ "1234" ], ( err, [ dbApi ] ) =>
-          @equal dbApi.data.apiFormat, "json"
-          @equal dbApi.data.protocol, "https"
-          @ok dbApi.data.createdAt
+        @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
+          @equal results["1234"].data.apiFormat, "json"
+          @equal results["1234"].data.protocol, "https"
+          @ok results["1234"].data.createdAt
 
           done 7
 
@@ -271,9 +271,9 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 200
 
-        @app.model( "apiFactory" ).find [ "1234" ], ( err, [ dbApi ] ) =>
-          @equal dbApi.data.endPoint, "hi.com"
-          @equal dbApi.data.apiFormat, "xml"
+        @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
+          @equal results["1234"].data.endPoint, "hi.com"
+          @equal results["1234"].data.apiFormat, "xml"
 
           done 6
 
@@ -333,8 +333,8 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @app.model( "apiFactory" ).find [ "1234" ], ( err, [ dbApi ] ) =>
+          @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
             @isNull err
-            @isNull dbApi
+            @isNull results["1234"]
 
             done 10

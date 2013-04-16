@@ -25,6 +25,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       @GET path: "/v1/key/1234", ( err, res ) =>
         res.parseJson ( err, json ) =>
           @isNull err
+
           @isNumber json.results.qps
           @isNumber json.results.qpd
 
@@ -63,18 +64,18 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal json.results.qpd, "100"
 
         # check it went in
-        @app.model( "keyFactory" ).find [ "1234" ], ( err, [ dbKey ] ) =>
+        @app.model( "keyFactory" ).find [ "1234" ], ( err, results ) =>
           @isNull err
 
-          @equal dbKey.data.qps, "1"
-          @equal dbKey.data.qpd, "100"
-          @ok dbKey.data.createdAt
+          @equal results["1234"].data.qps, "1"
+          @equal results["1234"].data.qpd, "100"
+          @ok results["1234"].data.createdAt
 
-          @app.model( "apiFactory" ).find [ "twitter" ], ( err, [ api ] ) =>
+          @app.model( "apiFactory" ).find [ "twitter" ], ( err, results ) =>
             @isNull err
-            @ok api
+            @ok results.twitter
 
-            api.getKeys 0, 10, ( err, keys ) =>
+            results.twitter.getKeys 0, 10, ( err, keys ) =>
               @equal keys.length, 1
               @equal keys[0], "1234"
 
@@ -118,9 +119,9 @@ class exports.KeyControllerTest extends ApiaxleTest
       @PUT options, ( err, res ) =>
         @equal res.statusCode, 200
 
-        @app.model( "keyFactory" ).find [ "1234" ], ( err, [ dbKey ] ) =>
-          @equal dbKey.data.qps, "30"
-          @equal dbKey.data.qpd, "1000"
+        @app.model( "keyFactory" ).find [ "1234" ], ( err, results ) =>
+          @equal results["1234"].data.qps, "30"
+          @equal results["1234"].data.qpd, "1000"
 
           done 5
 
@@ -181,9 +182,9 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @app.model( "keyFactory" ).find [ "1234" ], ( err, [ dbKey ] ) =>
+          @app.model( "keyFactory" ).find [ "1234" ], ( err, results ) =>
             @isNull err
-            @isNull dbKey
+            @isNull results["1234"]
 
             done 10
 

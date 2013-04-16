@@ -103,13 +103,13 @@ class exports.ApiaxleController extends Controller
     ( req, res, next ) =>
       key = req.params.key
 
-      @app.model( "keyFactory" ).find [ key ], ( err, [ dbKey ] ) ->
+      @app.model( "keyFactory" ).find [ key ], ( err, results ) ->
         return next err if err
 
-        if valid_key_required and not dbKey?
+        if valid_key_required and not results[key]?
           return next new KeyNotFoundError "Key '#{ key }' not found."
 
-        req.key = dbKey
+        req.key = results[key]
 
         return next()
 
@@ -121,14 +121,14 @@ class exports.ApiaxleController extends Controller
     ( req, res, next ) =>
       keyring = req.params.keyring
 
-      @app.model( "keyringFactory" ).find [ keyring ], ( err, [ dbKeyring ] ) ->
+      @app.model( "keyringFactory" ).find [ keyring ], ( err, results ) ->
         return next err if err
 
         # do we /need/ the keyring to exist?
-        if valid_keyring_required and not dbKeyring?
+        if valid_keyring_required and not results[keyring]?
           return next new KeyringNotFoundError "Keyring '#{ keyring }' not found."
 
-        req.keyring = dbKeyring
+        req.keyring = results[keyring]
 
         return next()
 
@@ -139,14 +139,14 @@ class exports.ApiaxleController extends Controller
     ( req, res, next ) =>
       api = req.params.api
 
-      @app.model( "apiFactory" ).find [ api ], ( err, [ dbApi ] ) ->
+      @app.model( "apiFactory" ).find [ api ], ( err, results ) ->
         return next err if err
 
         # do we /need/ the api to exist?
-        if valid_api_required and not dbApi?
+        if valid_api_required and not results[api]?
           return next new ApiNotFoundError "Api '#{ api }' not found."
 
-        req.api = dbApi
+        req.api = results[api]
 
         return next()
 
