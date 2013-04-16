@@ -232,8 +232,9 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal results["1234"].data.apiFormat, "json"
           @equal results["1234"].data.protocol, "https"
           @ok results["1234"].data.createdAt
+          @equal results["1234"].data.disabled, false
 
-          done 7
+          done 8
 
   "test POST with an invalid api": ( done ) ->
     options =
