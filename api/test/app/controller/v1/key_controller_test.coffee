@@ -301,6 +301,9 @@ class exports.KeyStatsTest extends ApiaxleTest
             res.parseJson ( err, json ) =>
               @isNull err
 
+              @equal json.results.new.qpd, 100
+              @equal json.results.old.qpd, 10
+
               # this should no longer error because we've updated the
               # qpd via the API
               limitModel.apiHit "phil", 200, 100, ( err, [ qpsLeft, qpdLeft ] ) =>
@@ -310,4 +313,4 @@ class exports.KeyStatsTest extends ApiaxleTest
                 # 99 - 5 because this user had already used 5 hits today
                 @equal qpdLeft, 94
 
-                done 7
+                done 9

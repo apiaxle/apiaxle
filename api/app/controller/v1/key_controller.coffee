@@ -166,8 +166,7 @@ class exports.ModifyKey extends ApiaxleController
 
     ### Returns
 
-    * The newly inseted structure (including the new timestamp
-      fields).
+    * The new structure and the old one.
     """
 
   middleware: -> [
@@ -179,9 +178,11 @@ class exports.ModifyKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    req.key.update req.body, ( err, new_key ) =>
+    req.key.update req.body, ( err, new_key, old_key ) =>
       return next err if err
-      return @json res, new_key.data
+      return @json res,
+        new: new_key
+        old: old_key
 
 class exports.ViewHitsForKeyNow extends ApiaxleController
   @verb = "get"

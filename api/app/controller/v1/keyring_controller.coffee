@@ -106,9 +106,11 @@ class exports.ModifyKeyring extends ApiaxleController
   path: -> "/v1/keyring/:keyring"
 
   execute: ( req, res, next ) ->
-    req.keyring.update req.body, ( err, new_keyring ) =>
+    req.keyring.update req.body, ( err, new_keyring, old_keyring ) =>
       return next err if err
-      return @json res, new_keyring.data
+      return @json res,
+        new: new_keyring
+        old: old_keyring
 
 class exports.ListKeyringKeys extends ListController
   @verb = "get"

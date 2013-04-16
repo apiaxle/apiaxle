@@ -272,11 +272,17 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @equal res.statusCode, 200
 
-        @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
-          @equal results["1234"].data.endPoint, "hi.com"
-          @equal results["1234"].data.apiFormat, "xml"
+        res.parseJson ( err, json ) =>
+          @isNull err
 
-          done 6
+          @equal json.results.new.apiFormat, "xml"
+          @equal json.results.old.apiFormat, "json"
+
+          @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
+            @equal results["1234"].data.endPoint, "hi.com"
+            @equal results["1234"].data.apiFormat, "xml"
+
+            done 9
 
   "test PUT with a bad structure": ( done ) ->
     @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>

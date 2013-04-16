@@ -148,7 +148,7 @@ class exports.ModifyApi extends ApiaxleController
 
     ### Returns
 
-    * The merged structure (including the timestamp fields).
+    * The new structure and the old one.
     """
 
   middleware: -> [ @mwValidateQueryParams()
@@ -158,9 +158,11 @@ class exports.ModifyApi extends ApiaxleController
   path: -> "/v1/api/:api"
 
   execute: ( req, res, next ) ->
-    req.api.update req.body, ( err, new_api ) =>
+    req.api.update req.body, ( err, new_api, old_api ) =>
       return next err if err
-      return @json res, new_api.data
+      return @json res,
+        new: new_api
+        old: old_api
 
 class exports.ListApiKeys extends ListController
   @verb = "get"

@@ -29,12 +29,14 @@ class Redis
       if not results[id]
         return cb new Error "Failed to update, can't find '#{ id }'."
 
+      old = _.clone results[id].data
+
       # merge the new and old details
       merged_data = _.extend results[id].data, details
 
       @create id, merged_data, ( err ) =>
         return cb err if err
-        return cb null, merged_data, results[id].data, cb
+        return cb null, merged_data, old
 
   delete: ( id, cb ) ->
     @find [ id ], ( err, results ) =>

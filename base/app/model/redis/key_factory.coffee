@@ -62,7 +62,9 @@ class Key extends Model
       all_actions.push ( cb ) =>
         @constructor.__super__.update.apply @, [ new_data, cb ]
 
-      async.parallel all_actions, cb
+      async.parallel all_actions, ( err, [ discard..., res ] ) ->
+        return cb err if err
+        return cb null, res...
 
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true
