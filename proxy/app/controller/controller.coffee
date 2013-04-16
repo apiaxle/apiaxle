@@ -23,7 +23,7 @@ class exports.ApiaxleController extends Controller
     return next new ApiUnknown "No api specified (via subdomain)"
 
   api: ( req, res, next ) =>
-    @app.model( "apiFactory" ).find req.subdomain, ( err, api ) ->
+    @app.model( "apiFactory" ).find [ req.subdomain ], ( err, [ api ] ) ->
       return next err if err
 
       if not api?
@@ -34,7 +34,7 @@ class exports.ApiaxleController extends Controller
       return next()
 
   authenticateWithKey: ( key, req, next ) ->
-    @app.model( "keyFactory" ).find key, ( err, keyDetails ) =>
+    @app.model( "keyFactory" ).find [ key ], ( err, [ keyDetails ] ) =>
       return next err if err
 
       all = []

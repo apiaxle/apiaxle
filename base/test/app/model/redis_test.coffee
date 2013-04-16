@@ -21,7 +21,7 @@ class exports.RedisTest extends FakeAppTest
       @isNull err
       @equal newObject.one, 1
 
-      test_model.find "hello", ( err, data ) =>
+      test_model.find [ "hello" ], ( err, [ data ] ) =>
         @isNull err
         @ok data
 
@@ -89,7 +89,7 @@ class exports.RedisTest extends FakeAppTest
         @equal value, "hello"
 
         # make sure we've called read and write before we go on.
-        async.until( 
+        async.until(
           ( ) -> ( readCalled and writeCalled ),
           ( cb ) -> setTimeout cb, 100,
           ( ) -> done 7
@@ -125,7 +125,7 @@ class exports.RedisTest extends FakeAppTest
       @ok results
 
       # make sure we've called read and write before we go on.
-      async.until( 
+      async.until(
         ( ) -> ( readCalled and writeCalled ),
         ( cb ) -> setTimeout cb, 100,
         ( ) -> done 7
@@ -177,7 +177,7 @@ class exports.RedisTest extends FakeAppTest
     model.create "this:is:an:id", { one: 2 }, ( err ) =>
       @isNull err
 
-      model.find "this:is:an:id", ( err, dbObj ) =>
+      model.find [ "this:is:an:id" ], ( err, [ dbObj ] ) =>
         @isNull err
         @ok dbObj
         @equal dbObj.one, 2
@@ -193,7 +193,7 @@ class exports.RedisTest extends FakeAppTest
       @isNull err
 
       # finding 'all' should return the details we expect
-      model.find "all", ( err, dbApi ) =>
+      model.find [ "all" ], ( err, [ dbApi ] ) =>
         @isNull err
         @ok dbApi
         @equal dbApi.one, 1

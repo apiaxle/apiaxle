@@ -124,7 +124,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
       @isNull err
 
       model = @app.model( "keyringFactory" )
-      model.find "ring1", ( err, keyring ) =>
+      model.find [ "ring1" ], ( err, [ keyring ] ) =>
         @isNull err
         @ok keyring
         @equal keyring.id, "ring1"

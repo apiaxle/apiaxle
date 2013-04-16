@@ -25,7 +25,7 @@ class Redis
     return @constructor.__super__.create.apply this, [ id, details, cb ]
 
   update: ( id, details, cb ) ->
-    @find id, ( err, dbObj ) =>
+    @find [ id ], ( err, [ dbObj ] ) =>
       if not dbObj
         return cb new Error "Failed to update, can't find '#{ id }'."
 
@@ -37,7 +37,7 @@ class Redis
         return cb null, merged_data, dbObj.data, cb
 
   delete: ( id, cb ) ->
-    @find id, ( err, dbObj ) =>
+    @find [ id ], ( err, [ dbObj ] ) =>
       return cb new Error "'#{ id }' not found." if not dbObj
 
       id = @escapeId id
@@ -48,7 +48,7 @@ class Redis
       multi.exec cb
 
   create: ( id, details, cb ) ->
-    @find id, ( err, dbObj ) =>
+    @find [ id ], ( err, [ dbObj ] ) =>
       return cb err if err
 
       update = dbObj?
@@ -100,11 +100,11 @@ class Redis
     return id.replace( /([:])/g, "\\:" )
 
   find: ( id, cb ) ->
-    id = @escapeId id
+    id = @escapeId id[0]
 
     @hgetall id, ( err, details ) =>
-      return cb err, null if err
-      return cb null, null unless details and _.size details
+      return cb err, [] if err
+      return cb null, [] unless details and _.size details
 
       for key, val of details
         continue if not val?
@@ -120,9 +120,9 @@ class Redis
           details[ key ] = ( val is "true" )
 
       if @constructor.returns?
-        return cb null, new @constructor.returns @app, id, details
+        return cb null, [ new @constructor.returns @app, id, details ]
 
-      return cb null, details
+      return cb null, [ details ]
 
   multi: ( args ) ->
     return new RedisMulti( @ns, @app.redisClient, args )
@@ -208,7 +208,7 @@ class KeyContainerModel extends Model
           return KeyContainerModel.__super__.delete.apply this, [ cb ]
 
   linkKey: ( key, cb ) =>
-    @app.model( "keyFactory" ).find key, ( err, dbKey ) =>
+    @app.model( "keyFactory" ).find [ key ], ( err, [ dbKey ] ) =>
       return cb err if err
 
       if not dbKey
@@ -250,7 +250,7 @@ class KeyContainerModel extends Model
         return cb null, dbKey
 
   unlinkKeyById: ( keyName, cb ) ->
-    @app.model( "keyFactory" ).find keyName, ( err, dbKey ) =>
+    @app.model( "keyFactory" ).find [ keyName ], ( err, [ dbKey ] ) =>
       return cb err if err
 
       if not dbKey

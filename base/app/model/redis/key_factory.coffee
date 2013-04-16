@@ -29,7 +29,7 @@ class Key extends Model
       for api in api_list
         do( api ) =>
           unlink_from_api.push ( cb ) =>
-            @app.model( "apiFactory" ).find api, ( err, dbApi ) =>
+            @app.model( "apiFactory" ).find [ api ], ( err, [ dbApi ] ) =>
               return cb err if err
               return dbApi.unlinkKey @, cb
 
@@ -106,7 +106,7 @@ class exports.KeyFactory extends Redis
     for api in apis
       do( api ) =>
         allKeyExistsChecks.push ( cb ) =>
-          @app.model( "apiFactory" ).find api, ( err, dbApi ) ->
+          @app.model( "apiFactory" ).find [ api ], ( err, [ dbApi ] ) ->
             return cb err if err
 
             if not dbApi

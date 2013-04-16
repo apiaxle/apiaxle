@@ -103,7 +103,7 @@ class exports.ApiaxleController extends Controller
     ( req, res, next ) =>
       key = req.params.key
 
-      @app.model( "keyFactory" ).find key, ( err, dbKey ) ->
+      @app.model( "keyFactory" ).find [ key ], ( err, [ dbKey ] ) ->
         return next err if err
 
         if valid_key_required and not dbKey?
@@ -121,7 +121,7 @@ class exports.ApiaxleController extends Controller
     ( req, res, next ) =>
       keyring = req.params.keyring
 
-      @app.model( "keyringFactory" ).find keyring, ( err, dbKeyring ) ->
+      @app.model( "keyringFactory" ).find [ keyring ], ( err, [ dbKeyring ] ) ->
         return next err if err
 
         # do we /need/ the keyring to exist?
@@ -139,7 +139,7 @@ class exports.ApiaxleController extends Controller
     ( req, res, next ) =>
       api = req.params.api
 
-      @app.model( "apiFactory" ).find api, ( err, dbApi ) ->
+      @app.model( "apiFactory" ).find [ api ], ( err, [ dbApi ] ) ->
         return next err if err
 
         # do we /need/ the api to exist?

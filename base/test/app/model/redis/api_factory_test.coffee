@@ -86,7 +86,7 @@ class exports.ApiTest extends FakeAppTest
     @fixtures.createApi "twitter", newObj, ( err ) =>
       @isNull err
 
-      @model.find "twitter", ( err, api ) =>
+      @model.find [ "twitter" ], ( err, [ api ] ) =>
         @isNull err
 
         @equal api.data.apiFormat, "xml"
@@ -134,7 +134,7 @@ class exports.ApiTest extends FakeAppTest
     @fixtures.create fixture, ( err, objects ) =>
       @isNull err
 
-      @app.model( "apiFactory" ).find "facebook", ( err, api ) =>
+      @app.model( "apiFactory" ).find [ "facebook" ], ( err, [ api ] ) =>
         @isNull err
         @ok api
 
