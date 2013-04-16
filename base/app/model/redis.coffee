@@ -25,7 +25,7 @@ class Redis
     return @constructor.__super__.create.apply this, [ id, details, cb ]
 
   update: ( id, details, cb ) ->
-    @find [ id ], ( err, [ dbObj ] ) =>
+    @find [ id ], ( err, { dbObj } ) =>
       if not dbObj
         return cb new Error "Failed to update, can't find '#{ id }'."
 
@@ -37,7 +37,7 @@ class Redis
         return cb null, merged_data, dbObj.data, cb
 
   delete: ( id, cb ) ->
-    @find [ id ], ( err, [ dbObj ] ) =>
+    @find [ id ], ( err, { dbObj } ) =>
       return cb new Error "'#{ id }' not found." if not dbObj
 
       id = @escapeId id
@@ -48,7 +48,7 @@ class Redis
       multi.exec cb
 
   create: ( id, details, cb ) ->
-    @find [ id ], ( err, [ dbObj ] ) =>
+    @find [ id ], ( err, { dbObj } ) =>
       return cb err if err
 
       update = dbObj?
@@ -99,30 +99,41 @@ class Redis
   escapeId: ( id ) ->
     return id.replace( /([:])/g, "\\:" )
 
-  find: ( id, cb ) ->
-    id = @escapeId id[0]
 
-    @hgetall id, ( err, details ) =>
-      return cb err, [] if err
-      return cb null, [] unless details and _.size details
 
-      for key, val of details
-        continue if not val?
+      # if @constructor.returns?
+      #   return cb null, [ new @constructor.returns @app, id, details ]
 
-        # find out what type we expect
-        suggested_type = @constructor.structure.properties[ key ]?.type
+      # return cb null, [ details ]
 
-        # convert int if need be
-        if suggested_type and suggested_type is "integer"
-          details[ key ] = parseInt( val )
+  _convertData: ( data ) =>
+    for key, val of data
+      continue if not val?
 
-        if suggested_type and suggested_type is "boolean"
-          details[ key ] = ( val is "true" )
+      # find out what type we expect
+      suggested_type = @constructor.structure.properties[ key ]?.type
 
-      if @constructor.returns?
-        return cb null, [ new @constructor.returns @app, id, details ]
+      # convert int if need be
+      if suggested_type and suggested_type is "integer"
+        data[ key ] = parseInt( val )
 
-      return cb null, [ details ]
+      if suggested_type and suggested_type is "boolean"
+        data[ key ] = ( val is "true" )
+
+    return data
+
+  find: ( ids, cb ) ->
+    # fetch all of the hits from redis
+    multi = @multi()
+    multi.hgetall @escapeId( id ) for id in ids
+
+    multi.exec ( err, results ) =>
+      return cb err if err
+
+      # update types to match
+      all = _.object ids, _.map results, @_convertData
+
+      return cb null, all
 
   multi: ( args ) ->
     return new RedisMulti( @ns, @app.redisClient, args )
@@ -208,7 +219,7 @@ class KeyContainerModel extends Model
           return KeyContainerModel.__super__.delete.apply this, [ cb ]
 
   linkKey: ( key, cb ) =>
-    @app.model( "keyFactory" ).find [ key ], ( err, [ dbKey ] ) =>
+    @app.model( "keyFactory" ).find [ key ], ( err, { dbKey } ) =>
       return cb err if err
 
       if not dbKey
@@ -250,7 +261,7 @@ class KeyContainerModel extends Model
         return cb null, dbKey
 
   unlinkKeyById: ( keyName, cb ) ->
-    @app.model( "keyFactory" ).find [ keyName ], ( err, [ dbKey ] ) =>
+    @app.model( "keyFactory" ).find [ keyName ], ( err, { dbKey } ) =>
       return cb err if err
 
       if not dbKey
