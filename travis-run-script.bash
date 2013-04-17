@@ -42,10 +42,10 @@ for project in base api proxy repl; do
     exit 1
   fi
 
+  cake "js:clean" &>/dev/null
+
   # lint (fails on error)
-  if ! cake lint; then
-    exit 1
-  fi
+  cake lint || exit 1
 
   popd &> /dev/null
 done
