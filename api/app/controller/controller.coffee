@@ -1,5 +1,5 @@
 moment = require "moment"
-_      = require "underscore"
+_      = require "lodash"
 async  = require "async"
 
 { Controller, validate } = require "apiaxle-base"

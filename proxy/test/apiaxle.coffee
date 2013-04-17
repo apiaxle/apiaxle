@@ -1,7 +1,7 @@
 # always run as test
 process.env.NODE_ENV = "test"
 
-_ = require "underscore"
+_ = require "lodash"
 
 { ApiaxleProxy } = require "../apiaxle-proxy"
 { AppTest } = require "apiaxle-base"

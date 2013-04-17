@@ -1,7 +1,7 @@
 # extends Date
 require "date-utils"
 
-_            = require "underscore"
+_            = require "lodash"
 log4js       = require "log4js"
 express      = require "express"
 walkTreeSync = require "./walktree"

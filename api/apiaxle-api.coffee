@@ -1,7 +1,7 @@
 #!/usr/bin/env coffee
 
 # extends Date
-_ = require "underscore"
+_ = require "lodash"
 
 express      = require "express"
 fs           = require "fs"

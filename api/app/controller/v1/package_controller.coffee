@@ -1,4 +1,4 @@
-_ = require "underscore"
+_ = require "lodash"
 
 mypackage = require "../../../package.json"
 basepackage = require( "apiaxle-base" ).package

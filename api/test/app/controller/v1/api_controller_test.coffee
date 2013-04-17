@@ -1,4 +1,4 @@
-_     = require "underscore"
+_     = require "lodash"
 async = require "async"
 
 { ApiaxleTest } = require "../../../apiaxle"

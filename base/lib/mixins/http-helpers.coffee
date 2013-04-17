@@ -1,4 +1,4 @@
-_ = require "underscore"
+_ = require "lodash"
 libxml = require "libxmljs"
 http = require "http"
 

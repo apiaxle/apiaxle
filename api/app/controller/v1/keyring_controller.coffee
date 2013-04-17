@@ -1,4 +1,4 @@
-_ = require "underscore"
+_ = require "lodash"
 
 { ApiaxleController, ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"

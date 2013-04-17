@@ -1,6 +1,6 @@
 # Store and access real time hits per second
 async   = require "async"
-_       = require "underscore"
+_       = require "lodash"
 {Redis} = require "../redis"
 
 class exports.Stats extends Redis

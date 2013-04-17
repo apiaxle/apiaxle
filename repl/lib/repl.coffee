@@ -1,4 +1,4 @@
-_ = require "underscore"
+_ = require "lodash"
 util = require "util"
 parser = require "./parser"
 readline = require "readline"

@@ -5,7 +5,7 @@ path   = require "path"
 sinon  = require "sinon"
 async  = require "async"
 libxml = require "libxmljs"
-_      = require "underscore"
+_      = require "lodash"
 
 { Application } = require "./application"
 { TwerpTest }   = require "twerp"

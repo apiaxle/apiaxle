@@ -1,5 +1,5 @@
 async = require "async"
-_ = require "underscore"
+_ = require "lodash"
 validate = require "../../lib/validate"
 events = require "events"
 redis = require "redis"

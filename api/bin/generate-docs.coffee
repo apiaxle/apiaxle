@@ -1,6 +1,6 @@
 #!/usr/bin/env coffee
 
-_ = require "underscore"
+_ = require "lodash"
 { exec } = require "child_process"
 
 { ApiaxleApi } = require "../apiaxle-api"

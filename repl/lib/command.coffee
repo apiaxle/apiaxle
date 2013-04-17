@@ -1,4 +1,4 @@
-_ = require "underscore"
+_ = require "lodash"
 
 { Module, httpHelpers } = require "apiaxle-base"
 
