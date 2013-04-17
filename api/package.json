@@ -23,11 +23,11 @@
     "apiaxle-base": "0.9.0",
     "async": "~0.1.9",
     "express": "~2.5",
-    "underscore": "~1.1.7",
     "moment": "1.7.2",
     "libxmljs": "0.7.1",
     "redis": "~0.8.3",
-    "hiredis": "~0.1.15"
+    "hiredis": "~0.1.15",
+    "lodash": "~1.2.0"
   },
   "devDependencies": {
     "coffee-script": "1.6.2",
