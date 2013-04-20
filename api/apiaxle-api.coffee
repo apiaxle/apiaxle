@@ -3,23 +3,22 @@
 # extends Date
 _ = require "lodash"
 
-express      = require "express"
-fs           = require "fs"
-redis        = require "redis"
+fs = require "fs"
 
-{ Application } = require "apiaxle-base"
+{ AxleApp } = require "apiaxle-base"
 { NotFoundError } = require "./lib/error"
 
-class exports.ApiaxleApi extends Application
-  @controllersPath = "#{ __dirname }/app/controller"
+class exports.ApiaxleApi extends AxleApp
+  @plugins =
+    controllers: "#{ __dirname }/app/controller/**/*_controller.coffee"
 
-  configureGeneral: ( app ) ->
-    app.use express.methodOverride()
-    app.use express.bodyParser()
+  # configureGeneral: ( app ) ->
+  #   app.use express.methodOverride()
+  #   app.use express.bodyParser()
 
-    app.enable "jsonp callback"
+  #   app.enable "jsonp callback"
 
-    super
+  #   super
 
 if not module.parent
   # taking a port from the commandline makes it much easier to cluster
@@ -27,12 +26,10 @@ if not module.parent
   port = ( process.argv[2] or 3000 )
   host = "127.0.0.1"
 
-  api = new exports.ApiaxleApi host, port
+  api = new exports.ApiaxleApi()
+  api.run ( err ) ->
+    api.loadAndInstansiatePlugins ( err )  ->
+      throw err if err
 
-  api.redisConnect ( ) ->
-    api.run ( ) ->
-      api.configureModels()
-      api.configureControllers()
-      api.configureMiddleware()
-
-      console.log "Express server listening on port #{port}"
+      api.redisConnect ( err ) ->
+        throw err if err

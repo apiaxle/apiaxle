@@ -1,189 +1,105 @@
-# extends Date
-require "date-utils"
+_ = require "lodash"
+path = require "path"
+async = require "async"
+express = require "express"
+redis = require "redis"
 
-_            = require "lodash"
-log4js       = require "log4js"
-express      = require "express"
-walkTreeSync = require "./walktree"
-fs           = require "fs"
-redis        = require "redis"
+{ Application } = require "scarf"
 
-{ Js2Xml }                    = require "js2xml"
-{ RedisError, NotFoundError } = require "./error"
+class exports.AxleApp extends Application
+  configure: ( cb ) ->
+    @readConfiguration ( err, @config, filename ) =>
+      return cb err if err
 
-class exports.Application
-  @env = ( process.env.NODE_ENV or "development" )
+      @debugOn = @config.application.debug is true
 
-  constructor: ( @binding_host, @port ) ->
-    app = express.createServer()
+      @setupLogger @config.logging, ( err, @logger ) =>
+        return cb err if err
 
-    @_configure app
+        # very simple logger if we're at debug log level
+        if @debugOn
+          @logger.warn "Debug mode is switched on"
+
+          @use ( req, res, next ) =>
+            @logger.debug "#{ req.method } - #{ req.url }"
+            next()
+
+        @logger.info "Loaded configuration from #{ filename }"
+        return cb null
 
   redisConnect: ( cb ) =>
     # grab the redis config
     { port, host } = @config.redis
 
     @redisClient = redis.createClient( port, host )
-
-    @redisClient.on "error", ( err ) ->
-      throw new RedisError err
-
+    @redisClient.on "error", ( err ) -> throw new RedisError err
     @redisClient.on "ready", cb
 
-  script: ( cb ) ->
-    @configureModels()
+  loadAndInstansiatePlugins: ( cb ) ->
+    plugins = {}
 
-    @redisConnect ( err ) =>
-      throw err if err
-      cb ( ) => @redisClient.quit()
+    all = []
+    for category, path of @constructor.plugins
+      all.push ( cb ) =>
+        @collectPlugins path, ( err, items ) =>
+          return cb err if err
 
-  run: ( callback ) ->
-    @app.listen @port, @binding_host, callback
+          for name, constructor of items
+            inst = null
 
-  configureMiddleware: ( ) ->
-    return @
+            try
+              inst = new constructor this
+              friendly_name = if constructor.plugin_name
+                constructor.plugin_name
+              else
+                name.toLowerCase()
 
-  configureControllers: ( ) ->
-    @controllers = {}
+              plugins[category] ||= {}
+              plugins[category][friendly_name] = inst
+            catch err
+              return cb err
 
-    return @ unless @constructor.controllersPath
+          # nothing loaded
+          return cb null, [] if not _.keys( plugins[category] ).length > 0
 
-    for [ abs, clean_path ] in @_controllerList()
-      try
-        classes = require abs
+          list = _.keys( plugins[category] ).join( ', ' )
+          @logger.info "Loaded #{ list } from '#{ path }'"
 
-        for cls, func of classes
-          ctrlr =  new func @, clean_path
+          return cb null, plugins
 
-          # this is used by the documentation generator
-          @controllers[ cls ] = ctrlr
+    async.parallel all, ( err ) ->
+      return cb err if err
+      return cb null, plugins
 
-          @logger.debug "Loading controller #{ cls } with path '#{ ctrlr.path() }'"
-      catch e
-        throw new Error( "Failed to load controller #{abs}: #{e}" )
+  run: ( cb ) ->
+    @configure ( err ) =>
+      return cb err if err
 
-    return @
+      { port, host } = @config.application
+      @logger.info "Staring to listen at #{ host }:#{ port }"
+      @express.listen port, host, cb
 
-  configureModels: ( ) ->
-    @models or= {}
+  getApiaxleConfigSchema: ->
+    {}=
+      type: "object"
+      additionalProperties: false
+      properties:
+       redis:
+          type: "object"
+          additionalProperties: false
+          properties:
+            port:
+              type: "integer"
+              default: 3000
+            host:
+              type: "string"
+              default: "localhost"
 
-    modelPaths = @_modelList( "#{ __dirname }/../app/model" )
+  getConfigurationSchema: ->
+    _.merge @getAppConfigSchema(),
+            @getLoggingConfigSchema(),
+            @getApiaxleConfigSchema()
 
-    # add the new models
-    if @constructor.modelsPath
-      modelPaths = modelPaths.concat( @_modelList( @constructor.modelsPath ) )
-
-    for modelPath in modelPaths
-      current = require( modelPath )
-
-      for model, func of current
-        # lowercase the first char of the model name
-        modelName = model.charAt( 0 ).toLowerCase() + model.slice( 1 )
-
-        if func.instantiateOnStartup
-          @logger.debug "Loading model '#{model}'"
-
-          # models take an instance of this class as an argument to the
-          # constructor. This gives us something like
-          # `application.models.metaCache`.
-          @models[ modelName ] = new func @
-
-    return this
-
-  model: ( name ) ->
-    @models[ name ] or null
-
-  controller: ( name ) ->
-    @controllers[ name ] or null
-
-  _modelList: ( initialPath ) ->
-    list = []
-
-    walkTreeSync initialPath, null, ( path, filename, stats ) ->
-      return unless matches = /(.+?)\.(coffee|js)$/.exec filename
-
-      list.push "#{ path }/#{ matches[1] }"
-
-    return list
-
-  # grab the list of controllers (which can just be required)
-  _controllerList: ( ) ->
-    list = []
-
-    walkTreeSync @constructor.controllersPath, null, ( path, filename, stats ) ->
-      return unless matches = /(.+?_controller)\.(coffee|js)$/.exec filename
-
-      abs = "#{ path }/#{ matches[1] }"
-
-      # strip the controllers part from the path and pass it in so
-      # modules can derive thier views/controller paths.
-      clean_path = abs.replace( "./app/controller/", "" )
-                      .replace( /_controller/, "" )
-
-      list.push [ abs, clean_path ]
-
-    return list
-
-  _configure: ( app ) ->
-    default_config =
-      redis:
-        host: "localhost"
-        port: 6379
-      app:
-        debug: false
-      logging:
-        level: "INFO"
-        appenders: [
-          {
-            type: "file",
-            filename: "#{ Application.env }-#{ @port }.log"
-          }
-        ]
-
-    # load up /our/ configuration (from the files in /config)
-    [ config_filename, @config ] = require( "./app_config" )( Application.env )
-
-    @config = _.extend default_config, @config
-
-    app.configure ( ) =>
-      @configureGeneral app
-      @configureLogging app
-
-      @logger.info "Loading configuration from '#{ config_filename }'."
-
-      # now let the rest of the class know about app
-      @app = app
-
-  configureGeneral: ( app ) ->
-    app.use app.router
-
-    # offload any errors to onError
-    app.error ( args... ) => @onError.apply @, args
-
-  configureLogging: ( app ) ->
-    logging_config = @config.logging
-    log4js.configure logging_config
-
-    @logger = log4js.getLogger()
-    @logger.setLevel logging_config.level
-
-  onError: ( err, req, res, next ) ->
-    output =
-      error:
-        type: err.name
-        message: err.message
-
-    output.error.details = err.details if err.details
-
-    # json
-    if req.api?.data.apiFormat isnt "xml"
-      meta =
-        version: 1
-        status_code: err.constructor.status
-
-      return res.json { meta: meta, results: output }, err.constructor.status
-
-    # need xml
-    res.contentType "application/xml"
-    js2xml = new Js2Xml "error", output.error
-    res.send js2xml.toString(), err.constructor.status
+if not module.parent
+  dash = new Dash()
+  dash.run ( err ) -> throw err if err

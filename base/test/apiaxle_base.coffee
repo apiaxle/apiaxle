@@ -3,10 +3,10 @@ process.env.NODE_ENV = "test"
 
 async = require "async"
 
-{ Application } = require "../lib/application"
+{ AxleApi } = require "../lib/application"
 { AppTest } = require "../lib/test"
 
-class TestApp extends Application
+class TestApp extends AxleApi
 
 class exports.FakeAppTest extends AppTest
   @appClass = TestApp

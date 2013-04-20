@@ -72,13 +72,7 @@ class exports.AppTest extends TwerpTest
   @port = 26100
 
   constructor: ( options ) ->
-    # avoid re-reading configuration and stuff
-    @app = if application_mem
-      application_mem
-    else
-      application_mem = new @constructor.appClass "127.0.0.1", @constructor.port
-      application_mem.configureModels().configureControllers()
-
+    @app = new @constructor.appClass { env: "test" }
     @host_name = "http://127.0.0.1:#{ @constructor.port }"
 
     @stubs = []
@@ -90,7 +84,10 @@ class exports.AppTest extends TwerpTest
     else
       application_fixtures = new Fixtures @app
 
-    super options
+    console.log( "HI" )
+    @app.configure ( err ) =>
+      console.log( err )
+      @constructor.__super__.constructor.apply @, [ options ]
 
   stubDns: ( mapping ) ->
     # we need to avoid hitting twitter.api.localhost because it won't
@@ -107,8 +104,8 @@ class exports.AppTest extends TwerpTest
   getClock: ( seed=new Date().getTime() ) ->
     new Clock @sandbox.useFakeTimers( seed )
 
-  startWebserver: ( done ) ->
-    @app.run done
+  startWebserver: ( done ) =>
+    @app.run "127.0.0.1", @constructor.port, done
 
   # stub out `fun_name` of `module` with the function `logic`. The
   # teardown function will deal with restoring all stubs.
@@ -129,35 +126,34 @@ class exports.AppTest extends TwerpTest
     @runRedisCommands = []
 
     if @constructor.start_webserver
-      chain.push ( cb ) =>
-        @startWebserver cb
+      chain.push @startWebserver
 
     chain.push @app.redisConnect
 
-    wrapCommand = ( access, model, command, fullkey ) ->
-      access: access
-      model: model
-      command: command
-      key: fullkey
+    # wrapCommand = ( access, model, command, fullkey ) ->
+    #   access: access
+    #   model: model
+    #   command: command
+    #   key: fullkey
 
-    # capture each redis event as it happens so that we can see what
-    # we've been running
-    for name, model of @app.models
-      do( name, model ) =>
-        model.ee.on "read", ( command, fullkey ) =>
-          @runRedisCommands.push wrapCommand( "read", name, command, fullkey )
+    # # capture each redis event as it happens so that we can see what
+    # # we've been running
+    # for name, model of @app.models
+    #   do( name, model ) =>
+    #     model.ee.on "read", ( command, fullkey ) =>
+    #       @runRedisCommands.push wrapCommand( "read", name, command, fullkey )
 
-        model.ee.on "write", ( command, fullkey ) =>
-          @runRedisCommands.push wrapCommand( "write", name, command, fullkey )
+    #     model.ee.on "write", ( command, fullkey ) =>
+    #       @runRedisCommands.push wrapCommand( "write", name, command, fullkey )
 
-    # chain this as it's possible the parent class will implement
-    # functionality in `start`
-    async.parallel chain, done
+    async.series chain, ( err ) ->
+      console.log( err ) if err
+      done()
 
   finish: ( done ) ->
     # this is synchronous
-    @app.app.close( ) if @constructor.start_webserver
-    @app.redisClient.quit( )
+    @app.app.close() if @constructor.start_webserver
+    @app.redisClient.quit()
 
     # remove the redis emitters
     for name, model of @app.models

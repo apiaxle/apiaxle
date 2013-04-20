@@ -2,7 +2,9 @@ moment = require "moment"
 _      = require "lodash"
 async  = require "async"
 
-{ Controller, validate } = require "apiaxle-base"
+{ validate } = require "apiaxle-base"
+
+{ Controller } = require "scarf"
 
 { KeyNotFoundError,
   ApiNotFoundError,
