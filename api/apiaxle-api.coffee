@@ -2,7 +2,7 @@
 
 # extends Date
 _ = require "lodash"
-
+async = require "async"
 fs = require "fs"
 
 { AxleApp } = require "apiaxle-base"
@@ -26,10 +26,17 @@ if not module.parent
   port = ( process.argv[2] or 3000 )
   host = "127.0.0.1"
 
-  api = new exports.ApiaxleApi()
-  api.run ( err ) ->
-    api.loadAndInstansiatePlugins ( err )  ->
-      throw err if err
+  api = new exports.ApiaxleApi
+    name: "apiaxle"
+    port: 3000
+    host: "localhost"
 
-      api.redisConnect ( err ) ->
-        throw err if err
+  all = []
+
+  all.push ( cb ) -> api.configure cb
+  all.push ( cb ) -> api.loadAndInstansiatePlugins cb
+  all.push ( cb ) -> api.redisConnect cb
+  all.push ( cb ) -> api.run cb
+
+  async.series all, ( err ) ->
+    throw err if err

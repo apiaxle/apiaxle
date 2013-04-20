@@ -12,17 +12,25 @@ finish = ( app ) ->
   app.app.close()
   app.redisClient.quit()
 
-axle = new ApiaxleApi "127.0.0.1", 28902
-axle.redisConnect ( ) ->
-  axle.run ( ) ->
-    axle.configureControllers()
-    axle.configureModels()
-    axle.configureMiddleware()
+axle = new ApiaxleApi
+  host: "127.0.0.1"
+  port: 28902
+  name: "apiaxle"
 
-    replHelper = new ReplHelper axle
+all = []
 
-    # make sure we shutdown connections
-    replHelper.initReadline ( ) ->
-      finish axle
+all.push ( cb ) -> axle.configure cb
+all.push ( cb ) -> axle.loadAndInstansiatePlugins cb
+all.push ( cb ) -> axle.redisConnect cb
+all.push ( cb ) -> axle.run cb
 
-    replHelper.topLevelInput()
+async.series all, ( err ) ->
+  throw err if err
+
+  replHelper = new ReplHelper axle
+
+  # make sure we shutdown connections
+  replHelper.initReadline ( ) ->
+    finish axle
+
+  replHelper.topLevelInput()

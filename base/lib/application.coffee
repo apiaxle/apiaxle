@@ -75,14 +75,6 @@ class exports.AxleApp extends Application
       return cb err if err
       return cb null, @plugins
 
-  run: ( cb ) ->
-    @configure ( err ) =>
-      return cb err if err
-
-      { port, host } = @config.application
-      @logger.info "Staring to listen at #{ host }:#{ port }"
-      @express.listen port, host, cb
-
   getApiaxleConfigSchema: ->
     {}=
       type: "object"

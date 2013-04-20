@@ -42,7 +42,6 @@ exports.httpHelpers =
     # know)
     options = _.extend defaults, options
 
-    @app.logger.debug "Making a #{ options.method} to #{ options.path }"
     req = http.request options, ( res ) ->
       data = ""
       res.setEncoding "utf8"
