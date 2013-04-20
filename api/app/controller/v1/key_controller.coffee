@@ -189,6 +189,19 @@ class exports.ViewHitsForKeyNow extends ApiaxleController
 
   desc: -> "Get the real time hits for a key."
 
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current,
+      forapi:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               api."
+
+    return current
+
   docs: ->
     """
     ### Returns
