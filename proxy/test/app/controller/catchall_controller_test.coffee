@@ -213,7 +213,7 @@ class exports.CatchallTest extends ApiaxleTest
       keyOptions =
         forApis: [ "facebook" ]
 
-      @app.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
+      @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -256,7 +256,7 @@ class exports.CatchallTest extends ApiaxleTest
       keyOptions =
         forApis: [ "facebook" ]
 
-      @app.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
+      @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook
@@ -293,7 +293,7 @@ class exports.CatchallTest extends ApiaxleTest
       keyOptions =
         forApis: [ "facebook" ]
 
-      @app.model( "keyFactory" ).create "1234", keyOptions, ( err ) =>
+      @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
         @isNull err
 
         # make sure we don't actually hit facebook

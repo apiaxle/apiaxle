@@ -9,7 +9,7 @@ class exports.KeysControllerTest extends ApiaxleTest
   "test list keys without resolution": ( done ) ->
     # create 11 keys
     fixtures = []
-    model = @app.model "keyFactory"
+    model = @app.model "keyfactory"
 
     for i in [ 0..10 ]
       do ( i ) =>
@@ -33,7 +33,7 @@ class exports.KeysControllerTest extends ApiaxleTest
     # create 11 keys
     fixtures = []
 
-    model = @app.model "keyFactory"
+    model = @app.model "keyfactory"
 
     for i in [ 0..10 ]
       do ( i ) =>

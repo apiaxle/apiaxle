@@ -7,7 +7,7 @@ class exports.KeyTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup model": ( done ) ->
-    @model = @app.model "keyFactory"
+    @model = @app.model "keyfactory"
 
     done()
 
@@ -44,7 +44,7 @@ class exports.KeyTest extends FakeAppTest
     options =
       endPoint: "api.twitter.com"
 
-    @app.model( "apiFactory" ).create "twitter", options, ( err, newApi ) =>
+    @app.model( "apifactory" ).create "twitter", options, ( err, newApi ) =>
       @isUndefined err?.message
 
       createObj =

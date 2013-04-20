@@ -64,14 +64,14 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal json.results.qpd, "100"
 
         # check it went in
-        @app.model( "keyFactory" ).find [ "1234" ], ( err, results ) =>
+        @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
           @isNull err
 
           @equal results["1234"].data.qps, "1"
           @equal results["1234"].data.qpd, "100"
           @ok results["1234"].data.createdAt
 
-          @app.model( "apiFactory" ).find [ "twitter" ], ( err, results ) =>
+          @app.model( "apifactory" ).find [ "twitter" ], ( err, results ) =>
             @isNull err
             @ok results.twitter
 
@@ -119,7 +119,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       @PUT options, ( err, res ) =>
         @equal res.statusCode, 200
 
-        @app.model( "keyFactory" ).find [ "1234" ], ( err, results ) =>
+        @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
           @equal results["1234"].data.qps, "30"
           @equal results["1234"].data.qpd, "1000"
 
@@ -182,7 +182,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @app.model( "keyFactory" ).find [ "1234" ], ( err, results ) =>
+          @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
             @isNull err
             @isNull results["1234"]
 

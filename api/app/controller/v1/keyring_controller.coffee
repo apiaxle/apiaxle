@@ -12,7 +12,7 @@ class exports.CreateKeyring extends ApiaxleController
     """
     ### JSON fields supported
 
-    #{ @app.model( 'keyringFactory' ).getValidationDocs() }
+    #{ @app.model( 'keyringfactory' ).getValidationDocs() }
 
     ### Returns
 
@@ -29,7 +29,7 @@ class exports.CreateKeyring extends ApiaxleController
     if req.keyring?
       return next new AlreadyExists "'#{ req.keyring.id }' already exists."
 
-    model = @app.model "keyringFactory"
+    model = @app.model "keyringfactory"
     model.create req.params.keyring, req.body, ( err, newObj ) =>
       return next err if err
 
@@ -73,7 +73,7 @@ class exports.DeleteKeyring extends ApiaxleController
   path: -> "/v1/keyring/:keyring"
 
   execute: ( req, res, next ) ->
-    model = @app.model "keyringFactory"
+    model = @app.model "keyringfactory"
 
     model.del req.params.keyring, ( err, newKeyring ) =>
       return next err if err
@@ -90,7 +90,7 @@ class exports.ModifyKeyring extends ApiaxleController
 
     ### JSON fields supported
 
-    #{ @app.model( 'keyringFactory' ).getValidationDocs() }
+    #{ @app.model( 'keyringfactory' ).getValidationDocs() }
 
     ### Returns
 

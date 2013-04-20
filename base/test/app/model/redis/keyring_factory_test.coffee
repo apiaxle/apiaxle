@@ -6,7 +6,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup model": ( done ) ->
-    @model = @app.model "keyringFactory"
+    @model = @app.model "keyringfactory"
 
     done()
 

@@ -123,7 +123,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
     @fixtures.create fixture, ( err ) =>
       @isNull err
 
-      model = @app.model( "keyringFactory" )
+      model = @app.model( "keyringfactory" )
       model.find [ "ring1" ], ( err, results ) =>
         @isNull err
         @ok results.ring1

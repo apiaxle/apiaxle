@@ -56,7 +56,7 @@ class exports.ListKeyApis extends ListController
       return next err if err
       return @json res, apis if not req.query.resolve
 
-      @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
+      @resolve @app.model( "apifactory" ), apis, ( err, results ) =>
         return cb err if err
 
         output = _.map apiNameList, ( a ) ->
@@ -72,7 +72,7 @@ class exports.CreateKey extends ApiaxleController
     """
     ### JSON fields supported
 
-    #{ @app.model( 'keyFactory' ).getValidationDocs() }
+    #{ @app.model( 'keyfactory' ).getValidationDocs() }
 
     ### Returns
 
@@ -91,7 +91,7 @@ class exports.CreateKey extends ApiaxleController
     if req.key?
       return next new AlreadyExists "'#{ req.key.id }' already exists."
 
-    @app.model( "keyFactory" ).create req.params.key, req.body, ( err, newObj ) =>
+    @app.model( "keyfactory" ).create req.params.key, req.body, ( err, newObj ) =>
       return next err if err
       return @json res, newObj.data
 
@@ -142,7 +142,7 @@ class exports.DeleteKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "keyFactory"
+    model = @app.model "keyfactory"
 
     req.key.delete ( err ) =>
       return next err if err
@@ -162,7 +162,7 @@ class exports.ModifyKey extends ApiaxleController
 
     ### JSON fields supported
 
-    #{ @app.model( 'keyFactory' ).getValidationDocs() }
+    #{ @app.model( 'keyfactory' ).getValidationDocs() }
 
     ### Returns
 

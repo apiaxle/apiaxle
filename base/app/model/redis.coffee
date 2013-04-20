@@ -227,7 +227,7 @@ class KeyContainerModel extends Model
           return KeyContainerModel.__super__.delete.apply this, [ cb ]
 
   linkKey: ( key, cb ) =>
-    @app.model( "keyFactory" ).find [ key ], ( err, results ) =>
+    @app.model( "keyfactory" ).find [ key ], ( err, results ) =>
       return cb err if err
 
       if not results[key]
@@ -269,7 +269,7 @@ class KeyContainerModel extends Model
         return cb null, dbKey
 
   unlinkKeyById: ( keyName, cb ) ->
-    @app.model( "keyFactory" ).find [ keyName ], ( err, results ) =>
+    @app.model( "keyfactory" ).find [ keyName ], ( err, results ) =>
       return cb err if err
 
       if not results[keyName]

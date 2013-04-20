@@ -204,7 +204,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @equal json.results.apiFormat, "json"
 
         # check it went in
-        @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
+        @app.model( "apifactory" ).find [ "1234" ], ( err, results ) =>
           @equal results["1234"].data.apiFormat, "json"
           @ok results["1234"].data.createdAt
 
@@ -228,7 +228,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @equal json.results.apiFormat, "json"
 
         # check it went in
-        @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
+        @app.model( "apifactory" ).find [ "1234" ], ( err, results ) =>
           @equal results["1234"].data.apiFormat, "json"
           @equal results["1234"].data.protocol, "https"
           @ok results["1234"].data.createdAt
@@ -278,7 +278,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal json.results.new.apiFormat, "xml"
           @equal json.results.old.apiFormat, "json"
 
-          @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
+          @app.model( "apifactory" ).find [ "1234" ], ( err, results ) =>
             @equal results["1234"].data.endPoint, "hi.com"
             @equal results["1234"].data.apiFormat, "xml"
 
@@ -340,7 +340,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           @equal json.meta.status_code, 200
 
           # confirm it's out of the database
-          @app.model( "apiFactory" ).find [ "1234" ], ( err, results ) =>
+          @app.model( "apifactory" ).find [ "1234" ], ( err, results ) =>
             @isNull err
             @isNull results["1234"]
 

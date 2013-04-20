@@ -249,7 +249,7 @@ class Fixtures
       when 1 then [ name ] = args
       else name = "bucket-#{ @keys.pop() }"
 
-    @app.model( "keyringFactory" ).create "#{ name }", options, cb
+    @app.model( "keyringfactory" ).create "#{ name }", options, cb
 
   createKey: ( args..., cb ) =>
     name = null
@@ -267,7 +267,7 @@ class Fixtures
     # merge the options
     options = _.extend default_options, passed_options
 
-    @app.model( "keyFactory" ).create "#{ name }", options, cb
+    @app.model( "keyfactory" ).create "#{ name }", options, cb
 
   createApi: ( args..., cb ) =>
     name = null
@@ -286,4 +286,4 @@ class Fixtures
     # merge the options
     options = _.extend default_options, passed_options
 
-    @app.model( "apiFactory" ).create name, options, cb
+    @app.model( "apifactory" ).create name, options, cb

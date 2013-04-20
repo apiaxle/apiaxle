@@ -31,7 +31,7 @@ class exports.ApiTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup model": ( done ) ->
-    @model = @app.model "apiFactory"
+    @model = @app.model "apifactory"
 
     done()
 
@@ -134,7 +134,7 @@ class exports.ApiTest extends FakeAppTest
     @fixtures.create fixture, ( err, objects ) =>
       @isNull err
 
-      @app.model( "apiFactory" ).find [ "facebook" ], ( err, results ) =>
+      @app.model( "apifactory" ).find [ "facebook" ], ( err, results ) =>
         @isNull err
         @ok results.facebook
 

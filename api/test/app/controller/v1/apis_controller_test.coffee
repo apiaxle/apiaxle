@@ -9,7 +9,7 @@ class exports.ApisControllerTest extends ApiaxleTest
   "test list apis without resolution": ( done ) ->
     # create 11 apis
     fixtures = []
-    model = @app.model( "apiFactory" )
+    model = @app.model( "apifactory" )
 
     for i in [ 0..10 ]
       do ( i ) =>
@@ -33,7 +33,7 @@ class exports.ApisControllerTest extends ApiaxleTest
     # create 11 apis
     fixtures = []
 
-    model = @app.model( "apiFactory" )
+    model = @app.model( "apifactory" )
 
     for i in [ 0..10 ]
       do ( i ) =>

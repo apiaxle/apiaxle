@@ -5,7 +5,7 @@ async = require "async"
 { ValidationError } = require "../../../lib/error"
 
 class Key extends Model
-  @factory = "keyFactory"
+  @factory = "keyfactory"
 
   linkToApi: ( apiName, cb ) -> @hset "#{ @id }-apis", apiName, 1, cb
   supportedApis: ( cb ) -> @hkeys "#{ @id }-apis", cb
@@ -29,7 +29,7 @@ class Key extends Model
       for api in api_list
         do( api ) =>
           unlink_from_api.push ( cb ) =>
-            @app.model( "apiFactory" ).find [ api ], ( err, results ) =>
+            @app.model( "apifactory" ).find [ api ], ( err, results ) =>
               return cb err if err
               return results[api].unlinkKey @, cb
 
@@ -108,7 +108,7 @@ class exports.KeyFactory extends Redis
     for api in apis
       do( api ) =>
         allKeyExistsChecks.push ( cb ) =>
-          @app.model( "apiFactory" ).find [ api ], ( err, results ) ->
+          @app.model( "apifactory" ).find [ api ], ( err, results ) ->
             return cb err if err
 
             if not results[api]

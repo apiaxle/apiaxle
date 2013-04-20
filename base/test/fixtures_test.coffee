@@ -28,7 +28,7 @@ class exports.ApiTest extends FakeAppTest
       all_tests = []
 
       all_tests.push ( cb ) =>
-        @app.model( "apiFactory" ).find [ "facebook" ], ( err, results ) =>
+        @app.model( "apifactory" ).find [ "facebook" ], ( err, results ) =>
           @isNull err
           @ok results.facebook
           @equal results.facebook.data.endPoint, "graph.facebook.com"
@@ -36,14 +36,14 @@ class exports.ApiTest extends FakeAppTest
           cb()
 
       all_tests.push ( cb ) =>
-        @app.model( "apiFactory" ).find [ "twitter" ], ( err, results ) =>
+        @app.model( "apifactory" ).find [ "twitter" ], ( err, results ) =>
           @isNull err
           @ok results.twitter
 
           cb()
 
       all_tests.push ( cb ) =>
-        @app.model( "keyFactory" ).find [ "1234" ], ( err, results ) =>
+        @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
           @isNull err
           @ok results["1234"]
 

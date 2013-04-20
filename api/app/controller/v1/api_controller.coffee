@@ -71,7 +71,7 @@ class exports.CreateApi extends ApiaxleController
     """
     ### JSON fields supported
 
-    #{ @app.model( 'apiFactory' ).getValidationDocs() }
+    #{ @app.model( 'apifactory' ).getValidationDocs() }
 
     ### Returns
 
@@ -89,7 +89,7 @@ class exports.CreateApi extends ApiaxleController
     if req.api?
       return next new AlreadyExists "'#{ req.api.id }' already exists."
 
-    @app.model( "apiFactory" ).create req.params.api, req.body, ( err, newObj ) =>
+    @app.model( "apifactory" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err
       return @json res, newObj.data
 
@@ -144,7 +144,7 @@ class exports.ModifyApi extends ApiaxleController
 
     ### JSON fields supported
 
-    #{ @app.model( 'apiFactory' ).getValidationDocs() }
+    #{ @app.model( 'apifactory' ).getValidationDocs() }
 
     ### Returns
 
@@ -217,7 +217,7 @@ class exports.ListApiKeys extends ListController
       return next err if err
       return @json res, keys if not req.query.resolve
 
-      @resolve @app.model( "keyFactory" ), keys, ( err, results ) =>
+      @resolve @app.model( "keyfactory" ), keys, ( err, results ) =>
         return next err if err
 
         output = _.map results, ( k ) ->
