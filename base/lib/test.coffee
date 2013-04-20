@@ -156,7 +156,9 @@ class exports.AppTest extends TwerpTest
 
   finish: ( done ) ->
     # this is synchronous
-    @app.app.close( ) if @constructor.start_webserver
+    if @constructor.start_webserver
+      @app.express.close()
+
     @app.redisClient.quit( )
 
     # remove the redis emitters

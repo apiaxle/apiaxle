@@ -15,7 +15,7 @@ class exports.Application
   @env = ( process.env.NODE_ENV or "development" )
 
   constructor: ( @binding_host, @port ) ->
-    app = express.createServer()
+    app = express()
 
     @_configure app
 
@@ -38,7 +38,8 @@ class exports.Application
       cb ( ) => @redisClient.quit()
 
   run: ( callback ) ->
-    @app.listen @port, @binding_host, callback
+    @express = @app.listen @port, @binding_host
+    callback()
 
   configureMiddleware: ( ) ->
     return @
@@ -158,7 +159,8 @@ class exports.Application
     app.use app.router
 
     # offload any errors to onError
-    app.error ( args... ) => @onError.apply @, args
+    app.use ( err, req, res, cb ) =>
+      @onError err, req, res, cb
 
   configureLogging: ( app ) ->
     logging_config = @config.logging
