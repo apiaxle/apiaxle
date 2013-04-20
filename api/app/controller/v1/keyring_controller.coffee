@@ -155,7 +155,7 @@ class exports.ListKeyringKeys extends ListController
       key name as the key and the details as the value.
     """
 
-  modelName: -> "keyFactory"
+  modelName: -> "keyfactory"
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyringDetails( @app ) ]

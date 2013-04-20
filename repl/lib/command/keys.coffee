@@ -1,7 +1,7 @@
 { Command } = require "../command"
 
 class exports.Keys extends Command
-  @modelName = "keyFactory"
+  @modelName = "keyfactory"
 
   exec: ( commands, keypairs, cb ) ->
     { from, to, resolve } = keypairs

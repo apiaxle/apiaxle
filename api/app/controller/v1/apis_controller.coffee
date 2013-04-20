@@ -43,6 +43,6 @@ class exports.ListApis extends ListController
       api name as the api and the details as the value.
     """
 
-  modelName: -> "apiFactory"
+  modelName: -> "apifactory"
 
   middleware: -> [ @mwValidateQueryParams() ]

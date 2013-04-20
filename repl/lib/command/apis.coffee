@@ -1,7 +1,7 @@
 { Command } = require "../command"
 
 class exports.Apis extends Command
-  @modelName = "apiFactory"
+  @modelName = "apifactory"
 
   help: ( cb ) ->
     return cb null, """Returns a list of APIs. Fieds supported are:

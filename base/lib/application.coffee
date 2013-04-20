@@ -36,40 +36,44 @@ class exports.AxleApp extends Application
     @redisClient.on "ready", cb
 
   loadAndInstansiatePlugins: ( cb ) ->
-    plugins = {}
+    @plugins = {}
+
+    # add our own models
+    @constructor.plugins.models = "#{ __dirname }/../app/model/redis/*.coffee"
 
     all = []
     for category, path of @constructor.plugins
-      all.push ( cb ) =>
-        @collectPlugins path, ( err, items ) =>
-          return cb err if err
+      do( category, path ) =>
+        all.push ( cb ) =>
+          @collectPlugins path, ( err, items ) =>
+            return cb err if err
 
-          for name, constructor of items
-            inst = null
+            for name, constructor of items
+              inst = null
 
-            try
-              inst = new constructor this
-              friendly_name = if constructor.plugin_name
-                constructor.plugin_name
-              else
-                name.toLowerCase()
+              try
+                inst = new constructor this
+                friendly_name = if constructor.plugin_name
+                  constructor.plugin_name
+                else
+                  name.toLowerCase()
 
-              plugins[category] ||= {}
-              plugins[category][friendly_name] = inst
-            catch err
-              return cb err
+                @plugins[category] ||= {}
+                @plugins[category][friendly_name] = inst
+              catch err
+                return cb err
 
-          # nothing loaded
-          return cb null, [] if not _.keys( plugins[category] ).length > 0
+            # nothing loaded
+            return cb null, [] if not _.keys( @plugins[category] ).length > 0
 
-          list = _.keys( plugins[category] ).join( ', ' )
-          @logger.info "Loaded #{ list } from '#{ path }'"
+            list = _.keys( @plugins[category] ).join( ', ' )
+            @logger.info "Loaded #{ list } from '#{ path }'"
 
-          return cb null, plugins
+            return cb null, @plugins
 
-    async.parallel all, ( err ) ->
+    async.parallel all, ( err ) =>
       return cb err if err
-      return cb null, plugins
+      return cb null, @plugins
 
   run: ( cb ) ->
     @configure ( err ) =>
@@ -99,6 +103,12 @@ class exports.AxleApp extends Application
     _.merge @getAppConfigSchema(),
             @getLoggingConfigSchema(),
             @getApiaxleConfigSchema()
+
+  controllers: ( name ) ->
+    return @plugins.controllers[name]
+
+  model: ( name ) ->
+    return @plugins.models[name]
 
 if not module.parent
   dash = new Dash()

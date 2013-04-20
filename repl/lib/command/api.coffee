@@ -2,7 +2,7 @@
 querystring = require "querystring"
 
 class exports.Api extends Command
-  @modelName = "apiFactory"
+  @modelName = "apifactory"
 
   help: ( cb ) ->
     super ( err, help ) =>

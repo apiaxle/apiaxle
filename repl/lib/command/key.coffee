@@ -2,7 +2,7 @@
 querystring = require "querystring"
 
 class exports.Key extends Command
-  @modelName = "keyFactory"
+  @modelName = "keyfactory"
 
   help: ( cb ) ->
     super ( err, help ) =>

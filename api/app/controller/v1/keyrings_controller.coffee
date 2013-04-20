@@ -43,6 +43,6 @@ class exports.ListKeyrings extends ListController
       keyring name as the keyring and the details as the value.
     """
 
-  modelName: -> "keyringFactory"
+  modelName: -> "keyringfactory"
 
   middleware: -> [ @mwValidateQueryParams() ]
