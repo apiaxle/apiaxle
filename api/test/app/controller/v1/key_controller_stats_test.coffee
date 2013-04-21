@@ -23,7 +23,7 @@ class exports.KeyStatsTest extends ApiaxleTest
   "test GET seconds stats for Key": ( done ) ->
     model = @app.model "stats"
     hits  = []
-    # Wed, December 14th 2011, 20:01
+
     now = ( new Date ).getTime()
     now_seconds = Math.floor( now/1000 )
     clock = @getClock now
@@ -35,6 +35,8 @@ class exports.KeyStatsTest extends ApiaxleTest
     async.parallel hits, ( err, results ) =>
       @isNull err
       @GET path: "/v1/key/1234/stats?granularity=seconds&from=#{now_seconds}", ( err, res ) =>
+        @isNull err
+
         res.parseJson ( err, json ) =>
           @isNull err
           @ok json

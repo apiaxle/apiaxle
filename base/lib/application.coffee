@@ -15,7 +15,7 @@ class exports.Application
   @env = ( process.env.NODE_ENV or "development" )
 
   constructor: ( @binding_host, @port ) ->
-    app = express.createServer()
+    app = express()
 
     @_configure app
 
@@ -38,7 +38,8 @@ class exports.Application
       cb ( ) => @redisClient.quit()
 
   run: ( callback ) ->
-    @app.listen @port, @binding_host, callback
+    @express = @app.listen @port, @binding_host
+    callback()
 
   configureMiddleware: ( ) ->
     return @
@@ -158,7 +159,8 @@ class exports.Application
     app.use app.router
 
     # offload any errors to onError
-    app.error ( args... ) => @onError.apply @, args
+    app.use ( err, req, res, cb ) =>
+      @onError err, req, res, cb
 
   configureLogging: ( app ) ->
     logging_config = @config.logging
@@ -175,15 +177,19 @@ class exports.Application
 
     output.error.details = err.details if err.details
 
+    status = err.constructor.status or 400
+
     # json
     if req.api?.data.apiFormat isnt "xml"
       meta =
         version: 1
-        status_code: err.constructor.status
+        status_code: status
 
-      return res.json { meta: meta, results: output }, err.constructor.status
+      return res.json status,
+        meta: meta
+        results: output
 
     # need xml
     res.contentType "application/xml"
     js2xml = new Js2Xml "error", output.error
-    res.send js2xml.toString(), err.constructor.status
+    return res.send status, js2xml.toString()
