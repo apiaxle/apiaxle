@@ -6,6 +6,8 @@ _ = require "lodash"
 
 { ApiaxleApi } = require "../apiaxle-api"
 
+example_map =
+  endPoint: "testapi.api.local"
 
 print = console.log
 
@@ -71,19 +73,34 @@ outputQuickReference = ( controllers ) ->
 
   print "</table>"
 
-genExampleData = ( data_description ) ->
-  if data_description.indexOf "String"
+genExampleData = ( field, data_description ) ->
+  if example_map[field]
+    return example_map[field]
+
+  if data_description.indexOf "String" >= 0
     return "..."
 
 genExamplePath = ( path ) ->
   example = path.replace ":api", "testapi"
   example = example.replace ":key", "1234"
-  return example
+  return "http://localhost#{example}"
+
+genExampleInput = ( input ) ->
+  output = {}
+  for field, desc of input
+    if desc.indexOf( "required" ) >= 0
+      output[field] = genExampleData field, desc
+
+  return JSON.stringify output
 
 genExample = ( path, docs ) ->
   example = "curl"
   example += " -X #{docs.verb}"
   example += " '#{genExamplePath( path ) }'"
+
+  if docs.input
+    example += " -d '#{genExampleInput( docs.input )}'"
+
   return example
 
 outputExample = ( path, docs ) ->
