@@ -40,16 +40,16 @@ class exports.LinkKeyToApi extends ApiaxleController
   desc: -> "Associate a key with an API"
 
   docs: ->
-    """
-    Calls to the API can be made with the key once this is run.
-
-    The key must already exist and will not be modified by this
-    operation.
-
-    ### Returns
-
-    * The linked key details.
-    """
+    doc =
+      verb: "PUT"
+      title: "Associate a key with an API"
+      response: "The linked key details"
+      description: """
+        Calls to the API can be made with this key once this is run.
+        <br />
+        Both the key and the API must already exist before running.
+        """
+    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwApiDetails( valid_api_required=true ),
@@ -68,15 +68,20 @@ class exports.CreateApi extends ApiaxleController
   desc: -> "Provision a new API."
 
   docs: ->
-    """
-    ### JSON fields supported
-
-    #{ @app.model( 'apiFactory' ).getValidationDocs() }
-
-    ### Returns
-
-    * The inserted structure (including the new timestamp fields).
-    """
+    doc =
+      verb: "POST"
+      title: "Provision a new API."
+      input:
+        endPoint: "String (required)"
+        protocol: "String (default 'http')"
+        apiFormat: "String (default 'json')"
+        globalCache: "Time in seconds that each API call should be cached"
+        endPointTimeout: "Time in seconds before timing out the connection (default 2)"
+        endPointMaxRedirects: "Integer (default 2)"
+        extractKeyRegex: "String, regular expression used to extract key from URL. See usage example"
+        disabled: "Boolean"
+      response: "A JSON object containing API details"
+    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwContentTypeRequired(),
@@ -99,11 +104,11 @@ class exports.ViewApi extends ApiaxleController
   desc: -> "Get the definition for an API."
 
   docs: ->
-    """
-    ### Returns
-
-    * The API structure (including the timestamp fields).
-    """
+    doc =
+      verb: "GET"
+      title: "Get the definition of an API"
+      response: "The API structure (including the timestamp fields)."
+    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwApiDetails( valid_api_required=true ) ]
@@ -119,11 +124,16 @@ class exports.DeleteApi extends ApiaxleController
   desc: -> "Delete an API."
 
   docs: ->
-    """
-    ### Returns
+    doc =
+      verb: "DELETE"
+      title: "Delete an API"
+      description: """
+        <strong>Note:</strong> This will have no impact on any statistics or
+        keys associated with the API
+      """
+      response: "TRUE on success"
+    return doc
 
-    * `true` on success.
-    """
 
   middleware: -> [ @mwApiDetails( valid_api_required=true ) ]
 
