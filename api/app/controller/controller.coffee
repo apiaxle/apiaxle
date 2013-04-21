@@ -37,7 +37,7 @@ class exports.ApiaxleController extends Controller
         status_code: res.statusCode
       results: results
 
-    return res.json output
+    return res.json res.statusCode, output
 
   # By default there are no query parameters and adding them will
   # cause an error. Only affects controllers which use the
