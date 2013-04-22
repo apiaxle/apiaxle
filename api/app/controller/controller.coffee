@@ -236,7 +236,7 @@ class exports.StatsController extends exports.ApiaxleController
         processed[type] = results[idx]
 
       # timeseries
-      if req.query.format_timeseries
+      if req.query.format_timeseries is true
         return @denormForTimeseries processed, ( err, new_results ) =>
           return next err if err
           return cb null, new_results
