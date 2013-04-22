@@ -13,6 +13,7 @@ class exports.CatchallSigTest extends ApiaxleTest
         facebook:
           apiFormat: "json"
           globalCache: 30
+          endPoint: "example.com"
       key:
         1234:
           sharedSecret: "bob-the-builder"
@@ -76,10 +77,9 @@ class exports.CatchallSigTest extends ApiaxleTest
     stub = @stubCatchallSimple 200, "{}",
       "Content-Type": "application/json"
 
-    tests = []
-
     @stubDns { "facebook.api.localhost": "127.0.0.1" }
 
+    tests = []
     tests.push ( cb ) =>
       @GET { path: "/?api_key=1234", host: "facebook.api.localhost" }, ( err, response ) =>
         @isNull err

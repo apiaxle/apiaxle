@@ -20,7 +20,9 @@ class exports.KeyringControllerTest extends ApiaxleTest
     all_keyrings = []
 
     for i in [ 1..15 ]
-      all_keyrings.push @fixtures.createKeyring
+      do( i ) =>
+        all_keyrings.push ( cb ) =>
+          @fixtures.createKeyring "kr#{ i }", {}, cb
 
     async.series all_keyrings, ( err, keyrings ) =>
       @isNull err
@@ -35,7 +37,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
   "test GET keys for a valid keyring": ( done ) ->
     fixtures =
       api:
-        twitter: {}
+        twitter:
+          endPoint: "example.com"
       key:
         1: {}
         2: {}
@@ -72,7 +75,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
   "test PUTing a valid key to an invalid keyring": ( done ) ->
     fixture =
       api:
-        twitter: {}
+        twitter:
+          endPoint: "example.com"
       key:
         9876: {}
 
@@ -112,7 +116,8 @@ class exports.KeyringControllerTest extends ApiaxleTest
   "test PUTing a valid key to a valid keyring": ( done ) ->
     fixture =
       api:
-        twitter: {}
+        twitter:
+          endPoint: "example.com"
       key:
         1234: {}
         5678: {}

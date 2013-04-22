@@ -11,7 +11,8 @@ class exports.ApiTest extends FakeAppTest
       api:
         facebook:
           endPoint: "graph.facebook.com"
-        twitter: {}
+        twitter:
+          endPoint: "example.com"
       key:
         1234:
           forApis: [ "facebook" ]

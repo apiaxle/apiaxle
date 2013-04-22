@@ -119,6 +119,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
         facebook:
           apiFormat: "json"
           globalCache: 20
+          endPoint: "facebook.example.com"
       key:
         1234:
           forApis: [ "facebook" ]
@@ -176,6 +177,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
       api:
         facebook:
           apiFormat: "json"
+          endPoint: "example.com"
       key:
         1234:
           forApis: [ "facebook" ]
@@ -233,6 +235,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
         facebook:
           apiFormat: "json"
           globalCache: 30
+          endPoint: "example.com"
       key:
         1234:
           forApis: [ "facebook"         ]
@@ -281,6 +284,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
         facebook:
           apiFormat: "json"
           globalCache: 30
+          endPoint: "example.com"
       key:
         1234:
           forApis: [ "facebook" ]

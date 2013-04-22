@@ -9,8 +9,10 @@ class exports.ApiKeyLinkTest extends FakeAppTest
   "test deleting unlinks keys": ( done ) ->
     fixture =
       api:
-        facebook: {}
-        twitter: {}
+        facebook:
+          endPoint: "example.com"
+        twitter:
+          endPoint: "example.com"
       key:
         phil: { forApis: [ "facebook", "twitter" ] }
         bob: { forApis: [ "facebook", "twitter" ] }
@@ -43,7 +45,8 @@ class exports.ApiTest extends FakeAppTest
   "test #update ing an existing api": ( done ) ->
     fixture =
       api:
-        twitter: {}
+        twitter:
+          endPoint: "example.com"
 
     @fixtures.create fixture, ( err, [ dbApi ] ) =>
       @isNull err
@@ -97,8 +100,10 @@ class exports.ApiTest extends FakeAppTest
   "test unlinkkey": ( done ) ->
     fixture =
       api:
-        facebook: {}
-        twitter: {}
+        facebook:
+          endPoint: "example.com"
+        twitter:
+          endPoint: "example.com"
       key:
         1234:
           forApis: [ "facebook", "twitter" ]
@@ -125,8 +130,10 @@ class exports.ApiTest extends FakeAppTest
   "test #supportsKey on an API": ( done ) ->
     fixture =
       api:
-        facebook: {}
-        twitter: {}
+        facebook:
+          endPoint: "example.com"
+        twitter:
+          endPoint: "example.com"
       key:
         1234:
           forApis: [ "facebook", "twitter" ]

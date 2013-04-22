@@ -60,11 +60,15 @@ class exports.KeyTest extends FakeAppTest
   "test #linkToApi and #supportedApis": ( done ) ->
     fixtures =
       api:
-        twitter: {}
-        facebook: {}
-        hello: {}
+        twitter:
+          endPoint: "twitter.example.com"
+        facebook:
+          endPoint: "facebook.example.com"
+        hello:
+          endPoint: "hello.example.com"
       key:
-        1234: {}
+        1234:
+          forApis: [ "twitter" ]
         5678: {}
 
     @fixtures.create fixtures, ( err, [ twitter, facebook, hello, key1, key2 ] ) =>
@@ -96,8 +100,10 @@ class exports.KeyApiLinkTest extends FakeAppTest
   "test deleting keys unlinks them from APIs": ( done ) ->
     fixture =
       api:
-        facebook: {}
-        twitter: {}
+        facebook:
+          endPoint: "example.com"
+        twitter:
+          endPoint: "example.com"
       key:
         phil: { forApis: [ "facebook", "twitter" ] }
         bob: { forApis: [ "facebook", "twitter" ] }
