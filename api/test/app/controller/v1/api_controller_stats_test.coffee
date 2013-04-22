@@ -94,3 +94,37 @@ class exports.ApiStatsTest extends ApiaxleTest
         @equal json.meta.status_code, 400
 
         done 7
+
+  "test GET seconds stats for API in timeseries format": ( done ) ->
+    model = @app.model "stats"
+    hits  = []
+
+    now = ( new Date ).getTime()
+    now_seconds = Math.floor( now/1000 )
+    clock = @getClock now
+
+    hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
+    hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
+    hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
+
+    async.parallel hits, ( err, results ) =>
+      @isNull err
+
+      path = "/v1/api/test_stats/stats?granularity=seconds&from=#{now_seconds}"
+      path += "&format_timeseries=true"
+
+      console.log( path )
+      @GET path: path, ( err, res ) =>
+        @isNull err
+
+        res.parseJson ( err, json ) =>
+          @isNull err
+          @ok json
+
+          #console.log( json )
+
+          # a little bit complex as the ts may have shifted by 1
+          @equal json.results.cached["400"][ now_seconds ], 2
+          @equal json.results.uncached["200"][ now_seconds ], 1
+
+          done 6

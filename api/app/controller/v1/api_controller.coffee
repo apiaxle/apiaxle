@@ -271,4 +271,11 @@ class exports.ViewAllStatsForApi extends StatsController
 
     @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
       return next err if err
+
+      # timeseries
+      if req.query.format_timeseries
+        return @denormForTimeseries results, ( err, new_results ) =>
+          return next err if err
+          return @json res, new_results
+
       return @json res, results

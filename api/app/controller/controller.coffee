@@ -236,3 +236,9 @@ class exports.StatsController extends exports.ApiaxleController
         processed[type] = results[idx]
 
       return cb null, processed
+
+  denormForTimeseries: ( results, cb ) ->
+    new_results = {}
+
+    # for type, details of results
+    #   for time,
