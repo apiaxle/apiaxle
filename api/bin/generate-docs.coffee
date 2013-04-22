@@ -37,7 +37,7 @@ printPath = ( path ) ->
 
 outputDocs = ( path, docs ) ->
   print "<h3><span class='muted'>#{docs.verb}</span> #{docs.title}</h3>"
-  # outputExample path, docs
+  outputExample path, docs
 
   if docs.description
     print "<p>#{docs.description}</p>"
@@ -80,12 +80,14 @@ outputQuickReference = ( controllers ) ->
 outputParams = ( params ) ->
   data = {}
   for param, props of params
-    if props.docs
-      docs = props.docs
-      if props.default?
-        docs = "(default: #{props.default}) #{docs}"
+    docs = props.docs || ""
+    if props.optional
+      docs = "(optional) #{docs}"
+    
+    if props.default?
+      docs = "(default: #{props.default}) #{docs}"
 
-      data[param] = docs
+    data[param] = docs
 
   outputTable data
     
@@ -105,9 +107,9 @@ genExamplePath = ( path ) ->
 
 genExampleInput = ( input ) ->
   output = {}
-  for field, desc of input
-    if desc.indexOf( "required" ) >= 0
-      output[field] = genExampleData field, desc
+  for field, props of input
+    if props.docs and (not props.optional? and not props.default?)
+      output[field] = genExampleData field, props.docs
 
   return JSON.stringify output
 
