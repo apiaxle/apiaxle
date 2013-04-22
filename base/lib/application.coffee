@@ -143,14 +143,14 @@ class exports.Application
 
     # load up /our/ configuration (from the files in /config)
     [ config_filename, @config ] = require( "./app_config" )( Application.env )
-
-    @config = _.extend default_config, @config
+    @config = _.merge default_config, @config
 
     app.configure ( ) =>
       @configureGeneral app
       @configureLogging app
 
-      @logger.info "Loading configuration from '#{ config_filename }'."
+      if config_filename
+        @logger.info "Loading configuration from '#{ config_filename }'."
 
       # now let the rest of the class know about app
       @app = app
