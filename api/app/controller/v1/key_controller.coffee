@@ -72,18 +72,6 @@ class exports.CreateKey extends ApiaxleController
   desc: -> "Provision a new key."
 
   docs: ->
-    """
-    ### JSON fields supported
-
-    
-
-    ### Returns
-
-    * The newly inseted structure (including the new timestamp
-      fields).
-    """
-
-  docs: ->
     doc =
       verb: "POST"
       title: @desc()
@@ -114,11 +102,13 @@ class exports.ViewKey extends ApiaxleController
   desc: -> "Get the definition of a key."
 
   docs: ->
-    """
-    ### Returns
-
-    * The key object (including timestamps).
-    """
+    doc =
+      verb: "GET"
+      title: @desc()
+      response: """
+        The key object (including timestamps).
+      """
+    return doc
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyDetails( valid_key_required=true ) ]
@@ -143,11 +133,13 @@ class exports.DeleteKey extends ApiaxleController
   desc: -> "Delete a key."
 
   docs: ->
-    """
-    ### Returns
-
-    * `true` on success.
-    """
+    doc =
+      verb: "DELETE"
+      title: @desc()
+      response: """
+        TRUE on success
+      """
+    return doc
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyDetails( valid_key_required=true ) ]
@@ -167,20 +159,22 @@ class exports.ModifyKey extends ApiaxleController
   desc: -> "Update a key."
 
   docs: ->
-    """
-    Fields passed in will will be merged with the old key
-    details. Note that in the case of updating a key's `QPD` it will
-    get the new amount of calls minus the amount of calls it has
-    already made.
-
-    ### JSON fields supported
-
-    #{ @app.model( 'keyFactory' ).getValidationDocs() }
-
-    ### Returns
-
-    * The new structure and the old one.
-    """
+    doc =
+      verb: "PUT"
+      title: @desc()
+      description: """
+        Fields passed in will will be merged with the old key
+        details.
+        <br />
+        <strong>Note:</strong> In the case of updating a key's `QPD` it will
+        get the new amount of calls minus the amount of calls it has
+        already made.
+      """
+      input: @app.model( 'keyFactory' ).constructor.structure.properties
+      response: """
+        The new structure and the old one.
+      """
+    return doc
 
   middleware: -> [
     @mwContentTypeRequired( ),
@@ -203,13 +197,14 @@ class exports.ViewHitsForKeyNow extends ApiaxleController
   desc: -> "Get the real time hits for a key."
 
   docs: ->
-    """
-    ### Returns
-
-    * Object where the keys represent the cache status (cached, uncached or
-      error), each containing an object with response codes or error name,
-      these in turn contain objects with timestamp:count
-    """
+    doc =
+      verb: "GET"
+      title: @desc()
+      response: """
+        Object where the keys represent the cache status (cached, uncached or 
+        error), each containing an object with response codes or error name, 
+        these in turn contain objects with timestamp:count
+      """
 
   middleware: -> [ @mwKeyDetails( @app ),
                    @mwValidateQueryParams() ]

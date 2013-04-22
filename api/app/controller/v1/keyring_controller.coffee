@@ -9,15 +9,13 @@ class exports.CreateKeyring extends ApiaxleController
   desc: -> "Provision a new KEYRING."
 
   docs: ->
-    """
-    ### JSON fields supported
-
-    #{ @app.model( 'keyringFactory' ).getValidationDocs() }
-
-    ### Returns
-
-    * The inserted structure (including the new timestamp fields).
-    """
+    doc =
+      verb: "POST"
+      title: @desc()
+      input: @app.model( 'keyringFactory' ).constructor.structure.properties
+      response: """
+        The inserted structure (including the new timestamp fields).
+      """
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyringDetails( ) ]
@@ -41,11 +39,12 @@ class exports.ViewKeyring extends ApiaxleController
   desc: -> "Get the definition for an KEYRING."
 
   docs: ->
-    """
-    ### Returns
-
-    * The KEYRING structure (including the timestamp fields).
-    """
+    doc =
+      verb: "GET"
+      title: @desc()
+      response: """
+        The KEYRING structure (including the timestamp fields).
+      """
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyringDetails( valid_keyring_required=true ) ]
@@ -61,11 +60,12 @@ class exports.DeleteKeyring extends ApiaxleController
   desc: -> "Delete an KEYRING."
 
   docs: ->
-    """
-    ### Returns
-
-    * `true` on success.
-    """
+    doc =
+      verb: "DELETE"
+      title: @desc()
+      response: """
+        TRUE on success
+      """
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyringDetails( valid_keyring_required=true ) ]
@@ -86,16 +86,13 @@ class exports.ModifyKeyring extends ApiaxleController
   desc: -> "Update an KEYRING."
 
   docs: ->
-    """Will merge fields you pass in.
-
-    ### JSON fields supported
-
-    #{ @app.model( 'keyringFactory' ).getValidationDocs() }
-
-    ### Returns
-
-    * The merged structure (including the timestamp fields).
-    """
+    doc =
+      verb: "PUT"
+      title: @desc()
+      input: @app.model( 'keyringFactory' ).constructor.structure.properties
+      response: """
+        The merged structure (including the timestamp fields).
+      """
 
   middleware: -> [
     @mwContentTypeRequired( ),
@@ -140,20 +137,16 @@ class exports.ListKeyringKeys extends ListController
           docs: "If set to `true` then the details concerning the
                  listed keys will also be printed. Be aware that this
                  will come with a minor performace hit."
-
   docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one key per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      key name as the key and the details as the value.
-    """
+    doc =
+      verb: "GET"
+      title: @desc()
+      params: @queryParams().properties
+      response: """
+        With <strong>resolve</strong>: An object mapping each key to the
+        corresponding details.<br />
+        Without <strong>resolve</strong>: An array with 1 key per entry
+      """
 
   modelName: -> "keyFactory"
 
@@ -166,13 +159,12 @@ class exports.UnlinkKeyToKeyring extends ApiaxleController
   desc: -> "Disassociate a key with a KEYRING."
 
   docs: ->
-    """
-    The key will still exist and its details won't be affected.
-
-    ### Returns
-
-    * The unlinked key details.
-    """
+    doc =
+      verb: "PUT"
+      title: @desc()
+      response: """
+        The unlinked key details.
+      """
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
                    @mwKeyDetails( valid_key_required=true ),
@@ -192,14 +184,17 @@ class exports.LinkKeyToKeyring extends ApiaxleController
   desc: -> "Associate a key with a KEYRING."
 
   docs: ->
-    """
-    The key must already exist and will not be modified by this
-    operation.
-
-    ### Returns
-
-    * The linked key details.
-    """
+    doc =
+      verb: "PUT"
+      title: @desc()
+      description: """
+        The key must already exist and will not be modified by this
+        operation.
+      """
+      params: @queryParams().properties
+      response: """
+        The linked key details.
+      """
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
                    @mwKeyDetails( valid_key_required=true ),
