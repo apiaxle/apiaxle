@@ -37,14 +37,14 @@ printPath = ( path ) ->
 
 outputDocs = ( path, docs ) ->
   print "<h3><span class='muted'>#{docs.verb}</span> #{docs.title}</h3>"
-  outputExample path, docs
+  # outputExample path, docs
 
   if docs.description
     print "<p>#{docs.description}</p>"
 
   if docs.input
     print "<h4>Input</h4>"
-    outputTable docs.input
+    outputParams docs.input
 
   if docs.params
     print "<h4>Params</h4>"
@@ -80,10 +80,12 @@ outputQuickReference = ( controllers ) ->
 outputParams = ( params ) ->
   data = {}
   for param, props of params
-    docs = props.docs
-    if props.default?
-      docs = "(default: #{props.default}) #{docs}"
-    data[param] = docs
+    if props.docs
+      docs = props.docs
+      if props.default?
+        docs = "(default: #{props.default}) #{docs}"
+
+      data[param] = docs
 
   outputTable data
     

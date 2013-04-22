@@ -35,18 +35,16 @@ class exports.ListKeyApis extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one key per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      key name as the key and the details as the value.
-    """
+    doc =
+      verb: "GET"
+      title: @desc()
+      params: @queryParams().properties
+      response: """
+        With <strong>resolve</strong>: An object mapping each key to the
+        corresponding details.<br />
+        Without <strong>resolve</strong>: An array with 1 key per entry
+      """
+    return doc
 
   middleware: -> [ @mwKeyDetails( @app ),
                    @mwValidateQueryParams() ]
@@ -63,6 +61,11 @@ class exports.ListKeyApis extends ListController
           "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
         return @json res, output
 
+       #  sharedSecret: A shared secret which is used when signing a call to the api.
+       #  qpd: (default: 172800) Number of queries that can be called per day. Set to `-1` for no limit.
+       #  qps: (default: 2) Number of queries that can be called per second. Set to `-1` for no limit.
+       #  forApis: Names of the Apis that this key belongs to.
+       #  disabled: Disable this API causing errors when it's hit.
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
 
@@ -72,13 +75,23 @@ class exports.CreateKey extends ApiaxleController
     """
     ### JSON fields supported
 
-    #{ @app.model( 'keyFactory' ).getValidationDocs() }
+    
 
     ### Returns
 
     * The newly inseted structure (including the new timestamp
       fields).
     """
+
+  docs: ->
+    doc =
+      verb: "POST"
+      title: @desc()
+      input: @app.model( 'keyFactory' ).constructor.structure.properties
+      response: """
+        The newly inserted structure (including the new timestamp fields).
+      """
+    return doc
 
   middleware: -> [ @mwContentTypeRequired(),
                    @mwValidateQueryParams(),

@@ -66,15 +66,7 @@ class exports.CreateApi extends ApiaxleController
     doc =
       verb: "POST"
       title: "Provision a new API."
-      input:
-        endPoint: "String (required)"
-        protocol: "String (default 'http')"
-        apiFormat: "String (default 'json')"
-        globalCache: "Time in seconds that each API call should be cached"
-        endPointTimeout: "Time in seconds before timing out the connection (default 2)"
-        endPointMaxRedirects: "Integer (default 2)"
-        extractKeyRegex: "String, regular expression used to extract key from URL. See usage example"
-        disabled: "Boolean"
+      input: @app.model( 'apiFactory' ).constructor.structure.properties
       response: "A JSON object containing API details"
     return doc
 
@@ -153,16 +145,7 @@ class exports.ModifyApi extends ApiaxleController
         <br />
         Any unspecified will remain unchanged.
       """
-      input:
-        globalCache: "The time in seconds that every call under this API should be cached."
-        endPoint: "The endpoint for the API. For example; graph.facebook.com"
-        protocol: "(default: http) The protocol for the API, whether or not to use SSL"
-        apiFormat: "(default: json) The resulting data type of the endpoint. This is redundant at the moment but will eventually support both XML too."
-        endPointTimeout: "(default: 2) Seconds to wait before timing out the connection"
-        endPointMaxRedirects: "(default: 2) Max redirects that are allowed when endpoint called."
-        extractKeyRegex: "Regular expression used to extract API key from url. Axle will use the first matched grouping and then apply that as the key. Using the api_key or apiaxle_key will take precedence."
-        defaultPath: "An optional path part that will always be called when the API is hit."
-        disabled: "Disable this API causing errors when it’s hit."
+      input: @app.model( 'apiFactory' ).constructor.structure.properties
       response: "The new structure and the old one."
     return doc
 
@@ -256,17 +239,15 @@ class exports.ViewAllStatsForApi extends StatsController
     return current
 
   docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Object where the keys represent the cache status (cached, uncached or
-      error), each containing an object with response codes or error name,
-      these in turn contain objects with timestamp:count
-    """
+    doc =
+      verb: "GET"
+      title: "Get stats for an api"
+      params: {forkey: @queryParams().forkey}
+      response: """
+        Object where the keys represent the cache status (cached, uncached or
+        error), each containing an object with response codes or error name,
+        these in turn contain objects with timestamp:count
+      """
 
   middleware: -> [ @mwApiDetails( @app ),
                    @mwValidateQueryParams() ]
