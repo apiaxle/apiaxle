@@ -17,10 +17,7 @@ class exports.ApiStatsTest extends ApiaxleTest
       key:
         1234: {}
 
-    @fixtures.create fixtures, ( err, [ api, key ] ) ->
-      console.log( err )
-      console.log( key )
-      done()
+    @fixtures.create fixtures, done
 
   "test GET minute stats for API": ( done ) ->
     model = @app.model "stats"
