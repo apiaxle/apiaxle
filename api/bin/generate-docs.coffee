@@ -46,6 +46,10 @@ outputDocs = ( path, docs ) ->
     print "<h4>Input</h4>"
     outputTable docs.input
 
+  if docs.params
+    print "<h4>Params</h4>"
+    outputParams docs.params
+
   if docs.response
     print "<h4>Response</h4>"
     print docs.response
@@ -72,6 +76,18 @@ outputQuickReference = ( controllers ) ->
       alreadyOutput[path] = true
 
   print "</table>"
+
+outputParams = ( params ) ->
+  data = {}
+  for param, props of params
+    docs = props.docs
+    if props.default?
+      docs = "(default: #{props.default}) #{docs}"
+    data[param] = docs
+
+  outputTable data
+    
+     
 
 genExampleData = ( field, data_description ) ->
   if example_map[field]
