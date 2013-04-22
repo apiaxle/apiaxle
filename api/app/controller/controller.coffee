@@ -235,8 +235,15 @@ class exports.StatsController extends exports.ApiaxleController
       for type, idx in types
         processed[type] = results[idx]
 
+      # timeseries
+      if req.query.format_timeseries
+        return @denormForTimeseries processed, ( err, new_results ) =>
+          return next err if err
+          return cb null, new_results
+
       return cb null, processed
 
+  # TODO: zero padding?
   denormForTimeseries: ( results, cb ) ->
     new_results = {}
     all = {}
