@@ -12,11 +12,13 @@ class exports.ViewInfo extends ApiaxleController
   desc: -> "Information about this project."
 
   docs: ->
-    """
-    ### Returns
-
-    * Package file output.
-    """
+    doc =
+      verb: "GET"
+      title: @desc()
+      response: """
+        Package file output
+      """
+    return doc
 
   path: -> "/v1/info"
 

@@ -30,18 +30,16 @@ class exports.ListKeys extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one key per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      key name as the key and the details as the value.
-    """
+    doc =
+      verb: "GET"
+      title: @desc()
+      params: @queryParams().properties
+      response: """
+        With <strong>resolve</strong>: An object mapping each key to the
+        corresponding details.<br />
+        Without <strong>resolve</strong>: An array with 1 key per entry
+      """
+    return doc
 
   modelName: -> "keyFactory"
 
