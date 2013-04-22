@@ -12,16 +12,11 @@ class exports.UnlinkKeyFromApi extends ApiaxleController
   desc: -> "Disassociate a key with an API."
 
   docs: ->
-    """
-    Calls to the API can no longer be made with the key once this has
-    been called.
-
-    The key will still exist and its details won't be affected.
-
-    ### Returns
-
-    * The unlinked key details.
-    """
+    doc =
+      verb: "PUT"
+      title: "Disassociate a key with an API."
+      response: "The Unlinked key details"
+    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwApiDetails( valid_api_required=true ),
@@ -150,16 +145,26 @@ class exports.ModifyApi extends ApiaxleController
   desc: -> "Update an API."
 
   docs: ->
-    """Will merge fields you pass in.
-
-    ### JSON fields supported
-
-    #{ @app.model( 'apiFactory' ).getValidationDocs() }
-
-    ### Returns
-
-    * The new structure and the old one.
-    """
+    doc =
+      verb: "PUT"
+      title: "Update an API"
+      description: """
+        Will overwrite any fields specified in the input data.
+        <br />
+        Any unspecified will remain unchanged.
+      """
+      input:
+        globalCache: "The time in seconds that every call under this API should be cached."
+        endPoint: "The endpoint for the API. For example; graph.facebook.com"
+        protocol: "(default: http) The protocol for the API, whether or not to use SSL"
+        apiFormat: "(default: json) The resulting data type of the endpoint. This is redundant at the moment but will eventually support both XML too."
+        endPointTimeout: "(default: 2) Seconds to wait before timing out the connection"
+        endPointMaxRedirects: "(default: 2) Max redirects that are allowed when endpoint called."
+        extractKeyRegex: "Regular expression used to extract API key from url. Axle will use the first matched grouping and then apply that as the key. Using the api_key or apiaxle_key will take precedence."
+        defaultPath: "An optional path part that will always be called when the API is hit."
+        disabled: "Disable this API causing errors when it’s hit."
+      response: "The new structure and the old one."
+    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwContentTypeRequired( ),
@@ -204,18 +209,16 @@ class exports.ListApiKeys extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one key per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      key name as the key and the details as the value.
-    """
+    doc =
+      verb: "GET"
+      title: "List keys belonging to an API."
+      params: @queryParams().properties
+      response: """
+        With <strong>resolve</strong>: An object mapping each key to the
+        corresponding details.<br />
+        Without <strong>resolve</strong>: An array with 1 key per entry
+      """
+    return doc
 
   middleware: -> [ @mwApiDetails( @app ),
                    @mwValidateQueryParams() ]
