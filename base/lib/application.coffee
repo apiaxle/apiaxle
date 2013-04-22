@@ -130,8 +130,6 @@ class exports.Application
       redis:
         host: "localhost"
         port: 6379
-      app:
-        debug: false
       logging:
         level: "INFO"
         appenders: [
@@ -166,6 +164,8 @@ class exports.Application
     logging_config = @config.logging
     log4js.configure logging_config
 
+    @debug = true if logging_config.level is "DEBUG"
+
     @logger = log4js.getLogger()
     @logger.setLevel logging_config.level
 
@@ -176,6 +176,10 @@ class exports.Application
         message: err.message
 
     output.error.details = err.details if err.details
+
+    # add the stacktrace if we're debugging
+    if @debug
+      output.error.stack = err.stack
 
     status = err.constructor.status or 400
 
