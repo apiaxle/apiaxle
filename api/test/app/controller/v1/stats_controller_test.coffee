@@ -1,5 +1,6 @@
 _     = require "lodash"
 async = require "async"
+querystring = require "querystring"
 
 { ApiaxleTest } = require "../../../apiaxle"
 
@@ -16,7 +17,10 @@ class exports.ApiStatsTest extends ApiaxleTest
       key:
         1234: {}
 
-    @fixtures.create fixtures, done
+    @fixtures.create fixtures, ( err, [ api, key ] ) ->
+      console.log( err )
+      console.log( key )
+      done()
 
   "test GET minute stats for API": ( done ) ->
     model = @app.model "stats"
@@ -40,7 +44,8 @@ class exports.ApiStatsTest extends ApiaxleTest
       from = now_seconds
       to = now_seconds + 500
 
-      @GET path: "/v1/api/test_stats/stats?granularity=minutes&from=#{from}&to=#{to}", ( err, res ) =>
+      path = "/v1/api/test_stats/stats?granularity=minutes&from=#{from}&to=#{to}"
+      @GET path: path, ( err, res ) =>
         @isNull err
 
         res.parseJson ( err, json ) =>
@@ -110,9 +115,12 @@ class exports.ApiStatsTest extends ApiaxleTest
     async.parallel hits, ( err, results ) =>
       @isNull err
 
-      path = "/v1/api/test_stats/stats?granularity=seconds&from=#{now_seconds}"
-      path += "&format_timeseries=true"
+      query =
+        granularity: "seconds"
+        from: now_seconds
+        format_timeseries: true
 
+      path = "/v1/api/test_stats/stats?#{ querystring.stringify query }"
       @GET path: path, ( err, res ) =>
         @isNull err
 
@@ -124,4 +132,16 @@ class exports.ApiStatsTest extends ApiaxleTest
           @equal json.results.cached["400"][ now_seconds ], 2
           @equal json.results.uncached["200"][ now_seconds ], 1
 
-          done 6
+          path = "/v1/key/1234/stats?#{ querystring.stringify query }"
+          @GET path: path, ( err, res ) =>
+            @isNull err
+
+            res.parseJson ( err, json ) =>
+              @isNull err
+              @ok json
+
+              # a little bit complex as the ts may have shifted by 1
+              @equal json.results.cached["400"][ now_seconds ], 2
+              @equal json.results.uncached["200"][ now_seconds ], 1
+
+              done 6
