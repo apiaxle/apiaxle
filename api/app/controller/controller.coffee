@@ -203,6 +203,11 @@ class exports.StatsController extends exports.ApiaxleController
                  of granularity. Results will still arrive in the form
                  of an epoch to results pair but will be rounded off
                  to the nearest unit."
+        format_timeseries:
+          type: "boolean"
+          default: false
+          docs: "Results will be returned in a format more suited to
+                 generating timeseries graphs."
 
   getStatsRange: ( req, axle_type, key_parts, cb ) ->
     model = @app.model "stats"
