@@ -113,15 +113,12 @@ class exports.ApiStatsTest extends ApiaxleTest
       path = "/v1/api/test_stats/stats?granularity=seconds&from=#{now_seconds}"
       path += "&format_timeseries=true"
 
-      console.log( path )
       @GET path: path, ( err, res ) =>
         @isNull err
 
         res.parseJson ( err, json ) =>
           @isNull err
           @ok json
-
-          #console.log( json )
 
           # a little bit complex as the ts may have shifted by 1
           @equal json.results.cached["400"][ now_seconds ], 2

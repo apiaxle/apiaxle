@@ -239,6 +239,13 @@ class exports.StatsController extends exports.ApiaxleController
 
   denormForTimeseries: ( results, cb ) ->
     new_results = {}
+    all = {}
 
-    # for type, details of results
-    #   for time,
+    for type, details of results
+      all[type] ||= {}
+      for time, status_count of details
+        for status, count of status_count
+          all[type][status] ||= {}
+          all[type][status][time] = count
+
+    return cb null, all
