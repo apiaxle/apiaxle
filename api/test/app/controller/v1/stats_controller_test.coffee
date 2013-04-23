@@ -26,8 +26,11 @@ class exports.ApiStatsTest extends ApiaxleTest
     hits  = []
 
     now = 1464951741939 # Fri, 03 Jun 2016
+
     @now_seconds = Math.floor( now / 1000 )
     @now_minutes = 1464951720
+    @now_hours = 1464951600
+    @now_days = 1464912000
 
     clock = @getClock now
 
@@ -44,7 +47,9 @@ class exports.ApiStatsTest extends ApiaxleTest
     hits.push ( cb ) => model.hit "twitter", "bob", "uncached", 200, cb
 
     @test_cases = [ [ "seconds", @now_seconds ],
-                    [ "minutes", @now_minutes ] ]
+                    [ "minutes", @now_minutes ],
+                    [ "hours",   @now_hours   ],
+                    [ "days",    @now_days    ] ]
 
     async.parallel hits, done
 
@@ -76,7 +81,7 @@ class exports.ApiStatsTest extends ApiaxleTest
     async.series all, ( err ) =>
       @isNull err
 
-      done 11
+      done 21
 
   "test api stats at minute,second level narrowed by key": ( done ) ->
     all = []
@@ -107,4 +112,4 @@ class exports.ApiStatsTest extends ApiaxleTest
     async.series all, ( err ) =>
       @isNull err
 
-      done 11
+      done 21
