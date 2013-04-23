@@ -53,7 +53,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
     async.parallel hits, done
 
-  "test api stats at minute,second level": ( done ) ->
+  "test api stats at minute,second,hour,day level": ( done ) ->
     all = []
 
     for [ granularity, timestamp ] in @test_cases
@@ -83,7 +83,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
       done 21
 
-  "test api stats at minute,second level narrowed by key": ( done ) ->
+  "test api stats at minute,second,hour,day level narrowed by key": ( done ) ->
     all = []
 
     for [ granularity, timestamp ] in @test_cases
@@ -114,7 +114,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
       done 21
 
-  "test key stats at minute,second level": ( done ) ->
+  "test key stats at minute,second,hour,day level": ( done ) ->
     all = []
 
     for [ granularity, timestamp ] in @test_cases
@@ -144,7 +144,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
       done 21
 
-  "test key stats at minute,second level narrowed by api": ( done ) ->
+  "test key stats at minute,second,hour,day level narrowed by api": ( done ) ->
     all = []
 
     for [ granularity, timestamp ] in @test_cases
@@ -174,3 +174,35 @@ class exports.ApiStatsTest extends ApiaxleTest
       @isNull err
 
       done 21
+
+  "test api stats at minute,second,hour,day level with timeseries output": ( done ) ->
+    all = []
+
+    for [ granularity, timestamp ] in @test_cases
+      do ( granularity, timestamp ) =>
+        all.push ( cb ) =>
+          query =
+            granularity: granularity
+            from: @now_seconds
+            format_timeseries: true
+
+          path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
+          @GET path: path, ( err, res ) =>
+            @isNull err
+
+            res.parseJson ( err, json ) =>
+              @isNull err
+
+              results = json.results
+
+              @deepEqual results.uncached["200"][timestamp], 2
+              @deepEqual results.uncached["400"][timestamp], 1
+              @deepEqual results.cached["400"][timestamp], 3
+              @deepEqual results.error, {}
+
+              cb()
+
+    async.series all, ( err ) =>
+      @isNull err
+
+      done 25
