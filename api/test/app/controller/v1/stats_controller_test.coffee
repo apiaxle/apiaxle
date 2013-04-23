@@ -69,7 +69,12 @@ class exports.ApiStatsTest extends ApiaxleTest
     async.parallel hits, ( err, results ) =>
       @isNull err
 
-      @GET path: "/v1/api/test_stats/stats?granularity=seconds&from=#{now_seconds}", ( err, res ) =>
+      query =
+        granularity: "seconds"
+        from: now_seconds
+
+      path = "/v1/api/test_stats/stats?#{ querystring.stringify query }"
+      @GET path: path, ( err, res ) =>
         @isNull err
 
         res.parseJson ( err, json ) =>
@@ -80,7 +85,19 @@ class exports.ApiStatsTest extends ApiaxleTest
           @equal json.results.cached[ now_seconds ]["400"], 2
           @equal json.results.uncached[ now_seconds ]["200"], 1
 
-          done 6
+          path = "/v1/key/1234/stats?#{ querystring.stringify query }"
+          @GET path: path, ( err, res ) =>
+            @isNull err
+
+            res.parseJson ( err, json ) =>
+              @isNull err
+              @ok json
+
+              # a little bit complex as the ts may have shifted by 1
+              @equal json.results.cached[ now_seconds ]["400"], 2
+              @equal json.results.uncached[ now_seconds ]["200"], 1
+
+              done 6
 
   "test invalid granularity input": ( done ) ->
     @GET path: "/v1/api/test_stats/stats?granularity=nanoparsecs", ( err, res ) =>

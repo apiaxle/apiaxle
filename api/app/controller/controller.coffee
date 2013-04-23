@@ -68,7 +68,7 @@ class exports.ApiaxleController extends Controller
 
       for key, val of req.query
         # find out what type we expect
-        break unless validators.properties?[ key ]?
+        continue unless validators.properties?[ key ]?
         suggested_type = validators.properties[ key ].type
 
         # convert int if need be
