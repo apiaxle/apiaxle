@@ -193,7 +193,7 @@ class exports.ViewHitsForKeyNow extends StatsController
     current = super()
 
     # extends the base class queryParams
-    _.extend current,
+    _.extend current.properties,
       forapi:
         type: "string"
         optional: true

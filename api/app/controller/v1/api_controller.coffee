@@ -233,7 +233,7 @@ class exports.ViewAllStatsForApi extends StatsController
     current = super()
 
     # extends the base class queryParams
-    _.extend current,
+    _.extend current.properties,
       forkey:
         type: "string"
         optional: true

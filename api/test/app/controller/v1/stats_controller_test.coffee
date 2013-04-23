@@ -11,151 +11,100 @@ class exports.ApiStatsTest extends ApiaxleTest
   "setup api and key": ( done ) ->
     fixtures =
       api:
-        test_stats:
+        facebook:
           endPoint:  "graph.facebook.com"
-          apiFormat: "json"
+        twitter:
+          endPoint:  "api.twitter.com"
       key:
-        1234: {}
+        bob: {}
+        bill: {}
 
     @fixtures.create fixtures, done
 
-  "test GET minute stats for API": ( done ) ->
+  "setup some hits": ( done ) ->
     model = @app.model "stats"
     hits  = []
 
-    # this needs to be in the future because redis will expire a key
-    # in the past instantly
-    now = 1464951741939         # Fri, 03 Jun 2016
-    now_seconds = Math.floor( now / 1000 )
+    now = 1464951741939 # Fri, 03 Jun 2016
+    @now_seconds = Math.floor( now / 1000 )
+    @now_minutes = 1464951720
+
     clock = @getClock now
 
-    last_minute = 1464951720
+    hits.push ( cb ) => model.hit "facebook", "bob", "uncached", 200, cb
+    hits.push ( cb ) => model.hit "facebook", "bob", "uncached", 200, cb
 
-    hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
-    hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
-    hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "bob", "cached", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "bob", "cached", 400, cb
 
-    async.parallel hits, ( err, results ) =>
-      @isNull err
+    hits.push ( cb ) => model.hit "facebook", "bill", "cached", 400, cb
+    hits.push ( cb ) => model.hit "facebook", "bill", "uncached", 400, cb
 
-      from = now_seconds
-      to = now_seconds + 500
+    hits.push ( cb ) => model.hit "twitter", "bill", "uncached", 200, cb
+    hits.push ( cb ) => model.hit "twitter", "bob", "uncached", 200, cb
 
-      path = "/v1/api/test_stats/stats?granularity=minutes&from=#{from}&to=#{to}"
-      @GET path: path, ( err, res ) =>
-        @isNull err
+    @test_cases = [ [ "seconds", @now_seconds ],
+                    [ "minutes", @now_minutes ] ]
 
-        res.parseJson ( err, json ) =>
-          @isNull err
-          @ok json
+    async.parallel hits, done
 
-          @equal json.results.cached[ last_minute ]["400"], 2
-          @equal json.results.uncached[ last_minute ]["200"], 1
+  "test api stats at minute,second level": ( done ) ->
+    all = []
 
-          done 6
+    for [ granularity, timestamp ] in @test_cases
+      do ( granularity, timestamp ) =>
+        all.push ( cb ) =>
+          query =
+            granularity: granularity
+            from: @now_seconds
 
-  "test GET seconds stats for API": ( done ) ->
-    model = @app.model "stats"
-    hits  = []
-
-    now = ( new Date ).getTime()
-    now_seconds = Math.floor( now/1000 )
-    clock = @getClock now
-
-    hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
-    hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
-    hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
-
-    async.parallel hits, ( err, results ) =>
-      @isNull err
-
-      query =
-        granularity: "seconds"
-        from: now_seconds
-
-      path = "/v1/api/test_stats/stats?#{ querystring.stringify query }"
-      @GET path: path, ( err, res ) =>
-        @isNull err
-
-        res.parseJson ( err, json ) =>
-          @isNull err
-          @ok json
-
-          # a little bit complex as the ts may have shifted by 1
-          @equal json.results.cached[ now_seconds ]["400"], 2
-          @equal json.results.uncached[ now_seconds ]["200"], 1
-
-          path = "/v1/key/1234/stats?#{ querystring.stringify query }"
+          path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
           @GET path: path, ( err, res ) =>
             @isNull err
 
             res.parseJson ( err, json ) =>
               @isNull err
-              @ok json
 
-              # a little bit complex as the ts may have shifted by 1
-              @equal json.results.cached[ now_seconds ]["400"], 2
-              @equal json.results.uncached[ now_seconds ]["200"], 1
+              results = json.results
 
-              done 6
+              @deepEqual results.uncached[timestamp], { 200: 2, 400: 1 }
+              @deepEqual results.cached[timestamp], { 400: 3 }
+              @deepEqual results.error, {}
 
-  "test invalid granularity input": ( done ) ->
-    @GET path: "/v1/api/test_stats/stats?granularity=nanoparsecs", ( err, res ) =>
+              cb()
+
+    async.series all, ( err ) =>
       @isNull err
 
-      res.parseJson ( err, json ) =>
-        @isNull err
-        @ok error = json.results.error
+      done 11
 
-        @equal error.message, "granularity: Value of the ‘granularity’ must be seconds or minutes or hours or days."
-        @equal error.type, "ValidationError"
-        @equal res.statusCode, 400
-        @equal json.meta.status_code, 400
+  "test api stats at minute,second level narrowed by key": ( done ) ->
+    all = []
 
-        done 7
+    for [ granularity, timestamp ] in @test_cases
+      do ( granularity, timestamp ) =>
+        all.push ( cb ) =>
+          query =
+            granularity: granularity
+            from: @now_seconds
+            forkey: "bob"
 
-  "test GET seconds stats for API in timeseries format": ( done ) ->
-    model = @app.model "stats"
-    hits  = []
-
-    now = ( new Date ).getTime()
-    now_seconds = Math.floor( now/1000 )
-    clock = @getClock now
-
-    hits.push ( cb ) => model.hit "test_stats", "1234", "uncached", 200, cb
-    hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
-    hits.push ( cb ) => model.hit "test_stats", "1234", "cached", 400, cb
-
-    async.parallel hits, ( err, results ) =>
-      @isNull err
-
-      query =
-        granularity: "seconds"
-        from: now_seconds
-        format_timeseries: true
-
-      path = "/v1/api/test_stats/stats?#{ querystring.stringify query }"
-      @GET path: path, ( err, res ) =>
-        @isNull err
-
-        res.parseJson ( err, json ) =>
-          @isNull err
-          @ok json
-
-          # a little bit complex as the ts may have shifted by 1
-          @equal json.results.cached["400"][ now_seconds ], 2
-          @equal json.results.uncached["200"][ now_seconds ], 1
-
-          path = "/v1/key/1234/stats?#{ querystring.stringify query }"
+          path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
           @GET path: path, ( err, res ) =>
             @isNull err
 
             res.parseJson ( err, json ) =>
               @isNull err
-              @ok json
 
-              # a little bit complex as the ts may have shifted by 1
-              @equal json.results.cached["400"][ now_seconds ], 2
-              @equal json.results.uncached["200"][ now_seconds ], 1
+              results = json.results
 
-              done 6
+              @deepEqual results.uncached[timestamp], { 200: 2 }
+              @deepEqual results.cached[timestamp], { 400: 2 }
+              @deepEqual results.error, {}
+
+              cb()
+
+    async.series all, ( err ) =>
+      @isNull err
+
+      done 11
