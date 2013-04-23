@@ -38,7 +38,7 @@ class exports.Stats extends Redis
 
   # Helper function to format timestamp in seconds
   # Defaults to curent time
-  getSecondsTimestamp: ( ts=( new Date() ).getTime() ) ->
+  getSecondsTimestamp: ( ts=Date.now() ) ->
     return Math.floor( ts / 1000 )
 
   # Get a timestamp rounded to the supplied precision
