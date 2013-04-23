@@ -187,12 +187,12 @@ class exports.StatsController extends exports.ApiaxleController
       properties:
         from:
           type: "integer"
-          default: Math.floor( ( new Date() ).getTime() / 1000 ) - 600
+          default: Math.floor( Date.now() / 1000 ) - 600
           docs: "The unix epoch from which to start gathering
                  the statistics. Defaults to `now - 10 minutes`."
         to:
           type: "integer"
-          default: Math.floor( ( new Date() ).getTime() / 1000 )
+          default: Math.floor( Date.now() / 1000 )
           docs: "The unix epoch from which to finish gathering
                  the statistics. Defaults to `now`."
         granularity:

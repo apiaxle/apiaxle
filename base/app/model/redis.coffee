@@ -66,10 +66,10 @@ class Redis
 
         # let users know what happened, when
         if update
-          details.updatedAt = new Date().getTime()
+          details.updatedAt = Date.now()
           details.createdAt = results[id].data.createdAt
         else
-          details.createdAt = new Date().getTime()
+          details.createdAt = Date.now()
 
         # first create the object
         multi.hmset id, instance

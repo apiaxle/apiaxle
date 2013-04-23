@@ -17,7 +17,7 @@ class exports.StatsTest extends FakeAppTest
       done()
 
   "test #get": ( done ) ->
-    now = new Date().getTime()
+    now = Date.now()
     clock = @getClock now
 
     now_seconds = Math.floor( now / 1000 )
@@ -54,7 +54,7 @@ class exports.StatsTest extends FakeAppTest
 
   # Ensure we get a senible response when rolling across minute boundary
   "test #get rolling period": ( done ) ->
-    now  = ( new Date() ).getTime()
+    now  = Date.now()
     clock = @getClock now
 
     next = now + ( 3600 + 1 ) * 1000
@@ -83,7 +83,7 @@ class exports.StatsTest extends FakeAppTest
         done 4
 
   "test #Invalid time range": ( done ) ->
-    from  = ( new Date() ).getTime()
+    from  = Date.now()
     all = []
 
     all.push ( cb ) =>

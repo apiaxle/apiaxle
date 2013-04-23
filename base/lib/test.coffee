@@ -29,7 +29,7 @@ class Clock
     @sinonClock.tick time
 
   set: ( to_ms ) ->
-    current = ( new Date() ).getTime()
+    current = Date.now()
 
     if to_ms > current
       @tick to_ms - current
@@ -104,7 +104,7 @@ class exports.AppTest extends TwerpTest
 
       return old domain, cb
 
-  getClock: ( seed=new Date().getTime() ) ->
+  getClock: ( seed=Date.now() ) ->
     new Clock @sandbox.useFakeTimers( seed )
 
   startWebserver: ( done ) ->
