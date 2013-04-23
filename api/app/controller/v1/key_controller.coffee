@@ -184,7 +184,7 @@ class exports.ModifyKey extends ApiaxleController
         new: new_key
         old: old_key
 
-class exports.ViewHitsForKeyNow extends ApiaxleController
+class exports.ViewHitsForKeyNow extends StatsController
   @verb = "get"
 
   desc: -> "Get the real time hits for a key."
@@ -193,7 +193,7 @@ class exports.ViewHitsForKeyNow extends ApiaxleController
     current = super()
 
     # extends the base class queryParams
-    _.extend current,
+    _.extend current.properties,
       forapi:
         type: "string"
         optional: true
