@@ -113,3 +113,64 @@ class exports.ApiStatsTest extends ApiaxleTest
       @isNull err
 
       done 21
+
+  "test key stats at minute,second level": ( done ) ->
+    all = []
+
+    for [ granularity, timestamp ] in @test_cases
+      do ( granularity, timestamp ) =>
+        all.push ( cb ) =>
+          query =
+            granularity: granularity
+            from: @now_seconds
+
+          path = "/v1/key/bob/stats?#{ querystring.stringify query }"
+          @GET path: path, ( err, res ) =>
+            @isNull err
+
+            res.parseJson ( err, json ) =>
+              @isNull err
+
+              results = json.results
+
+              @deepEqual results.uncached[timestamp], { 200: 3 }
+              @deepEqual results.cached[timestamp], { 400: 2 }
+              @deepEqual results.error, {}
+
+              cb()
+
+    async.series all, ( err ) =>
+      @isNull err
+
+      done 21
+
+  "test key stats at minute,second level narrowed by api": ( done ) ->
+    all = []
+
+    for [ granularity, timestamp ] in @test_cases
+      do ( granularity, timestamp ) =>
+        all.push ( cb ) =>
+          query =
+            granularity: granularity
+            from: @now_seconds
+            forapi: "twitter"
+
+          path = "/v1/key/bill/stats?#{ querystring.stringify query }"
+          @GET path: path, ( err, res ) =>
+            @isNull err
+
+            res.parseJson ( err, json ) =>
+              @isNull err
+
+              results = json.results
+
+              @deepEqual results.uncached[timestamp], { 200: 1 }
+              @deepEqual results.cached, {}
+              @deepEqual results.error, {}
+
+              cb()
+
+    async.series all, ( err ) =>
+      @isNull err
+
+      done 21
