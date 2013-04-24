@@ -21,8 +21,8 @@ api.script ( finish ) ->
   async.series listers, ( err, [ apis, keys ] ) ->
     stats = api.model "stats"
 
-    from = ( Date.now() - 200000 )
-    real = Date.now()
+    from = ( Date.now() - 172800000 ) # two days
+    real = Date.now()                 # before we fiddle the clock
 
     clock = sinon.useFakeTimers from
 
@@ -31,7 +31,7 @@ api.script ( finish ) ->
 
     key_pack = []
 
-    for i in [ from..real ] by 1000
+    for i in [ from..real ] by 5000
       redis_key = [ rand( apis ),
                     rand( keys ),
                     rand( possible_types ),
@@ -40,7 +40,8 @@ api.script ( finish ) ->
       do ( redis_key ) ->
         key_pack.push ( cb ) ->
           stats.hit redis_key..., ( err ) ->
-            clock.tick 1000
+            clock.tick 5000
+            console.log( real - Date.now(), redis_key )
             return cb err, redis_key
 
     async.series key_pack, finish
