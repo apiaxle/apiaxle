@@ -30,18 +30,16 @@ class exports.ListKeyrings extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one keyring per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      keyring name as the keyring and the details as the value.
-    """
+    doc =
+      verb: "GET"
+      title: @desc()
+      params: @queryParams().properties
+      response: """
+        With <strong>resolve</strong>: An object mapping each keyring to the
+        corresponding details.<br />
+        Without <strong>resolve</strong>: An array with 1 keyring per entry
+      """
+    return doc
 
   modelName: -> "keyringFactory"
 

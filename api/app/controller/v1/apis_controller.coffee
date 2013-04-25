@@ -30,18 +30,15 @@ class exports.ListApis extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one api per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      api name as the api and the details as the value.
-    """
+    doc =
+      verb: "GET"
+      title: @desc()
+      params: @queryParams().properties
+      response: """
+        With <strong>resolve</strong>: An object mapping each API to the
+        corresponding details.<br />
+        Without <strong>resolve</strong>: An array with 1 API per entry
+      """
 
   modelName: -> "apiFactory"
 
