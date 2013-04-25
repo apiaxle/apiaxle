@@ -30,7 +30,7 @@ class exports.ListKeys extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    doc =
+    {}=
       verb: "GET"
       title: @desc()
       response: """
@@ -38,7 +38,6 @@ class exports.ListKeys extends ListController
         corresponding details.<br />
         Without <strong>resolve</strong>: An array with 1 key per entry
       """
-    return doc
 
   modelName: -> "keyFactory"
 

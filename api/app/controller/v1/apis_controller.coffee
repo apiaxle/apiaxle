@@ -30,7 +30,7 @@ class exports.ListApis extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    doc =
+    {}=
       verb: "GET"
       title: @desc()
       response: """

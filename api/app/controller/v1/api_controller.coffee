@@ -12,11 +12,10 @@ class exports.UnlinkKeyFromApi extends ApiaxleController
   desc: -> "Disassociate a key with an API."
 
   docs: ->
-    doc =
+    {}=
       verb: "PUT"
       title: "Disassociate a key with an API."
       response: "The Unlinked key details"
-    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwApiDetails( valid_api_required=true ),
@@ -35,7 +34,7 @@ class exports.LinkKeyToApi extends ApiaxleController
   desc: -> "Associate a key with an API"
 
   docs: ->
-    doc =
+    {}=
       verb: "PUT"
       title: "Associate a key with an API"
       response: "The linked key details"
@@ -44,7 +43,6 @@ class exports.LinkKeyToApi extends ApiaxleController
         <br />
         Both the key and the API must already exist before running.
         """
-    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwApiDetails( valid_api_required=true ),
@@ -63,12 +61,11 @@ class exports.CreateApi extends ApiaxleController
   desc: -> "Provision a new API."
 
   docs: ->
-    doc =
+    {}=
       verb: "POST"
       title: "Provision a new API."
       input: @app.model( 'apiFactory' ).constructor.structure.properties
       response: "A JSON object containing API details"
-    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwContentTypeRequired(),
@@ -91,11 +88,10 @@ class exports.ViewApi extends ApiaxleController
   desc: -> "Get the definition for an API."
 
   docs: ->
-    doc =
+    {}=
       verb: "GET"
       title: "Get the definition of an API"
       response: "The API structure (including the timestamp fields)."
-    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwApiDetails( valid_api_required=true ) ]
@@ -111,7 +107,7 @@ class exports.DeleteApi extends ApiaxleController
   desc: -> "Delete an API."
 
   docs: ->
-    doc =
+    {}=
       verb: "DELETE"
       title: "Delete an API"
       description: """
@@ -119,8 +115,6 @@ class exports.DeleteApi extends ApiaxleController
         keys associated with the API
       """
       response: "TRUE on success"
-    return doc
-
 
   middleware: -> [ @mwApiDetails( valid_api_required=true ) ]
 
@@ -137,7 +131,7 @@ class exports.ModifyApi extends ApiaxleController
   desc: -> "Update an API."
 
   docs: ->
-    doc =
+    {}=
       verb: "PUT"
       title: "Update an API"
       description: """
@@ -147,7 +141,6 @@ class exports.ModifyApi extends ApiaxleController
       """
       input: @app.model( 'apiFactory' ).constructor.structure.properties
       response: "The new structure and the old one."
-    return doc
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwContentTypeRequired( ),
@@ -192,7 +185,7 @@ class exports.ListApiKeys extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    doc =
+    {}=
       verb: "GET"
       title: "List keys belonging to an API."
       response: """
@@ -200,7 +193,6 @@ class exports.ListApiKeys extends ListController
         corresponding details.<br />
         Without <strong>resolve</strong>: An array with 1 key per entry
       """
-    return doc
 
   middleware: -> [ @mwApiDetails( @app ),
                    @mwValidateQueryParams() ]
@@ -238,7 +230,7 @@ class exports.ViewAllStatsForApi extends StatsController
     return current
 
   docs: ->
-    doc =
+    {}=
       verb: "GET"
       title: "Get stats for an api"
       response: """

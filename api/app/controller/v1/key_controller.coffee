@@ -35,7 +35,7 @@ class exports.ListKeyApis extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    doc =
+    {}=
       verb: "GET"
       title: @desc()
       response: """
@@ -43,7 +43,6 @@ class exports.ListKeyApis extends ListController
         corresponding details.<br />
         Without <strong>resolve</strong>: An array with 1 key per entry
       """
-    return doc
 
   middleware: -> [ @mwKeyDetails( @app ),
                    @mwValidateQueryParams() ]
@@ -71,14 +70,13 @@ class exports.CreateKey extends ApiaxleController
   desc: -> "Provision a new key."
 
   docs: ->
-    doc =
+    {}=
       verb: "POST"
       title: @desc()
       input: @app.model( 'keyFactory' ).constructor.structure.properties
       response: """
         The newly inserted structure (including the new timestamp fields).
       """
-    return doc
 
   middleware: -> [ @mwContentTypeRequired(),
                    @mwValidateQueryParams(),
@@ -101,13 +99,12 @@ class exports.ViewKey extends ApiaxleController
   desc: -> "Get the definition of a key."
 
   docs: ->
-    doc =
+    {}=
       verb: "GET"
       title: @desc()
       response: """
         The key object (including timestamps).
       """
-    return doc
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyDetails( valid_key_required=true ) ]
@@ -132,13 +129,12 @@ class exports.DeleteKey extends ApiaxleController
   desc: -> "Delete a key."
 
   docs: ->
-    doc =
+    {}=
       verb: "DELETE"
       title: @desc()
       response: """
         TRUE on success
       """
-    return doc
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyDetails( valid_key_required=true ) ]
@@ -158,7 +154,7 @@ class exports.ModifyKey extends ApiaxleController
   desc: -> "Update a key."
 
   docs: ->
-    doc =
+    {}=
       verb: "PUT"
       title: @desc()
       description: """
@@ -173,8 +169,6 @@ class exports.ModifyKey extends ApiaxleController
       response: """
         The new structure and the old one.
       """
-
-    return doc
 
   middleware: -> [
     @mwContentTypeRequired( ),
@@ -210,7 +204,7 @@ class exports.ViewHitsForKeyNow extends StatsController
     return current
 
   docs: ->
-    doc =
+    {}=
       verb: "GET"
       title: @desc()
       response: """

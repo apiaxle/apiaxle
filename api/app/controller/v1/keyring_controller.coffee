@@ -7,7 +7,7 @@ class exports.CreateKeyring extends ApiaxleController
   @verb = "post"
 
   docs: ->
-    doc =
+    {}=
       title: "Provision a new KEYRING."
       input: @app.model( 'keyringFactory' ).constructor.structure.properties
       response: "The inserted structure (including the new timestamp fields)."
@@ -50,7 +50,7 @@ class exports.DeleteKeyring extends ApiaxleController
   @verb = "delete"
 
   docs: ->
-    doc =
+    {}=
       title: "Delete an KEYRING."
       response: "TRUE on success"
 
@@ -71,7 +71,7 @@ class exports.ModifyKeyring extends ApiaxleController
   @verb = "put"
 
   docs: ->
-    doc =
+    {}=
       title: "Update an KEYRING."
       input: @app.model( "keyringFactory" ).constructor.structure.properties
       response: "The merged structure (including the timestamp fields)."
@@ -118,7 +118,7 @@ class exports.ListKeyringKeys extends ListController
                  listed keys will also be printed. Be aware that this
                  will come with a minor performace hit."
   docs: ->
-    doc =
+    {}=
       title: "List keys belonging to an KEYRING."
       response: """
         With <strong>resolve</strong>: An object mapping each key to the
@@ -135,7 +135,7 @@ class exports.UnlinkKeyToKeyring extends ApiaxleController
   @verb = "put"
 
   docs: ->
-    doc =
+    {}=
       title: "Disassociate a key with a KEYRING."
       response: "The unlinked key details."
 
@@ -155,7 +155,7 @@ class exports.LinkKeyToKeyring extends ApiaxleController
   @verb = "put"
 
   docs: ->
-    doc =
+    {}=
       title: "Associate a key with a KEYRING."
       description: """
         The key must already exist and will not be modified by this
