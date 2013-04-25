@@ -59,11 +59,6 @@ class exports.ListKeyApis extends ListController
           "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
         return @json res, output
 
-       #  sharedSecret: A shared secret which is used when signing a call to the api.
-       #  qpd: (default: 172800) Number of queries that can be called per day. Set to `-1` for no limit.
-       #  qps: (default: 2) Number of queries that can be called per second. Set to `-1` for no limit.
-       #  forApis: Names of the Apis that this key belongs to.
-       #  disabled: Disable this API causing errors when it's hit.
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
 
@@ -208,9 +203,10 @@ class exports.ViewHitsForKeyNow extends StatsController
       verb: "GET"
       title: @desc()
       response: """
-        Object where the keys represent the cache status (cached, uncached or
-        error), each containing an object with response codes or error name,
-        these in turn contain objects with timestamp:count
+        Object where the keys represent the cache status (cached,
+        uncached or error), each containing an object with response
+        codes or error name, these in turn contain objects with
+        timestamp:count
       """
 
   middleware: -> [ @mwKeyDetails( @app ),
