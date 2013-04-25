@@ -32,15 +32,15 @@ printPath = ( path ) ->
     print "</div>"
 
   alreadyPrinted[ path ] = true
-  print "<div class='well' id='#{path}'>"
-  print "<h2>#{path}</h2>"
+  print "<div class='well' id='#{ path }'>"
+  print "<h2>#{ path }</h2>"
 
 outputDocs = ( path, docs ) ->
-  print "<h3><span class='muted'>#{docs.verb}</span> #{docs.title}</h3>"
+  print "<h3><span class='muted'>#{ docs.verb }</span> #{ docs.title }</h3>"
   outputExample path, docs
 
   if docs.description
-    print "<p>#{docs.description}</p>"
+    print "<p>#{ docs.description }</p>"
 
   if docs.input
     print "<h4>Input</h4>"
@@ -57,7 +57,7 @@ outputDocs = ( path, docs ) ->
 outputTable = ( obj ) ->
   print "<table class='table'>"
   for param, description of obj
-    print "<tr><td>#{param}</td><td>#{description}</td></tr>"
+    print "<tr><td>#{ param }</td><td>#{ description }</td></tr>"
   print "</table>"
 
 outputQuickReference = ( controllers ) ->
@@ -65,13 +65,13 @@ outputQuickReference = ( controllers ) ->
   print "<h2>Quick Reference</h2>"
   print "<table class='table'>"
   print "<tr><th>Endpoint</th><th>Description</th></tr>"
-  
+
   for controller in controllers
     if not alreadyOutput[controller.path()]
       path = controller.path()
       print "<tr>"
-      print "<td><a href='##{path}'>#{path}</a></td>"
-      print "<td>#{controller.desc()}</td>"
+      print "<td><a href='##{ path }'>#{ path }</a></td>"
+      print "<td>#{ controller.desc() }</td>"
       print "</tr>"
       alreadyOutput[path] = true
 
@@ -82,16 +82,14 @@ outputParams = ( params ) ->
   for param, props of params
     docs = props.docs || ""
     if props.optional
-      docs = "(optional) #{docs}"
-    
+      docs = "(optional) #{ docs }"
+
     if props.default?
-      docs = "(default: #{props.default}) #{docs}"
+      docs = "(default: #{ props.default }) #{ docs }"
 
     data[param] = docs
 
   outputTable data
-    
-     
 
 genExampleData = ( field, data_description ) ->
   if example_map[field]
@@ -103,7 +101,7 @@ genExampleData = ( field, data_description ) ->
 genExamplePath = ( path ) ->
   example = path.replace ":api", "testapi"
   example = example.replace ":key", "1234"
-  return "http://localhost#{example}"
+  return "http://localhost#{ example }"
 
 genExampleInput = ( input ) ->
   output = {}
@@ -114,21 +112,15 @@ genExampleInput = ( input ) ->
   return JSON.stringify output
 
 genExample = ( path, docs ) ->
-  example = "curl"
-  example += " -X #{docs.verb}"
-  example += " '#{genExamplePath( path ) }'"
+  example = "curl -X #{ docs.verb } '#{ genExamplePath( path ) }'"
 
   if docs.input
-    example += " -d '#{genExampleInput( docs.input )}'"
+    example += " -d '#{ genExampleInput( docs.input ) }'"
 
   return example
 
 outputExample = ( path, docs ) ->
-  print "<p><code>#{genExample( path, docs )}</code></p>"
-
-
-# curl -v -H "Content-Type: application/json" -X POST -d '{"screencast":{"subject":"tools"}}' \
-# http://localhost:3570/index.php/trainingServer/screencast.json
+  print "<p><code>#{ genExample path, docs }</code></p>"
 
 exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
   branch = stdout.replace /\n/g, ""
