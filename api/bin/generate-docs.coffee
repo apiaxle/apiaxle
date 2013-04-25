@@ -38,7 +38,7 @@ printPath = ( path ) ->
 outputDocs = ( controller ) ->
   docs = controller.docs()
 
-  print "<h3><span class='muted'>#{ docs.verb }</span> #{ docs.title }</h3>"
+  print "<h3><span class='muted'>#{ controller.constructor.verb }</span> #{ docs.title }</h3>"
   outputExample controller.path(), docs
 
   if docs.description
