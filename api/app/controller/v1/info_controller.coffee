@@ -13,9 +13,7 @@ class exports.ViewInfo extends ApiaxleController
     {}=
       verb: "GET"
       title: "Information about this project."
-      response: """
-        Package file output
-      """
+      response: "Package file output."
 
   path: -> "/v1/info"
 

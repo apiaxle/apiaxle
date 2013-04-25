@@ -34,9 +34,7 @@ class exports.ViewKeyring extends ApiaxleController
   docs: ->
     {}=
       title: "Get the definition for an KEYRING."
-      response: """
-        The KEYRING structure (including the timestamp fields).
-      """
+      response: "The KEYRING structure (including the timestamp fields)."
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyringDetails( valid_keyring_required=true ) ]

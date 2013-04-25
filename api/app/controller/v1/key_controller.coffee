@@ -91,9 +91,7 @@ class exports.ViewKey extends ApiaxleController
     {}=
       verb: "GET"
       title: "Get the definition of a key."
-      response: """
-        The key object (including timestamps).
-      """
+      response: "The key object (including timestamps)."
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyDetails( valid_key_required=true ) ]
@@ -119,9 +117,7 @@ class exports.DeleteKey extends ApiaxleController
     {}=
       verb: "DELETE"
       title: "Delete a key."
-      response: """
-        TRUE on success
-      """
+      response: "TRUE on success"
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyDetails( valid_key_required=true ) ]
@@ -151,9 +147,7 @@ class exports.ModifyKey extends ApiaxleController
         already made.
       """
       input: @app.model( 'keyFactory' ).constructor.structure.properties
-      response: """
-        The new structure and the old one.
-      """
+      response: "The new structure and the old one."
 
   middleware: -> [
     @mwContentTypeRequired( ),
