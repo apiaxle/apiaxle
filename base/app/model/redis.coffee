@@ -178,6 +178,7 @@ class Redis
 
     strings.join "\n"
 
+  # friendlier hexists (returns a bool rather than an int)
   fHexists: ( key, field, cb ) ->
     @hexists key, field, ( err, result ) ->
       return cb err if err

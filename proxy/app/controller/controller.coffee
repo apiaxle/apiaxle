@@ -41,7 +41,7 @@ class exports.ApiaxleController extends Controller
 
       # check the key is for this api
       req.api.supportsKey key, ( err, supported ) =>
-        return cb err if err
+        return next err if err
 
         if supported is false
           return next new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
