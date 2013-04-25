@@ -242,7 +242,7 @@ class exports.ViewAllStatsForApi extends StatsController
     doc =
       verb: "GET"
       title: "Get stats for an api"
-      params: {forkey: @queryParams().forkey}
+      params: @queryParams()
       response: """
         Object where the keys represent the cache status (cached, uncached or
         error), each containing an object with response codes or error name,

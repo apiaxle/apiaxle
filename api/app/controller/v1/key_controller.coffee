@@ -174,6 +174,7 @@ class exports.ModifyKey extends ApiaxleController
       response: """
         The new structure and the old one.
       """
+
     return doc
 
   middleware: -> [
@@ -214,8 +215,8 @@ class exports.ViewHitsForKeyNow extends StatsController
       verb: "GET"
       title: @desc()
       response: """
-        Object where the keys represent the cache status (cached, uncached or 
-        error), each containing an object with response codes or error name, 
+        Object where the keys represent the cache status (cached, uncached or
+        error), each containing an object with response codes or error name,
         these in turn contain objects with timestamp:count
       """
 
