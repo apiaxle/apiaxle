@@ -5,8 +5,6 @@ class exports.ListApis extends ListController
 
   path: -> "/v1/apis"
 
-  desc: -> "List all APIs."
-
   queryParams: ->
     params =
       type: "object"
@@ -32,7 +30,7 @@ class exports.ListApis extends ListController
   docs: ->
     {}=
       verb: "GET"
-      title: @desc()
+      title: "List all APIs."
       response: """
         With <strong>resolve</strong>: An object mapping each API to the
         corresponding details.<br />

@@ -9,12 +9,10 @@ basepackage = require( "apiaxle-base" ).package
 class exports.ViewInfo extends ApiaxleController
   @verb = "get"
 
-  desc: -> "Information about this project."
-
   docs: ->
     {}=
       verb: "GET"
-      title: @desc()
+      title: "Information about this project."
       response: """
         Package file output
       """

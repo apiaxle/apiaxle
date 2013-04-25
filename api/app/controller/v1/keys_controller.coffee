@@ -5,8 +5,6 @@ class exports.ListKeys extends ListController
 
   path: -> "/v1/keys"
 
-  desc: -> "List all of the available keys."
-
   queryParams: ->
     params =
       type: "object"
@@ -32,7 +30,7 @@ class exports.ListKeys extends ListController
   docs: ->
     {}=
       verb: "GET"
-      title: @desc()
+      title: "List all of the available keys."
       response: """
         With <strong>resolve</strong>: An object mapping each key to the
         corresponding details.<br />

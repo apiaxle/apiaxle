@@ -39,7 +39,7 @@ outputDocs = ( controller ) ->
   docs = controller.docs()
 
   print "<h3><span class='muted'>#{ controller.constructor.verb }</span> #{ docs.title }</h3>"
-  outputExample controller.path(), docs
+  outputExample controller
 
   if docs.description
     print "<p>#{ docs.description }</p>"
@@ -113,16 +113,17 @@ genExampleInput = ( input ) ->
 
   return JSON.stringify output
 
-genExample = ( path, docs ) ->
-  example = "curl -X #{ docs.verb } '#{ genExamplePath( path ) }'"
+genExample = ( controller ) ->
+  example = "curl -X #{ controller.constructor.verb } '#{ genExamplePath( controller.path() ) }'"
 
+  docs = controller.docs()
   if docs.input
     example += " -d '#{ genExampleInput( docs.input ) }'"
 
   return example
 
-outputExample = ( path, docs ) ->
-  print "<p><code>#{ genExample path, docs }</code></p>"
+outputExample = ( controller ) ->
+  print "<p><code>#{ genExample controller }</code></p>"
 
 exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
   branch = stdout.replace /\n/g, ""

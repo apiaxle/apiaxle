@@ -10,8 +10,6 @@ class exports.ListKeyApis extends ListController
 
   path: -> "/v1/key/:key/apis"
 
-  desc: -> "List apis belonging to a key."
-
   queryParams: ->
     params =
       type: "object"
@@ -37,7 +35,7 @@ class exports.ListKeyApis extends ListController
   docs: ->
     {}=
       verb: "GET"
-      title: @desc()
+      title: "List apis belonging to a key."
       response: """
         With <strong>resolve</strong>: An object mapping each key to the
         corresponding details.<br />
@@ -62,12 +60,10 @@ class exports.ListKeyApis extends ListController
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
 
-  desc: -> "Provision a new key."
-
   docs: ->
     {}=
       verb: "POST"
-      title: @desc()
+      title: "Provision a new key."
       input: @app.model( 'keyFactory' ).constructor.structure.properties
       response: """
         The newly inserted structure (including the new timestamp fields).
@@ -91,12 +87,10 @@ class exports.CreateKey extends ApiaxleController
 class exports.ViewKey extends ApiaxleController
   @verb = "get"
 
-  desc: -> "Get the definition of a key."
-
   docs: ->
     {}=
       verb: "GET"
-      title: @desc()
+      title: "Get the definition of a key."
       response: """
         The key object (including timestamps).
       """
@@ -121,12 +115,10 @@ class exports.ViewKey extends ApiaxleController
 class exports.DeleteKey extends ApiaxleController
   @verb = "delete"
 
-  desc: -> "Delete a key."
-
   docs: ->
     {}=
       verb: "DELETE"
-      title: @desc()
+      title: "Delete a key."
       response: """
         TRUE on success
       """
@@ -146,12 +138,10 @@ class exports.DeleteKey extends ApiaxleController
 class exports.ModifyKey extends ApiaxleController
   @verb = "put"
 
-  desc: -> "Update a key."
-
   docs: ->
     {}=
       verb: "PUT"
-      title: @desc()
+      title: "Update a key."
       description: """
         Fields passed in will will be merged with the old key
         details.
@@ -183,8 +173,6 @@ class exports.ModifyKey extends ApiaxleController
 class exports.ViewHitsForKeyNow extends StatsController
   @verb = "get"
 
-  desc: -> "Get the real time hits for a key."
-
   queryParams: ->
     current = super()
 
@@ -201,7 +189,7 @@ class exports.ViewHitsForKeyNow extends StatsController
   docs: ->
     {}=
       verb: "GET"
-      title: @desc()
+      title: "Get the real time hits for a key."
       response: """
         Object where the keys represent the cache status (cached,
         uncached or error), each containing an object with response

@@ -5,8 +5,6 @@ class exports.ListKeyrings extends ListController
 
   path: -> "/v1/keyrings"
 
-  desc: -> "List all KEYRINGs."
-
   queryParams: ->
     params =
       type: "object"
@@ -32,7 +30,7 @@ class exports.ListKeyrings extends ListController
   docs: ->
     {}=
       verb: "GET"
-      title: @desc()
+      title: "List all KEYRINGs."
       response: """
         With <strong>resolve</strong>: An object mapping each keyring to the
         corresponding details.<br />
