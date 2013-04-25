@@ -6,16 +6,11 @@ _ = require "lodash"
 class exports.CreateKeyring extends ApiaxleController
   @verb = "post"
 
-  desc: -> "Provision a new KEYRING."
-
   docs: ->
     doc =
-      verb: "POST"
-      title: @desc()
+      title: "Provision a new KEYRING."
       input: @app.model( 'keyringFactory' ).constructor.structure.properties
-      response: """
-        The inserted structure (including the new timestamp fields).
-      """
+      response: "The inserted structure (including the new timestamp fields)."
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyringDetails( ) ]
@@ -36,12 +31,9 @@ class exports.CreateKeyring extends ApiaxleController
 class exports.ViewKeyring extends ApiaxleController
   @verb = "get"
 
-  desc: -> "Get the definition for an KEYRING."
-
   docs: ->
-    doc =
-      verb: "GET"
-      title: @desc()
+    {}=
+      title: "Get the definition for an KEYRING."
       response: """
         The KEYRING structure (including the timestamp fields).
       """
@@ -57,15 +49,10 @@ class exports.ViewKeyring extends ApiaxleController
 class exports.DeleteKeyring extends ApiaxleController
   @verb = "delete"
 
-  desc: -> "Delete an KEYRING."
-
   docs: ->
     doc =
-      verb: "DELETE"
-      title: @desc()
-      response: """
-        TRUE on success
-      """
+      title: "Delete an KEYRING."
+      response: "TRUE on success"
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyringDetails( valid_keyring_required=true ) ]
@@ -83,16 +70,11 @@ class exports.DeleteKeyring extends ApiaxleController
 class exports.ModifyKeyring extends ApiaxleController
   @verb = "put"
 
-  desc: -> "Update an KEYRING."
-
   docs: ->
     doc =
-      verb: "PUT"
-      title: @desc()
-      input: @app.model( 'keyringFactory' ).constructor.structure.properties
-      response: """
-        The merged structure (including the timestamp fields).
-      """
+      title: "Update an KEYRING."
+      input: @app.model( "keyringFactory" ).constructor.structure.properties
+      response: "The merged structure (including the timestamp fields)."
 
   middleware: -> [
     @mwContentTypeRequired( ),
@@ -113,8 +95,6 @@ class exports.ListKeyringKeys extends ListController
   @verb = "get"
 
   path: -> "/v1/keyring/:keyring/keys"
-
-  desc: -> "List keys belonging to an KEYRING."
 
   queryParams: ->
     params =
@@ -139,8 +119,7 @@ class exports.ListKeyringKeys extends ListController
                  will come with a minor performace hit."
   docs: ->
     doc =
-      verb: "GET"
-      title: @desc()
+      title: "List keys belonging to an KEYRING."
       params: @queryParams().properties
       response: """
         With <strong>resolve</strong>: An object mapping each key to the
@@ -156,15 +135,10 @@ class exports.ListKeyringKeys extends ListController
 class exports.UnlinkKeyToKeyring extends ApiaxleController
   @verb = "put"
 
-  desc: -> "Disassociate a key with a KEYRING."
-
   docs: ->
     doc =
-      verb: "PUT"
-      title: @desc()
-      response: """
-        The unlinked key details.
-      """
+      title: "Disassociate a key with a KEYRING."
+      response: "The unlinked key details."
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
                    @mwKeyDetails( valid_key_required=true ),
@@ -181,20 +155,15 @@ class exports.UnlinkKeyToKeyring extends ApiaxleController
 class exports.LinkKeyToKeyring extends ApiaxleController
   @verb = "put"
 
-  desc: -> "Associate a key with a KEYRING."
-
   docs: ->
     doc =
-      verb: "PUT"
-      title: @desc()
+      title: "Associate a key with a KEYRING."
       description: """
         The key must already exist and will not be modified by this
         operation.
       """
       params: @queryParams().properties
-      response: """
-        The linked key details.
-      """
+      response: "The linked key details."
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),
                    @mwKeyDetails( valid_key_required=true ),
