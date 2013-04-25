@@ -35,9 +35,11 @@ printPath = ( path ) ->
   print "<div class='well' id='#{ path }'>"
   print "<h2>#{ path }</h2>"
 
-outputDocs = ( path, docs ) ->
+outputDocs = ( controller ) ->
+  docs = controller.docs()
+
   print "<h3><span class='muted'>#{ docs.verb }</span> #{ docs.title }</h3>"
-  outputExample path, docs
+  outputExample controller.path(), docs
 
   if docs.description
     print "<p>#{ docs.description }</p>"
@@ -141,7 +143,7 @@ exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
       printPath controller.path()
 
       if controller.docs
-        outputDocs controller.path(), controller.docs()
+        outputDocs controller
     print "</div>"
 
     finish()
