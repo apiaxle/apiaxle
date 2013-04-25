@@ -120,7 +120,6 @@ class exports.ListKeyringKeys extends ListController
   docs: ->
     doc =
       title: "List keys belonging to an KEYRING."
-      params: @queryParams().properties
       response: """
         With <strong>resolve</strong>: An object mapping each key to the
         corresponding details.<br />
@@ -162,7 +161,6 @@ class exports.LinkKeyToKeyring extends ApiaxleController
         The key must already exist and will not be modified by this
         operation.
       """
-      params: @queryParams().properties
       response: "The linked key details."
 
   middleware: -> [ @mwKeyringDetails( valid_keyring_required=true ),

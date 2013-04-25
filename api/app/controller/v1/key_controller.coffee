@@ -38,7 +38,6 @@ class exports.ListKeyApis extends ListController
     doc =
       verb: "GET"
       title: @desc()
-      params: @queryParams().properties
       response: """
         With <strong>resolve</strong>: An object mapping each key to the
         corresponding details.<br />

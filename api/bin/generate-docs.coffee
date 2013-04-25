@@ -48,9 +48,9 @@ outputDocs = ( controller ) ->
     print "<h4>Input</h4>"
     outputParams docs.input
 
-  if docs.params
+  if params = controller.queryParams?().properties
     print "<h4>Params</h4>"
-    outputParams docs.params
+    outputParams params
 
   if docs.response
     print "<h4>Response</h4>"
@@ -73,7 +73,7 @@ outputQuickReference = ( controllers ) ->
       path = controller.path()
       print "<tr>"
       print "<td><a href='##{ path }'>#{ path }</a></td>"
-      print "<td>#{ controller.desc() }</td>"
+      print "<td>#{ controller.docs().title }</td>"
       print "</tr>"
       alreadyOutput[path] = true
 

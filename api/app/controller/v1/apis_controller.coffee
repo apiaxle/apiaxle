@@ -33,7 +33,6 @@ class exports.ListApis extends ListController
     doc =
       verb: "GET"
       title: @desc()
-      params: @queryParams().properties
       response: """
         With <strong>resolve</strong>: An object mapping each API to the
         corresponding details.<br />

@@ -195,7 +195,6 @@ class exports.ListApiKeys extends ListController
     doc =
       verb: "GET"
       title: "List keys belonging to an API."
-      params: @queryParams().properties
       response: """
         With <strong>resolve</strong>: An object mapping each key to the
         corresponding details.<br />
@@ -242,7 +241,6 @@ class exports.ViewAllStatsForApi extends StatsController
     doc =
       verb: "GET"
       title: "Get stats for an api"
-      params: @queryParams()
       response: """
         Object where the keys represent the cache status (cached, uncached or
         error), each containing an object with response codes or error name,
