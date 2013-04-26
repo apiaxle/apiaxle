@@ -10,7 +10,7 @@
     "level": "DEBUG",
     "appenders": [{
       "type": "file",
-      "filename": "./log/test.log"
+      "filename": "./test.log"
     }]
   }
 }
