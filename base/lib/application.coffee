@@ -3,8 +3,8 @@ path = require "path"
 async = require "async"
 express = require "express"
 redis = require "redis"
-{ Js2Xml } = require "js2xml"
 
+{ Js2Xml } = require "js2xml"
 { Application } = require "scarf"
 
 class exports.AxleApp extends Application
@@ -30,6 +30,17 @@ class exports.AxleApp extends Application
 
         @logger.info "Loaded configuration from #{ filename }"
         return cb null
+
+  script: ( cb ) ->
+    all = []
+
+    all.push ( cb ) => @configure cb
+    all.push ( cb ) => @loadAndInstansiatePlugins cb
+    all.push ( cb ) => @redisConnect cb
+
+    async.series all, ( err ) =>
+      return cb err if err
+      return cb null, ( ) => @redisClient.quit()
 
   redisConnect: ( cb ) =>
     # grab the redis config

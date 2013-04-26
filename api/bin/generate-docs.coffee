@@ -1,6 +1,5 @@
 #!/usr/bin/env coffee
 
-process.env.NODE_ENV = "docs"
 _ = require "lodash"
 { exec } = require "child_process"
 
@@ -19,7 +18,9 @@ printOnce = ( toPrint ) ->
   alreadyPrinted[ toPrint ] = 1
   print toPrint
 
-gk = new ApiaxleApi()
+api = new ApiaxleApi
+  env: "docs"
+  name: "apiaxle"
 
 # Prints the path if it hasn't already, also opens and closes the container
 printPath = ( path ) ->
@@ -126,14 +127,15 @@ outputExample = ( controller ) ->
   print "<p><code>#{ genExample controller }</code></p>"
 
 exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
+  console.error( err ) if err
+
   branch = stdout.replace /\n/g, ""
 
-  gk.script ( finish ) ->
-    # we need to know the controllers
-    gk.configureControllers()
+  api.script ( err, finish ) ->
+    throw err if err
 
     # sort by the controller path
-    sorted = _.sortBy gk.controllers, ( x ) -> x.path()
+    sorted = _.sortBy api.plugins.controllers, ( x ) -> x.path()
 
     print "This documentation was generated from branch '#{ branch }'"
 
@@ -145,6 +147,7 @@ exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
 
       if controller.docs
         outputDocs controller
+
     print "</div>"
 
     finish()
