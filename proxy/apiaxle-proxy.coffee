@@ -8,7 +8,7 @@ async = require "async"
 
 class exports.ApiaxleProxy extends AxleApp
   @plugins =
-    controllers: "#{ __dirname }/app/controller/*_controller.coffee"
+    controllers: "#{ __dirname }/app/controller/*_controller.{js,coffee}"
 
 if not module.parent
   # taking a port from the commandline makes it much easier to cluster
