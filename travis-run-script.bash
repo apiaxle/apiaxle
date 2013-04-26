@@ -13,6 +13,12 @@ function silence-or-loud-on-error {
   fi
 }
 
+echo "Installing instanbul..."
+silence-or-loud-on-error npm install -g istanbul
+
+echo "Installing instanbul..."
+silence-or-loud-on-error npm install -g coffee-script
+
 # cant do proxy yet because of the tests that rely on host files being
 # set.
 for project in base api proxy repl; do
