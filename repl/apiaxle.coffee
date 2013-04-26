@@ -9,7 +9,7 @@ async = require "async"
 { ApiaxleApi } = require "apiaxle-api"
 
 finish = ( app ) ->
-  app.express.close()
+  app.close()
   app.redisClient.quit()
 
 axle = new ApiaxleApi
@@ -30,7 +30,5 @@ async.series all, ( err ) ->
   replHelper = new ReplHelper axle
 
   # make sure we shutdown connections
-  replHelper.initReadline ( ) ->
-    finish axle
-
+  replHelper.initReadline ( ) -> finish axle
   replHelper.topLevelInput()
