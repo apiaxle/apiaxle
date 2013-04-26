@@ -7,6 +7,10 @@
     "debug": true
   },
   "logging": {
-    "level": "DEBUG"
+    "level": "DEBUG",
+    "appenders": [{
+      "type": "file",
+      "filename": "./log/test.log"
+    }]
   }
 }
