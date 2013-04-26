@@ -25,7 +25,8 @@
     "redis": "~0.8.3",
     "hiredis": "~0.1.15",
     "lodash": "~1.2.0",
-    "request": "~2.16.6"
+    "request": "~2.16.6",
+    "scarf": "0.0.1"
   },
   "devDependencies": {
     "coffee-script": "1.6.2",

@@ -25,7 +25,8 @@
     "lodash": "~1.2.0",
     "tokenizer": "~0.1.2",
     "apiaxle-api": "1.9.4",
-    "apiaxle-base": "~1.9.4"
+    "apiaxle-base": "~1.9.4",
+    "scarf": "0.0.1"
   },
   "devDependencies": {
     "twerp": "=1.0.7",
