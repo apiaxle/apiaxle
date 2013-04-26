@@ -47,7 +47,7 @@ class exports.CatchallSigTest extends ApiaxleTest
           token = @generateSig keyTime
 
           controller.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
-            @isNull err
+            @ok not err
             @ok token
 
             cb()
@@ -82,10 +82,10 @@ class exports.CatchallSigTest extends ApiaxleTest
     tests = []
     tests.push ( cb ) =>
       @GET { path: "/?api_key=1234", host: "facebook.api.localhost" }, ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok err = json.results.error
           @equal err.type, "KeyError"
           @equal err.message, "A signature is required for this API."
@@ -94,10 +94,10 @@ class exports.CatchallSigTest extends ApiaxleTest
 
     tests.push ( cb ) =>
       @GET { path: "/?api_key=1234&api_sig=5678", host: "facebook.api.localhost" }, ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok err = json.results.error
           @equal err.type, "KeyError"
           @match err.message, /Invalid signature/
@@ -114,10 +114,10 @@ class exports.CatchallSigTest extends ApiaxleTest
         host: "facebook.api.localhost"
 
       @GET httpOptions, ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @isUndefined json["error"]
           @ok json
 

@@ -65,10 +65,10 @@ class exports.ApiStatsTest extends ApiaxleTest
 
           path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
           @GET path: path, ( err, res ) =>
-            @isNull err
+            @ok not err
 
             res.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
 
               results = json.results
 
@@ -79,7 +79,7 @@ class exports.ApiStatsTest extends ApiaxleTest
               cb()
 
     async.series all, ( err ) =>
-      @isNull err
+      @ok not err
 
       done 21
 
@@ -96,10 +96,10 @@ class exports.ApiStatsTest extends ApiaxleTest
 
           path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
           @GET path: path, ( err, res ) =>
-            @isNull err
+            @ok not err
 
             res.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
 
               results = json.results
 
@@ -110,7 +110,7 @@ class exports.ApiStatsTest extends ApiaxleTest
               cb()
 
     async.series all, ( err ) =>
-      @isNull err
+      @ok not err
 
       done 21
 
@@ -126,10 +126,10 @@ class exports.ApiStatsTest extends ApiaxleTest
 
           path = "/v1/key/bob/stats?#{ querystring.stringify query }"
           @GET path: path, ( err, res ) =>
-            @isNull err
+            @ok not err
 
             res.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
 
               results = json.results
 
@@ -140,7 +140,7 @@ class exports.ApiStatsTest extends ApiaxleTest
               cb()
 
     async.series all, ( err ) =>
-      @isNull err
+      @ok not err
 
       done 21
 
@@ -157,10 +157,10 @@ class exports.ApiStatsTest extends ApiaxleTest
 
           path = "/v1/key/bill/stats?#{ querystring.stringify query }"
           @GET path: path, ( err, res ) =>
-            @isNull err
+            @ok not err
 
             res.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
 
               results = json.results
 
@@ -171,7 +171,7 @@ class exports.ApiStatsTest extends ApiaxleTest
               cb()
 
     async.series all, ( err ) =>
-      @isNull err
+      @ok not err
 
       done 21
 
@@ -188,10 +188,10 @@ class exports.ApiStatsTest extends ApiaxleTest
 
           path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
           @GET path: path, ( err, res ) =>
-            @isNull err
+            @ok not err
 
             res.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
 
               results = json.results
 
@@ -203,6 +203,6 @@ class exports.ApiStatsTest extends ApiaxleTest
               cb()
 
     async.series all, ( err ) =>
-      @isNull err
+      @ok not err
 
       done 25

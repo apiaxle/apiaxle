@@ -10,7 +10,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
   "test GET a valid keyring": ( done ) ->
     # now try and get it
     @GET path: "/v1/keyring/1234", ( err, res ) =>
-      @isNull err
+      @ok not err
       res.parseJson ( json ) =>
         @ok 1
 
@@ -25,11 +25,11 @@ class exports.KeyringControllerTest extends ApiaxleTest
           @fixtures.createKeyring "kr#{ i }", {}, cb
 
     async.series all_keyrings, ( err, keyrings ) =>
-      @isNull err
+      @ok not err
 
       @GET path: "/v1/keyrings?from=2&to=4", ( err, res ) =>
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @deepEqual json.results, _.pluck( keyrings[2..4], "id" )
 
           done 3
@@ -49,12 +49,12 @@ class exports.KeyringControllerTest extends ApiaxleTest
         blah: {}
 
     @fixtures.create fixtures, ( err ) =>
-      @isNull err
+      @ok not err
 
       @GET path: "/v1/keyring/blah/keys?from=0&to=9", ( err, res ) =>
-        @isNull err
+        @ok not err
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @equal json.results.length, 5
 
           done 4
@@ -62,11 +62,11 @@ class exports.KeyringControllerTest extends ApiaxleTest
   "test GET a non-existant keyring": ( done ) ->
     # now try and get it
     @GET path: "/v1/keyring/1234", ( err, res ) =>
-      @isNull err
+      @ok not err
       @equal res.statusCode, 404
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @equal json.results.error.type, "KeyringNotFoundError"
 
@@ -81,13 +81,13 @@ class exports.KeyringControllerTest extends ApiaxleTest
         9876: {}
 
     @fixtures.create fixture, ( err ) =>
-      @isNull err
+      @ok not err
 
       @PUT path: "/v1/keyring/ring1/linkkey/1234", ( err, res ) =>
-        @isNull err
+        @ok not err
 
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok err = json.results.error
           @equal err.type, "KeyringNotFoundError"
           @equal err.message, "Keyring 'ring1' not found."
@@ -100,13 +100,13 @@ class exports.KeyringControllerTest extends ApiaxleTest
         ring1: {}
 
     @fixtures.create fixture, ( err ) =>
-      @isNull err
+      @ok not err
 
       @PUT path: "/v1/keyring/ring1/linkkey/1234", ( err, res ) =>
-        @isNull err
+        @ok not err
 
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok err = json.results.error
           @equal err.type, "KeyNotFoundError"
           @equal err.message, "Key '1234' not found."
@@ -126,20 +126,20 @@ class exports.KeyringControllerTest extends ApiaxleTest
         ring2: {}
 
     @fixtures.create fixture, ( err ) =>
-      @isNull err
+      @ok not err
 
       model = @app.model( "keyringfactory" )
       model.find [ "ring1" ], ( err, results ) =>
-        @isNull err
+        @ok not err
         @ok results.ring1
         @equal results.ring1.id, "ring1"
 
         add_key_functions = []
         add_key_functions.push ( cb ) =>
           @PUT path: "/v1/keyring/ring1/linkkey/1234", ( err, res ) =>
-            @isNull err
+            @ok not err
             res.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
               @equal json.results.qps, 2
 
               # get all of the keys, check there's just one
@@ -150,9 +150,9 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
         add_key_functions.push ( cb ) =>
           @PUT path: "/v1/keyring/ring1/linkkey/5678", ( err, res ) =>
-            @isNull err
+            @ok not err
             res.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
               @equal json.results.qps, 2
 
               # get all of the keys, check there's just one
@@ -162,6 +162,6 @@ class exports.KeyringControllerTest extends ApiaxleTest
                 cb()
 
         async.series add_key_functions, ( err ) =>
-          @isNull err
+          @ok not err
 
           done 13

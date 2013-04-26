@@ -22,7 +22,7 @@ class exports.ApiTest extends FakeAppTest
           forApis: [ "twitter" ]
 
     @fixtures.create structure, ( err, results ) =>
-      @isNull err
+      @ok not err
       @ok results
       @equal results.length, 4
 
@@ -30,7 +30,7 @@ class exports.ApiTest extends FakeAppTest
 
       all_tests.push ( cb ) =>
         @app.model( "apifactory" ).find [ "facebook" ], ( err, results ) =>
-          @isNull err
+          @ok not err
           @ok results.facebook
           @equal results.facebook.data.endPoint, "graph.facebook.com"
 
@@ -38,14 +38,14 @@ class exports.ApiTest extends FakeAppTest
 
       all_tests.push ( cb ) =>
         @app.model( "apifactory" ).find [ "twitter" ], ( err, results ) =>
-          @isNull err
+          @ok not err
           @ok results.twitter
 
           cb()
 
       all_tests.push ( cb ) =>
         @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
-          @isNull err
+          @ok not err
           @ok results["1234"]
 
           cb()

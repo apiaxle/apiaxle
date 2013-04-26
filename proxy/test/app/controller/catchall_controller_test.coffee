@@ -20,7 +20,7 @@ class exports.CatchallTest extends ApiaxleTest
           forApis: [ "programmes" ]
 
     @fixtures.create fixture, ( err, [ api, key ] ) =>
-      @isNull err
+      @ok not err
 
       requestOptions =
         path: "/?api_key=phil"
@@ -28,7 +28,7 @@ class exports.CatchallTest extends ApiaxleTest
 
       @stubDns { "programmes.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
-        @isNull err
+        @ok not err
         @equal response.statusCode, 400
 
         response.parseJson ( err, json ) =>
@@ -50,7 +50,7 @@ class exports.CatchallTest extends ApiaxleTest
           disabled: true
 
     @fixtures.create fixture, ( err, [ api, key ] ) =>
-      @isNull err
+      @ok not err
 
       requestOptions =
         path: "/?api_key=phil"
@@ -58,7 +58,7 @@ class exports.CatchallTest extends ApiaxleTest
 
       @stubDns { "programmes.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
-        @isNull err
+        @ok not err
         @equal response.statusCode, 401
 
         response.parseJson ( err, json ) =>
@@ -79,7 +79,7 @@ class exports.CatchallTest extends ApiaxleTest
           forApis: [ "programmes" ]
 
     @fixtures.create fixture, ( err, [ api, key ] ) =>
-      @isNull err
+      @ok not err
 
       stub = @stubCatchall ( options, api, key, cb ) =>
         { path, query } = url.parse options.url
@@ -92,7 +92,7 @@ class exports.CatchallTest extends ApiaxleTest
 
       @stubDns { "programmes.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
-        @isNull err
+        @ok not err
 
         done 3
 
@@ -108,12 +108,12 @@ class exports.CatchallTest extends ApiaxleTest
             data: "something"
 
           @httpRequest options, ( err, response ) =>
-            @isNull err
+            @ok not err
             @ok response
             @equal response.statusCode, 404
 
             response.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
               # meta
               @equal json.meta.version, 1
               @equal json.meta.status_code, response.statusCode
@@ -144,13 +144,13 @@ class exports.CatchallTest extends ApiaxleTest
             data: "something"
 
           @httpRequest options, ( err, response ) =>
-            @isNull err
+            @ok not err
 
             @ok response
             @equal response.statusCode, 404
 
             response.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
               @ok json.results.error
               @equal json.results.error.type, "ApiUnknown"
 
@@ -171,13 +171,13 @@ class exports.CatchallTest extends ApiaxleTest
 
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
-      @isNull err
+      @ok not err
 
       @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok err = json.results.error
           @equal err.type, "KeyError"
 
@@ -190,12 +190,12 @@ class exports.CatchallTest extends ApiaxleTest
 
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
-      @isNull err
+      @ok not err
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET { path: "/?api_key=1", host: "facebook.api.localhost" }, ( err, response ) =>
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok err = json.results.error
           @equal err.type, "KeyError"
 
@@ -208,13 +208,13 @@ class exports.CatchallTest extends ApiaxleTest
 
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
-      @isNull err
+      @ok not err
 
       keyOptions =
         forApis: [ "facebook" ]
 
       @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
-        @isNull err
+        @ok not err
 
         # make sure we don't actually hit facebook
         data = JSON.stringify
@@ -232,14 +232,14 @@ class exports.CatchallTest extends ApiaxleTest
         @GET requestOptions, ( err, response ) =>
           @ok stub.calledOnce
 
-          @isNull err
+          @ok not err
           @equal response.contentType, "application/json"
 
           @ok response.headers[ "x-apiaxleproxy-qps-left" ]
           @ok response.headers[ "x-apiaxleproxy-qpd-left" ]
 
           response.parseJson ( err, json ) =>
-            @isNull err
+            @ok not err
             @equal json.one, 1
 
             done 9
@@ -251,13 +251,13 @@ class exports.CatchallTest extends ApiaxleTest
 
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
-      @isNull err
+      @ok not err
 
       keyOptions =
         forApis: [ "facebook" ]
 
       @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
-        @isNull err
+        @ok not err
 
         # make sure we don't actually hit facebook
         data = JSON.stringify
@@ -272,10 +272,10 @@ class exports.CatchallTest extends ApiaxleTest
 
         @stubDns { "facebook.api.localhost": "127.0.0.1" }
         @GET requestOptions, ( err, response ) =>
-          @isNull err
+          @ok not err
 
           response.parseJson ( err, json ) =>
-            @isNull err
+            @ok not err
             @equal json.one, 1
 
             done 5
@@ -288,13 +288,13 @@ class exports.CatchallTest extends ApiaxleTest
 
     # we create the API
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
-      @isNull err
+      @ok not err
 
       keyOptions =
         forApis: [ "facebook" ]
 
       @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
-        @isNull err
+        @ok not err
 
         # make sure we don't actually hit facebook
         data = JSON.stringify
@@ -309,10 +309,10 @@ class exports.CatchallTest extends ApiaxleTest
 
         @stubDns { "facebook.api.localhost": "127.0.0.1" }
         @GET requestOptions, ( err, response ) =>
-          @isNull err
+          @ok not err
 
           response.parseJson ( err, json ) =>
-            @isNull err
+            @ok not err
             @equal json.one, 1
 
             done 5
@@ -323,17 +323,17 @@ class exports.CatchallTest extends ApiaxleTest
       apiFormat: "xml"
 
     @fixtures.createApi "facebook", apiOptions, ( err ) =>
-      @isNull err
+      @ok not err
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
 
       @GET { path: "/", host: "facebook.api.localhost" }, ( err, response ) =>
-        @isNull err
+        @ok not err
 
         @match response.headers[ "content-type" ], /application\/xml/
 
         response.parseXml ( err, xmlDoc ) =>
-          @isNull err
+          @ok not err
           @ok xmlDoc.get "/error"
           @ok xmlDoc.get "/error/type[text()='KeyError']"
           @ok xmlDoc.get "/error/message[text()='No api_key specified.']"

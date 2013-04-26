@@ -18,11 +18,11 @@ class exports.RedisTest extends FakeAppTest
     @ok test_model = new TestModel @app
 
     test_model.create "hello", { one: 1 }, ( err, newObject ) =>
-      @isNull err
+      @ok not err
       @equal newObject.one, 1
 
       test_model.find [ "hello" ], ( err, results ) =>
-        @isNull err
+        @ok not err
         @ok results
 
         @equal results.hello.one, 1
@@ -34,14 +34,14 @@ class exports.RedisTest extends FakeAppTest
     @ok multi = model.multi()
 
     model.set [ "test" ], 20, ( err, value ) =>
-      @isNull err
+      @ok not err
 
       multi.decr [ "test" ]
       multi.incr [ "test" ]
       multi.incr [ "test" ]
 
       multi.exec ( err, results ) =>
-        @isNull err
+        @ok not err
         @deepEqual results, [ 19, 20, 21 ]
 
         model.get [ "test" ], ( err, value ) =>
@@ -58,7 +58,7 @@ class exports.RedisTest extends FakeAppTest
     multi.exec ( err, results ) =>
       # check the key was written with the correct namespace
       model.get [ "test" ], ( err, value ) =>
-        @isNull err
+        @ok not err
         @equal value, 1
 
         done 4
@@ -85,7 +85,7 @@ class exports.RedisTest extends FakeAppTest
 
     model.set "blah", "hello", ( err ) =>
       model.get "blah", ( err, value ) =>
-        @isNull err
+        @ok not err
         @equal value, "hello"
 
         # make sure we've called read and write before we go on.
@@ -121,7 +121,7 @@ class exports.RedisTest extends FakeAppTest
     multi.get "blah"
 
     multi.exec ( err, results ) =>
-      @isNull err
+      @ok not err
       @ok results
 
       # make sure we've called read and write before we go on.
@@ -138,10 +138,10 @@ class exports.RedisTest extends FakeAppTest
     @equal model.escapeId( "meta:data:world" ), "meta\\:data\\:world"
 
     model.create "this:is:an:id", { one: 2 }, ( err ) =>
-      @isNull err
+      @ok not err
 
       model.find [ "this:is:an:id" ], ( err, results ) =>
-        @isNull err
+        @ok not err
         @ok results["this:is:an:id"]
         @equal results["this:is:an:id"].one, 2
 
@@ -153,11 +153,11 @@ class exports.RedisTest extends FakeAppTest
 
     # now create a new api called 'all'
     model.create "all", { one: 1 }, ( err ) =>
-      @isNull err
+      @ok not err
 
       # finding 'all' should return the details we expect
       model.find [ "all" ], ( err, results ) =>
-        @isNull err
+        @ok not err
         @ok results.all
         @equal results.all.one, 1
 

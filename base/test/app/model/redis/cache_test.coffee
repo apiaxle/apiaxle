@@ -20,14 +20,14 @@ class exports.ApiTest extends FakeAppTest
 
   "test adding a page": ( done ) ->
     @model.add "29834IUHOIUHOIHO234", 20, 200, "application/json", "hello", ( err ) =>
-      @isNull err
+      @ok not err
 
       @model.ttl "29834IUHOIUHOIHO234", ( err, ttl ) =>
-        @isNull err
+        @ok not err
         @ok ( ttl <= 20 and ttl > 0 )
 
         @model.get "29834IUHOIUHOIHO234", ( err, status, contentType, content ) =>
-          @isNull err
+          @ok not err
           @equal contentType, "application/json"
           @equal content, "hello"
           @equal status, 200

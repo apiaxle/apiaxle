@@ -53,7 +53,7 @@ class exports.KeyTest extends FakeAppTest
         forApis: [ "twitter" ]
 
       @fixtures.createKey "987654321", createObj, ( err ) =>
-        @isNull err
+        @ok not err
 
         done 2
 
@@ -72,18 +72,18 @@ class exports.KeyTest extends FakeAppTest
         5678: {}
 
     @fixtures.create fixtures, ( err, [ twitter, facebook, hello, key1, key2 ] ) =>
-      @isNull err
+      @ok not err
 
       # the fixture creator associates keys with twitter by default
       key1.supportedApis ( err, apis ) =>
-        @isNull err
+        @ok not err
         @deepEqual apis, [ "twitter" ]
 
         key1.linkToApi "facebook", ( err ) =>
-          @isNull err
+          @ok not err
 
           key1.supportedApis ( err, apis ) =>
-            @isNull err
+            @ok not err
             @deepEqual apis, [ "twitter", "facebook" ]
 
             key1.isLinkedToApi "facebook", ( err, res ) =>
@@ -109,13 +109,13 @@ class exports.KeyApiLinkTest extends FakeAppTest
         bob: { forApis: [ "facebook", "twitter" ] }
 
     @fixtures.create fixture, ( err, [ facebook, twitter, phil, bob ] ) =>
-      @isNull err
+      @ok not err
 
       phil.delete ( err ) =>
-        @isNull err
+        @ok not err
 
         facebook.getKeys 0, 100, ( err, key_list ) =>
-          @isNull err
+          @ok not err
 
           # facebook should no longer know of phil
           @ok "phil" not in key_list

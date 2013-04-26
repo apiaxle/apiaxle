@@ -17,7 +17,7 @@ class exports.CountersTest extends FakeAppTest
     clock = @getClock 1323892867000
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
-      @isNull err
+      @ok not err
 
       @equal day, 1
       @equal month, 1
@@ -27,7 +27,7 @@ class exports.CountersTest extends FakeAppTest
       clock.addDays 1
 
       @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
-        @isNull err
+        @ok not err
 
         @equal day, 1
         @equal month, 2
@@ -39,7 +39,7 @@ class exports.CountersTest extends FakeAppTest
     clock = @getClock 1323892867000
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
-      @isNull err
+      @ok not err
       @equal day, 1
 
       @model.getToday "key:1234", 200, ( err, count ) =>
@@ -58,7 +58,7 @@ class exports.CountersTest extends FakeAppTest
     clock = @getClock()
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
-      @isNull err
+      @ok not err
 
       for time in [ min, hour, day, month, year ]
         @equal time, 1
@@ -78,7 +78,7 @@ class exports.CountersTest extends FakeAppTest
     clock = @getClock 1323892867000
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
-      @isNull err
+      @ok not err
       @equal day, 1
 
       @model.getThisMonth "key:1234", 200, ( err, count ) =>
@@ -104,7 +104,7 @@ class exports.CountersTest extends FakeAppTest
     clock = @getClock 1351764547
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
-      @isNull err
+      @ok not err
       @equal day, 1
 
       @model.getThisYear "key:1234", 200, ( err, count ) =>
@@ -134,11 +134,11 @@ class exports.CountersTest extends FakeAppTest
     fixtures.push ( cb ) => @model.apiHit "facebook", "1234", "QpdExceededError", cb
 
     async.series fixtures, ( err, results ) =>
-      @isNull err
+      @ok not err
       @ok results
 
       @model.getPossibleResponseTypes "key:1234", ( err, types ) =>
-        @isNull err
+        @ok not err
         @equal types.length, 3
 
         @deepEqual types.sort(), [ "200", "QpdExceededError", "QpsExceededError" ]

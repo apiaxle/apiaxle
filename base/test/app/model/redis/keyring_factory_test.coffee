@@ -21,12 +21,12 @@ class exports.KeyringFactoryTest extends FakeAppTest
         blah: {}
 
     @fixtures.create fixture, ( err, [ dbKeyring ] ) =>
-      @isNull err
+      @ok not err
       @ok dbKeyring.data.createdAt
       @ok not dbKeyring.data.updatedAt?
 
       @fixtures.create fixture, ( err, [ dbKeyring2 ] ) =>
-        @isNull err
+        @ok not err
         @ok dbKeyring2.data.updatedAt
         @equal dbKeyring.data.createdAt, dbKeyring2.data.createdAt
 
@@ -34,18 +34,18 @@ class exports.KeyringFactoryTest extends FakeAppTest
 
   "test creating a keyring": ( done ) ->
     @model.create "keyring_one", {}, ( err, keyring ) =>
-      @isNull err
+      @ok not err
       @ok keyring
 
       @model.find [ "keyring_one" ], ( err, results ) =>
-        @isNull err
+        @ok not err
         @equal results.keyring_one.id, "keyring_one"
 
         done 4
 
   "test adding an unknown key to a keyring fails": ( done ) ->
     @fixtures.createKeyring "kr1", {}, ( err, keyring ) =>
-      @isNull err
+      @ok not err
 
       # 1234 doesn't exist
       keyring.linkKey "1234", ( err, key ) =>
@@ -64,13 +64,13 @@ class exports.KeyringFactoryTest extends FakeAppTest
           forApis: [ "facebook" ]
 
     @fixtures.create fixture, ( err ) =>
-      @isNull err
+      @ok not err
 
       @fixtures.createKeyring "kr1", {}, ( err, keyring ) =>
-        @isNull err
+        @ok not err
 
         keyring.linkKey "1234", ( err, key ) =>
-          @isNull err
+          @ok not err
           @ok key
           @equal key.id, "1234"
 
@@ -88,23 +88,23 @@ class exports.KeyringFactoryTest extends FakeAppTest
         ring2: {}
 
     @fixtures.create fixture, ( err, [ api, key1, key2, keyring ] ) =>
-      @isNull err
+      @ok not err
 
       keyring.linkKey key1.id, ( err ) =>
-        @isNull err
+        @ok not err
 
         keyring.linkKey key2.id, ( err ) =>
-          @isNull err
+          @ok not err
 
           keyring.getKeys 0, 10, ( err, keys ) =>
-            @isNull err
+            @ok not err
             @deepEqual keys, [ key2.id, key1.id ]
 
             keyring.unlinkKeyById key1.id, ( err, result ) =>
-              @isNull err
+              @ok not err
 
               keyring.getKeys 0, 10, ( err, keys ) =>
-                @isNull err
+                @ok not err
                 @deepEqual keys, [ key2.id ]
 
                 done 8
@@ -121,12 +121,12 @@ class exports.KeyringFactoryTest extends FakeAppTest
           all.push ( cb ) =>
             # create a bunch of keys
             @fixtures.createKey "key#{ i }", {}, ( err, key ) =>
-              @isNull err
+              @ok not err
               @ok key
 
               # add the new key
               keyring.linkKey key.id, ( err, added_key ) =>
-                @isNull err
+                @ok not err
                 @ok added_key
 
                 @equal added_key.id, key.id
@@ -134,10 +134,10 @@ class exports.KeyringFactoryTest extends FakeAppTest
                 return cb null, key.id
 
       async.series all, ( err, [ api, added_keys... ] ) =>
-        @isNull err
+        @ok not err
 
         keyring.getKeys 0, 1000, ( err, keys ) =>
-          @isNull err
+          @ok not err
           @equal keys.length, 9
           @deepEqual keys, added_keys.reverse()
 

@@ -20,7 +20,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
       all.push ( cb ) =>
         controller._cacheTtl req, ( err, mustRevalidate, ttl ) =>
           @ok not mustRevalidate
-          @isNull err
+          @ok not err
           @equal ttl, 0
 
           cb()
@@ -37,7 +37,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
       do ( test ) =>
         runnables.push ( cb ) =>
           controller._cacheTtl test.req, ( err, mustRevalidate, ttl ) =>
-            @isNull err
+            @ok not err
             @equal ttl, test.should.ttl
             @equal mustRevalidate, test.should.mustRevalidate
 
@@ -125,7 +125,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
           forApis: [ "facebook" ]
 
     @fixtures.create fix, ( err ) =>
-      @isNull err
+      @ok not err
 
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
@@ -139,17 +139,17 @@ class exports.CatchallCachingTest extends ApiaxleTest
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
-        @isNull err
+        @ok not err
         @ok stub.calledOnce
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @isUndefined json.error
           @deepEqual json.two, 2
 
           # now this call should come from cache
           @GET requestOptions, ( err, response ) =>
-            @isNull err
+            @ok not err
 
             # we shouldn't have called the http req again
             @ok stub.calledOnce, "result comes from cache"
@@ -183,7 +183,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
           forApis: [ "facebook" ]
 
     @fixtures.create fixture, ( err ) =>
-      @isNull err
+      @ok not err
 
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
@@ -199,26 +199,26 @@ class exports.CatchallCachingTest extends ApiaxleTest
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
-        @isNull err
+        @ok not err
         @ok stub.calledOnce
 
         @equal response.statusCode, 202
         @equal response.headers[ "content-type" ], "application/json"
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @isUndefined json.error
           @deepEqual json.two, 2
 
           # now this call should come from cache
           @GET requestOptions, ( err, response ) =>
-            @isNull err
+            @ok not err
 
             @equal response.statusCode, 202
             @equal response.headers[ "content-type" ], "application/json"
 
             response.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
               @isUndefined json.error
 
               # we shouldn't have called the http req again
@@ -241,7 +241,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
           forApis: [ "facebook"         ]
 
     @fixtures.create fixture, ( err ) =>
-      @isNull err
+      @ok not err
 
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
@@ -257,18 +257,18 @@ class exports.CatchallCachingTest extends ApiaxleTest
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
-        @isNull err
+        @ok not err
 
         @ok stub.calledOnce
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @isUndefined json.error
           @deepEqual json.two, 2
 
           # now this call should come from cache
           @GET requestOptions, ( err, response ) =>
-            @isNull err
+            @ok not err
 
             # we shouldn't have called the http req again
             @ok stub.calledTwice, "result comes from http request"
@@ -290,7 +290,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
           forApis: [ "facebook" ]
 
     @fixtures.create fixture, ( err ) =>
-      @isNull err
+      @ok not err
 
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
@@ -306,18 +306,18 @@ class exports.CatchallCachingTest extends ApiaxleTest
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
-        @isNull err
+        @ok not err
 
         @ok stub.calledOnce
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @isUndefined json.error
           @deepEqual json.two, 2
 
           # now this call should come from cache
           @GET requestOptions, ( err, response ) =>
-            @isNull err
+            @ok not err
 
             # we shouldn't have called the http req again
             @ok stub.calledTwice, "result comes from http request"

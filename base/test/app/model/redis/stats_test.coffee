@@ -12,7 +12,7 @@ class exports.StatsTest extends FakeAppTest
 
   "test #recordHit": ( done ) ->
     @model.recordHit ["key","1234", "cached", "200"],  ( err, result ) =>
-      @isNull err
+      @ok not err
       @equal result[0], 1
       done()
 
@@ -35,11 +35,11 @@ class exports.StatsTest extends FakeAppTest
       @model.recordHit ["key","1234", "cached", "200"], cb
 
     async.series all, ( err, result ) =>
-      @isNull err
+      @ok not err
       from = now_seconds - 3
 
       @model.get ["key", "1234", "cached", "200"], "seconds", from, null, ( err, result ) =>
-        @isNull err
+        @ok not err
         @equal result[now_seconds], 1
 
         # there shouldn't be a value for this as we made no hit
@@ -72,12 +72,12 @@ class exports.StatsTest extends FakeAppTest
       @model.recordHit ["key","1234", "200"], cb
 
     async.series all, ( err, result ) =>
-      @isNull err
+      @ok not err
       from = now_seconds - 3
       to   = next_seconds + 1
 
       @model.get ["key", "1234", "200"], "seconds", from, to, ( err, result ) =>
-        @isNull err
+        @ok not err
         @equal result[now_seconds],1
         @equal result[next_seconds],1
         done 4

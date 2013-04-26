@@ -17,13 +17,13 @@ class exports.ApisControllerTest extends ApiaxleTest
           model.create "api_#{i}", endPoint: "api_#{i}.com", cb
 
     async.series fixtures, ( err, newApis ) =>
-      @isNull err
+      @ok not err
 
       @GET path: "/v1/apis?from=1&to=12", ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok json
           @equal json.results.length, 10
 
@@ -46,13 +46,13 @@ class exports.ApisControllerTest extends ApiaxleTest
           model.create "api_#{i}", options, cb
 
     async.parallel fixtures, ( err, newApis ) =>
-      @isNull err
+      @ok not err
 
       @GET path: "/v1/apis?from=0&to=12&resolve=true", ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok json
 
           for i in [ 0..9 ]

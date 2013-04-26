@@ -19,13 +19,13 @@ class exports.KeyControllerTest extends ApiaxleTest
 
   "test GET a valid key": ( done ) ->
     @fixtures.createKey "1234", forApis: [ "twitter", "facebook" ], ( err, newKey ) =>
-      @isNull err
+      @ok not err
       @ok newKey
 
       # now try and get it
       @GET path: "/v1/key/1234", ( err, res ) =>
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
 
           @isNumber json.results.qps
           @isNumber json.results.qpd
@@ -38,11 +38,11 @@ class exports.KeyControllerTest extends ApiaxleTest
   "test GET a non-existant key": ( done ) ->
     # now try and get it
     @GET path: "/v1/key/1234", ( err, res ) =>
-      @isNull err
+      @ok not err
       @equal res.statusCode, 404
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @equal json.results.error.type, "KeyNotFoundError"
 
@@ -59,23 +59,23 @@ class exports.KeyControllerTest extends ApiaxleTest
         qpd: 100
 
     @POST options, ( err, res ) =>
-      @isNull err
+      @ok not err
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @equal json.results.qps, 1
         @equal json.results.qpd, 100
 
         # check it went in
         @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
-          @isNull err
+          @ok not err
 
           @equal results["1234"].data.qps, 1
           @equal results["1234"].data.qpd, 100
           @ok results["1234"].data.createdAt
 
           @app.model( "apifactory" ).find [ "twitter" ], ( err, results ) =>
-            @isNull err
+            @ok not err
             @ok results.twitter
 
             results.twitter.getKeys 0, 10, ( err, keys ) =>
@@ -95,10 +95,10 @@ class exports.KeyControllerTest extends ApiaxleTest
         qpd: 100
 
     @POST options, ( err, res ) =>
-      @isNull err
+      @ok not err
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
         @equal json.results.error.message, "The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
@@ -116,11 +116,11 @@ class exports.KeyControllerTest extends ApiaxleTest
         qpd: 1000
 
     @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
-      @isNull err
+      @ok not err
       @ok origKey
 
       @PUT options, ( err, res ) =>
-        @isNull err
+        @ok not err
 
         @equal res.statusCode, 200
 
@@ -141,14 +141,14 @@ class exports.KeyControllerTest extends ApiaxleTest
         qpd: 1000
 
     @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
-      @isNull err
+      @ok not err
       @ok origKey
 
       @PUT options, ( err, res ) =>
         @equal res.statusCode, 400
 
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok json
           @equal json.results.error.type, "ValidationError"
 
@@ -159,7 +159,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       @equal res.statusCode, 404
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @ok json.meta.status_code, 404
 
@@ -170,15 +170,15 @@ class exports.KeyControllerTest extends ApiaxleTest
 
   "test DELETE with valid key": ( done ) ->
     @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
-      @isNull err
+      @ok not err
       @ok origKey
 
       @DELETE path: "/v1/key/1234", ( err, res ) =>
-        @isNull err
+        @ok not err
         @equal res.statusCode, 200
 
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           # no error
           @equal json.results.error?, false
 
@@ -188,8 +188,8 @@ class exports.KeyControllerTest extends ApiaxleTest
 
           # confirm it's out of the database
           @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
-            @isNull err
-            @isNull results["1234"]
+            @ok not err
+            @ok not results["1234"]
 
             done 10
 
@@ -203,13 +203,13 @@ class exports.KeyControllerTest extends ApiaxleTest
           @fixtures.createKey "key_#{i}", forApis: [ "twitter" ], cb
 
     async.series fixtures, ( err, newKeys ) =>
-      @isNull err
+      @ok not err
 
       @GET path: "/v1/keys?from=1&to=12", ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok json
           @equal json.results.length, 10
 
@@ -226,13 +226,13 @@ class exports.KeyControllerTest extends ApiaxleTest
           @fixtures.createKey "key_#{i}", forApis: [ "twitter" ], qps: i, qpd: i, cb
 
     async.parallel fixtures, ( err, newKeys ) =>
-      @isNull err
+      @ok not err
 
       @GET path: "/v1/keys?from=0&to=12&resolve=true", ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok json
 
           for i in [ 0..9 ]
@@ -273,7 +273,7 @@ class exports.KeyStatsTest extends ApiaxleTest
           qps: 300
 
     @fixtures.create fixtures, ( err, [ api, key ] ) =>
-      @isNull err
+      @ok not err
 
       limitModel = @app.model "apilimits"
 
@@ -284,7 +284,7 @@ class exports.KeyStatsTest extends ApiaxleTest
           limitModel.apiHit "phil", 200, 10, cb
 
       async.series hits_to_run, ( err, results ) =>
-        @isNull err
+        @ok not err
 
         limits_model = @app.model "apilimits"
         redis_key_name = limits_model.qpdKey "phil"
@@ -301,10 +301,10 @@ class exports.KeyStatsTest extends ApiaxleTest
               qpd: 100
 
           @PUT options, ( err, res ) =>
-            @isNull err
+            @ok not err
 
             res.parseJson ( err, json ) =>
-              @isNull err
+              @ok not err
 
               @equal json.results.new.qpd, 100
               @equal json.results.old.qpd, 10
@@ -312,7 +312,7 @@ class exports.KeyStatsTest extends ApiaxleTest
               # this should no longer error because we've updated the
               # qpd via the API
               limitModel.apiHit "phil", 200, 100, ( err, [ qpsLeft, qpdLeft ] ) =>
-                @isNull err
+                @ok not err
 
                 # 100 - 1 because we've hit the api
                 # 99 - 5 because this user had already used 5 hits today

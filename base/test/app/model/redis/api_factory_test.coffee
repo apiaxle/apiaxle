@@ -18,10 +18,10 @@ class exports.ApiKeyLinkTest extends FakeAppTest
         bob: { forApis: [ "facebook", "twitter" ] }
 
     @fixtures.create fixture, ( err, [ facebook, twitter, phil, bob ] ) =>
-      @isNull err
+      @ok not err
 
       facebook.delete ( err ) =>
-        @isNull err
+        @ok not err
 
         phil.supportedApis ( err, api_list ) =>
           # the keys should no longet know about facebook
@@ -49,12 +49,12 @@ class exports.ApiTest extends FakeAppTest
           endPoint: "example.com"
 
     @fixtures.create fixture, ( err, [ dbApi ] ) =>
-      @isNull err
+      @ok not err
       @ok dbApi.data.createdAt
       @ok not dbApi.data.updatedAt?
 
       @fixtures.create fixture, ( err, [ dbApi2 ] ) =>
-        @isNull err
+        @ok not err
         @ok dbApi2.data.updatedAt
         @equal dbApi.data.createdAt, dbApi2.data.createdAt
 
@@ -87,10 +87,10 @@ class exports.ApiTest extends FakeAppTest
       endPoint: "api.twitter.com"
 
     @fixtures.createApi "twitter", newObj, ( err ) =>
-      @isNull err
+      @ok not err
 
       @model.find [ "twitter" ], ( err, results ) =>
-        @isNull err
+        @ok not err
 
         @equal results.twitter.data.apiFormat, "xml"
         @ok results.twitter.data.createdAt
@@ -109,17 +109,17 @@ class exports.ApiTest extends FakeAppTest
           forApis: [ "facebook", "twitter" ]
 
     @fixtures.create fixture, ( err, [ dbFacebook, rest... ] ) =>
-      @isNull err
+      @ok not err
 
       dbFacebook.supportsKey "1234", ( err, supported ) =>
-        @isNull err
+        @ok not err
         @equal supported, true
 
         dbFacebook.unlinkKeyById "1234", ( err ) =>
-          @isNull err
+          @ok not err
 
           dbFacebook.supportsKey "1234", ( err, supported ) =>
-            @isNull err
+            @ok not err
             @equal supported, false
 
             dbFacebook.getKeys 0, 100, ( err, keys ) =>
@@ -139,20 +139,20 @@ class exports.ApiTest extends FakeAppTest
           forApis: [ "facebook", "twitter" ]
 
     @fixtures.create fixture, ( err, objects ) =>
-      @isNull err
+      @ok not err
 
       @app.model( "apifactory" ).find [ "facebook" ], ( err, results ) =>
-        @isNull err
+        @ok not err
         @ok results.facebook
 
         # is supported
         results.facebook.supportsKey "1234", ( err, supported ) =>
-          @isNull err
+          @ok not err
           @equal supported, true
 
           # isn't supported
           results.facebook.supportsKey "hello", ( err, supported ) =>
-            @isNull err
+            @ok not err
             @equal supported, false
 
             done 7

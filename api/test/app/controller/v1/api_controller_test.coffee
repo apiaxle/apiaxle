@@ -9,10 +9,10 @@ class exports.ApiControllerTest extends ApiaxleTest
 
   "test linkkey with invalid api": ( done ) ->
     @PUT path: "/v1/api/bob/linkkey/bill", ( err, res ) =>
-      @isNull err
+      @ok not err
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @equal json.results.error.message, "Api 'bob' not found."
 
         done 3
@@ -29,21 +29,21 @@ class exports.ApiControllerTest extends ApiaxleTest
           qps: 201
 
     @fixtures.create fixture, ( err, [ dbBob ] ) =>
-      @isNull err
+      @ok not err
 
       dbBob.getKeys 0, 20, ( err, keys ) =>
-        @isNull err
+        @ok not err
         @deepEqual keys, []
 
         @PUT path: "/v1/api/bob/linkkey/bill", ( err, res ) =>
-          @isNull err
+          @ok not err
 
           res.parseJson ( err, json ) =>
-            @isNull err
+            @ok not err
             @equal json.results.qps, 201
 
             dbBob.getKeys 0, 20, ( err, keys ) =>
-              @isNull err
+              @ok not err
               @deepEqual keys, [ "bill" ]
 
               done 8
@@ -51,9 +51,9 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test GET a valid api": ( done ) ->
     # now try and get it
     @GET path: "/v1/api/1234", ( err, res ) =>
-      @isNull err
+      @ok not err
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json
 
         done 3
@@ -76,7 +76,7 @@ class exports.ApiControllerTest extends ApiaxleTest
           forApis: [ "facebook", "twitter" ]
 
     @fixtures.create fixture, ( err ) =>
-      @isNull err
+      @ok not err
 
       base_call = "/v1/api/twitter/keys?from=0&to=9"
 
@@ -85,7 +85,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       # without resolution
       all_tests.push ( cb ) =>
         @GET path: base_call, ( err, res ) =>
-          @isNull err
+          @ok not err
 
           res.parseJson ( err, json ) =>
             @deepEqual json.results, [ "hello", "5678", "1234" ]
@@ -94,7 +94,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       # with resolution
       all_tests.push ( cb ) =>
         @GET path: "#{ base_call }&resolve=true", ( err, res ) =>
-          @isNull err
+          @ok not err
 
           res.parseJson ( err, json ) =>
             @equal json.results[ "1234" ].qpd, 172800
@@ -104,18 +104,18 @@ class exports.ApiControllerTest extends ApiaxleTest
             cb()
 
       async.series all_tests, ( err ) =>
-        @isNull err
+        @ok not err
 
         done 8
 
   "test GET a non-existant api": ( done ) ->
     # now try and get it
     @GET path: "/v1/api/1234", ( err, res ) =>
-      @isNull err
+      @ok not err
       @equal res.statusCode, 404
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @equal json.results.error.type, "ApiNotFoundError"
 
@@ -124,11 +124,11 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test GET a non-existant api": ( done ) ->
     # now try and get it
     @GET path: "/v1/api/1234", ( err, res ) =>
-      @isNull err
+      @ok not err
       @equal res.statusCode, 404
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @equal json.results.error.type, "ApiNotFoundError"
 
@@ -144,11 +144,11 @@ class exports.ApiControllerTest extends ApiaxleTest
         extractKeyRegex: "hello(" # invalid
 
     @POST options, ( err, res ) =>
-      @isNull err
+      @ok not err
       @equal res.statusCode, 400
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @equal json.meta.status_code, 400
         @match json.results.error.message, /Invalid regular expression/
 
@@ -161,10 +161,10 @@ class exports.ApiControllerTest extends ApiaxleTest
         endPoint: "api.example.com"
 
     @POST options, ( err, res ) =>
-      @isNull err
+      @ok not err
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @equal json.results.error.type, "InvalidContentType"
         @equal json.results.error.message, "Content-type is a required header."
@@ -180,10 +180,10 @@ class exports.ApiControllerTest extends ApiaxleTest
         endPoint: "api.example.com"
 
     @POST options, ( err, res ) =>
-      @isNull err
+      @ok not err
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @equal json.results.error.type, "InvalidContentType"
         @equal json.results.error.message, "text/json is not a supported content type."
@@ -199,11 +199,11 @@ class exports.ApiControllerTest extends ApiaxleTest
         endPoint: "api.example.com"
 
     @POST options, ( err, res ) =>
-      @isNull err
+      @ok not err
       @equal res.statusCode, 200
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @isUndefined json.results.error
         @equal json.results.apiFormat, "json"
 
@@ -224,7 +224,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         protocol: "https"
 
     @POST options, ( err, res ) =>
-      @isNull err
+      @ok not err
       @equal res.statusCode, 200
 
       res.parseJson ( err, json ) =>
@@ -249,11 +249,11 @@ class exports.ApiControllerTest extends ApiaxleTest
         apiFormat: "json"
 
     @POST options, ( err, res ) =>
-      @isNull err
+      @ok not err
       @equal res.statusCode, 400
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
         @equal json.results.error.message, "The ‘endPoint’ property is required."
@@ -269,15 +269,15 @@ class exports.ApiControllerTest extends ApiaxleTest
         apiFormat: "xml"
 
     @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
-      @isNull err
+      @ok not err
       @ok origApi
 
       @PUT options, ( err, res ) =>
-        @isNull err
+        @ok not err
         @equal res.statusCode, 200
 
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
 
           @equal json.results.new.apiFormat, "xml"
           @equal json.results.old.apiFormat, "json"
@@ -290,7 +290,7 @@ class exports.ApiControllerTest extends ApiaxleTest
 
   "test PUT with a bad structure": ( done ) ->
     @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
-      @isNull err
+      @ok not err
       @ok origApi
 
       options =
@@ -301,11 +301,11 @@ class exports.ApiControllerTest extends ApiaxleTest
           endPointTimeout: "txt"
 
       @PUT options, ( err, res ) =>
-        @isNull err
+        @ok not err
         @equal res.statusCode, 400
 
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok json
           @equal json.results.error.type, "ValidationError"
 
@@ -316,7 +316,7 @@ class exports.ApiControllerTest extends ApiaxleTest
       @equal res.statusCode, 404
 
       res.parseJson ( err, json ) =>
-        @isNull err
+        @ok not err
         @ok json.results.error
         @ok json.meta.status_code, 404
 
@@ -327,15 +327,15 @@ class exports.ApiControllerTest extends ApiaxleTest
 
   "test DELETE": ( done ) ->
     @fixtures.createApi "1234", endPoint: "hi.com", ( err, origApi ) =>
-      @isNull err
+      @ok not err
       @ok origApi
 
       @DELETE path: "/v1/api/1234", ( err, res ) =>
-        @isNull err
+        @ok not err
         @equal res.statusCode, 200
 
         res.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           # no error
           @equal json.results.error?, false
 
@@ -345,7 +345,7 @@ class exports.ApiControllerTest extends ApiaxleTest
 
           # confirm it's out of the database
           @app.model( "apifactory" ).find [ "1234" ], ( err, results ) =>
-            @isNull err
-            @isNull results["1234"]
+            @ok not err
+            @ok not results["1234"]
 
             done 10

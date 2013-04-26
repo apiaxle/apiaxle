@@ -17,13 +17,13 @@ class exports.KeysControllerTest extends ApiaxleTest
           model.create "key_#{i}", {}, cb
 
     async.series fixtures, ( err, newKeys ) =>
-      @isNull err
+      @ok not err
 
       @GET path: "/v1/keys?from=1&to=12", ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok json
           @equal json.results.length, 10
 
@@ -45,13 +45,13 @@ class exports.KeysControllerTest extends ApiaxleTest
           model.create "key_#{i}", options, cb
 
     async.parallel fixtures, ( err, newKeys ) =>
-      @isNull err
+      @ok not err
 
       @GET path: "/v1/keys?from=0&to=12&resolve=true", ( err, response ) =>
-        @isNull err
+        @ok not err
 
         response.parseJson ( err, json ) =>
-          @isNull err
+          @ok not err
           @ok json
 
           for i in [ 0..9 ]
