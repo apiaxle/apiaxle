@@ -210,7 +210,7 @@ class CatchAll extends ApiaxleController
 
         res.send body, apiRes.statusCode
 
-class exports.getCatchall extends CatchAll
+class exports.GetCatchall extends CatchAll
   @cachable: true
 
   @verb: "get"
