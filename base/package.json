@@ -17,25 +17,20 @@
     "prepublish": "cake js:build && cp ../README.md ."
   },
   "dependencies": {
-    "log4js": "0.5",
-    "async": "~0.1",
-    "express": "~3",
-    "amanda": "0.4",
-    "date-utils": "~1",
-    "js2xml": "0.0.6",
-    "sinon": "~1.1.1",
-    "twerp": "=1.0.7",
-    "redis": "~0.8.3",
-    "hiredis": "~0.1.15",
+    "async": "~0.2.7",
     "lodash": "~1.2.0",
+    "express": "~3.2.0",
+    "redis": "~0.8.3",
+    "js2xml": "0.0.6",
+    "libxmljs": "~0.7.1",
+    "date-utils": "~1.2.12",
     "scarf": "0.0.4"
   },
   "devDependencies": {
-    "coffee-script": "1.6.2",
-    "libxmljs": "0.7.1",
-    "muffin": "~0.7",
-    "istanbul": "~0",
-    "colors": "0.6",
-    "coffeelint": "0.5"
+    "twerp": "~1.0.7",
+    "muffin": "~0.8.1",
+    "coffeelint": "~0.5.4",
+    "colors": "~0.6.0-1",
+    "sinon": "~1.6.0"
   }
 }
