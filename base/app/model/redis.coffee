@@ -8,7 +8,7 @@ redis = require "redis"
 
 class Redis
   constructor: ( @app ) ->
-    env =  @app.constructor.env
+    env =  @app.options.env
     name = @constructor.smallKeyName or @constructor.name.toLowerCase()
 
     @base_key = "gk:#{ env }"
