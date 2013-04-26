@@ -26,8 +26,8 @@
     "tokenizer": "~0.1.2",
     "apiaxle-api": "1.9.8",
     "apiaxle-base": "1.9.8",
-    "scarf": "0.0.3",
-    "libxmljs": "~0.7.1"
+    "libxmljs": "~0.7.1",
+    "scarf": "0.0.4"
   },
   "devDependencies": {
     "twerp": "=1.0.7",
