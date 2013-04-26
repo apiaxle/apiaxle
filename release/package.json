@@ -14,5 +14,8 @@
   },
   "repository": "",
   "author": "Phil Jackson",
-  "license": "BSD"
+  "license": "BSD",
+  "dependencies": {
+    "glob": "~3.2.1"
+  }
 }
