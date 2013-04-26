@@ -11,7 +11,7 @@ class exports.CreateKeyring extends ApiaxleController
   docs: ->
     {}=
       title: "Provision a new KEYRING."
-      input: @app.model( 'keyringFactory' ).constructor.structure.properties
+      input: @app.model( 'keyringfactory' ).constructor.structure.properties
       response: "The inserted structure (including the new timestamp fields)."
 
   middleware: -> [ @mwValidateQueryParams(),
@@ -24,7 +24,7 @@ class exports.CreateKeyring extends ApiaxleController
     if req.keyring?
       return next new AlreadyExists "'#{ req.keyring.id }' already exists."
 
-    model = @app.model "keyringFactory"
+    model = @app.model "keyringfactory"
     model.create req.params.keyring, req.body, ( err, newObj ) =>
       return next err if err
 
@@ -64,7 +64,7 @@ class exports.DeleteKeyring extends ApiaxleController
   path: -> "/v1/keyring/:keyring"
 
   execute: ( req, res, next ) ->
-    model = @app.model "keyringFactory"
+    model = @app.model "keyringfactory"
 
     model.del req.params.keyring, ( err, newKeyring ) =>
       return next err if err
@@ -79,7 +79,7 @@ class exports.ModifyKeyring extends ApiaxleController
   docs: ->
     {}=
       title: "Update an KEYRING."
-      input: @app.model( "keyringFactory" ).constructor.structure.properties
+      input: @app.model( "keyringfactory" ).constructor.structure.properties
       response: "The merged structure (including the timestamp fields)."
 
   middleware: -> [
@@ -135,7 +135,7 @@ class exports.ListKeyringKeys extends ListController
         Without <strong>resolve</strong>: An array with 1 key per entry
       """
 
-  modelName: -> "keyFactory"
+  modelName: -> "keyfactory"
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyringDetails( @app ) ]

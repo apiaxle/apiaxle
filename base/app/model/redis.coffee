@@ -1,9 +1,9 @@
 async = require "async"
 _ = require "lodash"
-validate = require "../../lib/validate"
 events = require "events"
 redis = require "redis"
 
+{ validate } = require "scarf"
 { KeyNotFoundError } = require "../../lib/error"
 
 class Redis
@@ -17,12 +17,11 @@ class Redis
     @ns = "#{ @base_key }:#{ name }"
 
   validate: ( details, cb ) ->
-    return validate @constructor.structure, details, ( err ) ->
-      return cb err, details
+    validate @constructor.structure, details, true, ( err, with_defaults ) ->
+      return cb err, with_defaults
 
-  # TODO: huh?
-  callConstructor: ( id, details, cb ) ->
-    return @constructor.__super__.create.apply this, [ id, details, cb ]
+  callConstructor: ( ) ->
+    return @constructor.__super__.create.apply this, arguments
 
   update: ( id, details, cb ) ->
     @find [ id ], ( err, results ) =>
@@ -66,18 +65,17 @@ class Redis
 
         # let users know what happened, when
         if update
-          details.updatedAt = Date.now()
-          details.createdAt = results[id].data.createdAt
+          instance.updatedAt = Date.now()
+          instance.createdAt = results[id].data.createdAt
         else
-          details.createdAt = Date.now()
+          instance.createdAt = Date.now()
 
         # first create the object
         multi.hmset id, instance
 
         # then add it to its list so that we can do range queries on it
         # later (if we're not doing an update)
-        if not update
-          multi.rpush "meta:all", id
+        multi.rpush "meta:all", id unless update
 
         multi.exec ( err, results ) =>
           return cb err if err
@@ -88,10 +86,10 @@ class Redis
           # construct a new return object (see @returns on the factory
           # base class)
           if @constructor.returns?
-            return cb null, new @constructor.returns( @app, id, details )
+            return cb null, new @constructor.returns( @app, id, instance )
 
           # no returns object, just throw back the data
-          return cb null, details
+          return cb null, instance
 
   range: ( start, stop, cb ) ->
     @lrange "meta:all", start, stop, cb
@@ -100,13 +98,6 @@ class Redis
   # something like modify metadata
   escapeId: ( id ) ->
     return id.replace( /([:])/g, "\\:" )
-
-
-
-      # if @constructor.returns?
-      #   return cb null, [ new @constructor.returns @app, id, details ]
-
-      # return cb null, [ details ]
 
   _convertData: ( id, data ) =>
     return null unless data

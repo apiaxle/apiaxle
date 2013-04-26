@@ -3,6 +3,7 @@
 # extends Date
 _ = require "lodash"
 async = require "async"
+express = require "express"
 fs = require "fs"
 
 { AxleApp } = require "apiaxle-base"
@@ -12,13 +13,11 @@ class exports.ApiaxleApi extends AxleApp
   @plugins =
     controllers: "#{ __dirname }/app/controller/**/*_controller.coffee"
 
-  # configureGeneral: ( app ) ->
-  #   app.use express.methodOverride()
-  #   app.use express.bodyParser()
+  configure: ( cb ) ->
+    @use express.methodOverride()
+    @use express.bodyParser()
 
-  #   app.enable "jsonp callback"
-
-  #   super
+    super cb
 
 if not module.parent
   # taking a port from the commandline makes it much easier to cluster

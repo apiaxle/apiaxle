@@ -52,7 +52,7 @@ class exports.ListKeyApis extends ListController
       return next err if err
       return @json res, apis if not req.query.resolve
 
-      @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
+      @resolve @app.model( "apifactory" ), apis, ( err, results ) =>
         return cb err if err
 
         output = _.map apiNameList, ( a ) ->
@@ -68,7 +68,7 @@ class exports.CreateKey extends ApiaxleController
     {}=
       verb: "POST"
       title: "Provision a new key."
-      input: @app.model( 'keyFactory' ).constructor.structure.properties
+      input: @app.model( 'keyfactory' ).constructor.structure.properties
       response: """
         The newly inserted structure (including the new timestamp fields).
       """
@@ -84,7 +84,7 @@ class exports.CreateKey extends ApiaxleController
     if req.key?
       return next new AlreadyExists "'#{ req.key.id }' already exists."
 
-    @app.model( "keyFactory" ).create req.params.key, req.body, ( err, newObj ) =>
+    @app.model( "keyfactory" ).create req.params.key, req.body, ( err, newObj ) =>
       return next err if err
       return @json res, newObj.data
 
@@ -133,7 +133,7 @@ class exports.DeleteKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "keyFactory"
+    model = @app.model "keyfactory"
 
     req.key.delete ( err ) =>
       return next err if err
@@ -156,7 +156,7 @@ class exports.ModifyKey extends ApiaxleController
         get the new amount of calls minus the amount of calls it has
         already made.
       """
-      input: @app.model( 'keyFactory' ).constructor.structure.properties
+      input: @app.model( 'keyfactory' ).constructor.structure.properties
       response: "The new structure and the old one."
 
   middleware: -> [

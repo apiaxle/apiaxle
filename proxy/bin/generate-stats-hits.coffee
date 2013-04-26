@@ -15,8 +15,8 @@ api = new ApiaxleProxy()
 api.script ( finish ) ->
   listers = []
 
-  listers.push ( cb ) -> api.model( "apiFactory" ).range 0, 1000, cb
-  listers.push ( cb ) -> api.model( "keyFactory" ).range 0, 1000, cb
+  listers.push ( cb ) -> api.model( "apifactory" ).range 0, 1000, cb
+  listers.push ( cb ) -> api.model( "keyfactory" ).range 0, 1000, cb
 
   async.series listers, ( err, [ apis, keys ] ) ->
     stats = api.model "stats"

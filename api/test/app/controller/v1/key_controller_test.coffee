@@ -59,17 +59,19 @@ class exports.KeyControllerTest extends ApiaxleTest
         qpd: 100
 
     @POST options, ( err, res ) =>
+      @isNull err
+
       res.parseJson ( err, json ) =>
         @isNull err
-        @equal json.results.qps, "1"
-        @equal json.results.qpd, "100"
+        @equal json.results.qps, 1
+        @equal json.results.qpd, 100
 
         # check it went in
         @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
           @isNull err
 
-          @equal results["1234"].data.qps, "1"
-          @equal results["1234"].data.qpd, "100"
+          @equal results["1234"].data.qps, 1
+          @equal results["1234"].data.qpd, 100
           @ok results["1234"].data.createdAt
 
           @app.model( "apifactory" ).find [ "twitter" ], ( err, results ) =>

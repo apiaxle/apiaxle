@@ -5,4 +5,3 @@ module.exports =
   httpHelpers: require( "./lib/mixins/http-helpers" ).httpHelpers
   Module: require( "./lib/module" ).Module
   package: require( "./package.json" )
-  validate: require( "./lib/validate" )

@@ -1,9 +1,8 @@
+_ = require "lodash"
+async = require "async"
 moment = require "moment"
-_      = require "lodash"
-async  = require "async"
 
-{ validate } = require "apiaxle-base"
-
+{ validate } = require "scarf"
 { Controller } = require "scarf"
 
 { KeyNotFoundError,
@@ -82,7 +81,7 @@ class exports.ApiaxleController extends Controller
           req.query[ key ] = ( val is "true" )
           continue
 
-      validate validators, req.query, ( err, with_defaults ) ->
+      validate validators, req.query, true, ( err, with_defaults ) ->
         return next err if err
 
         # replace the old ones

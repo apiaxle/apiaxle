@@ -8,15 +8,18 @@ redis = require "redis"
 
 class exports.AxleApp extends Application
   configure: ( cb ) ->
+    # error handler
+    @use @express.router
+    @use ( err, req, res, next ) => @onError err, req, res, next
+
     @readConfiguration ( err, @config, filename ) =>
       return cb err if err
-
-      @debugOn = @config.application.debug is true
 
       @setupLogger @config.logging, ( err, @logger ) =>
         return cb err if err
 
         # very simple logger if we're at debug log level
+        @debugOn = @config.application.debug is true
         if @debugOn
           @logger.warn "Debug mode is switched on"
 
@@ -32,7 +35,7 @@ class exports.AxleApp extends Application
     { port, host } = @config.redis
 
     @redisClient = redis.createClient( port, host )
-    @redisClient.on "error", ( err ) -> throw new RedisError err
+    @redisClient.on "error", ( err ) -> return cb err
     @redisClient.on "ready", cb
 
   loadAndInstansiatePlugins: ( cb ) ->
@@ -102,6 +105,31 @@ class exports.AxleApp extends Application
   model: ( name ) ->
     return @plugins.models[name]
 
-if not module.parent
-  dash = new Dash()
-  dash.run ( err ) -> throw err if err
+  onError: ( err, req, res, next ) ->
+    output =
+      error:
+        type: err.name
+        message: err.message
+
+    output.error.details = err.details if err.details
+
+    # add the stacktrace if we're debugging
+    if @debugOn
+      output.error.stack = err.stack
+
+    status = err.constructor.status or 400
+
+    # json
+    if req.api?.data.apiFormat isnt "xml"
+      meta =
+        version: 1
+        status_code: status
+
+      return res.json status,
+        meta: meta
+        results: output
+
+    # need xml
+    res.contentType "application/xml"
+    js2xml = new Js2Xml "error", output.error
+    return res.send status, js2xml.toString()

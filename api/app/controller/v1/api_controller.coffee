@@ -64,7 +64,7 @@ class exports.CreateApi extends ApiaxleController
     {}=
       verb: "POST"
       title: "Provision a new API."
-      input: @app.model( 'apiFactory' ).constructor.structure.properties
+      input: @app.model( 'apifactory' ).constructor.structure.properties
       response: "A JSON object containing API details"
 
   middleware: -> [ @mwValidateQueryParams()
@@ -78,7 +78,7 @@ class exports.CreateApi extends ApiaxleController
     if req.api?
       return next new AlreadyExists "'#{ req.api.id }' already exists."
 
-    @app.model( "apiFactory" ).create req.params.api, req.body, ( err, newObj ) =>
+    @app.model( "apifactory" ).create req.params.api, req.body, ( err, newObj ) =>
       return next err if err
       return @json res, newObj.data
 
@@ -139,7 +139,7 @@ class exports.ModifyApi extends ApiaxleController
         <br />
         Any unspecified will remain unchanged.
       """
-      input: @app.model( 'apiFactory' ).constructor.structure.properties
+      input: @app.model( 'apifactory' ).constructor.structure.properties
       response: "The new structure and the old one."
 
   middleware: -> [ @mwValidateQueryParams()
@@ -204,7 +204,7 @@ class exports.ListApiKeys extends ListController
       return next err if err
       return @json res, keys if not req.query.resolve
 
-      @resolve @app.model( "keyFactory" ), keys, ( err, results ) =>
+      @resolve @app.model( "keyfactory" ), keys, ( err, results ) =>
         return next err if err
 
         output = _.map results, ( k ) ->
