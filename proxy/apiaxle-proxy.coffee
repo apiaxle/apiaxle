@@ -1,6 +1,5 @@
 #!/usr/bin/env coffee
 
-express = require "express"
 fs      = require "fs"
 redis   = require "redis"
 

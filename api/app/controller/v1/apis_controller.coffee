@@ -5,8 +5,6 @@ class exports.ListApis extends ListController
 
   path: -> "/v1/apis"
 
-  desc: -> "List all APIs."
-
   queryParams: ->
     params =
       type: "object"
@@ -30,18 +28,14 @@ class exports.ListApis extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one api per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      api name as the api and the details as the value.
-    """
+    {}=
+      verb: "GET"
+      title: "List all APIs."
+      response: """
+        With <strong>resolve</strong>: An object mapping each API to the
+        corresponding details.<br />
+        Without <strong>resolve</strong>: An array with 1 API per entry
+      """
 
   modelName: -> "apifactory"
 

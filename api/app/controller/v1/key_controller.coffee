@@ -35,18 +35,14 @@ class exports.ListKeyApis extends ListController
                  will come with a minor performace hit."
 
   docs: ->
-    """
-    ### Supported query params
-
-    #{ @queryParamDocs() }
-
-    ### Returns
-
-    * Without `resolve` the result will be an array with one key per
-      entry.
-    * If `resolve` is passed then results will be an object with the
-      key name as the key and the details as the value.
-    """
+    {}=
+      verb: "GET"
+      title: "List apis belonging to a key."
+      response: """
+        With <strong>resolve</strong>: An object mapping each key to the
+        corresponding details.<br />
+        Without <strong>resolve</strong>: An array with 1 key per entry
+      """
 
   middleware: -> [ @mwKeyDetails( @app ),
                    @mwValidateQueryParams() ]
@@ -56,7 +52,7 @@ class exports.ListKeyApis extends ListController
       return next err if err
       return @json res, apis if not req.query.resolve
 
-      @resolve @app.model( "apifactory" ), apis, ( err, results ) =>
+      @resolve @app.model( "apiFactory" ), apis, ( err, results ) =>
         return cb err if err
 
         output = _.map apiNameList, ( a ) ->
@@ -69,16 +65,13 @@ class exports.CreateKey extends ApiaxleController
   desc: -> "Provision a new key."
 
   docs: ->
-    """
-    ### JSON fields supported
-
-    #{ @app.model( 'keyfactory' ).getValidationDocs() }
-
-    ### Returns
-
-    * The newly inseted structure (including the new timestamp
-      fields).
-    """
+    {}=
+      verb: "POST"
+      title: "Provision a new key."
+      input: @app.model( 'keyFactory' ).constructor.structure.properties
+      response: """
+        The newly inserted structure (including the new timestamp fields).
+      """
 
   middleware: -> [ @mwContentTypeRequired(),
                    @mwValidateQueryParams(),
@@ -91,7 +84,7 @@ class exports.CreateKey extends ApiaxleController
     if req.key?
       return next new AlreadyExists "'#{ req.key.id }' already exists."
 
-    @app.model( "keyfactory" ).create req.params.key, req.body, ( err, newObj ) =>
+    @app.model( "keyFactory" ).create req.params.key, req.body, ( err, newObj ) =>
       return next err if err
       return @json res, newObj.data
 
@@ -101,11 +94,10 @@ class exports.ViewKey extends ApiaxleController
   desc: -> "Get the definition of a key."
 
   docs: ->
-    """
-    ### Returns
-
-    * The key object (including timestamps).
-    """
+    {}=
+      verb: "GET"
+      title: "Get the definition of a key."
+      response: "The key object (including timestamps)."
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyDetails( valid_key_required=true ) ]
@@ -130,11 +122,10 @@ class exports.DeleteKey extends ApiaxleController
   desc: -> "Delete a key."
 
   docs: ->
-    """
-    ### Returns
-
-    * `true` on success.
-    """
+    {}=
+      verb: "DELETE"
+      title: "Delete a key."
+      response: "TRUE on success"
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyDetails( valid_key_required=true ) ]
@@ -142,7 +133,7 @@ class exports.DeleteKey extends ApiaxleController
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
-    model = @app.model "keyfactory"
+    model = @app.model "keyFactory"
 
     req.key.delete ( err ) =>
       return next err if err
@@ -154,20 +145,19 @@ class exports.ModifyKey extends ApiaxleController
   desc: -> "Update a key."
 
   docs: ->
-    """
-    Fields passed in will will be merged with the old key
-    details. Note that in the case of updating a key's `QPD` it will
-    get the new amount of calls minus the amount of calls it has
-    already made.
-
-    ### JSON fields supported
-
-    #{ @app.model( 'keyfactory' ).getValidationDocs() }
-
-    ### Returns
-
-    * The new structure and the old one.
-    """
+    {}=
+      verb: "PUT"
+      title: "Update a key."
+      description: """
+        Fields passed in will will be merged with the old key
+        details.
+        <br />
+        <strong>Note:</strong> In the case of updating a key's `QPD` it will
+        get the new amount of calls minus the amount of calls it has
+        already made.
+      """
+      input: @app.model( 'keyFactory' ).constructor.structure.properties
+      response: "The new structure and the old one."
 
   middleware: -> [
     @mwContentTypeRequired( ),
@@ -184,19 +174,32 @@ class exports.ModifyKey extends ApiaxleController
         new: new_key
         old: old_key
 
-class exports.ViewHitsForKeyNow extends ApiaxleController
+class exports.ViewHitsForKeyNow extends StatsController
   @verb = "get"
 
-  desc: -> "Get the real time hits for a key."
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      forapi:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               api."
+
+    return current
 
   docs: ->
-    """
-    ### Returns
-
-    * Object where the keys represent the cache status (cached, uncached or
-      error), each containing an object with response codes or error name,
-      these in turn contain objects with timestamp:count
-    """
+    {}=
+      verb: "GET"
+      title: "Get the real time hits for a key."
+      response: """
+        Object where the keys represent the cache status (cached,
+        uncached or error), each containing an object with response
+        codes or error name, these in turn contain objects with
+        timestamp:count
+      """
 
   middleware: -> [ @mwKeyDetails( @app ),
                    @mwValidateQueryParams() ]

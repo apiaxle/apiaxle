@@ -38,7 +38,7 @@ class exports.Stats extends Redis
 
   # Helper function to format timestamp in seconds
   # Defaults to curent time
-  getSecondsTimestamp: ( ts=( new Date() ).getTime() ) ->
+  getSecondsTimestamp: ( ts=Date.now() ) ->
     return Math.floor( ts / 1000 )
 
   # Get a timestamp rounded to the supplied precision
@@ -102,8 +102,13 @@ class exports.Stats extends Redis
     to   = @getFactoredTimestamp( to, properties.factor )
 
     # Check if in range
-    if from > to or from < @getMinFrom gran
-      return cb new Error "Invalid from time"
+    if from > to
+      msg = "Invalid from time from (#{ from }) is more than to (#{ to })"
+      return cb new Error msg
+
+    if from < ( min = @getMinFrom gran )
+      msg = "#{ min } is the earliest time available for the '#{ gran }' granularity"
+      return cb new Error msg
 
     multi = @multi()
     ts    = from
@@ -136,10 +141,10 @@ class exports.Stats extends Redis
 
   getMinFrom: ( gran ) ->
     properties = Stats.granularities[gran]
-    min = @getRoundedTimestamp null, (properties.factor * properties.size)
+    min = @getRoundedTimestamp null, ( properties.factor * properties.size )
 
-    # subtract ttl from the most recent rounded timestamp to allow
-    # for overlap
+    # subtract ttl from the most recent rounded timestamp to allow for
+    # overlap
     return ( min - properties.ttl )
 
   hit: ( api, key, cached, code, cb ) ->

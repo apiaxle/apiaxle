@@ -15,4 +15,4 @@ module.exports = ( env ) ->
         throw new Error "Problem parsing #{filename}: #{e}"
 
   # no configuration found
-  return {}
+  return [ null, {} ]

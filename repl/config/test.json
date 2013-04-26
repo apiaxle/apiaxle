@@ -2,5 +2,9 @@
   "redis": {
     "host": "localhost",
     "port": 6379
+  },
+  "logging": {
+    "path": "./log",
+    "level": "DEBUG"
   }
 }

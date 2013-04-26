@@ -11,7 +11,8 @@ class exports.KeyControllerTest extends ApiaxleTest
       api:
         twitter:
           endPoint: "api.twitter.com"
-        facebook: {}
+        facebook:
+          endPoint: "graph.facebook.com"
 
     @fixtures.create fixtures, ( err, [ @newApi ] ) ->
       done()

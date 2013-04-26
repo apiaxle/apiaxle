@@ -6,21 +6,20 @@ basepackage = require( "apiaxle-base" ).package
 { ApiaxleController, ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
-class exports.ViewInfo extends ApiaxleController
+class exports.Ping extends ApiaxleController
   @verb = "get"
 
-  desc: -> "Information about this project."
+  desc: -> "Ping controller."
 
   docs: ->
     """
     ### Returns
 
-    * Package file output.
+    * Just a pong.
     """
 
-  path: -> "/v1/info"
+  path: -> "/v1/ping"
 
   execute: ( req, res, next ) ->
-    return @json res,
-      base: basepackage
-      api: mypackage
+    res.type "text"
+    res.send "pong"

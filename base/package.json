@@ -10,7 +10,7 @@
   ],
   "description": "Shared core functionality for apiaxle.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "0.9.0",
+  "version": "1.9.3",
   "main": "index",
   "scripts": {
     "test": "cake test",
@@ -19,7 +19,7 @@
   "dependencies": {
     "log4js": "0.5",
     "async": "~0.1",
-    "express": "~2",
+    "express": "~3",
     "amanda": "0.4",
     "date-utils": "~1",
     "js2xml": "0.0.6",

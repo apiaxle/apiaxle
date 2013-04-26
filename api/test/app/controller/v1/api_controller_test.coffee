@@ -20,8 +20,10 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test linkkey": ( done ) ->
     fixture =
       api:
-        bob: {}
-        twitter: {}
+        bob:
+          endPoint: "example.com"
+        twitter:
+          endPoint: "example.com"
       key:
         bill:
           qps: 201
@@ -59,8 +61,10 @@ class exports.ApiControllerTest extends ApiaxleTest
   "test GET keys for a valid api": ( done ) ->
     fixture =
       api:
-        twitter: {}
-        facebook: {}
+        twitter:
+          endPoint: "example.com"
+        facebook:
+          endPoint: "example.com"
       key:
         1234:
           forApis: [ "twitter" ]

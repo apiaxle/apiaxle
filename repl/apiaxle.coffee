@@ -9,7 +9,7 @@ async = require "async"
 { ApiaxleApi } = require "apiaxle-api"
 
 finish = ( app ) ->
-  app.app.close()
+  app.express.close()
   app.redisClient.quit()
 
 axle = new ApiaxleApi

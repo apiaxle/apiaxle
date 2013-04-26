@@ -11,7 +11,7 @@ class exports.ApiLimits extends Redis
   @qpsExpires = 1
 
   qpsKey: ( key ) ->
-    seconds = Math.round( new Date().getTime() / 1000 )
+    seconds = Math.round( Date.now() / 1000 )
 
     return [ "qps", seconds, key ]
 

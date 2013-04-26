@@ -44,7 +44,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
         done 4
 
   "test adding an unknown key to a keyring fails": ( done ) ->
-    @fixtures.createKeyring ( err, keyring ) =>
+    @fixtures.createKeyring "kr1", {}, ( err, keyring ) =>
       @isNull err
 
       # 1234 doesn't exist
@@ -57,7 +57,8 @@ class exports.KeyringFactoryTest extends FakeAppTest
   "test adding a key to the keyring": ( done ) ->
     fixture =
       api:
-        facebook: {}
+        facebook:
+          endPoint: "example.com"
       key:
         1234:
           forApis: [ "facebook" ]
@@ -65,7 +66,7 @@ class exports.KeyringFactoryTest extends FakeAppTest
     @fixtures.create fixture, ( err ) =>
       @isNull err
 
-      @fixtures.createKeyring ( err, keyring ) =>
+      @fixtures.createKeyring "kr1", {}, ( err, keyring ) =>
         @isNull err
 
         keyring.linkKey "1234", ( err, key ) =>
@@ -78,7 +79,8 @@ class exports.KeyringFactoryTest extends FakeAppTest
   "test deleting keys from a ring": ( done ) ->
     fixture =
       api:
-        twitter: {}
+        twitter:
+          endPoint: "example.com"
       key:
         1234: {}
         5678: {}
@@ -110,23 +112,26 @@ class exports.KeyringFactoryTest extends FakeAppTest
   "test getting keys from a ring": ( done ) ->
     all = []
 
-    all.push ( cb ) => @fixtures.createApi "twitter", cb
-    @fixtures.createKeyring ( err, keyring ) =>
+    all.push ( cb ) =>
+      @fixtures.createApi "twitter", endPoint: "twitter.example.com", cb
+
+    @fixtures.createKeyring "kr1", {}, ( err, keyring ) =>
       for i in [ 1..9 ]
-        all.push ( cb ) =>
-          # create a bunch of keys
-          @fixtures.createKey ( err, key ) =>
-            @isNull err
-            @ok key
-
-            # add the new key
-            keyring.linkKey key.id, ( err, added_key ) =>
+        do( i ) =>
+          all.push ( cb ) =>
+            # create a bunch of keys
+            @fixtures.createKey "key#{ i }", {}, ( err, key ) =>
               @isNull err
-              @ok added_key
+              @ok key
 
-              @equal added_key.id, key.id
+              # add the new key
+              keyring.linkKey key.id, ( err, added_key ) =>
+                @isNull err
+                @ok added_key
 
-              return cb null, key.id
+                @equal added_key.id, key.id
+
+                return cb null, key.id
 
       async.series all, ( err, [ api, added_keys... ] ) =>
         @isNull err

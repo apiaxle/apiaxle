@@ -39,7 +39,7 @@ class exports.ApiaxleController extends Controller
         status_code: res.statusCode
       results: results
 
-    return res.json output
+    return res.json res.statusCode, output
 
   # By default there are no query parameters and adding them will
   # cause an error. Only affects controllers which use the
@@ -70,7 +70,7 @@ class exports.ApiaxleController extends Controller
 
       for key, val of req.query
         # find out what type we expect
-        break unless validators.properties?[ key ]?
+        continue unless validators.properties?[ key ]?
         suggested_type = validators.properties[ key ].type
 
         # convert int if need be
@@ -158,36 +158,6 @@ class exports.ApiaxleController extends Controller
 
       return next()
 
-  # Gets a range of stats from Redis
-  # Stats are keyed by stat_type ('api' or 'key') and day
-  # Returns a Redis multi
-  getStatsRange: ( multi, stat_type, stat_key, response_type, from_date, to_date ) ->
-    from  = moment( from_date )
-    to    = moment( to_date )
-    days  = to.diff from, "days"
-
-    for i in [0..days]
-      date = from.format "YYYY-M-D"
-      from.add "days",1
-      multi.hgetall [ stat_type, stat_key, date, response_type ]
-
-    return multi
-
-  combineStatsRange: ( results, from_date, to_date ) ->
-    from  = moment( from_date )
-    to    = moment( to_date )
-    days  = to.diff from, "days"
-
-    processed_results = []
-    while results.length > 0
-      merged = {}
-      for i in [0..days]
-        result = results.shift()
-        merged = _.extend merged, result
-      processed_results.push merged
-
-    return processed_results
-
 class exports.ListController extends exports.ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model @modelName()
@@ -219,12 +189,12 @@ class exports.StatsController extends exports.ApiaxleController
       properties:
         from:
           type: "integer"
-          default: Math.floor( ( new Date() ).getTime() / 1000 ) - 600
+          default: Math.floor( Date.now() / 1000 ) - 600
           docs: "The unix epoch from which to start gathering
                  the statistics. Defaults to `now - 10 minutes`."
         to:
           type: "integer"
-          default: Math.floor( ( new Date() ).getTime() / 1000 )
+          default: Math.floor( Date.now() / 1000 )
           docs: "The unix epoch from which to finish gathering
                  the statistics. Defaults to `now`."
         granularity:
@@ -235,6 +205,11 @@ class exports.StatsController extends exports.ApiaxleController
                  of granularity. Results will still arrive in the form
                  of an epoch to results pair but will be rounded off
                  to the nearest unit."
+        format_timeseries:
+          type: "boolean"
+          default: false
+          docs: "Results will be returned in a format more suited to
+                 generating timeseries graphs."
 
   getStatsRange: ( req, axle_type, key_parts, cb ) ->
     model = @app.model "stats"
@@ -262,4 +237,24 @@ class exports.StatsController extends exports.ApiaxleController
       for type, idx in types
         processed[type] = results[idx]
 
+      # timeseries
+      if req.query.format_timeseries is true
+        return @denormForTimeseries processed, ( err, new_results ) =>
+          return next err if err
+          return cb null, new_results
+
       return cb null, processed
+
+  # TODO: zero padding?
+  denormForTimeseries: ( results, cb ) ->
+    new_results = {}
+    all = {}
+
+    for type, details of results
+      all[type] ||= {}
+      for time, status_count of details
+        for status, count of status_count
+          all[type][status] ||= {}
+          all[type][status][time] = count
+
+    return cb null, all
