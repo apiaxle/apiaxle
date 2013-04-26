@@ -27,8 +27,8 @@ if not module.parent
 
   api = new exports.ApiaxleApi
     name: "apiaxle"
-    port: 3000
-    host: "localhost"
+    port: port
+    host: host
 
   all = []
 

@@ -18,8 +18,8 @@ if not module.parent
 
   api = new exports.ApiaxleProxy
     name: "apiaxle"
-    port: 3000
-    host: "localhost"
+    port: port
+    host: host
 
   all = []
 
