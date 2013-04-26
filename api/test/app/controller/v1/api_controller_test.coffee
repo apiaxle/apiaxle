@@ -256,7 +256,7 @@ class exports.ApiControllerTest extends ApiaxleTest
         @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
-        @equal json.results.error.message, "endPoint: The ‘endPoint’ property is required."
+        @equal json.results.error.message, "The ‘endPoint’ property is required."
 
         done 6
 

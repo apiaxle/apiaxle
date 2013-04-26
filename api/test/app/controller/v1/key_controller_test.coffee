@@ -101,7 +101,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @isNull err
         @ok json.results.error
         @equal json.results.error.type, "ValidationError"
-        @equal json.results.error.message, "qps: The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
+        @equal json.results.error.message, "The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
 
         done 5
 
@@ -120,6 +120,8 @@ class exports.KeyControllerTest extends ApiaxleTest
       @ok origKey
 
       @PUT options, ( err, res ) =>
+        @isNull err
+
         @equal res.statusCode, 200
 
         @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
@@ -273,7 +275,7 @@ class exports.KeyStatsTest extends ApiaxleTest
     @fixtures.create fixtures, ( err, [ api, key ] ) =>
       @isNull err
 
-      limitModel = @app.model "apiLimits"
+      limitModel = @app.model "apilimits"
 
       # use up five of their hits, which should leave another five
       hits_to_run = []
@@ -284,7 +286,7 @@ class exports.KeyStatsTest extends ApiaxleTest
       async.series hits_to_run, ( err, results ) =>
         @isNull err
 
-        limits_model = @app.model "apiLimits"
+        limits_model = @app.model "apilimits"
         redis_key_name = limits_model.qpdKey "phil"
         limits_model.get redis_key_name, ( err, current_qpd ) =>
           @equal current_qpd, 5

@@ -4,7 +4,7 @@ events = require "events"
 redis = require "redis"
 
 { validate } = require "scarf"
-{ KeyNotFoundError } = require "../../lib/error"
+{ ValidationError, KeyNotFoundError } = require "../../lib/error"
 
 class Redis
   constructor: ( @app ) ->
@@ -55,7 +55,7 @@ class Redis
       update = results[id]?
 
       @validate details, ( err, instance ) =>
-        return cb err if err
+        return cb new ValidationError err.message if err
 
         # need to escape the key so that people don't use colons and
         # trick redis into overwrting other keys

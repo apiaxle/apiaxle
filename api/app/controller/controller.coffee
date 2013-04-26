@@ -82,7 +82,7 @@ class exports.ApiaxleController extends Controller
           continue
 
       validate validators, req.query, true, ( err, with_defaults ) ->
-        return next err if err
+        return next new ValidationError err.message if err
 
         # replace the old ones
         req.query = with_defaults

@@ -151,7 +151,7 @@ class CatchAll extends ApiaxleController
     else
       delete query.api_key
 
-    model = @app.model "apiLimits"
+    model = @app.model "apilimits"
 
     { qps, qpd, key } = req.key.data
 

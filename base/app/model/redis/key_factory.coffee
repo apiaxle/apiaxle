@@ -41,7 +41,7 @@ class Key extends Model
     # if someone has upped the qpd then we need to take account as
     # their current qpd counter might be at a value below what they
     # would now be allowed
-    limits_model = @app.model "apiLimits"
+    limits_model = @app.model "apilimits"
     redis_key_name = limits_model.qpdKey @id
 
     all_actions = []
