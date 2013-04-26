@@ -24,17 +24,11 @@
     "async": "~0.2.7",
     "lodash": "~1.2.0",
     "tokenizer": "~0.1.2",
-    "apiaxle-api": "1.9.10",
-    "apiaxle-base": "1.9.10",
+    "apiaxle-base": "~1.9.10",
     "libxmljs": "~0.7.1",
-    "scarf": "0.0.4"
+    "apiaxle-api": "~1.9.10"
   },
   "devDependencies": {
-    "twerp": "=1.0.7",
-    "sinon": "~1.1.1",
-    "muffin": "~0.7",
-    "istanbul": "~0",
-    "coffeelint": "0.5",
-    "coffee-script": "1.6.2"
+    "twerp": "~1.0.7"
   }
 }
