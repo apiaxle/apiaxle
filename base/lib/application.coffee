@@ -101,7 +101,7 @@ class exports.AxleApp extends Application
           properties:
             port:
               type: "integer"
-              default: 3000
+              default: 6379
             host:
               type: "string"
               default: "localhost"
