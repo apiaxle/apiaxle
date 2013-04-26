@@ -11,6 +11,9 @@ _      = require "lodash"
 { TwerpTest }   = require "twerp"
 { Redis }       = require "../app/model/redis"
 
+# merges itself into Date
+require "date-utils"
+
 # GET, POST, PUT, HEAD etc.
 { httpHelpers } = require "./mixins/http-helpers"
 
@@ -98,7 +101,7 @@ class exports.AppTest extends TwerpTest
       return old domain, cb
 
   getClock: ( seed=Date.now() ) ->
-    new Clock @sandbox.useFakeTimers( seed )
+    new Clock @sandbox.useFakeTimers seed
 
   startWebserver: ( done ) ->
     @app.run done

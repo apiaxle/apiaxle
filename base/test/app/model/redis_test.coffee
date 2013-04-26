@@ -131,43 +131,6 @@ class exports.RedisTest extends FakeAppTest
         ( ) -> done 7
       )
 
-  "test the test framework captures redis commands": ( done ) ->
-    # none thanks to setup having run
-    @deepEqual @runRedisCommands, []
-
-    @ok model = @app.model "counters"
-
-    model.set "isThisEmitted?", "hello", ( err ) =>
-      model.get "isThisEmitted?", ( err, value ) =>
-        @isNull err
-
-        @app.model( "keyfactory" ).get "anotherKeyName", ( err, value ) =>
-          @isNull err
-          @isNull value
-
-          # something in rediscommands
-          @equal @runRedisCommands.length, 3
-
-          @deepEqual @runRedisCommands[0],
-            access: "write"
-            command: "set"
-            key: "isThisEmitted?"
-            model: "counters"
-
-          @deepEqual @runRedisCommands[1],
-            access: "read"
-            command: "get"
-            key: "isThisEmitted?"
-            model: "counters"
-
-          @deepEqual @runRedisCommands[2],
-            access: "read"
-            command: "get"
-            key: "anotherKeyName"
-            model: "keyfactory"
-
-          done 9
-
   "test creating ids with : in them should be fine": ( done ) ->
     model = new TestModel @app
 
