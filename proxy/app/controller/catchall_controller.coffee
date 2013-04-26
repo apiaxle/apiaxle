@@ -20,7 +20,7 @@ class CatchAll extends ApiaxleController
 
   _cacheHash: ( url ) ->
     md5 = crypto.createHash "md5"
-    md5.update @app.constructor.env
+    md5.update @app.options.env
     md5.update url
     md5.digest "hex"
 
@@ -210,7 +210,7 @@ class CatchAll extends ApiaxleController
 
         res.send body, apiRes.statusCode
 
-class exports.GetCatchall extends CatchAll
+class exports.getCatchall extends CatchAll
   @cachable: true
 
   @verb: "get"

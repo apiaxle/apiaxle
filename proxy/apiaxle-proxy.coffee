@@ -1,12 +1,14 @@
 #!/usr/bin/env coffee
 
-fs      = require "fs"
-redis   = require "redis"
+fs = require "fs"
+redis = require "redis"
+async = require "async"
 
-{ Application } = require "apiaxle-base"
+{ AxleApp } = require "apiaxle-base"
 
-class exports.ApiaxleProxy extends Application
-  @controllersPath = "#{ __dirname }/app/controller"
+class exports.ApiaxleProxy extends AxleApp
+  @plugins =
+    controllers: "#{ __dirname }/app/controller/*_controller.coffee"
 
 if not module.parent
   # taking a port from the commandline makes it much easier to cluster
@@ -14,12 +16,17 @@ if not module.parent
   port = ( process.argv[2] or 3000 )
   host = "127.0.0.1"
 
-  proxy = new exports.ApiaxleProxy host, port
+  api = new exports.ApiaxleProxy
+    name: "apiaxle"
+    port: 3000
+    host: "localhost"
 
-  proxy.redisConnect ( ) ->
-    proxy.run ( ) ->
-      proxy.configureModels()
-      proxy.configureControllers()
-      proxy.configureMiddleware()
+  all = []
 
-      console.log "Express server listening on port #{port}"
+  all.push ( cb ) -> api.configure cb
+  all.push ( cb ) -> api.loadAndInstansiatePlugins cb
+  all.push ( cb ) -> api.redisConnect cb
+  all.push ( cb ) -> api.run cb
+
+  async.series all, ( err ) ->
+    throw err if err

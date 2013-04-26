@@ -31,7 +31,7 @@ class exports.CatchallSigTest extends ApiaxleTest
     return hmac.digest "hex"
 
   "test #validateToken": ( done ) ->
-    controller = @app.controllers.GetCatchall
+    controller = @app.controller "getcatchall"
 
     # pause time and get the current epoch
     clock = @getClock()

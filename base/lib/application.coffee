@@ -3,6 +3,7 @@ path = require "path"
 async = require "async"
 express = require "express"
 redis = require "redis"
+{ Js2Xml } = require "js2xml"
 
 { Application } = require "scarf"
 
@@ -99,7 +100,7 @@ class exports.AxleApp extends Application
             @getLoggingConfigSchema(),
             @getApiaxleConfigSchema()
 
-  controllers: ( name ) ->
+  controller: ( name ) ->
     return @plugins.controllers[name]
 
   model: ( name ) ->

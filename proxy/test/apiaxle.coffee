@@ -1,17 +1,15 @@
 # always run as test
 process.env.NODE_ENV = "test"
 
-_ = require "lodash"
-
 { ApiaxleProxy } = require "../apiaxle-proxy"
 { AppTest } = require "apiaxle-base"
 
-{ GetCatchall } = require "../app/controller/catchall_controller"
+{ getCatchall } = require "../app/controller/catchall_controller"
 
 class exports.ApiaxleTest extends AppTest
   @appClass = ApiaxleProxy
 
-  stubCatchall: ( cb ) -> @getStub GetCatchall::, "_httpRequest", cb
+  stubCatchall: ( cb ) -> @getStub getCatchall::, "_httpRequest", cb
 
   stubCatchallSimple: ( status, body, headers={} ) ->
     @stubCatchall ( options, api, key, cb ) =>

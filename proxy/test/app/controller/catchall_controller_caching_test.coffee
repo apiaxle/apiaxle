@@ -9,8 +9,8 @@ class exports.CatchallCachingTest extends ApiaxleTest
   "test only get should be cachable": ( done ) ->
     all = []
 
-    for type in [ "Post", "Put", "Delete" ]
-      controller = @app.controller "#{type}Catchall"
+    for type in [ "post", "put", "delete" ]
+      controller = @app.controller "#{type}catchall"
 
       req =
         headers: {}
@@ -29,7 +29,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
       done 9
 
   _runCacheControlTests: ( tests, cb ) ->
-    controller = @app.controller "GetCatchall"
+    controller = @app.controller "getcatchall"
 
     runnables = []
 
@@ -160,7 +160,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
             done 10
 
   "test #_parseCacheControl": ( done ) ->
-    controller = @app.controller "GetCatchall"
+    controller = @app.controller "getcatchall"
 
     res = controller._parseCacheControl
       headers:
