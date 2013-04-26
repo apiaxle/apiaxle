@@ -12,7 +12,7 @@
   ],
   "description": "ApiAxle's commandline interface.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "1.9.5",
+  "version": "1.9.6",
   "scripts": {
     "test": "cake test",
     "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang"
@@ -24,8 +24,8 @@
     "async": "~0.2.7",
     "lodash": "~1.2.0",
     "tokenizer": "~0.1.2",
-    "apiaxle-api": "1.9.5",
-    "apiaxle-base": "1.9.5",
+    "apiaxle-api": "1.9.6",
+    "apiaxle-base": "1.9.6",
     "scarf": "0.0.3"
   },
   "devDependencies": {
