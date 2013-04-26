@@ -82,7 +82,7 @@ class exports.KeyControllerTest extends ApiaxleTest
               @equal keys.length, 1
               @equal keys[0], "1234"
 
-              done 11
+              done 12
 
   "test POST with an invalid key": ( done ) ->
     options =
@@ -128,7 +128,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @equal results["1234"].data.qps, "30"
           @equal results["1234"].data.qpd, "1000"
 
-          done 5
+          done 6
 
   "test PUT with a bad structure": ( done ) ->
     options =
