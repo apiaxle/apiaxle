@@ -1,11 +1,8 @@
 #!/usr/bin/env coffee
-# -*- mode: coffee; -*-
 
-util = require "util"
 async = require "async"
 
 { ReplHelper } = require "./lib/repl"
-{ Application } = require "apiaxle-base"
 { ApiaxleApi } = require "apiaxle-api"
 
 finish = ( app ) ->

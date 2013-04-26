@@ -1,10 +1,8 @@
 #!/usr/bin/env coffee
 
 # extends Date
-_ = require "lodash"
 async = require "async"
 express = require "express"
-fs = require "fs"
 
 { AxleApp } = require "apiaxle-base"
 { NotFoundError } = require "./lib/error"
