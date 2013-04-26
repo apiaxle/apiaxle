@@ -26,7 +26,7 @@
     "tokenizer": "~0.1.2",
     "apiaxle-api": "1.9.4",
     "apiaxle-base": "~1.9.4",
-    "scarf": "0.0.1"
+    "scarf": "0.0.2"
   },
   "devDependencies": {
     "twerp": "=1.0.7",
