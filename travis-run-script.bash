@@ -16,7 +16,7 @@ function silence-or-loud-on-error {
 echo "Installing instanbul..."
 silence-or-loud-on-error npm install -g istanbul
 
-echo "Installing instanbul..."
+echo "Installing coffee-script..."
 silence-or-loud-on-error npm install -g coffee-script
 
 # cant do proxy yet because of the tests that rely on host files being
