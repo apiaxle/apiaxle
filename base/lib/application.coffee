@@ -3,6 +3,7 @@ path = require "path"
 async = require "async"
 express = require "express"
 redis = require "redis"
+debug = require( "debug" )( "aa:app" )
 
 { Js2Xml } = require "js2xml"
 { Application } = require "scarf"
@@ -15,6 +16,8 @@ class exports.AxleApp extends Application
 
     @readConfiguration ( err, @config, filename ) =>
       return cb err if err
+
+      debug "Reading configuration"
 
       @setupLogger @config.logging, ( err, @logger ) =>
         return cb err if err

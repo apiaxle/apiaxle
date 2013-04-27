@@ -2,7 +2,7 @@ async = require "async"
 _ = require "lodash"
 events = require "events"
 redis = require "redis"
-debug = require( "debug" )( "redis" )
+debug = require( "debug" )( "aa:redis" )
 
 { validate } = require "scarf"
 { ValidationError, KeyNotFoundError } = require "../../lib/error"
