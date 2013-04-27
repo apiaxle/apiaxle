@@ -169,7 +169,7 @@ class exports.ListController extends exports.ApiaxleController
 
     jump = ( to - from )
 
-    if results_count >= to
+    if results_count >= jump
       next_params = req.query
       next_params.from = ( to + 1 )
       next_params.to = ( next_params.from + jump ) + 1
