@@ -7,6 +7,8 @@ async  = require "async"
 libxml = require "libxmljs"
 _      = require "lodash"
 
+debug = require( "debug" )( "tests:base" )
+
 { Application } = require "./application"
 { TwerpTest }   = require "twerp"
 { Redis }       = require "../app/model/redis"
@@ -68,15 +70,18 @@ class Clock
     @_addTime "addYears", number
 
 # note this is extended with httpHelpers
+app_mem = null
 class exports.AppTest extends TwerpTest
   @port = 26100
 
   constructor: ( options ) ->
     all = []
 
-    @app = new @constructor.appClass
-      env: "test"
-      port: @constructor.port
+    if not @app = app_mem
+      debug "Constructing application"
+      @app = app_mem = new @constructor.appClass
+        env: "test"
+        port: @constructor.port
 
     @host_name = "http://127.0.0.1:#{ @constructor.port }"
 
