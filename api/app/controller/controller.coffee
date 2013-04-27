@@ -171,8 +171,8 @@ class exports.ListController extends exports.ApiaxleController
 
     if results_count >= to
       next_params = req.query
-      next_params.from = to
-      next_params.to = to + jump
+      next_params.from = to + 1
+      next_params.to = next_params.from + jump
       pagination.next = "#{ url}?#{ qs.stringify next_params }"
 
     if from > 0
