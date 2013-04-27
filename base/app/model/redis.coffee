@@ -2,7 +2,9 @@ async = require "async"
 _ = require "lodash"
 events = require "events"
 redis = require "redis"
-debug = require( "debug" )( "aa:redis" )
+
+redisredisdebug = require( "debug" )( "aa:redis" )
+redismultidebug = require( "debug" )( "aa:redis:multi" )
 
 { validate } = require "scarf"
 { ValidationError, KeyNotFoundError } = require "../../lib/error"
@@ -13,8 +15,6 @@ class Redis
     name = @constructor.smallKeyName or @constructor.name.toLowerCase()
 
     @base_key = "gk:#{ env }"
-
-    @ee = new events.EventEmitter()
     @ns = "#{ @base_key }:#{ name }"
 
   validate: ( details, cb ) ->
@@ -25,7 +25,7 @@ class Redis
     return @constructor.__super__.create.apply this, arguments
 
   update: ( id, details, cb ) ->
-    debug "update #{ id }"
+    redisdebug "update '#{ id }'"
     @find [ id ], ( err, results ) =>
       if not results[id]
         return cb new Error "Failed to update, can't find '#{ id }'."
@@ -40,7 +40,7 @@ class Redis
         return cb null, merged_data, old
 
   delete: ( id, cb ) ->
-    debug "update #{ id }"
+    redisdebug "update '#{ id }'"
     @find [ id ], ( err, results ) =>
       return cb new Error "'#{ id }' not found." if not results[id]
 
@@ -52,7 +52,7 @@ class Redis
       multi.exec cb
 
   create: ( id, details, cb ) ->
-    debug "create #{ id }"
+    redisdebug "create '#{ id }'"
     @find [ id ], ( err, results ) =>
       return cb err if err
 
@@ -126,7 +126,7 @@ class Redis
     return data
 
   find: ( ids, cb ) ->
-    debug "find #{ ids }"
+    redisredisdebug "find '#{ ids }'"
     # fetch all of the hits from redis
     multi = @multi()
     for id in ids
@@ -181,11 +181,7 @@ class Redis
       return cb null, ( result is 1 )
 
 class RedisMulti extends redis.Multi
-  constructor: ( @ns, client, args ) ->
-    @ee = new events.EventEmitter()
-
-    super client, args
-
+  constructor: ( @ns, client, args ) -> super client, args
   getKey: Redis::getKey
 
 class Model extends Redis
@@ -282,48 +278,45 @@ class KeyContainerModel extends Model
       return cb err if err
       return cb null, exists
 
-# adding a command here will make it usable in Redis and
-# RedisMulti. The reason for the read/write attribute is so that when
-# the emitter does its thing you can watch reads/writes/both
-redisCommands = {
-  "hset": "write"
-  "hget": "read"
-  "hdel": "write"
-  "hmset": "write"
-  "hincrby": "write"
-  "hgetall": "read"
-  "hexists": "read"
-  "exists": "read"
-  "expire": "write"
-  "expireat": "write"
-  "set": "write"
-  "get": "read"
-  "incr": "write"
-  "decr": "write"
-  "del": "write"
-  "keys": "read"
-  "ttl": "write"
-  "setex": "write"
-  "sadd": "write"
-  "hkeys": "read"
-  "smembers": "read"
-  "scard":   "read"
-  "linsert": "write"
-  "lrange":  "read"
-  "lrem":    "write"
-  "llen":    "read"
-  "rpush":   "write"
-  "lpush":   "write"
-  "zadd":    "write"
-  "zrem":    "write"
-  "zincrby": "write"
-  "zcard":   "read"
-  "zrangebyscore": "read"
-}
+redisCommands = [
+  "hset",
+  "hget",
+  "hdel",
+  "hmset",
+  "hincrby",
+  "hgetall",
+  "hexists",
+  "exists",
+  "expire",
+  "expireat",
+  "set",
+  "get",
+  "incr",
+  "decr",
+  "del",
+  "keys",
+  "ttl",
+  "setex",
+  "sadd",
+  "hkeys",
+  "smembers",
+  "scard",
+  "linsert",
+  "lrange",
+  "lrem",
+  "llen",
+  "rpush",
+  "lpush",
+  "zadd",
+  "zrem",
+  "zincrby",
+  "zcard",
+  "zrangebyscore"
+]
 
 # build up the redis multi commands
-for command, access of redisCommands
-  do ( command, access ) ->
+for command in redisCommands
+  do ( command ) ->
     # make sure we don't try to add something that doesn't exist
     if not RedisMulti.__super__[ command ]?
       throw new Error "No such redis commmand '#{ command }'"
@@ -331,7 +324,7 @@ for command, access of redisCommands
     RedisMulti::[ command ] = ( key, args... ) ->
       full_key = @getKey( key )
 
-      @ee.emit access, command, key, full_key
+      redismultidebug "RedisMulti '#{ command }' on '#{ key }'"
       RedisMulti.__super__[ command ].apply this, [ full_key, args... ]
 
     # Redis just offloads to the attached redis client. Perhaps we
@@ -339,7 +332,7 @@ for command, access of redisCommands
     Redis::[ command ] = ( key, args... ) ->
       full_key = @getKey( key )
 
-      @ee.emit access, command, key, full_key
+      redisredisdebug "Redis '#{ command }' on '#{ key }'"
       @app.redisClient[ command ]( full_key, args... )
 
 exports.Redis = Redis

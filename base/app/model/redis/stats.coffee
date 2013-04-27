@@ -1,6 +1,8 @@
 # Store and access real time hits per second
 async   = require "async"
 _       = require "lodash"
+debug = require( "debug" )( "aa:stats" )
+
 {Redis} = require "../redis"
 
 class exports.Stats extends Redis
@@ -148,6 +150,8 @@ class exports.Stats extends Redis
     return ( min - properties.ttl )
 
   hit: ( api, key, cached, code, cb ) ->
+    debug "Recording hit for '#{ api }' by '#{ key }'"
+
     db_keys = [
       [ "api", api, cached, code ],
       [ "key", key, cached, code ],
@@ -160,4 +164,6 @@ class exports.Stats extends Redis
       do( db_key ) =>
         all.push ( cb ) => @recordHit db_key, cb
 
-    return async.parallel all, cb
+    return async.parallel all, ( err ) ->
+      debug "Finished recording hit"
+      return cb err

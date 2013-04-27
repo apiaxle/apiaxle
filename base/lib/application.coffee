@@ -22,6 +22,8 @@ class exports.AxleApp extends Application
       @setupLogger @config.logging, ( err, @logger ) =>
         return cb err if err
 
+        debug "Setting up logger"
+
         # very simple logger if we're at debug log level
         @debugOn = @config.application.debug is true
         if @debugOn
@@ -70,6 +72,8 @@ class exports.AxleApp extends Application
               inst = null
 
               try
+                debug "Loading plugin #{ name }"
+
                 inst = new constructor this
                 friendly_name = if constructor.plugin_name
                   constructor.plugin_name

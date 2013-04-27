@@ -1,6 +1,7 @@
 url = require "url"
 crypto = require "crypto"
 request = require "request"
+debug = require( "debug" )( "aa:catchall" )
 
 { KeyDisabled,
   ApiDisabled,
