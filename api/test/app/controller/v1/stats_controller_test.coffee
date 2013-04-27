@@ -53,7 +53,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
     async.parallel hits, done
 
-  "test api stats at minute, second, hour, day level": ( done ) ->
+  "test api stats at min, sec, hr, day level": ( done ) ->
     all = []
 
     for [ granularity, timestamp ] in @test_cases
@@ -83,7 +83,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
       done 21
 
-  "test api stats at minute, second, hour, day level narrowed by key": ( done ) ->
+  "test api stats at min, sec, hr, day level narrowed by key": ( done ) ->
     all = []
 
     for [ granularity, timestamp ] in @test_cases
@@ -114,7 +114,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
       done 21
 
-  "test key stats at minute, second, hour, day level": ( done ) ->
+  "test key stats at min, sec, hr, day level": ( done ) ->
     all = []
 
     for [ granularity, timestamp ] in @test_cases
@@ -144,7 +144,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
       done 21
 
-  "test key stats at minute, second, hour, day level narrowed by api": ( done ) ->
+  "test key stats at min, sec, hr, day level narrowed by api": ( done ) ->
     all = []
 
     for [ granularity, timestamp ] in @test_cases
@@ -175,7 +175,7 @@ class exports.ApiStatsTest extends ApiaxleTest
 
       done 21
 
-  "test api stats at minute, second, hour, day level with timeseries output": ( done ) ->
+  "test api stats at min, sec, hr, day level with timeseries output": ( done ) ->
     all = []
 
     for [ granularity, timestamp ] in @test_cases
