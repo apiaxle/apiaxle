@@ -161,7 +161,7 @@ class exports.ApiaxleController extends Controller
       return next()
 
 class exports.ListController extends exports.ApiaxleController
-  pagination: ( req ) ->
+  pagination: ( req, results_count ) ->
     url = "#{ req.protocol }://#{ req.headers.host }#{ req.path }"
     { from, to } = req.query
 
@@ -169,10 +169,11 @@ class exports.ListController extends exports.ApiaxleController
 
     jump = ( to - from )
 
-    next_params = req.query
-    next_params.from = to
-    next_params.to = to + jump
-    pagination.next = "#{ url}?#{ qs.stringify next_params }"
+    if results_count >= to
+      next_params = req.query
+      next_params.from = to
+      next_params.to = to + jump
+      pagination.next = "#{ url}?#{ qs.stringify next_params }"
 
     if from > 0
       prev_params = req.query
@@ -195,12 +196,12 @@ class exports.ListController extends exports.ApiaxleController
       # if we're not asked to resolve the items then just bung the
       # list back
       if not req.query.resolve
-        return @json res, keys, { pagination: @pagination( req ) }
+        return @json res, keys, { pagination: @pagination( req, keys.length ) }
 
       # now bind the actual results to the keys
       @resolve model, keys, ( err, results ) =>
         return next err if err
-        return @json res, results, { pagination: @pagination( req ) }
+        return @json res, results, { pagination: @pagination( req, keys.length ) }
 
 class exports.StatsController extends exports.ApiaxleController
   queryParams: ->
