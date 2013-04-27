@@ -2,6 +2,7 @@ async = require "async"
 _ = require "lodash"
 events = require "events"
 redis = require "redis"
+debug = require( "debug" )( "redis" )
 
 { validate } = require "scarf"
 { ValidationError, KeyNotFoundError } = require "../../lib/error"
@@ -24,6 +25,7 @@ class Redis
     return @constructor.__super__.create.apply this, arguments
 
   update: ( id, details, cb ) ->
+    debug "update #{ id }"
     @find [ id ], ( err, results ) =>
       if not results[id]
         return cb new Error "Failed to update, can't find '#{ id }'."
@@ -38,6 +40,7 @@ class Redis
         return cb null, merged_data, old
 
   delete: ( id, cb ) ->
+    debug "update #{ id }"
     @find [ id ], ( err, results ) =>
       return cb new Error "'#{ id }' not found." if not results[id]
 
@@ -49,6 +52,7 @@ class Redis
       multi.exec cb
 
   create: ( id, details, cb ) ->
+    debug "create #{ id }"
     @find [ id ], ( err, results ) =>
       return cb err if err
 
@@ -122,6 +126,7 @@ class Redis
     return data
 
   find: ( ids, cb ) ->
+    debug "find #{ ids }"
     # fetch all of the hits from redis
     multi = @multi()
     for id in ids
