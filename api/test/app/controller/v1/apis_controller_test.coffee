@@ -6,33 +6,9 @@ class exports.ApisControllerTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
-  "test list apis without resolution": ( done ) ->
+  "setup fixtures": ( done ) ->
     # create 11 apis
     fixtures = []
-    model = @app.model( "apifactory" )
-
-    for i in [ 0..10 ]
-      do ( i ) =>
-        fixtures.push ( cb ) =>
-          model.create "api_#{i}", endPoint: "api_#{i}.com", cb
-
-    async.series fixtures, ( err, newApis ) =>
-      @ok not err
-
-      @GET path: "/v1/apis?from=1&to=12", ( err, response ) =>
-        @ok not err
-
-        response.parseJson ( err, json ) =>
-          @ok not err
-          @ok json
-          @equal json.results.length, 10
-
-          done 5
-
-  "test list apis with resolution": ( done ) ->
-    # create 11 apis
-    fixtures = []
-
     model = @app.model( "apifactory" )
 
     for i in [ 0..10 ]
@@ -40,26 +16,37 @@ class exports.ApisControllerTest extends ApiaxleTest
         fixtures.push ( cb ) =>
           options =
             globalCache: i
-            apiFormat:   "json"
-            endPoint:    "api_#{i}.com"
+            endPoint: "api_#{i}.com"
 
           model.create "api_#{i}", options, cb
 
-    async.parallel fixtures, ( err, newApis ) =>
+    async.series fixtures, ( err, @newApis ) ->
+      done()
+
+  "test list apis without resolution": ( done ) ->
+    @GET path: "/v1/apis?from=1&to=12", ( err, response ) =>
       @ok not err
 
-      @GET path: "/v1/apis?from=0&to=12&resolve=true", ( err, response ) =>
+      response.parseJson ( err, json ) =>
         @ok not err
+        @ok json
+        @equal json.results.length, 10
 
-        response.parseJson ( err, json ) =>
-          @ok not err
-          @ok json
+        done 5
 
-          for i in [ 0..9 ]
-            name = "api_#{i}"
+  "test list apis with resolution": ( done ) ->
+    @GET path: "/v1/apis?from=0&to=12&resolve=true", ( err, response ) =>
+      @ok not err
 
-            @ok json.results[ name ]
-            @equal json.results[ name ].globalCache, i
-            @equal json.results[ name ].endPoint, "api_#{i}.com"
+      response.parseJson ( err, json ) =>
+        @ok not err
+        @ok json
 
-          done 34
+        for i in [ 0..9 ]
+          name = "api_#{i}"
+
+          @ok json.results[ name ]
+          @equal json.results[ name ].globalCache, i
+          @equal json.results[ name ].endPoint, "api_#{i}.com"
+
+        done 34
