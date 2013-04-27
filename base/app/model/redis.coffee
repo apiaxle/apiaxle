@@ -3,7 +3,7 @@ _ = require "lodash"
 events = require "events"
 redis = require "redis"
 
-redisredisdebug = require( "debug" )( "aa:redis" )
+redisdebug = require( "debug" )( "aa:redis" )
 redismultidebug = require( "debug" )( "aa:redis:multi" )
 
 { validate } = require "scarf"
@@ -126,7 +126,7 @@ class Redis
     return data
 
   find: ( ids, cb ) ->
-    redisredisdebug "find '#{ ids }'"
+    redisdebug "find '#{ ids }'"
     # fetch all of the hits from redis
     multi = @multi()
     for id in ids
@@ -332,7 +332,7 @@ for command in redisCommands
     Redis::[ command ] = ( key, args... ) ->
       full_key = @getKey( key )
 
-      redisredisdebug "Redis '#{ command }' on '#{ key }'"
+      redisdebug "Redis '#{ command }' on '#{ key }'"
       @app.redisClient[ command ]( full_key, args... )
 
 exports.Redis = Redis
