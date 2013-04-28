@@ -121,4 +121,4 @@ class exports.ApisControllerTest extends ApiaxleTest
     async.series all, ( err ) =>
       @ok not err
 
-      done 5
+      done 13
