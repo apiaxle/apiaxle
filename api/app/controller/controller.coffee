@@ -1,6 +1,6 @@
 _ = require "lodash"
 async = require "async"
-moment = require "moment"
+qs = require "querystring"
 
 { validate } = require "scarf"
 { Controller } = require "scarf"
@@ -31,12 +31,15 @@ class exports.ApiaxleController extends Controller
 
   # Used output data conforming to a standard Api Axle
   # format. Includes a metadata field
-  json: ( res, results ) ->
+  json: ( res, results, extra_meta ) ->
     output =
       meta:
         version: 1
         status_code: res.statusCode
       results: results
+
+    # add our new meta, if there is any
+    output.meta = _.merge output.meta, extra_meta if extra_meta
 
     return res.json res.statusCode, output
 
@@ -158,6 +161,28 @@ class exports.ApiaxleController extends Controller
       return next()
 
 class exports.ListController extends exports.ApiaxleController
+  pagination: ( req, results_count ) ->
+    url = "#{ req.protocol }://#{ req.headers.host }#{ req.path }"
+    { from, to } = req.query
+
+    pagination = {}
+
+    jump = ( to - from )
+
+    if results_count >= jump
+      next_params = _.clone req.query
+      next_params.from = to + 1
+      next_params.to = next_params.from + jump
+      pagination.next = "#{ url}?#{ qs.stringify next_params }"
+
+    if from > 0
+      prev_params = _.clone req.query
+      prev_params.to = from - 1
+      prev_params.from = if prev_params.to - jump < 0 then 0 else prev_params.to - jump
+      pagination.prev = "#{ url}?#{ qs.stringify prev_params }"
+
+    return pagination
+
   execute: ( req, res, next ) ->
     model = @app.model @modelName()
 
@@ -168,12 +193,13 @@ class exports.ListController extends exports.ApiaxleController
 
       # if we're not asked to resolve the items then just bung the
       # list back
-      return @json res, keys if not req.query.resolve
+      if not req.query.resolve
+        return @json res, keys, { pagination: @pagination( req, keys.length ) }
 
       # now bind the actual results to the keys
       @resolve model, keys, ( err, results ) =>
         return next err if err
-        return @json res, results
+        return @json res, results, { pagination: @pagination( req, keys.length ) }
 
 class exports.StatsController extends exports.ApiaxleController
   queryParams: ->
