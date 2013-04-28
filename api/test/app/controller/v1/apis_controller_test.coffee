@@ -38,8 +38,8 @@ class exports.ApisControllerTest extends ApiaxleTest
 
         @equal "#{ parsed.protocol }//#{ parsed.host }", @host_name
         @deepEqual parsed.query,
-          from: 0
-          to: 1
+          from: "0"
+          to: "0"
           resolve: "false"
 
         done 7
@@ -58,8 +58,8 @@ class exports.ApisControllerTest extends ApiaxleTest
 
         @equal "#{ parsed.protocol }//#{ parsed.host }", @host_name
         @deepEqual parsed.query,
-          from: 6
-          to: 12
+          from: "6"
+          to: "11"
           resolve: "true"
 
         for i in [ 0..5 ]
@@ -74,27 +74,27 @@ class exports.ApisControllerTest extends ApiaxleTest
   "test pagination over many pages": ( done ) ->
     # there are 12 items (starting at 0)
     should =
-      "/v1/apis?from=0&to=4&resolve=false":
+      "/v1/apis?from=0&to=5&resolve=false":
         prev: undefined
         next:
-          from: "5"
-          to: "9"
+          from: "6"
+          to: "11"
           resolve: "false"
 
-      "/v1/apis?from=5&to=9&resolve=false":
+      "/v1/apis?from=6&to=11&resolve=false":
         prev:
           from: "0"
-          to: "4"
+          to: "5"
           resolve: "false"
         next:
-          from: "10"
-          to: "14"
+          from: "12"
+          to: "17"
           resolve: "false"
 
-      "/v1/apis?from=10&to=14&resolve=false":
+      "/v1/apis?from=12&to=17&resolve=false":
         prev:
-          from: "5"
-          to: "9"
+          from: "6"
+          to: "11"
           resolve: "false"
         next: undefined
 

@@ -170,15 +170,15 @@ class exports.ListController extends exports.ApiaxleController
     jump = ( to - from )
 
     if results_count >= jump
-      next_params = req.query
+      next_params = _.clone req.query
       next_params.from = to + 1
       next_params.to = next_params.from + jump
       pagination.next = "#{ url}?#{ qs.stringify next_params }"
 
     if from > 0
-      prev_params = req.query
-      prev_params.from = ( from - jump ) - 1
+      prev_params = _.clone req.query
       prev_params.to = from - 1
+      prev_params.from = if prev_params.to - jump < 0 then 0 else prev_params.to - jump
       pagination.prev = "#{ url}?#{ qs.stringify prev_params }"
 
     return pagination
