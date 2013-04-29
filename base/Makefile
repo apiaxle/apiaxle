@@ -18,7 +18,7 @@ link:
 
 dev: clean
 
-test: clean
+test: clean link
 	$(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
 
 coverage: $(JS)

@@ -20,7 +20,7 @@ link:
 bin: apiaxle-api.js
 	sed -i '1i#!/usr/bin/env node' $<
 
-test: clean
+test: clean link
 	$(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
 
 coverage: link $(JS)
