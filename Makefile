@@ -1,4 +1,4 @@
-SUBS=base proxy api repl
+SUBS=base api proxy repl
 
 npminstall:
 	@for sub in $(SUBS); do $(MAKE) -C $$sub $@; done
