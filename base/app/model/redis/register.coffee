@@ -2,7 +2,7 @@ request = require "request"
 async = require "async"
 qs = require "querystring"
 
-{ QpsExceededError, QpdExceededError } = require "../../../lib/error"
+{ ValidationError } = require "../../../lib/error"
 { Redis } = require "../redis"
 
 class exports.Register extends Redis
@@ -17,7 +17,7 @@ class exports.Register extends Redis
   register: ( email, name, cb ) ->
     # simple check for non-gibberish
     if ( not /@/.exec( email ) or not /\./.exec( email ) )
-      return cb new Error "Invalid email address."
+      return cb new ValidationError "Invalid email address."
 
     options =
       strictSSL: false
