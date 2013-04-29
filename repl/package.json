@@ -14,8 +14,7 @@
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
   "version": "1.9.11",
   "scripts": {
-    "test": "cake test",
-    "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang"
+    "test": "cake test"
   },
   "bin": {
     "apiaxle": "./apiaxle.js"
