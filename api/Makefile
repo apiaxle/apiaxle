@@ -23,7 +23,7 @@ bin: apiaxle-api.js
 test: clean
 	$(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
 
-coverage: $(JS)
+coverage: link $(JS)
 	istanbul cover $(TWERP) `find test -name '*_test.js'`
 
 clean:
