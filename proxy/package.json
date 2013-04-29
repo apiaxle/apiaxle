@@ -11,9 +11,6 @@
   "description": "The actual proxy part of ApiAxle.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
   "version": "1.9.11",
-  "scripts": {
-    "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang"
-  },
   "bin": {
     "apiaxle-proxy": "./apiaxle-proxy.js"
   },

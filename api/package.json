@@ -13,8 +13,7 @@
   "version": "1.9.11",
   "main": "index",
   "scripts": {
-    "test": "cake test",
-    "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang"
+    "test": "cake test"
   },
   "bin": {
     "apiaxle-api": "./apiaxle-api.js"
