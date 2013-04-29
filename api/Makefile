@@ -8,12 +8,11 @@ TWERP=`which twerp`
 
 all: $(JS)
 
-publish: $(JS)
+publish: $(JS) bin
 	npm publish
 
-dev: clean
+link: clean
 	npm link ../base
-	$(MAKE) -C ../base clean
 
 bin: apiaxle-api.js
 	sed -i '1i#!/usr/bin/env node' $<
@@ -27,4 +26,4 @@ coverage: $(JS)
 clean:
 	@rm -fr $(JS) coverage
 
-.PHONY: clean test coverage dev
+.PHONY: clean test coverage link
