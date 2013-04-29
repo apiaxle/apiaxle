@@ -14,11 +14,14 @@ README.md: ../README.md
 publish: README.md $(JS)
 	npm publish
 
+npminstall: link
+	npm install
+
 link:
 
 dev: clean
 
-test: clean link
+test: clean npminstall
 	$(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
 
 coverage: $(JS)

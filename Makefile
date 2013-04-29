@@ -1,5 +1,8 @@
 SUBS=base proxy api repl
 
+npminstall:
+	@for sub in $(SUBS); do $(MAKE) -C $$sub $@; done
+
 test:
 	@for sub in $(SUBS); do $(MAKE) -C $$sub $@; done
 
@@ -15,4 +18,4 @@ publish:
 link:
 	@for sub in $(SUBS); do $(MAKE) -C $$sub $@; done
 
-.PHONY: test
+.PHONY: test link publish coverage clean npminstall
