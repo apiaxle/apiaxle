@@ -30,4 +30,4 @@ class exports.RegisterTest extends FakeAppTest
           @ok not err
           @ok registered is true
 
-          done 5
+          done 8
