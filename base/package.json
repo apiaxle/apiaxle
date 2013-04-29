@@ -32,6 +32,7 @@
     "muffin": "~0.8.1",
     "coffeelint": "~0.5.4",
     "colors": "~0.6.0-1",
-    "sinon": "~1.6.0"
+    "sinon": "~1.6.0",
+    "coffee-script": "~1.6.2"
   }
 }

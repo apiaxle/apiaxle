@@ -14,16 +14,16 @@ README.md: ../README.md
 publish: README.md $(JS) bin
 	npm publish
 
-npminstall: link
+npminstall:
 	npm install >/dev/null 2>&1
 
-link: bin
+link:
 	npm link ../base
 
 bin: apiaxle-api.js
 	sed -i '1i#!/usr/bin/env node' $<
 
-test: clean npminstall
+test: npminstall $(JS)
 	$(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
 
 coverage: link $(JS)

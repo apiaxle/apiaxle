@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "twerp": "~1.0.7",
-    "sinon": "~1.6.0"
+    "sinon": "~1.6.0",
+    "coffee-script": "~1.6.2"
   }
 }
