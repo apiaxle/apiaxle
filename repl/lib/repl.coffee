@@ -57,7 +57,7 @@ class exports.ReplHelper
                 console.error "Please enter a valid email address."
                 return ask cb
 
-              console.log( "Please wait sending details (over https)..." )
+              console.log( "Please wait - sending details (over https)..." )
               return cb err
 
       ask cb
