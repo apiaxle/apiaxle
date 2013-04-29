@@ -1,4 +1,6 @@
+request = require "request"
 async = require "async"
+qs = require "querystring"
 
 { QpsExceededError, QpdExceededError } = require "../../../lib/error"
 { Redis } = require "../redis"
@@ -10,6 +12,18 @@ class exports.Register extends Redis
   isRegistered: ( cb ) ->
     @get "registered", ( err, value ) ->
       return cb err if err
-      return cb null, value is "true"
+      return cb null, not not value
 
-  register: ( cb ) -> @set "registered", "true", cb
+  register: ( email, name, cb ) ->
+    params =
+      email: email
+      name: name
+
+    options =
+      strictSSL: false
+      url: "https://test.apiaxle.com?#{ qs.stringify params }"
+      timeout: 5000
+
+    request.get options, ( err ) =>
+      return cb err if err
+      @set "registered", "#{ email },#{ name }", cb
