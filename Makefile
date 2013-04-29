@@ -12,4 +12,7 @@ coverage:
 publish:
 	@for sub in $(SUBS); do $(MAKE) -C $$sub $@; done
 
+link:
+	@for sub in $(SUBS); do $(MAKE) -C $$sub $@; done
+
 .PHONY: test

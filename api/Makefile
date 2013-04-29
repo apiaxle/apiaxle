@@ -8,10 +8,13 @@ TWERP=`which twerp`
 
 all: $(JS)
 
-publish: $(JS) bin
+README.md: ../README.md
+	cp ../$@ .
+
+publish: README.md $(JS) bin
 	npm publish
 
-link: clean
+link: bin
 	npm link ../base
 
 bin: apiaxle-api.js

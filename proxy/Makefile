@@ -8,10 +8,13 @@ TWERP=`which twerp`
 
 all: $(JS)
 
-publish: $(JS) bin
+README.md: ../README.md
+	cp ../$@ .
+
+publish: README.md $(JS) bin
 	npm publish
 
-link: clean
+link:
 	npm link ../base
 
 bin: apiaxle-proxy.js
@@ -20,7 +23,7 @@ bin: apiaxle-proxy.js
 test: clean
 	$(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
 
-coverage: $(JS) link
+coverage: link $(JS)
 	istanbul cover $(TWERP) `find test -name '*_test.js'`
 
 clean:

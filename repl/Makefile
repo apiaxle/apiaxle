@@ -8,12 +8,14 @@ TWERP=`which twerp`
 
 all: $(JS)
 
-publish: $(JS) bin
+README.md: ../README.md
+	cp ../$@ .
+
+publish: README.md $(JS) bin
 	npm publish
 
-link: clean
-	npm link ../base
-	npm link ../api
+link:
+	npm link ../base && npm link ../api
 
 bin: apiaxle-api.js
 	sed -i '1i#!/usr/bin/env node' $<

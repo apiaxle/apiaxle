@@ -8,8 +8,13 @@ TWERP=`which twerp`
 
 all: $(JS)
 
-publish: $(JS)
+README.md: ../README.md
+	cp ../$@ .
+
+publish: README.md $(JS)
 	npm publish
+
+link:
 
 dev: clean
 
