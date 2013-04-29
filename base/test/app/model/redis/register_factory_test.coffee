@@ -31,3 +31,16 @@ class exports.RegisterTest extends FakeAppTest
           @ok registered is true
 
           done 8
+
+  "test register with invalid email": ( done ) ->
+    model = @app.model( "register" )
+
+    model.register "asdfg@blah", "affds", ( err ) =>
+      @ok err
+      @equal err.message, "Invalid email address."
+
+      model.register "asdfgblah.com", "affds", ( err ) =>
+        @ok err
+        @equal err.message, "Invalid email address."
+
+        done 4

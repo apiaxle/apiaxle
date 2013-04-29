@@ -15,13 +15,13 @@ class exports.Register extends Redis
       return cb null, not not value
 
   register: ( email, name, cb ) ->
-    params =
-      email: email
-      name: name
+    # simple check for non-gibberish
+    if ( not /@/.exec( email ) or not /\./.exec( email ) )
+      return cb new Error "Invalid email address."
 
     options =
       strictSSL: false
-      url: "https://test.apiaxle.com?#{ qs.stringify params }"
+      url: "https://test.apiaxle.com?#{ qs.stringify { email: email, name: name } }"
       timeout: 5000
 
     request.get options, ( err ) =>
