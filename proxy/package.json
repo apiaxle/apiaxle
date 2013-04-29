@@ -12,7 +12,7 @@
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
   "version": "1.9.11",
   "scripts": {
-    "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang"
+    "prepublish": "cp ../README.md . && make all bin"
   },
   "bin": {
     "apiaxle-proxy": "./apiaxle-proxy.js"
