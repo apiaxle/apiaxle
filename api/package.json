@@ -14,7 +14,7 @@
   "main": "index",
   "scripts": {
     "test": "cake test",
-    "prepublish": "cake js:build && cp ../README.md . && cake fixHashbang"
+    "prepublish": "cp ../README.md . && make all bin"
   },
   "bin": {
     "apiaxle-api": "./apiaxle-api.js"
