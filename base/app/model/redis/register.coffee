@@ -12,7 +12,7 @@ class exports.Register extends Redis
   isRegistered: ( cb ) ->
     @get "registered", ( err, value ) ->
       return cb err if err
-      return cb null, not not value
+      return cb null, ( value is "done" )
 
   register: ( email, name, cb ) ->
     # simple check for non-gibberish
@@ -26,4 +26,4 @@ class exports.Register extends Redis
 
     request.get options, ( err ) =>
       return cb err if err
-      @set "registered", "#{ email },#{ name }", cb
+      @set "registered", "done", cb
