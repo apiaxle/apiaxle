@@ -13,8 +13,8 @@
   "version": "1.9.11",
   "main": "index",
   "scripts": {
-    "test": "cake test",
-    "prepublish": "cake js:build && cp ../README.md ."
+    "test": "make test",
+    "prepublish": "make && cp ../README.md ."
   },
   "dependencies": {
     "async": "~0.2.7",
