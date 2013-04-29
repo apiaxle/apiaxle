@@ -34,6 +34,34 @@ class exports.ReplHelper
 
     @rl.on "close", onCloseCb
 
+  registrationMaybe: ( cb ) ->
+    reg = @app.model "register"
+
+    reg.isRegistered ( err, registered ) =>
+      return cb err if err
+      return cb null if registered
+
+      # tell the user what's happening
+      msg = [ "Thanks for using ApiAxle." ]
+      msg.push "Please register with us. We will only do this once"
+      msg.push "and promise not to spam you or give your name/email address"
+      msg.push "to anyone else."
+
+      console.log( "\n#{ msg.join( ' ' ) }\n" )
+
+      ask = ( cb ) =>
+        @rl.question "your email> ", ( email ) =>
+          @rl.question "your name> ", ( name ) =>
+            reg.register email, name, ( err ) =>
+              if err?.name is "ValidationError"
+                console.error "Please enter a valid email address."
+                return ask cb
+
+              console.log( "Please wait - sending details (over https)..." )
+              return cb err
+
+      ask cb
+
   runCommands: ( [ commands, keypairs ], cb ) ->
     # get the initial highlevel command
     command = commands.shift()

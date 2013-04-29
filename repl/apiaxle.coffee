@@ -28,4 +28,6 @@ async.series all, ( err ) ->
 
   # make sure we shutdown connections
   replHelper.initReadline ( ) -> finish axle
-  replHelper.topLevelInput()
+
+  replHelper.registrationMaybe ( err ) ->
+    replHelper.topLevelInput()
