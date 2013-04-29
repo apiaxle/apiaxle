@@ -1,6 +1,6 @@
 env: "NODE_ENV=test"
 language: "node_js"
+script: "make test"
 node_js:
   - "0.8"
   - "0.10"
-script: "make -j2 test"
