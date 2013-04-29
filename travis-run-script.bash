@@ -13,10 +13,7 @@ function silence-or-loud-on-error {
   fi
 }
 
-echo "Installing istanbul..."
-silence-or-loud-on-error npm install -g istanbul
+echo "Installing istanbul/coffee..."
+silence-or-loud-on-error npm install -g istanbul coffee-script
 
-echo "Installing coffee-script..."
-silence-or-loud-on-error npm install -g coffee-script
-
-make link coverage
+make coverage
