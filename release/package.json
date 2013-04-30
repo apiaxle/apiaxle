@@ -16,6 +16,7 @@
   "author": "Phil Jackson",
   "license": "BSD",
   "dependencies": {
-    "glob": "~3.2.1"
+    "glob": "~3.2.1",
+    "coffee-script": "~1.6.2"
   }
 }
