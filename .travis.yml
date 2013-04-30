@@ -1,5 +1,6 @@
 env: "NODE_ENV=test"
 language: "node_js"
+before_script: "make npminstall link"
 script: "make test"
 node_js:
   - "0.8"
