@@ -21,7 +21,7 @@ link:
 	npm link ../api
 	npm link ../base
 
-bin: apiaxle-api.js
+bin: apiaxle.js
 	sed -i '1i#!/usr/bin/env node' $<
 
 test: npminstall $(JS)
