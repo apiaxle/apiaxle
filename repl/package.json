@@ -26,10 +26,10 @@
     "apiaxle-base": "1.9.11",
     "libxmljs": "~0.7.1",
     "apiaxle-api": "1.9.11",
-    "sinon": "~1.6.0"
+    "sinon": "~1.6.0",
+    "twerp": "~1.0.7"
   },
   "devDependencies": {
-    "twerp": "~1.0.7",
     "coffee-script": "~1.6.2"
   }
 }

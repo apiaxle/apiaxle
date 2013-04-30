@@ -24,11 +24,11 @@
     "lodash": "~1.2.0",
     "request": "~2.16.6",
     "scarf": "0.0.4",
-    "debug": "~0.7.2"
+    "debug": "~0.7.2",
+    "sinon": "~1.6.0",
+    "twerp": "~1.0.7"
   },
   "devDependencies": {
-    "twerp": "=1.0.7",
-    "sinon": "~1.1.1",
     "muffin": "~0",
     "coffeelint": "0.5",
     "istanbul": "~0",

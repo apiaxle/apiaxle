@@ -25,11 +25,11 @@
     "apiaxle-base": "1.9.11",
     "libxmljs": "~0.7.1",
     "moment": "~2.0.0",
-    "scarf": "0.0.4"
+    "scarf": "0.0.4",
+    "sinon": "~1.6.0",
+    "twerp": "~1.0.7"
   },
   "devDependencies": {
-    "twerp": "~1.0.7",
-    "sinon": "~1.6.0",
     "coffee-script": "~1.6.2"
   }
 }
