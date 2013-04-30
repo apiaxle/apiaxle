@@ -18,6 +18,7 @@ npminstall:
 	npm install
 
 link:
+	$(MAKE) -C ../api bin
 	npm link ../api
 	npm link ../base
 
