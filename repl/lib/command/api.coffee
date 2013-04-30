@@ -30,6 +30,8 @@ class exports.Api extends Command
 
     options =
       path: "/v1/api/#{ id }/unlinkkey/#{ key }"
+      data: "{}"
+
     @callApi "PUT", options, cb
 
   linkkey: ( id, commands, keypairs, cb ) ->
@@ -38,17 +40,22 @@ class exports.Api extends Command
 
     options =
       path: "/v1/api/#{ id }/linkkey/#{ key }"
+      data: "{}"
+
     @callApi "PUT", options, cb
 
   delete: ( id, commands, keypairs, cb ) ->
     options =
       path: "/v1/api/#{ id }"
+      data: "{}"
+
     @callApi "DELETE", options, cb
 
   update: ( id, commands, keypairs, cb ) ->
     options =
       path: "/v1/api/#{ id }"
       data: JSON.stringify( keypairs )
+
     @callApi "PUT", options, cb
 
   keys: ( id, commands, keypairs, cb ) ->
@@ -66,6 +73,7 @@ class exports.Api extends Command
     options =
       path: "/v1/api/#{ id }"
       data: JSON.stringify( keypairs )
+
     @callApi "POST", options, cb
 
   show: ( id, commands, keypairs, cb ) ->
