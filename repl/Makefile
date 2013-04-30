@@ -15,7 +15,7 @@ publish: README.md $(JS) bin
 	npm publish
 
 npminstall:
-	npm install >/dev/null 2>&1
+	npm install
 
 link:
 	npm link ../api
