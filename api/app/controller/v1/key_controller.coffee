@@ -48,16 +48,19 @@ class exports.ListKeyApis extends ListController
                    @mwValidateQueryParams() ]
 
   execute: ( req, res, next ) ->
-    req.key.supportedApis ( err, apis ) =>
+    { from, to } = req.query
+
+    req.key.getApis from, to, ( err, apis ) =>
       return next err if err
-      return @json res, apis if not req.query.resolve
 
-      @resolve @app.model( "apifactory" ), apis, ( err, results ) =>
-        return cb err if err
+      resources = _.map api, ( k ) ->
+        "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ k }"
 
-        output = _.map apiNameList, ( a ) ->
-          "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
-        return @json res, output
+      return @json res, api if not req.query.resolve
+
+      @resolve @app.model( "keyfactory" ), api, ( err, results ) =>
+        return next err if err
+        return @json res, _.object resources, _.values( results )
 
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
@@ -107,7 +110,7 @@ class exports.ViewKey extends ApiaxleController
   execute: ( req, res, next ) ->
     # we want to add the list of APIs supported by this key to the
     # output
-    req.key.supportedApis ( err, apiNameList ) =>
+    req.key.getApis ( err, apiNameList ) =>
       return next err if err
 
       # merge the api names with the current output
