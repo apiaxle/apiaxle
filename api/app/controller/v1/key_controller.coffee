@@ -17,16 +17,6 @@ class exports.ListKeyApis extends ListController
       type: "object"
       additionalProperties: false
       properties:
-        from:
-          type: "integer"
-          default: 0
-          docs: "The index of the first api you want to
-                 see. Starts at zero."
-        to:
-          type: "integer"
-          default: 10
-          docs: "The index of the last api you want to see. Starts at
-                 zero."
         resolve:
           type: "boolean"
           default: false
@@ -48,17 +38,15 @@ class exports.ListKeyApis extends ListController
                    @mwValidateQueryParams() ]
 
   execute: ( req, res, next ) ->
-    { from, to } = req.query
-
-    req.key.getApis from, to, ( err, apis ) =>
+    req.key.supportedApis ( err, apis ) =>
       return next err if err
 
-      resources = _.map api, ( k ) ->
+      resources = _.map apis, ( k ) ->
         "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ k }"
 
-      return @json res, api if not req.query.resolve
+      return @json res, resources if not req.query.resolve
 
-      @resolve @app.model( "keyfactory" ), api, ( err, results ) =>
+      @resolve @app.model( "apifactory" ), apis, ( err, results ) =>
         return next err if err
         return @json res, _.object resources, _.values( results )
 
