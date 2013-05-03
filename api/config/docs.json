@@ -1,0 +1,16 @@
+{
+  "redis": {
+    "host": "localhost",
+    "port": 6379
+  },
+  "application": {
+    "debug": true
+  },
+  "logging": {
+    "level": "DEBUG",
+    "appenders": [{
+      "type": "file",
+      "filename": "./docs.log"
+    }]
+  }
+}
