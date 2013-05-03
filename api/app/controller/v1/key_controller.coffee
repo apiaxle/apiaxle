@@ -98,7 +98,7 @@ class exports.ViewKey extends ApiaxleController
   execute: ( req, res, next ) ->
     # we want to add the list of APIs supported by this key to the
     # output
-    req.key.getApis ( err, apiNameList ) =>
+    req.key.supportedApis ( err, apiNameList ) =>
       return next err if err
 
       # merge the api names with the current output
