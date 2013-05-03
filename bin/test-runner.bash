@@ -6,8 +6,8 @@ while /bin/true; do
   change=$(inotifywait -qre close_write --format "%w %f" .)
   dir=$(echo ${change} | perl -nle 'm#\./([^/]+)# and print $1')
 
-  # only if there's a cakefile in the directory
-  if [[ ! -f "${dir}/Cakefile" ]]; then
+  # only if there's a makefile in the directory
+  if [[ ! -f "${dir}/Makefile" ]]; then
     continue
   fi
 
@@ -24,7 +24,7 @@ while /bin/true; do
   echo "valid enough change: ${change}"
 
   pushd "${dir}"
-  cake test || echo "Failed."
+  make test || echo "Failed."
   popd
 done
   
