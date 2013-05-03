@@ -21,13 +21,14 @@ api.script ( finish ) ->
   async.series listers, ( err, [ apis, keys ] ) ->
     stats = api.model "stats"
 
-    from = ( Date.now() - 172800000 ) # two days
+    from = ( Date.now() - 604800000 ) # seven days
     real = Date.now()                 # before we fiddle the clock
 
     clock = sinon.useFakeTimers from
 
+    # more success than failure
     possible_types = [ "cached", "uncached", "error" ]
-    possible_status = [ 200, 400, 404 ]
+    possible_status = [ 200, 202, 200, 400, 404 ]
 
     key_pack = []
 
