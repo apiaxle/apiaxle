@@ -32,7 +32,7 @@ api.script ( finish ) ->
 
     key_pack = []
 
-    for i in [ from..real ] by 5000
+    for i in [ from..real ] by 20000
       redis_key = [ rand( apis ),
                     rand( keys ),
                     rand( possible_types ),
@@ -41,7 +41,7 @@ api.script ( finish ) ->
       do ( redis_key ) ->
         key_pack.push ( cb ) ->
           stats.hit redis_key..., ( err ) ->
-            clock.tick 5000
+            clock.tick 20000
             console.log( real - Date.now(), redis_key )
             return cb err, redis_key
 
