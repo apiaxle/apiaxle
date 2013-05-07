@@ -21,8 +21,8 @@ api.script ( finish ) ->
   async.series listers, ( err, [ apis, keys ] ) ->
     stats = api.model "stats"
 
-    from = ( Date.now() - 604800000 ) # seven days
-    real = Date.now()                 # before we fiddle the clock
+    from = ( Date.now() - 86400000 * 7 ) # seven days
+    real = Date.now()                    # before we fiddle the clock
 
     clock = sinon.useFakeTimers from
 
