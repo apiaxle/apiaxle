@@ -14,6 +14,9 @@ README.md: ../README.md
 publish: README.md $(JS) bin
 	npm publish
 
+run:
+	supervisor coffee -w "lib,app" ./apiaxle-api.coffee
+
 npminstall:
 	npm install
 
