@@ -24,6 +24,8 @@ class exports.KeyControllerTest extends ApiaxleTest
 
       # now try and get it
       @GET path: "/v1/key/1234", ( err, res ) =>
+        @ok not err
+
         res.parseJson ( err, json ) =>
           @ok not err
 
