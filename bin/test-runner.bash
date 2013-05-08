@@ -2,6 +2,8 @@
 
 set -e
 
+make test || echo "Failed."
+
 while /bin/true; do
   change=$(inotifywait -qre close_write --format "%w %f" .)
   dir=$(echo ${change} | perl -nle 'm#\./([^/]+)# and print $1')

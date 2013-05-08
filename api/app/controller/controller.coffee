@@ -5,6 +5,8 @@ qs = require "querystring"
 { validate } = require "scarf"
 { Controller } = require "scarf"
 
+{ ValidationError } = require "apiaxle-base"
+
 { KeyNotFoundError,
   ApiNotFoundError,
   KeyringNotFoundError,

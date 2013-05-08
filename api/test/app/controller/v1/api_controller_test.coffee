@@ -349,3 +349,14 @@ class exports.ApiControllerTest extends ApiaxleTest
             @ok not results["1234"]
 
             done 10
+  "test invalid query params do the right thing": ( done ) ->
+    @GET path: "/v1/apis?hello=world", ( err, res ) =>
+      @isNull err
+
+      res.parseJson ( err, json ) =>
+        @isNull err
+        @ok exp = json.results.error
+        @equal exp.type, "ValidationError"
+        @equal exp.message, "'hello' is not a supported field."
+
+        done 5
