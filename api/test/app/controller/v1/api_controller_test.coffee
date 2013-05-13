@@ -370,6 +370,6 @@ class exports.ApiControllerTest extends ApiaxleTest
         @ok exp = json.results.error
         @equal res.statusCode, 404
         @equal exp.type, "NotFoundError"
-        @equal exp.message, "Not found."
+        @equal exp.message, "'/v1/hello' not found."
 
         done 6

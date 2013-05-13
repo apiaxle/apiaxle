@@ -38,7 +38,7 @@ class exports.AxleApp extends Application
 
   initFourOhFour: ( cb ) ->
     @use ( req, res, next ) ->
-      return next new NotFoundError "Not found."
+      return next new NotFoundError "'#{ req.url }' not found."
 
     return cb()
 
