@@ -5,7 +5,6 @@ async = require "async"
 express = require "express"
 
 { AxleApp } = require "apiaxle-base"
-{ NotFoundError } = require "./lib/error"
 
 class exports.ApiaxleApi extends AxleApp
   @plugins =

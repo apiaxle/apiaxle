@@ -7,6 +7,7 @@ debug = require( "debug" )( "aa:app" )
 
 { Js2Xml } = require "js2xml"
 { Application } = require "scarf"
+{ NotFoundError } = require "./error"
 
 class exports.AxleApp extends Application
   configure: ( cb ) ->
