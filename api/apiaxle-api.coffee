@@ -5,7 +5,6 @@ async = require "async"
 express = require "express"
 
 { AxleApp } = require "apiaxle-base"
-{ NotFoundError } = require "./lib/error"
 
 class exports.ApiaxleApi extends AxleApp
   @plugins =
@@ -32,6 +31,8 @@ if not module.parent
 
   all.push ( cb ) -> api.configure cb
   all.push ( cb ) -> api.loadAndInstansiatePlugins cb
+  all.push ( cb ) -> api.initFourOhFour cb
+  all.push ( cb ) -> api.initErrorHandler cb
   all.push ( cb ) -> api.redisConnect cb
   all.push ( cb ) -> api.run cb
 

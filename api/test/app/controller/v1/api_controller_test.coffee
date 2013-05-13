@@ -360,3 +360,16 @@ class exports.ApiControllerTest extends ApiaxleTest
         @equal exp.message, "'hello' is not a supported field."
 
         done 5
+
+  "test 404": ( done ) ->
+    @GET path: "/v1/hello", ( err, res ) =>
+      @isNull err
+
+      res.parseJson ( err, json ) =>
+        @isNull err
+        @ok exp = json.results.error
+        @equal res.statusCode, 404
+        @equal exp.type, "NotFoundError"
+        @equal exp.message, "'/v1/hello' not found."
+
+        done 6

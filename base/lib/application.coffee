@@ -7,12 +7,12 @@ debug = require( "debug" )( "aa:app" )
 
 { Js2Xml } = require "js2xml"
 { Application } = require "scarf"
+{ NotFoundError } = require "./error"
 
 class exports.AxleApp extends Application
   configure: ( cb ) ->
     # error handler
     @use @express.router
-    @use ( err, req, res, next ) => @onError err, req, res, next
 
     @readConfiguration ( err, @config, filename ) =>
       return cb err if err
@@ -35,6 +35,18 @@ class exports.AxleApp extends Application
 
         @logger.info "Loaded configuration from #{ filename }"
         return cb null
+
+  initFourOhFour: ( cb ) ->
+    @use ( req, res, next ) ->
+      return next new NotFoundError "'#{ req.url }' not found."
+
+    return cb()
+
+  initErrorHandler: ( cb ) ->
+    @use ( err, req, res, next ) =>
+      return @onError err, req, res, next
+
+    return cb()
 
   script: ( cb ) ->
     all = []
