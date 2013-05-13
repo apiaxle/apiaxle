@@ -124,12 +124,23 @@ class exports.AppTest extends TwerpTest
     @spies.push newspy
     return newspy
 
-  start: ( done ) ->
+  configureApp: ( cb ) ->
     all = []
 
     all.push ( cb ) => @app.configure cb
     all.push ( cb ) => @app.loadAndInstansiatePlugins cb
     all.push ( cb ) => @app.redisConnect cb
+    all.push ( cb ) => @app.initErrorHandler cb
+
+    async.series all, ( err ) ->
+      console.log( err ) if err
+
+      cb()
+
+  start: ( done ) ->
+    all = []
+
+    all.push ( cb ) => @configureApp cb
 
     if @constructor.start_webserver
       all.push ( cb ) =>
@@ -137,7 +148,6 @@ class exports.AppTest extends TwerpTest
 
     async.series all, ( err ) ->
       console.log( err ) if err
-
       done()
 
   finish: ( done ) ->

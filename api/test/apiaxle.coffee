@@ -1,3 +1,5 @@
+async = require "async"
+
 # always run as test
 process.env.NODE_ENV = "test"
 
@@ -6,3 +8,17 @@ process.env.NODE_ENV = "test"
 
 class exports.ApiaxleTest extends AppTest
   @appClass = ApiaxleApi
+
+  configureApp: ( cb ) ->
+    all = []
+
+    all.push ( cb ) => @app.configure cb
+    all.push ( cb ) => @app.loadAndInstansiatePlugins cb
+    all.push ( cb ) => @app.redisConnect cb
+    all.push ( cb ) => @app.initFourOhFour cb
+    all.push ( cb ) => @app.initErrorHandler cb
+
+    async.series all, ( err ) ->
+      console.log( err ) if err
+
+      cb()

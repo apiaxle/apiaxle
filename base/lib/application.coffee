@@ -35,6 +35,12 @@ class exports.AxleApp extends Application
         @logger.info "Loaded configuration from #{ filename }"
         return cb null
 
+  initFourOhFour: ( cb ) ->
+    @use ( req, res, next ) ->
+      return next new NotFoundError "Not found."
+
+    return cb()
+
   initErrorHandler: ( cb ) ->
     @use ( err, req, res, next ) =>
       return @onError err, req, res, next
