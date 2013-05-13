@@ -12,7 +12,6 @@ class exports.AxleApp extends Application
   configure: ( cb ) ->
     # error handler
     @use @express.router
-    @use ( err, req, res, next ) => @onError err, req, res, next
 
     @readConfiguration ( err, @config, filename ) =>
       return cb err if err
@@ -35,6 +34,12 @@ class exports.AxleApp extends Application
 
         @logger.info "Loaded configuration from #{ filename }"
         return cb null
+
+  initErrorHandler: ( cb ) ->
+    @use ( err, req, res, next ) =>
+      return @onError err, req, res, next
+
+    return cb()
 
   script: ( cb ) ->
     all = []

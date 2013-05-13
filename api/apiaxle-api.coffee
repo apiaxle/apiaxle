@@ -17,6 +17,12 @@ class exports.ApiaxleApi extends AxleApp
 
     super cb
 
+  initFourOhFour: ( cb ) ->
+    @use ( req, res, next ) ->
+      return next new NotFoundError "Not found."
+
+    return cb()
+
 if not module.parent
   # taking a port from the commandline makes it much easier to cluster
   # the app
@@ -32,6 +38,8 @@ if not module.parent
 
   all.push ( cb ) -> api.configure cb
   all.push ( cb ) -> api.loadAndInstansiatePlugins cb
+  all.push ( cb ) -> api.initFourOhFour cb
+  all.push ( cb ) -> api.initErrorHandler cb
   all.push ( cb ) -> api.redisConnect cb
   all.push ( cb ) -> api.run cb
 
