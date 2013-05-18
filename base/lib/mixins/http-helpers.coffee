@@ -8,32 +8,32 @@ class AppResponse
     @headers     = @actual_res.headers
     @contentType = @headers[ "content-type" ]
 
-  withJquery: ( callback ) ->
+  withJquery: ( cb ) ->
     jsdom.env @data, ( errs, win ) =>
       throw new Error errs if errs
 
       jq = require( "jquery" ).create win
 
-      callback jq
+      cb jq
 
-  parseXml: ( callback ) ->
+  parseXml: ( cb ) ->
     try
       output = libxml.parseXmlString @data
     catch err
-      return callback err, null
+      return cb err, null
 
-    return callback null, output
+    return cb null, output
 
-  parseJson: ( callback ) ->
+  parseJson: ( cb ) ->
     try
       output = JSON.parse @data, "utf8"
     catch err
-      return callback err, null
+      return cb err, null
 
-    return callback null, output
+    return cb null, output
 
 exports.httpHelpers =
-  httpRequest: ( options, callback ) ->
+  httpRequest: ( options, cb ) ->
     defaults =
       host: "127.0.0.1"
       port: @constructor.port
@@ -47,10 +47,10 @@ exports.httpHelpers =
       res.setEncoding "utf8"
 
       res.on "data", ( chunk ) -> data += chunk
-      res.on "error", ( err )  -> callback err, null
-      res.on "end", ( )        -> callback null, new AppResponse( res, data )
+      res.on "error", ( err )  -> cb err, null
+      res.on "end", ( )        -> cb null, new AppResponse( res, data )
 
-    req.on "error", ( err ) -> callback err, null
+    req.on "error", ( err ) -> cb err, null
 
     # write the body if we're meant to
     if options.data and options.method not in [ "HEAD", "GET" ]
@@ -58,25 +58,25 @@ exports.httpHelpers =
 
     req.end()
 
-  POST: ( options, callback ) ->
+  POST: ( options, cb ) ->
     options.method = "POST"
 
-    @httpRequest options, callback
+    @httpRequest options, cb
 
-  GET: ( options, callback ) ->
+  GET: ( options, cb ) ->
     options.method = "GET"
 
     # never GET data
     delete options.data
 
-    @httpRequest options, callback
+    @httpRequest options, cb
 
-  PUT: ( options, callback ) ->
+  PUT: ( options, cb ) ->
     options.method = "PUT"
 
-    @httpRequest options, callback
+    @httpRequest options, cb
 
-  DELETE: ( options, callback ) ->
+  DELETE: ( options, cb ) ->
     options.method = "DELETE"
 
-    @httpRequest options, callback
+    @httpRequest options, cb
