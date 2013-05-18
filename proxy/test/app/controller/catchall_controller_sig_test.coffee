@@ -84,7 +84,7 @@ class exports.CatchallSigTest extends ApiaxleTest
       @GET { path: "/?api_key=1234", host: "facebook.api.localhost" }, ( err, response ) =>
         @ok not err
 
-        response.parseJsonError ( err, jsonerr ) =>
+        response.parseJsonError ( err, meta, jsonerr ) =>
           @ok not err
 
           @ok jsonerr
@@ -97,7 +97,7 @@ class exports.CatchallSigTest extends ApiaxleTest
       @GET { path: "/?api_key=1234&api_sig=5678", host: "facebook.api.localhost" }, ( err, response ) =>
         @ok not err
 
-        response.parseJsonError ( err, jsonerr ) =>
+        response.parseJsonError ( err, meta, jsonerr ) =>
           @ok not err
 
           @ok jsonerr

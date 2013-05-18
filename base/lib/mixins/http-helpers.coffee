@@ -34,7 +34,7 @@ class AppResponse
     @parseJson ( err, json ) ->
       return cb err if err
       return cb new Error "No Axle style error output found." unless json.results.error?
-      return cb null, json.results.error
+      return cb null, json.meta, json.results.error
 
   parseJson: ( cb ) ->
     try
