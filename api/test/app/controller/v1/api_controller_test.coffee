@@ -355,6 +355,8 @@ class exports.ApiControllerTest extends ApiaxleTest
 
       res.parseJson ( err, json ) =>
         @isNull err
+        console.log( json )
+
         @ok exp = json.results.error
         @equal exp.type, "ValidationError"
         @equal exp.message, "'hello' is not a supported field."
