@@ -1,3 +1,4 @@
+_ = require "lodash"
 async = require "async"
 
 { FakeAppTest } = require "../../../apiaxle_base"
@@ -40,14 +41,20 @@ class exports.StatsTest extends FakeAppTest
 
       @model.get ["key", "1234", "cached", "200"], "seconds", from, null, ( err, result ) =>
         @ok not err
-        @equal result[now_seconds], 1
+
+        # we can't mock redis so there's a possiblity that the second
+        # we capture above doesn't match what the redis server thinks
+        # is the time. Extract the timestamp from the first record.
+        server_time = parseInt( _.keys( result )[0] )
+
+        @equal result[server_time], 1
 
         # there shouldn't be a value for this as we made no hit
-        @isUndefined result[now_seconds + 1]
+        @isUndefined result[server_time + 1]
 
-        @equal result[now_seconds + 120 + 2 ], 1
+        @equal result[server_time + 120 + 2 ], 1
         @model.get ["key", "1234", "cached", "200"], "minutes", from, null, ( err, result ) =>
-          time = Math.floor( now_seconds/ 60 ) * 60
+          time = Math.floor( server_time / 60 ) * 60
           @equal result[time + 120], 1
 
           done 6
