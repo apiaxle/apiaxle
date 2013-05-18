@@ -24,6 +24,18 @@ class AppResponse
 
     return cb null, output
 
+  parseJsonSuccess: ( cb ) ->
+    @parseJson ( err, json ) ->
+      return cb err if err
+      return cb new Error json.results.error.message if json.results?.error?
+      return cb null, json.meta, json.results
+
+  parseJsonError: ( cb ) ->
+    @parseJson ( err, json ) ->
+      return cb err if err
+      return cb new Error "No Axle style error output found." unless json.results.error?
+      return cb null, json.results.error
+
   parseJson: ( cb ) ->
     try
       output = JSON.parse @data, "utf8"
