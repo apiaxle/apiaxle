@@ -84,10 +84,11 @@ class exports.CatchallSigTest extends ApiaxleTest
       @GET { path: "/?api_key=1234", host: "facebook.api.localhost" }, ( err, response ) =>
         @ok not err
 
-        response.parseJsonError ( err, meta, jsonerr ) =>
+        response.parseJson ( err, json ) =>
           @ok not err
 
-          @ok jsonerr
+          @ok jsonerr = json.results.error
+
           @equal jsonerr.type, "KeyError"
           @equal jsonerr.message, "A signature is required for this API."
 
@@ -97,8 +98,10 @@ class exports.CatchallSigTest extends ApiaxleTest
       @GET { path: "/?api_key=1234&api_sig=5678", host: "facebook.api.localhost" }, ( err, response ) =>
         @ok not err
 
-        response.parseJsonError ( err, meta, jsonerr ) =>
+        response.parseJson ( err, json ) =>
           @ok not err
+
+          @ok jsonerr = json.results.error
 
           @ok jsonerr
           @equal jsonerr.type, "KeyError"
@@ -118,8 +121,9 @@ class exports.CatchallSigTest extends ApiaxleTest
       @GET httpOptions, ( err, response ) =>
         @ok not err
 
-        response.parseJsonSuccess ( err ) =>
+        response.parseJson ( err, json ) =>
           @ok not err
+          @ok not json.results?.error?
 
           cb()
 

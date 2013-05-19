@@ -24,21 +24,36 @@ class AppResponse
 
     return cb null, output
 
-  parseJsonSuccess: ( cb ) ->
-    @parseJson ( err, json ) ->
-      return cb err if err
-      return cb new Error( json.results.error.message ) if json.results?.error?
-      return cb null, json.meta, json.results
+  _isError: ( meta ) ->
+    return meta.status_code < 200 or meta.status_code >= 400
 
-  parseJsonError: ( cb ) ->
-    @parseJson ( err, json ) ->
+  _isSuccess: ( meta ) ->
+    return not @_isError meta
+
+  parseJsonSuccess: ( cb ) ->
+    @parseJson ( err, json ) =>
       return cb err if err
 
       { meta, results } = json
-      if results.error? and ( meta.status_code < 200 or meta.status_code >= 400 )
+
+      if @_isError meta and results.error?
+        return cb new Error results.error.message
+
+      return cb null, meta, results
+
+  parseJsonError: ( cb ) ->
+    @parseJson ( err, json ) =>
+      return cb err if err
+
+      { meta, results } = json
+
+      if not results.error?
         return cb new Error "No Axle style error output found."
 
-      return cb null, json.meta, json.results.error
+      if not @_isError meta
+        return cb new Error "Erroneous HTTP status expected, got #{ meta.status_code }"
+
+      return cb null, meta, results.error
 
   parseJson: ( cb ) ->
     try
