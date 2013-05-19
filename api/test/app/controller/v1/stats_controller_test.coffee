@@ -67,10 +67,8 @@ class exports.ApiStatsTest extends ApiaxleTest
           @GET path: path, ( err, res ) =>
             @ok not err
 
-            res.parseJson ( err, json ) =>
+            res.parseJsonSuccess ( err, meta, results ) =>
               @ok not err
-
-              results = json.results
 
               @deepEqual results.uncached[timestamp], { 200: 2, 400: 1 }
               @deepEqual results.cached[timestamp], { 400: 3 }

@@ -27,13 +27,17 @@ class AppResponse
   parseJsonSuccess: ( cb ) ->
     @parseJson ( err, json ) ->
       return cb err if err
-      return cb new Error json.results.error.message if json.results?.error?
+      return cb new Error( json.results.error.message ) if json.results?.error?
       return cb null, json.meta, json.results
 
   parseJsonError: ( cb ) ->
     @parseJson ( err, json ) ->
       return cb err if err
-      return cb new Error "No Axle style error output found." unless json.results.error?
+
+      { meta, results } = json
+      if results.error? and ( meta.status_code < 200 or meta.status_code >= 400 )
+        return cb new Error "No Axle style error output found."
+
       return cb null, json.meta, json.results.error
 
   parseJson: ( cb ) ->
