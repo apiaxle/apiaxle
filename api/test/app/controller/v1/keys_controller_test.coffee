@@ -22,10 +22,9 @@ class exports.KeysControllerTest extends ApiaxleTest
       @GET path: "/v1/keys?from=1&to=12", ( err, response ) =>
         @ok not err
 
-        response.parseJson ( err, json ) =>
+        response.parseJsonSuccess ( err, meta, results ) =>
           @ok not err
-          @ok json
-          @equal json.results.length, 10
+          @equal results.length, 10
 
           done 5
 
@@ -50,15 +49,14 @@ class exports.KeysControllerTest extends ApiaxleTest
       @GET path: "/v1/keys?from=0&to=12&resolve=true", ( err, response ) =>
         @ok not err
 
-        response.parseJson ( err, json ) =>
+        response.parseJsonSuccess ( err, meta, results ) =>
           @ok not err
-          @ok json
 
           for i in [ 0..9 ]
             name = "key_#{i}"
 
-            @ok json.results[ name ]
-            @equal json.results[ name ].qpd, 30
-            @equal json.results[ name ].qps, 20
+            @ok results[ name ]
+            @equal results[ name ].qpd, 30
+            @equal results[ name ].qps, 20
 
           done 34

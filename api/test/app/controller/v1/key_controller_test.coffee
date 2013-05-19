@@ -26,14 +26,14 @@ class exports.KeyControllerTest extends ApiaxleTest
       @GET path: "/v1/key/1234", ( err, res ) =>
         @ok not err
 
-        res.parseJson ( err, json ) =>
+        res.parseJsonSuccess ( err, meta, results ) =>
           @ok not err
 
-          @isNumber json.results.qps
-          @isNumber json.results.qpd
+          @isNumber results.qps
+          @isNumber results.qpd
 
-          @deepEqual json.results.apis, [ "#{ @host_name }/v1/api/twitter",
-                                          "#{ @host_name }/v1/api/facebook" ]
+          @deepEqual results.apis, [ "#{ @host_name }/v1/api/twitter",
+                                     "#{ @host_name }/v1/api/facebook" ]
 
           done 6
 
@@ -43,10 +43,9 @@ class exports.KeyControllerTest extends ApiaxleTest
       @ok not err
       @equal res.statusCode, 404
 
-      res.parseJson ( err, json ) =>
+      res.parseJsonError ( err, meta, jsonerr ) =>
         @ok not err
-        @ok json.results.error
-        @equal json.results.error.type, "KeyNotFoundError"
+        @equal jsonerr.type, "KeyNotFoundError"
 
         done 5
 
@@ -63,24 +62,25 @@ class exports.KeyControllerTest extends ApiaxleTest
     @POST options, ( err, res ) =>
       @ok not err
 
-      res.parseJson ( err, json ) =>
+      res.parseJsonSuccess ( err, meta, results ) =>
         @ok not err
-        @equal json.results.qps, 1
-        @equal json.results.qpd, 100
+
+        @equal results.qps, 1
+        @equal results.qpd, 100
 
         # check it went in
-        @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
+        @app.model( "keyfactory" ).find [ "1234" ], ( err, dbKey ) =>
           @ok not err
 
-          @equal results["1234"].data.qps, 1
-          @equal results["1234"].data.qpd, 100
-          @ok results["1234"].data.createdAt
+          @equal dbKey["1234"].data.qps, 1
+          @equal dbKey["1234"].data.qpd, 100
+          @ok dbKey["1234"].data.createdAt
 
-          @app.model( "apifactory" ).find [ "twitter" ], ( err, results ) =>
+          @app.model( "apifactory" ).find [ "twitter" ], ( err, dbKey ) =>
             @ok not err
-            @ok results.twitter
+            @ok dbKey.twitter
 
-            results.twitter.getKeys 0, 10, ( err, keys ) =>
+            dbKey.twitter.getKeys 0, 10, ( err, keys ) =>
               @equal keys.length, 1
               @equal keys[0], "1234"
 
@@ -99,11 +99,11 @@ class exports.KeyControllerTest extends ApiaxleTest
     @POST options, ( err, res ) =>
       @ok not err
 
-      res.parseJson ( err, json ) =>
+      res.parseJsonError ( err, meta, jsonerr ) =>
         @ok not err
-        @ok json.results.error
-        @equal json.results.error.type, "ValidationError"
-        @equal json.results.error.message, "The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
+
+        @equal jsonerr.type, "ValidationError"
+        @equal jsonerr.message, "The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
 
         done 5
 
@@ -149,10 +149,9 @@ class exports.KeyControllerTest extends ApiaxleTest
       @PUT options, ( err, res ) =>
         @equal res.statusCode, 400
 
-        res.parseJson ( err, json ) =>
+        res.parseJsonError ( err, meta, jsonerr ) =>
           @ok not err
-          @ok json
-          @equal json.results.error.type, "ValidationError"
+          @equal jsonerr.type, "ValidationError"
 
           done 6
 
@@ -160,13 +159,12 @@ class exports.KeyControllerTest extends ApiaxleTest
     @DELETE path: "/v1/key/1234", ( err, res ) =>
       @equal res.statusCode, 404
 
-      res.parseJson ( err, json ) =>
+      res.parseJsonError ( err, meta, jsonerr ) =>
         @ok not err
-        @ok json.results.error
-        @ok json.meta.status_code, 404
+        @ok meta.status_code, 404
 
-        @equal json.results.error.message, "Key '1234' not found."
-        @equal json.results.error.type, "KeyNotFoundError"
+        @equal jsonerr.message, "Key '1234' not found."
+        @equal jsonerr.type, "KeyNotFoundError"
 
         done 6
 
@@ -179,19 +177,17 @@ class exports.KeyControllerTest extends ApiaxleTest
         @ok not err
         @equal res.statusCode, 200
 
-        res.parseJson ( err, json ) =>
+        res.parseJsonSuccess ( err, meta, results ) =>
           @ok not err
-          # no error
-          @equal json.results.error?, false
 
           # just returns true
-          @equal json.results, true
-          @equal json.meta.status_code, 200
+          @equal results, true
+          @equal meta.status_code, 200
 
           # confirm it's out of the database
-          @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
+          @app.model( "keyfactory" ).find [ "1234" ], ( err, dbKey ) =>
             @ok not err
-            @ok not results["1234"]
+            @ok not dbKey["1234"]
 
             done 10
 
@@ -210,10 +206,10 @@ class exports.KeyControllerTest extends ApiaxleTest
       @GET path: "/v1/keys?from=1&to=12", ( err, response ) =>
         @ok not err
 
-        response.parseJson ( err, json ) =>
+        response.parseJsonSuccess ( err, meta, results ) =>
           @ok not err
-          @ok json
-          @equal json.results.length, 10
+
+          @equal results.length, 10
 
           done 5
 
@@ -233,16 +229,15 @@ class exports.KeyControllerTest extends ApiaxleTest
       @GET path: "/v1/keys?from=0&to=12&resolve=true", ( err, response ) =>
         @ok not err
 
-        response.parseJson ( err, json ) =>
+        response.parseJsonSuccess ( err, meta, results ) =>
           @ok not err
-          @ok json
 
           for i in [ 0..9 ]
             name = "key_#{i}"
 
-            @ok json.results[ name ]
-            @equal json.results[ name ].qpd, i
-            @equal json.results[ name ].qps, i
+            @ok results[ name ]
+            @equal results[ name ].qpd, i
+            @equal results[ name ].qps, i
 
           done 34
 
@@ -305,11 +300,11 @@ class exports.KeyStatsTest extends ApiaxleTest
           @PUT options, ( err, res ) =>
             @ok not err
 
-            res.parseJson ( err, json ) =>
+            res.parseJsonSuccess ( err, meta, results ) =>
               @ok not err
 
-              @equal json.results.new.qpd, 100
-              @equal json.results.old.qpd, 10
+              @equal results.new.qpd, 100
+              @equal results.old.qpd, 10
 
               # this should no longer error because we've updated the
               # qpd via the API
