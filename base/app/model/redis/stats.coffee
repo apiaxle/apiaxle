@@ -159,6 +159,12 @@ class exports.Stats extends Redis
       [ "api-key", api, key, cached, code ],
     ]
 
+    # record the keyring stats too
+    for keyring in keyrings
+      db_keys.push [ "keyring", keyring, cached, code ]
+      db_keys.push [ "keyring-api", keyring, api, cached, code ]
+      db_keys.push [ "keyring-key", keyring, key, cached, code ]
+
     all = []
     for db_key in db_keys
       do( db_key ) =>
