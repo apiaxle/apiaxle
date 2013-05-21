@@ -1,6 +1,8 @@
 _ = require "lodash"
 
-{ ApiaxleController, ListController } = require "../controller"
+{ StatsController,
+  ApiaxleController,
+  ListController } = require "../controller"
 { AlreadyExists } = require "../../../lib/error"
 
 class exports.CreateKeyring extends ApiaxleController
@@ -135,10 +137,25 @@ class exports.ListKeyringKeys extends ListController
         Without <strong>resolve</strong>: An array with 1 key per entry
       """
 
-  modelName: -> "keyfactory"
+  modelName: -> "keyringfactory"
 
   middleware: -> [ @mwValidateQueryParams(),
                    @mwKeyringDetails( @app ) ]
+
+  execute: ( req, res, next ) ->
+    { from, to } = req.query
+
+    req.keyring.getKeys from, to, ( err, keys ) =>
+      return next err if err
+      return @json res, keys if not req.query.resolve
+
+      @resolve @app.model( "keyfactory" ), keys, ( err, results ) =>
+        return next err if err
+
+        output = _.map results, ( k ) ->
+          "#{ req.protocol }://#{ req.headers.host }/v1/keyring/#{ k }"
+        return @json res, results
+
 
 class exports.UnlinkKeyToKeyring extends ApiaxleController
   @verb = "put"
@@ -187,3 +204,59 @@ class exports.LinkKeyToKeyring extends ApiaxleController
       return next err if err
 
       @json res, req.key.data
+
+class exports.ViewAllStatsForKeyring extends StatsController
+  @verb = "get"
+
+  desc: -> "Get stats for an keyring."
+
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      forkey:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               key."
+      forapi:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               api."
+
+    return current
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "Get stats for an keyring"
+      response: """
+        Object where the keys represent the cache status (cached, uncached or
+        error), each containing an object with response codes or error name,
+        these in turn contain objects with timestamp:count
+      """
+
+  middleware: -> [ @mwKeyringDetails( @app ),
+                   @mwValidateQueryParams() ]
+
+  path: -> "/v1/keyring/:keyring/stats"
+
+  execute: ( req, res, next ) ->
+    axle_type      = "keyring"
+    redis_key_part = [ req.keyring.id ]
+
+    # narrow down to a particular key
+    if for_key = req.query.forkey
+      axle_type      = "keyring-key"
+      redis_key_part = [ req.keyring.id, for_key ]
+
+    # narrow down to a particular api
+    if for_key = req.query.forapi
+      axle_type      = "keyring-api"
+      redis_key_part = [ req.keyring.id, for_api ]
+
+    @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
+      return next err if err
+      return @json res, results

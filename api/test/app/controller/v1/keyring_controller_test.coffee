@@ -55,9 +55,21 @@ class exports.KeyringControllerTest extends ApiaxleTest
         @ok not err
         res.parseJson ( err, json ) =>
           @ok not err
-          @equal json.results.length, 5
+          @equal json.results.length, 0
 
-          done 4
+          @PUT path: "/v1/keyring/blah/linkkey/1", ( err, res ) =>
+            @ok not err
+
+            @PUT path: "/v1/keyring/blah/linkkey/4", ( err, res ) =>
+              @ok not err
+
+              @GET path: "/v1/keyring/blah/keys?from=0&to=9", ( err, res ) =>
+                @ok not err
+                res.parseJsonSuccess ( err, meta, results ) =>
+                  @ok not err
+                  @deepEqual results, [ "4", "1" ]
+
+                  done 8
 
   "test GET a non-existant keyring": ( done ) ->
     # now try and get it
