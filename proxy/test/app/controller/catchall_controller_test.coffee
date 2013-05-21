@@ -81,7 +81,7 @@ class exports.CatchallTest extends ApiaxleTest
     @fixtures.create fixture, ( err, [ api, key ] ) =>
       @ok not err
 
-      stub = @stubCatchall ( options, api, key, cb ) =>
+      stub = @stubCatchall ( options, api, key, keyrings, cb ) =>
         { path, query } = url.parse options.url
         @equal path, "/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json?"
         @fakeIncomingMessage 200, {}, {}, cb

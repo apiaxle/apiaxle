@@ -149,7 +149,7 @@ class exports.Stats extends Redis
     # overlap
     return ( min - properties.ttl )
 
-  hit: ( api, key, cached, code, cb ) ->
+  hit: ( api, key, keyrings, cached, code, cb ) ->
     debug "Recording hit for '#{ api }' by '#{ key }'"
 
     db_keys = [

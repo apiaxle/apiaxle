@@ -17,7 +17,8 @@ class CatchAll extends ApiaxleController
   middleware: -> [ @simpleBodyParser,
                    @subdomain,
                    @api,
-                   @key ]
+                   @key,
+                   @keyrings ]
 
   _cacheHash: ( url ) ->
     md5 = crypto.createHash "md5"
@@ -79,7 +80,7 @@ class CatchAll extends ApiaxleController
       return outerCb err if err
 
       if cacheTtl is 0 or mustRevalidate
-        return @_httpRequest options, req.subdomain, req.key.data.key, outerCb
+        return @_httpRequest options, req.subdomain, req.key.data.key, req.keyrings, outerCb
 
       cache = @app.model "cache"
       key = @_cacheHash options.url
@@ -91,7 +92,7 @@ class CatchAll extends ApiaxleController
           statsModel = @app.model "stats"
 
           @app.logger.debug "Cache hit: #{options.url}"
-          return statsModel.hit req.subdomain, req.key.data.key, "cached", status, ( err, res ) ->
+          return statsModel.hit req.subdomain, req.key.data.key, req.keyrings, "cached", status, ( err, res ) ->
             fakeResponse =
               statusCode: status
               headers:
@@ -102,7 +103,7 @@ class CatchAll extends ApiaxleController
         @app.logger.debug "Cache miss: #{options.url}"
 
         # means we've a cache miss and so need to make a real request
-        @_httpRequest options, req.subdomain, req.key.data.key, ( err, apiRes, body ) =>
+        @_httpRequest options, req.subdomain, req.key.data.key, req.keyrings, ( err, apiRes, body ) =>
           return outerCb err if err
 
           # do I really need to check both?
@@ -115,7 +116,7 @@ class CatchAll extends ApiaxleController
     ETIMEOUT: ( ) -> new EndpointTimeoutError "API endpoint timed out."
     ENOTFOUND: ( ) -> new EndpointMissingError "API endpoint could not be reached."
 
-  _httpRequest: ( options, api, api_key, cb) ->
+  _httpRequest: ( options, api, api_key, keyrings, cb ) ->
     statsModel = @app.model "stats"
 
     @app.logger.debug "#{ @constructor.verb }ing '#{ options.url }'"
@@ -134,7 +135,7 @@ class CatchAll extends ApiaxleController
         return cb error, null
 
       # response with the same code as the endpoint
-      return statsModel.hit api, api_key, "uncached", apiRes.statusCode, ( err, res ) ->
+      return statsModel.hit api, api_key, keyrings, "uncached", apiRes.statusCode, ( err, res ) ->
         return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
@@ -164,7 +165,7 @@ class CatchAll extends ApiaxleController
         # QpdExceededError at the moment)
         type = err.name
 
-        return statsModel.hit req.subdomain, req.key.data.key, "error", type, ( counterErr, res ) ->
+        return statsModel.hit req.subdomain, req.key.data.key, req.keyrings, "error", type, ( counterErr, res ) ->
           return next counterErr if counterErr
           return next err
 

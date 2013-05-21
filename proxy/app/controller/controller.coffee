@@ -16,6 +16,13 @@ class exports.ApiaxleController extends Controller
     req.on "data", ( c ) -> req.body += c
     req.on "end", next
 
+  keyrings: ( req, res, next ) ->
+    req.key.supportedKeyrings ( err, keyrings ) ->
+      return next err if err
+
+      req.keyrings = keyrings
+      return next()
+
   subdomain: ( req, res, next ) ->
     # if we're called from a subdomain then let req know
     if parts = /^(.+?)\.api\./.exec req.headers.host
