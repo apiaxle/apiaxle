@@ -26,7 +26,7 @@ class exports.KeysControllerTest extends ApiaxleTest
           @ok not err
           @equal results.length, 10
 
-          done 5
+          done 4
 
   "test list keys with resolution": ( done ) ->
     # create 11 keys
@@ -59,4 +59,4 @@ class exports.KeysControllerTest extends ApiaxleTest
             @equal results[ name ].qpd, 30
             @equal results[ name ].qps, 20
 
-          done 34
+          done 33

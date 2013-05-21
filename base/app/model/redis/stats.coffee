@@ -149,7 +149,7 @@ class exports.Stats extends Redis
     # overlap
     return ( min - properties.ttl )
 
-  hit: ( api, key, cached, code, cb ) ->
+  hit: ( api, key, keyrings, cached, code, cb ) ->
     debug "Recording hit for '#{ api }' by '#{ key }'"
 
     db_keys = [
@@ -158,6 +158,12 @@ class exports.Stats extends Redis
       [ "key-api", key, api, cached, code ],
       [ "api-key", api, key, cached, code ],
     ]
+
+    # record the keyring stats too
+    for keyring in keyrings
+      db_keys.push [ "keyring", keyring, cached, code ]
+      db_keys.push [ "keyring-api", keyring, api, cached, code ]
+      db_keys.push [ "keyring-key", keyring, key, cached, code ]
 
     all = []
     for db_key in db_keys
