@@ -253,7 +253,7 @@ class exports.ViewAllStatsForKeyring extends StatsController
       redis_key_part = [ req.keyring.id, for_key ]
 
     # narrow down to a particular api
-    if for_key = req.query.forapi
+    if for_api = req.query.forapi
       axle_type      = "keyring-api"
       redis_key_part = [ req.keyring.id, for_api ]
 
