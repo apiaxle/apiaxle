@@ -69,7 +69,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
                   @ok not err
                   @deepEqual results, [ "4", "1" ]
 
-                  done 8
+                  done 9
 
   "test GET a non-existant keyring": ( done ) ->
     # now try and get it

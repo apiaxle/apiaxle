@@ -35,7 +35,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @deepEqual results.apis, [ "#{ @host_name }/v1/api/twitter",
                                      "#{ @host_name }/v1/api/facebook" ]
 
-          done 6
+          done 7
 
   "test GET a non-existant key": ( done ) ->
     # now try and get it
@@ -47,7 +47,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @ok not err
         @equal jsonerr.type, "KeyNotFoundError"
 
-        done 5
+        done 4
 
   "test POST a valid key": ( done ) ->
     options =
@@ -105,7 +105,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal jsonerr.type, "ValidationError"
         @equal jsonerr.message, "The ‘qps’ property must be an ‘integer’. The type of the property is ‘string’"
 
-        done 5
+        done 4
 
   "test PUT with an existing key": ( done ) ->
     options =
@@ -153,7 +153,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @ok not err
           @equal jsonerr.type, "ValidationError"
 
-          done 6
+          done 5
 
   "test DELETE with invalid KEY": ( done ) ->
     @DELETE path: "/v1/key/1234", ( err, res ) =>
@@ -166,7 +166,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @equal jsonerr.message, "Key '1234' not found."
         @equal jsonerr.type, "KeyNotFoundError"
 
-        done 6
+        done 5
 
   "test DELETE with valid key": ( done ) ->
     @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
@@ -189,7 +189,7 @@ class exports.KeyControllerTest extends ApiaxleTest
             @ok not err
             @ok not dbKey["1234"]
 
-            done 10
+            done 9
 
   "test get key range without resolution": ( done ) ->
     # create 11 keys
@@ -211,7 +211,7 @@ class exports.KeyControllerTest extends ApiaxleTest
 
           @equal results.length, 10
 
-          done 5
+          done 4
 
 
   "test get key range with resolution": ( done ) ->
@@ -239,7 +239,7 @@ class exports.KeyControllerTest extends ApiaxleTest
             @equal results[ name ].qpd, i
             @equal results[ name ].qps, i
 
-          done 34
+          done 33
 
 class exports.KeyStatsTest extends ApiaxleTest
   @start_webserver = true
