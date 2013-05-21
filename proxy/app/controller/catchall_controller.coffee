@@ -125,7 +125,7 @@ class CatchAll extends ApiaxleController
         if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
           new_err = err_func()
 
-          return statsModel.hit api, api_key, "error", new_err.name, ( err, res ) ->
+          return statsModel.hit api, api_key, keyrings, "error", new_err.name, ( err, res ) ->
             return cb new_err
 
         # if we're here its a new kind of error, don't want to call
