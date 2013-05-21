@@ -113,7 +113,7 @@ class CatchAll extends ApiaxleController
             return outerCb err, apiRes, body
 
   @ENDPOINT_ERROR_MAP =
-    ETIMEOUT: ( ) -> new EndpointTimeoutError "API endpoint timed out."
+    ETIMEDOUT: ( ) -> new EndpointTimeoutError "API endpoint timed out."
     ENOTFOUND: ( ) -> new EndpointMissingError "API endpoint could not be reached."
 
   _httpRequest: ( options, api, api_key, keyrings, cb ) ->
