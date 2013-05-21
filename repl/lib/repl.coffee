@@ -5,6 +5,7 @@ readline = require "readline"
 
 # command loading
 { Api } = require "./command/api"
+{ Keyring } = require "./command/keyring"
 { Info } = require "./command/info"
 { Apis } = require "./command/apis"
 { Keys } = require "./command/keys"
@@ -13,6 +14,7 @@ readline = require "readline"
 class exports.ReplHelper
   @all_commands =
     api: Api
+    keyring: Keyring
     apis: Apis
     keys: Keys
     key: Key
