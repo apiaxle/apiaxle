@@ -71,49 +71,75 @@ class exports.KeyringStatsTest extends ApiaxleTest
     all = []
 
     cases =
-      "for everything":
-        params: {}
-        results:
-          uncached: { 400: 1, 200: 4 }
-          cached: { 400: 3 }
-          errors: {}
-      "for facebook only":
-        params:
-          forapi: "facebook"
-        results:
-          uncached: { 400: 1, 200: 2 }
-          cached: { 400: 2 }
-          errors: {}
-      "for twitter only":
-        params:
-          forapi: "twitter"
-        results:
-          uncached: { 200: 2 }
-          cached: { 400: 1 }
+      untrusted: [
+        {
+          params: {}
+          results:
+            uncached: { 400: 1, 200: 2 }
+            cached: { 400: 1 }
+        },
+        {
+          params:
+            forapi: "facebook"
+          results:
+            uncached: { 400: 1 }
+        },
+        {
+          params:
+            forapi: "twitter"
+          results:
+            uncached: { 200: 2 }
+            cached: { 400: 1 }
+        }
+      ],
+      trusted: [
+        {
+          params: {}
+          results:
+            uncached: { 400: 1, 200: 4 }
+            cached: { 400: 3 }
+        },
+        {
+          params:
+            forapi: "facebook"
+          results:
+            uncached: { 400: 1, 200: 2 }
+            cached: { 400: 2 }
+        },
+        {
+          params:
+            forapi: "twitter"
+          results:
+            uncached: { 200: 2 }
+            cached: { 400: 1 }
+        }
+      ]
 
-    for cse, details of cases
-      do( cse, details ) =>
-        all.push ( cb ) =>
-          params = _.clone details.params
-          params.from = @now_days
-          params.granularity = "days"
+    for keyring, tests of cases
+      for details in tests
+        do( details, keyring ) =>
+          all.push ( cb ) =>
+            params = _.clone details.params
+            params.from = @now_days
+            params.granularity = "days"
 
-          @GET path: "/v1/keyring/trusted/stats?#{ querystring.stringify params }", ( err, res ) =>
-            @ok not err
-
-            res.parseJsonSuccess ( err, meta, results ) =>
+            path = "/v1/keyring/#{ keyring }/stats?#{ querystring.stringify params }"
+            @GET path: path, ( err, res ) =>
               @ok not err
 
-              for field in [ "cached", "uncached", "error" ]
-                continue unless details.results[field]
-                @deepEqual details.results[field], results[field][@now_days]
+              res.parseJsonSuccess ( err, meta, results ) =>
+                @ok not err
 
-              cb()
+                for field in [ "cached", "uncached", "error" ]
+                  continue unless details.results[field]
+                  @deepEqual details.results[field], results[field][@now_days]
+
+                cb()
 
     async.series all, ( err ) =>
-      @isNull err
+      @ok not err
 
-      done 13
+      done 24
 
 class exports.ApiStatsTest extends ApiaxleTest
   @start_webserver = true
