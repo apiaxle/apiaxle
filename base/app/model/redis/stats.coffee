@@ -149,20 +149,17 @@ class exports.Stats extends Redis
     return ( min - properties.ttl )
 
   hit: ( api, key, keyrings, cached, code, cb ) ->
-    db_keys = [
-      [ "api", api, cached, code ],
-      [ "key", key, cached, code ],
-      [ "key-api", key, api, cached, code ],
-      [ "api-key", api, key, cached, code ]]
+    multi = @multi()
+
+    @recordHit multi, [ "api", api, cached, code ]
+    @recordHit multi, [ "key", key, cached, code ]
+    @recordHit multi, [ "key-api", key, api, cached, code ]
+    @recordHit multi, [ "api-key", api, key, cached, code ]
 
     # record the keyring stats too
     for keyring in keyrings
-      db_keys.push [ "keyring", keyring, cached, code ]
-      db_keys.push [ "keyring-api", keyring, api, cached, code ]
-      db_keys.push [ "keyring-key", keyring, key, cached, code ]
-
-    multi = @multi()
-
-    @recordHit multi, db_key for db_key in db_keys
+      @recordHit multi, [ "keyring", keyring, cached, code ]
+      @recordHit multi, [ "keyring-api", keyring, api, cached, code ]
+      @recordHit multi, [ "keyring-key", keyring, key, cached, code ]
 
     return multi.exec cb
