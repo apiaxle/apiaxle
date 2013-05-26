@@ -11,31 +11,23 @@ class exports.StatsTest extends FakeAppTest
     @model = @app.model "stats"
     done()
 
-  "test #recordHit": ( done ) ->
-    @model.recordHit ["key","1234", "cached", "200"],  ( err, result ) =>
-      @ok not err
-      @equal result[0], 1
-      done()
-
   "test #get": ( done ) ->
     now = Date.now()
     clock = @getClock now
 
     now_seconds = Math.floor( now / 1000 )
 
-    all = []
-    all.push ( cb ) =>
-      @model.recordHit ["key","1234", "cached", "200"], cb
+    multi = @model.multi()
 
-    all.push ( cb ) =>
-      clock.addSeconds 2
-      @model.recordHit ["key","1234", "cached", "200"], cb
+    @model.recordHit multi, ["key","1234", "cached", "200"]
 
-    all.push ( cb ) =>
-      clock.addMinutes 2
-      @model.recordHit ["key","1234", "cached", "200"], cb
+    clock.addSeconds 2
+    @model.recordHit multi, ["key","1234", "cached", "200"]
 
-    async.series all, ( err, result ) =>
+    clock.addMinutes 2
+    @model.recordHit multi, ["key","1234", "cached", "200"]
+
+    multi.exec ( err, result ) =>
       @ok not err
       from = now_seconds - 3
 
@@ -68,17 +60,16 @@ class exports.StatsTest extends FakeAppTest
     now_seconds = Math.floor( now/1000 )
     next_seconds = Math.floor( next/1000 )
 
-    all = []
-    all.push ( cb ) =>
-      clock.set now
-      @model.recordHit ["key","1234", "200"], cb
+    multi = @model.multi()
+
+    clock.set now
+    @model.recordHit multi, ["key","1234", "200"]
 
     # jump into the next hour
-    all.push ( cb ) =>
-      clock.set next
-      @model.recordHit ["key","1234", "200"], cb
+    clock.set next
+    @model.recordHit multi, ["key","1234", "200"]
 
-    async.series all, ( err, result ) =>
+    multi.exec ( err ) =>
       @ok not err
       from = now_seconds - 3
       to   = next_seconds + 1

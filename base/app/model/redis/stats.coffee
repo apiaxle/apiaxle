@@ -54,12 +54,11 @@ class exports.Stats extends Redis
   getPossibleResponseTypes: ( db_key, cb ) ->
     return @smembers db_key.concat([ "response-types" ]), cb
 
-  recordHit: ( [ db_key..., axle_type ], cb ) ->
-    multi = @multi()
+  recordHit: ( multi, [ db_key..., axle_type ] ) ->
     multi.sadd db_key.concat([ "response-types" ]), axle_type
 
     for gran, properties of Stats.granularities
-      tsround = @getRoundedTimestamp null, (properties.size * properties.factor)
+      tsround = @getRoundedTimestamp null, ( properties.size * properties.factor )
 
       temp_key = db_key.concat [ axle_type, gran, tsround ]
 
@@ -68,7 +67,7 @@ class exports.Stats extends Redis
       multi.hincrby temp_key, ts, 1
       multi.expireat temp_key, tsround + properties.ttl
 
-    multi.exec cb
+    return multi
 
   # Get all response codes for a particular stats entry
   getAll: ( db_key, gran, from, to, cb ) ->
@@ -150,14 +149,11 @@ class exports.Stats extends Redis
     return ( min - properties.ttl )
 
   hit: ( api, key, keyrings, cached, code, cb ) ->
-    debug "Recording hit for '#{ api }' by '#{ key }'"
-
     db_keys = [
       [ "api", api, cached, code ],
       [ "key", key, cached, code ],
       [ "key-api", key, api, cached, code ],
-      [ "api-key", api, key, cached, code ],
-    ]
+      [ "api-key", api, key, cached, code ]]
 
     # record the keyring stats too
     for keyring in keyrings
@@ -165,11 +161,8 @@ class exports.Stats extends Redis
       db_keys.push [ "keyring-api", keyring, api, cached, code ]
       db_keys.push [ "keyring-key", keyring, key, cached, code ]
 
-    all = []
-    for db_key in db_keys
-      do( db_key ) =>
-        all.push ( cb ) => @recordHit db_key, cb
+    multi = @multi()
 
-    return async.parallel all, ( err ) ->
-      debug "Finished recording hit"
-      return cb err
+    @recordHit multi, db_key for db_key in db_keys
+
+    return multi.exec cb
