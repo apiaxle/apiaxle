@@ -54,6 +54,19 @@ class exports.Stats extends Redis
   getPossibleResponseTypes: ( db_key, cb ) ->
     return @smembers db_key.concat([ "response-types" ]), cb
 
+  recordScore: ( multi, db_key, thing ) ->
+    for gran, properties of Stats.granularities
+      tsround = @getRoundedTimestamp null, ( properties.size * properties.factor )
+
+      temp_key = db_key.concat [ gran, tsround, "score" ]
+
+      # hash keys are stored at second
+      ts = @getFactoredTimestamp null, properties.factor
+      multi.zincrby temp_key, 1, thing
+      multi.expireat temp_key, tsround + properties.ttl
+
+    return multi
+
   recordHit: ( multi, [ db_key..., axle_type ] ) ->
     multi.sadd db_key.concat([ "response-types" ]), axle_type
 
@@ -156,10 +169,19 @@ class exports.Stats extends Redis
     @recordHit multi, [ "key-api", key, api, cached, code ]
     @recordHit multi, [ "api-key", api, key, cached, code ]
 
+    @recordScore multi, [ "api" ], api
+    @recordScore multi, [ "key" ], key
+    @recordScore multi, [ "key-api", key ], api
+    @recordScore multi, [ "api-key", api ], key
+
     # record the keyring stats too
     for keyring in keyrings
       @recordHit multi, [ "keyring", keyring, cached, code ]
       @recordHit multi, [ "keyring-api", keyring, api, cached, code ]
       @recordHit multi, [ "keyring-key", keyring, key, cached, code ]
+
+      @recordScore multi, [ "keyring" ], keyring
+      @recordScore multi, [ "keyring-api", keyring ], api
+      @recordScore multi, [ "keyring-key", keyring ], key
 
     return multi.exec cb
