@@ -54,11 +54,11 @@ class exports.Stats extends Redis
   getPossibleResponseTypes: ( db_key, cb ) ->
     return @smembers db_key.concat([ "response-types" ]), cb
 
+  # record the score for thing at various granularities
   recordScore: ( multi, db_key, thing ) ->
     for gran, properties of Stats.granularities
       tsround = @getRoundedTimestamp null, ( properties.size * properties.factor )
-
-      temp_key = db_key.concat [ gran, tsround, "score" ]
+      temp_key = db_key.concat [ gran, "score" ]
 
       # hash keys are stored at second
       ts = @getFactoredTimestamp null, properties.factor
@@ -81,6 +81,12 @@ class exports.Stats extends Redis
       multi.expireat temp_key, tsround + properties.ttl
 
     return multi
+
+  # [ 'api', 'days', 'score' ] 'facebook'
+  getScores: ( db_key, gran, cb ) ->
+    temp_key = db_key.concat [ gran, "score" ]
+
+    return @zrevrange temp_key, [ 0, 100 ], cb
 
   # Get all response codes for a particular stats entry
   getAll: ( db_key, gran, from, to, cb ) ->

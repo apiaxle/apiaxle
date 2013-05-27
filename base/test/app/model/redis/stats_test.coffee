@@ -93,3 +93,27 @@ class exports.StatsTest extends FakeAppTest
     async.series all, ( err, result ) =>
       @isNotNull err
       done 1
+
+  "test #getScores": ( done ) ->
+    now  = Date.now()
+    clock = @getClock now
+
+    next = now + ( 3600 + 1 ) * 1000
+    now_seconds = Math.floor( now/1000 )
+    next_seconds = Math.floor( next/1000 )
+
+    multi = @model.multi()
+
+    clock.set now
+    @model.recordScore multi, [ "key" ], "1234"
+
+    multi.exec ( err ) =>
+      @ok not err
+
+      @model.getScores [ "key" ], "seconds", ( err, results ) =>
+        console.log( err )
+        @ok not err
+
+        console.log( results )
+
+        done 1

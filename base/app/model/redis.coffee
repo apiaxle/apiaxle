@@ -311,7 +311,7 @@ redisCommands = [
   "zrem",
   "zincrby",
   "zcard",
-  "zrangebyscore"
+  "zrevrange"
 ]
 
 # build up the redis multi commands
@@ -330,7 +330,7 @@ for command in redisCommands
     # Redis just offloads to the attached redis client. Perhaps we
     # should inherit from redis as RedisMulti does
     Redis::[ command ] = ( key, args... ) ->
-      full_key = @getKey( key )
+      full_key = @getKey key
 
       redisdebug "Redis '#{ command }' on '#{ key }'"
       @app.redisClient[ command ]( full_key, args... )
