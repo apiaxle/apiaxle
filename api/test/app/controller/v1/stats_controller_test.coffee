@@ -89,6 +89,28 @@ class exports.KeyringStatsTest extends ApiaxleTest
 
         done 3
 
+  "test getting api scores for a particular key": ( done ) ->
+    path = "/v1/key/bob/keycharts"
+    @GET path: path, ( err, res ) =>
+      @ok not err
+
+      res.parseJsonSuccess ( err, meta, charts ) =>
+        @ok not err
+        @deepEqual charts, { "facebook": 4 }
+
+        done 3
+
+  "test getting keys scores for a particular Api": ( done ) ->
+    path = "/v1/api/facebook/keycharts"
+    @GET path: path, ( err, res ) =>
+      @ok not err
+
+      res.parseJsonSuccess ( err, meta, charts ) =>
+        @ok not err
+        @deepEqual charts, { "bob": 4, "frank": 1 }
+
+        done 3
+
   "test getting stats for a keyring": ( done ) =>
     all = []
 
