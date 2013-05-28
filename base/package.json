@@ -19,14 +19,14 @@
     "async": "~0.2.7",
     "lodash": "~1.2.0",
     "express": "~3.2.0",
-    "redis": "~0.8.3",
     "js2xml": "0.0.6",
     "libxmljs": "~0.7.1",
     "date-utils": "~1.2.12",
     "scarf": "0.0.6",
     "debug": "~0.7.2",
     "request": "~2.20.0",
-    "hiredis": "~0.1.15"
+    "hiredis": "~0.1.15",
+    "redis": "~0.8.3"
   },
   "devDependencies": {
     "twerp": "~1.0.7",
