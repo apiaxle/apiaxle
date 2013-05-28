@@ -17,6 +17,12 @@ class exports.KeysCharts extends StatsController
           docs: "Get charts for the most recent values in the most
                  recent GRANULARTIY."
 
+  docs: ->
+    {}=
+      title: "Get the most used keys and their hit counts."
+      response: """List of the top 100 keys and their hit rate for time
+                   perioud GRANULATIRY"""
+
   middleware: -> [ @mwValidateQueryParams() ]
 
   execute: ( req, res, next ) ->

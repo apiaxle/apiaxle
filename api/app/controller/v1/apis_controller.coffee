@@ -19,6 +19,12 @@ class exports.ApisCharts extends StatsController
 
   middleware: -> [ @mwValidateQueryParams() ]
 
+  docs: ->
+    {}=
+      title: "Get the most used APIs and their hit counts."
+      response: """List of the top 100 APIs and their hit rate for time
+                   perioud GRANULATIRY"""
+
   execute: ( req, res, next ) ->
     @app.model( "stats" ).getScores [ "api" ], req.query.granularity, ( err, chart ) =>
       return next err if err
