@@ -86,7 +86,15 @@ class exports.Stats extends Redis
   getScores: ( db_key, gran, cb ) ->
     temp_key = db_key.concat [ gran, "score" ]
 
-    return @zrevrange temp_key, [ 0, 100 ], cb
+    return @zrevrangeOpt temp_key, [ 0, 100, "WITHSCORES" ], ( err, scores ) ->
+      all = {}
+
+      # zip up the array into an object
+      while scores.length > 0
+        all[ scores.shift() ] = scores.shift()
+
+      return cb err if err
+      return cb null, all
 
   # Get all response codes for a particular stats entry
   getAll: ( db_key, gran, from, to, cb ) ->

@@ -95,25 +95,20 @@ class exports.StatsTest extends FakeAppTest
       done 1
 
   "test #getScores": ( done ) ->
-    now  = Date.now()
-    clock = @getClock now
-
-    next = now + ( 3600 + 1 ) * 1000
-    now_seconds = Math.floor( now/1000 )
-    next_seconds = Math.floor( next/1000 )
-
     multi = @model.multi()
 
-    clock.set now
     @model.recordScore multi, [ "key" ], "1234"
+    @model.recordScore multi, [ "key" ], "1234"
+    @model.recordScore multi, [ "key" ], "1234"
+
+    @model.recordScore multi, [ "key" ], "1235"
 
     multi.exec ( err ) =>
       @ok not err
 
-      @model.getScores [ "key" ], "seconds", ( err, results ) =>
-        console.log( err )
+      @model.getScores [ "key" ], "minutes", ( err, results ) =>
         @ok not err
 
-        console.log( results )
+        @deepEqual results, { "1234": 3, "1235": 1 }
 
-        done 1
+        done 3

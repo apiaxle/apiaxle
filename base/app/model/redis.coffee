@@ -174,6 +174,14 @@ class Redis
 
     strings.join "\n"
 
+  # need to do this to support the optional arguments
+  zrevrangeOpt: ( key, args, cb ) ->
+    full_key = @getKey key
+    all_args = [ full_key, args... ]
+
+    # need to use the raw redis library here
+    return @app.redisClient.zrevrange all_args, cb
+
   # friendlier hexists (returns a bool rather than an int)
   fHexists: ( key, field, cb ) ->
     @hexists key, field, ( err, result ) ->
@@ -311,7 +319,7 @@ redisCommands = [
   "zrem",
   "zincrby",
   "zcard",
-  "zrevrange"
+  "zrevrange",
 ]
 
 # build up the redis multi commands
@@ -322,7 +330,7 @@ for command in redisCommands
       throw new Error "No such redis commmand '#{ command }'"
 
     RedisMulti::[ command ] = ( key, args... ) ->
-      full_key = @getKey( key )
+      full_key = @getKey key
 
       redismultidebug "RedisMulti '#{ command }' on '#{ key }'"
       RedisMulti.__super__[ command ].apply this, [ full_key, args... ]
