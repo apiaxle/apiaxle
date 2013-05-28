@@ -67,6 +67,28 @@ class exports.KeyringStatsTest extends ApiaxleTest
 
     async.parallel hits, done
 
+  "test getting apis scores": ( done ) ->
+    path = "/v1/apis/charts"
+    @GET path: path, ( err, res ) =>
+      @ok not err
+
+      res.parseJsonSuccess ( err, meta, charts ) =>
+        @ok not err
+        @deepEqual charts, { "facebook": 5, "twitter": 3 }
+
+        done 3
+
+  "test getting keys scores": ( done ) ->
+    path = "/v1/keys/charts"
+    @GET path: path, ( err, res ) =>
+      @ok not err
+
+      res.parseJsonSuccess ( err, meta, charts ) =>
+        @ok not err
+        @deepEqual charts, { "bob": 4, "frank": 4 }
+
+        done 3
+
   "test getting stats for a keyring": ( done ) =>
     all = []
 

@@ -1,4 +1,28 @@
-{ ListController } = require "../controller"
+{ StatsController, ListController } = require "../controller"
+
+class exports.ApisCharts extends StatsController
+  @verb = "get"
+
+  path: -> "/v1/apis/charts"
+
+  queryParams: ->
+    {}=
+      type: "object"
+      additionalProperties: false
+      properties:
+        granularity:
+          type: "string"
+          enum: @valid_granularities
+          default: "minutes"
+          docs: "Get charts for the most recent values in the most
+                 recent GRANULARTIY."
+
+  middleware: -> [ @mwValidateQueryParams() ]
+
+  execute: ( req, res, next ) ->
+    @app.model( "stats" ).getScores [ "api" ], req.query.granularity, ( err, chart ) =>
+      return next err if err
+      return @json res, chart
 
 class exports.ListApis extends ListController
   @verb = "get"
@@ -6,7 +30,7 @@ class exports.ListApis extends ListController
   path: -> "/v1/apis"
 
   queryParams: ->
-    params =
+    {}=
       type: "object"
       additionalProperties: false
       properties:

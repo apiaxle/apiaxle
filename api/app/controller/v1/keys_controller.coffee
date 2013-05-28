@@ -1,4 +1,28 @@
-{ ListController } = require "../controller"
+{ StatsController, ListController } = require "../controller"
+
+class exports.KeysCharts extends StatsController
+  @verb = "get"
+
+  path: -> "/v1/keys/charts"
+
+  queryParams: ->
+    {} =
+      type: "object"
+      additionalProperties: false
+      properties:
+        granularity:
+          type: "string"
+          enum: @valid_granularities
+          default: "minutes"
+          docs: "Get charts for the most recent values in the most
+                 recent GRANULARTIY."
+
+  middleware: -> [ @mwValidateQueryParams() ]
+
+  execute: ( req, res, next ) ->
+    @app.model( "stats" ).getScores [ "key" ], req.query.granularity, ( err, chart ) =>
+      return next err if err
+      return @json res, chart
 
 class exports.ListKeys extends ListController
   @verb = "get"
