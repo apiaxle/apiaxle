@@ -21,13 +21,13 @@
   "dependencies": {
     "async": "~0.2.7",
     "lodash": "~1.2.0",
-    "express": "~3.2.0",
     "apiaxle-base": "1.9.14",
     "libxmljs": "~0.7.1",
     "moment": "~2.0.0",
     "scarf": "0.0.6",
     "sinon": "~1.6.0",
-    "twerp": "~1.0.7"
+    "twerp": "~1.0.7",
+    "express": "~3.2.5"
   },
   "devDependencies": {
     "coffee-script": "~1.6.2"
