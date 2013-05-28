@@ -256,3 +256,37 @@ class exports.ViewAllStatsForApi extends StatsController
     @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
       return next err if err
       return @json res, results
+
+class exports.ApiKeyCharts extends StatsController
+  @verb = "get"
+
+  path: -> "/v1/api/:api/keycharts"
+
+  queryParams: ->
+    {}=
+      type: "object"
+      additionalProperties: false
+      properties:
+        granularity:
+          type: "string"
+          enum: @valid_granularities
+          default: "minutes"
+          docs: "Get charts for the most recent values in the most
+                 recent GRANULARTIY."
+
+  middleware: -> [ @mwApiDetails( @app ),
+                   @mwValidateQueryParams() ]
+
+  docs: ->
+    {}=
+      title: "Get the most used keys for this api."
+      response: """List of the top 100 keys and their hit rate for time
+                   period GRANULARITY"""
+
+  execute: ( req, res, next ) ->
+    key = [ "api-key", req.api.id ]
+    { granularity } = req.query
+
+    @app.model( "stats" ).getScores key, granularity, ( err, chart ) =>
+      return next err if err
+      return @json res, chart

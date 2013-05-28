@@ -209,3 +209,37 @@ class exports.ViewHitsForKeyNow extends StatsController
     @getStatsRange req, axle_type, redis_key_part, ( err, results ) =>
       return next err if err
       return @json res, results
+
+class exports.KeyApiCharts extends StatsController
+  @verb = "get"
+
+  path: -> "/v1/key/:key/apicharts"
+
+  queryParams: ->
+    {}=
+      type: "object"
+      additionalProperties: false
+      properties:
+        granularity:
+          type: "string"
+          enum: @valid_granularities
+          default: "minutes"
+          docs: "Get charts for the most recent values in the most
+                 recent GRANULARTIY."
+
+  middleware: -> [ @mwKeyDetails( @app ),
+                   @mwValidateQueryParams() ]
+
+  docs: ->
+    {}=
+      title: "Get the most used apis for this key."
+      response: """List of the top 100 APIs and their hit rate for time
+                   period GRANULARITY"""
+
+  execute: ( req, res, next ) ->
+    key = [ "key-api", req.key.id ]
+    { granularity } = req.query
+
+    @app.model( "stats" ).getScores key, granularity, ( err, chart ) =>
+      return next err if err
+      return @json res, chart

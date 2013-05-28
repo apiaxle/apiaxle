@@ -54,12 +54,24 @@ class exports.Stats extends Redis
   getPossibleResponseTypes: ( db_key, cb ) ->
     return @smembers db_key.concat([ "response-types" ]), cb
 
-  recordHit: ( [ db_key..., axle_type ], cb ) ->
-    multi = @multi()
+  # record the score for thing at various granularities
+  recordScore: ( multi, db_key, thing ) ->
+    for gran, properties of Stats.granularities
+      tsround = @getRoundedTimestamp null, ( properties.size * properties.factor )
+      temp_key = db_key.concat [ gran, "score" ]
+
+      # hash keys are stored at second
+      ts = @getFactoredTimestamp null, properties.factor
+      multi.zincrby temp_key, 1, thing
+      multi.expireat temp_key, tsround + properties.ttl
+
+    return multi
+
+  recordHit: ( multi, [ db_key..., axle_type ] ) ->
     multi.sadd db_key.concat([ "response-types" ]), axle_type
 
     for gran, properties of Stats.granularities
-      tsround = @getRoundedTimestamp null, (properties.size * properties.factor)
+      tsround = @getRoundedTimestamp null, ( properties.size * properties.factor )
 
       temp_key = db_key.concat [ axle_type, gran, tsround ]
 
@@ -68,7 +80,21 @@ class exports.Stats extends Redis
       multi.hincrby temp_key, ts, 1
       multi.expireat temp_key, tsround + properties.ttl
 
-    multi.exec cb
+    return multi
+
+  # [ 'api', 'days', 'score' ] 'facebook'
+  getScores: ( db_key, gran, cb ) ->
+    temp_key = db_key.concat [ gran, "score" ]
+
+    return @zrevrangeOpt temp_key, [ 0, 100, "WITHSCORES" ], ( err, scores ) ->
+      all = {}
+
+      # zip up the array into an object
+      while scores.length > 0
+        all[ scores.shift() ] = scores.shift()
+
+      return cb err if err
+      return cb null, all
 
   # Get all response codes for a particular stats entry
   getAll: ( db_key, gran, from, to, cb ) ->
@@ -150,26 +176,26 @@ class exports.Stats extends Redis
     return ( min - properties.ttl )
 
   hit: ( api, key, keyrings, cached, code, cb ) ->
-    debug "Recording hit for '#{ api }' by '#{ key }'"
+    multi = @multi()
 
-    db_keys = [
-      [ "api", api, cached, code ],
-      [ "key", key, cached, code ],
-      [ "key-api", key, api, cached, code ],
-      [ "api-key", api, key, cached, code ],
-    ]
+    @recordHit multi, [ "api", api, cached, code ]
+    @recordHit multi, [ "key", key, cached, code ]
+    @recordHit multi, [ "key-api", key, api, cached, code ]
+    @recordHit multi, [ "api-key", api, key, cached, code ]
+
+    @recordScore multi, [ "api" ], api
+    @recordScore multi, [ "key" ], key
+    @recordScore multi, [ "key-api", key ], api
+    @recordScore multi, [ "api-key", api ], key
 
     # record the keyring stats too
     for keyring in keyrings
-      db_keys.push [ "keyring", keyring, cached, code ]
-      db_keys.push [ "keyring-api", keyring, api, cached, code ]
-      db_keys.push [ "keyring-key", keyring, key, cached, code ]
+      @recordHit multi, [ "keyring", keyring, cached, code ]
+      @recordHit multi, [ "keyring-api", keyring, api, cached, code ]
+      @recordHit multi, [ "keyring-key", keyring, key, cached, code ]
 
-    all = []
-    for db_key in db_keys
-      do( db_key ) =>
-        all.push ( cb ) => @recordHit db_key, cb
+      @recordScore multi, [ "keyring" ], keyring
+      @recordScore multi, [ "keyring-api", keyring ], api
+      @recordScore multi, [ "keyring-key", keyring ], key
 
-    return async.parallel all, ( err ) ->
-      debug "Finished recording hit"
-      return cb err
+    return multi.exec cb
