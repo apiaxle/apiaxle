@@ -90,7 +90,7 @@ class exports.KeyringStatsTest extends ApiaxleTest
         done 3
 
   "test getting api scores for a particular key": ( done ) ->
-    path = "/v1/key/bob/keycharts"
+    path = "/v1/key/bob/apicharts"
     @GET path: path, ( err, res ) =>
       @ok not err
 

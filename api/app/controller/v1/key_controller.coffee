@@ -213,7 +213,7 @@ class exports.ViewHitsForKeyNow extends StatsController
 class exports.KeyApiCharts extends StatsController
   @verb = "get"
 
-  path: -> "/v1/key/:key/keycharts"
+  path: -> "/v1/key/:key/apicharts"
 
   queryParams: ->
     {}=
@@ -229,6 +229,12 @@ class exports.KeyApiCharts extends StatsController
 
   middleware: -> [ @mwKeyDetails( @app ),
                    @mwValidateQueryParams() ]
+
+  docs: ->
+    {}=
+      title: "Get the most used apis for this key."
+      response: """List of the top 100 APIs and their hit rate for time
+                   period GRANULARITY"""
 
   execute: ( req, res, next ) ->
     key = [ "key-api", req.key.id ]

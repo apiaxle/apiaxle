@@ -277,6 +277,12 @@ class exports.ApiKeyCharts extends StatsController
   middleware: -> [ @mwApiDetails( @app ),
                    @mwValidateQueryParams() ]
 
+  docs: ->
+    {}=
+      title: "Get the most used keys for this api."
+      response: """List of the top 100 keys and their hit rate for time
+                   period GRANULARITY"""
+
   execute: ( req, res, next ) ->
     key = [ "api-key", req.api.id ]
     { granularity } = req.query
