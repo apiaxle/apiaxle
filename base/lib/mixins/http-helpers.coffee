@@ -36,7 +36,7 @@ class AppResponse
 
       { meta, results } = json
 
-      if @_isError meta and results.error?
+      if @_isError( meta ) and results.error?
         return cb new Error results.error.message
 
       return cb null, meta, results
