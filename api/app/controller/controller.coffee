@@ -237,6 +237,11 @@ class exports.StatsController extends exports.ApiaxleController
           default: false
           docs: "Results will be returned in a format more suited to
                  generating timeseries graphs."
+        format_timestamp:
+          type: "string"
+          enum: [ "epoch_milliseconds", "epoch_seconds" ]
+          default: "epoch_seconds"
+          docs: "Format the timestamps a particular way."
 
   getStatsRange: ( req, axle_type, key_parts, cb ) ->
     model = @app.model "stats"
@@ -264,6 +269,14 @@ class exports.StatsController extends exports.ApiaxleController
       for type, idx in types
         processed[type] = results[idx]
 
+      # timestamp formatting
+      if req.query.format_timestamp is "epoch_milliseconds"
+        for type, details of results
+          for timestamp, hits of details
+            new_ts = timestamp * 1000
+            details[ new_ts ] = hits
+            delete details[ timestamp ]
+
       # timeseries
       if req.query.format_timeseries is true
         return @denormForTimeseries processed, ( err, new_results ) =>
@@ -272,7 +285,6 @@ class exports.StatsController extends exports.ApiaxleController
 
       return cb null, processed
 
-  # TODO: zero padding?
   denormForTimeseries: ( results, cb ) ->
     new_results = {}
     all = {}

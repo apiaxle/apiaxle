@@ -209,6 +209,8 @@ class exports.ApiStatsTest extends ApiaxleTest
     now = 1464951741939 # Fri, 03 Jun 2016
 
     @now_seconds = Math.floor( now / 1000 )
+    @now_milliseconds = @now_seconds * 1000
+
     @now_minutes = 1464951720
     @now_hours = 1464951600
     @now_days = 1464912000
@@ -386,21 +388,38 @@ class exports.ApiStatsTest extends ApiaxleTest
 
       done 25
 
-  "test getting different timestamp formats": ( done ) ->
-    query =
-      granularity: "days"
-      from: @now_seconds
-      format_timeseries: true
-      format_timestamp: "epoch-milliseconds"
+  "test getting millisecond timestamp format": ( done ) ->
+    all = []
 
-    path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
-    @GET path: path, ( err, res ) =>
+    for [ granularity, timestamp ] in @test_cases
+      do ( granularity, timestamp ) =>
+        all.push ( cb ) =>
+          query =
+            granularity: granularity
+            from: @now_seconds
+            format_timeseries: true
+            format_timestamp: "epoch_milliseconds"
+
+          path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
+          @GET path: path, ( err, res ) =>
+            @ok not err
+
+            res.parseJson ( err, json ) =>
+              @ok not err
+
+              results = json.results
+
+              # check for the milliseconds
+              timestamp *= 1000
+
+              @deepEqual results.uncached["200"][timestamp], 2
+              @deepEqual results.uncached["400"][timestamp], 1
+              @deepEqual results.cached["400"][timestamp], 3
+              @deepEqual results.error, {}
+
+              cb()
+
+    async.series all, ( err ) =>
       @ok not err
 
-      res.parseJsonSuccess ( err, meta, results ) =>
-        @ok not err
-
-        milli = @now_seconds + 1000
-        @deepEqual results.uncached["200"][milli], 2
-
-        done 1
+      done 25
