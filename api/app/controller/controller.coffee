@@ -210,12 +210,14 @@ class exports.StatsController extends exports.ApiaxleController
     ISO: ( ts ) -> ( new Date( ts * 1000 ) ).toISOString()
 
   queryParams: ->
+    return @_queryParams if @_queryParams
+
     # get the correct granularities from the model itself.
     if not @valid_granularities
       gran_details = @app.model( "stats" ).constructor.granularities
       @valid_granularities = _.keys gran_details
 
-    params =
+    return @_queryParams =
       type: "object"
       additionalProperties: false
       properties:
