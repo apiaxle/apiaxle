@@ -385,3 +385,22 @@ class exports.ApiStatsTest extends ApiaxleTest
       @ok not err
 
       done 25
+
+  "test getting different timestamp formats": ( done ) ->
+    query =
+      granularity: "days"
+      from: @now_seconds
+      format_timeseries: true
+      format_timestamp: "epoch-milliseconds"
+
+    path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
+    @GET path: path, ( err, res ) =>
+      @ok not err
+
+      res.parseJsonSuccess ( err, meta, results ) =>
+        @ok not err
+
+        milli = @now_seconds + 1000
+        @deepEqual results.uncached["200"][milli], 2
+
+        done 1
