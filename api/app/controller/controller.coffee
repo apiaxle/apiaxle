@@ -204,6 +204,11 @@ class exports.ListController extends exports.ApiaxleController
         return @json res, results, { pagination: @pagination( req, keys.length ) }
 
 class exports.StatsController extends exports.ApiaxleController
+  @timestamp_formats =
+    epoch_seconds: ( ts ) -> ts
+    epoch_milliseconds: ( ts ) -> ts * 1000
+    ISO: ( ts ) -> ( new Date( ts * 1000 ) ).toISOString()
+
   queryParams: ->
     # get the correct granularities from the model itself.
     if not @valid_granularities
@@ -239,7 +244,7 @@ class exports.StatsController extends exports.ApiaxleController
                  generating timeseries graphs."
         format_timestamp:
           type: "string"
-          enum: [ "epoch_milliseconds", "epoch_seconds" ]
+          enum: _.keys @constructor.timestamp_formats
           default: "epoch_seconds"
           docs: "Format the timestamps a particular way."
 
@@ -269,11 +274,12 @@ class exports.StatsController extends exports.ApiaxleController
       for type, idx in types
         processed[type] = results[idx]
 
-      # timestamp formatting
-      if req.query.format_timestamp is "epoch_milliseconds"
+      # timestamp formatting. It's already in seconds so we'll only
+      # convert if the user didn't ask for them that way
+      if req.query.format_timestamp isnt "epoch_seconds"
         for type, details of results
           for timestamp, hits of details
-            new_ts = timestamp * 1000
+            new_ts = @constructor.timestamp_formats[req.query.format_timestamp]( timestamp )
             details[ new_ts ] = hits
             delete details[ timestamp ]
 

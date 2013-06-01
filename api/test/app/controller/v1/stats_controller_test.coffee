@@ -423,3 +423,42 @@ class exports.ApiStatsTest extends ApiaxleTest
       @ok not err
 
       done 25
+
+  "test getting iso timestamp format": ( done ) ->
+    all = []
+
+    for [ granularity, timestamp ] in @test_cases
+      do ( granularity, timestamp ) =>
+        all.push ( cb ) =>
+          query =
+            granularity: granularity
+            from: @now_seconds
+            format_timeseries: true
+            format_timestamp: "ISO"
+
+          path = "/v1/api/facebook/stats?#{ querystring.stringify query }"
+          @GET path: path, ( err, res ) =>
+            @ok not err
+
+            res.parseJson ( err, json ) =>
+              @ok not err
+
+              results = json.results
+
+              # check for the ISO date
+              timestamp = ( new Date( timestamp * 1000 ) ).toISOString()
+
+              # we know it should be 03 Jun 2016
+              @match timestamp, /2016-06-03/
+
+              @deepEqual results.uncached["200"][timestamp], 2
+              @deepEqual results.uncached["400"][timestamp], 1
+              @deepEqual results.cached["400"][timestamp], 3
+              @deepEqual results.error, {}
+
+              cb()
+
+    async.series all, ( err ) =>
+      @ok not err
+
+      done 25
