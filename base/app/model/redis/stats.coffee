@@ -63,7 +63,7 @@ class exports.Stats extends Redis
       # hash keys are stored at second
       ts = @getFactoredTimestamp null, properties.factor
       multi.zincrby temp_key, 1, thing
-      multi.expireat temp_key, tsround + properties.factor
+      multi.expire temp_key, properties.factor
 
     return multi
 
