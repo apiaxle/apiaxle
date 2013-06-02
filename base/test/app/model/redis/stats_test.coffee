@@ -11,7 +11,9 @@ class exports.StatsTest extends FakeAppTest
     @model = @app.model "stats"
     done()
 
-  "test #get": ( done ) ->
+  # TODO: this probably isn't actually testing what we think. The
+  # clock shifting makes no difference to the multi call
+  "don't test #get": ( done ) ->
     now = Date.now()
     clock = @getClock now
 
