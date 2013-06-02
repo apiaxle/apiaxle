@@ -35,6 +35,7 @@ api.script ( finish ) ->
     for i in [ from..real ] by 20000
       redis_key = [ rand( apis ),
                     rand( keys ),
+                    [],
                     rand( possible_types ),
                     rand( possible_status ) ]
 
