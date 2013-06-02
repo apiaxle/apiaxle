@@ -57,13 +57,13 @@ class exports.Stats extends Redis
   # record the score for thing at various granularities
   recordScore: ( multi, db_key, thing ) ->
     for gran, properties of Stats.granularities
-      tsround = @getRoundedTimestamp null, ( properties.size * properties.factor )
+      tsround = @getRoundedTimestamp null, properties.factor
       temp_key = db_key.concat [ gran, "score" ]
 
       # hash keys are stored at second
       ts = @getFactoredTimestamp null, properties.factor
       multi.zincrby temp_key, 1, thing
-      multi.expire temp_key, properties.factor
+      multi.expireat temp_key, tsround + properties.factor
 
     return multi
 
