@@ -90,7 +90,9 @@ class exports.ApiaxleController extends Controller
         return next new ValidationError err.message if err
 
         # replace the old ones
-        req.query = with_defaults
+        for key, value of with_defaults
+          req.query[key] =  if typeof value is "function" then value() else value
+
         return next()
 
   # Will decorate `req.key` with details of the key specified in the
@@ -223,12 +225,12 @@ class exports.StatsController extends exports.ApiaxleController
       properties:
         from:
           type: "integer"
-          default: Math.floor( Date.now() / 1000 ) - 600
+          default: ( ) -> Math.floor( Date.now() / 1000 ) - 600
           docs: "The unix epoch from which to start gathering
                  the statistics. Defaults to `now - 10 minutes`."
         to:
           type: "integer"
-          default: Math.floor( Date.now() / 1000 )
+          default: ( ) -> Math.floor( Date.now() / 1000 )
           docs: "The unix epoch from which to finish gathering
                  the statistics. Defaults to `now`."
         granularity:
