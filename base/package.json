@@ -10,7 +10,7 @@
   ],
   "description": "Shared core functionality for apiaxle.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "1.9.16",
+  "version": "1.9.17",
   "main": "index",
   "scripts": {
     "test": "make test"
