@@ -91,7 +91,7 @@ class exports.Stats extends Redis
 
       # zip up the array into an object
       while scores.length > 0
-        all[ scores.shift() ] = scores.shift()
+        all[ scores.shift() ] = parseInt scores.shift()
 
       return cb err if err
       return cb null, all
