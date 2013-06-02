@@ -91,7 +91,7 @@ class exports.ApiaxleController extends Controller
 
         # replace the old ones
         for key, value of with_defaults
-          req.query[key] =  if typeof value is "function" then value() else value
+          req.query[key] = if typeof value is "function" then value() else value
 
         return next()
 
