@@ -262,18 +262,6 @@ class exports.ApiKeyCharts extends StatsController
 
   path: -> "/v1/api/:api/keycharts"
 
-  queryParams: ->
-    {}=
-      type: "object"
-      additionalProperties: false
-      properties:
-        granularity:
-          type: "string"
-          enum: @valid_granularities
-          default: "minutes"
-          docs: "Get charts for the most recent values in the most
-                 recent GRANULARTIY."
-
   middleware: -> [ @mwApiDetails( @app ),
                    @mwValidateQueryParams() ]
 

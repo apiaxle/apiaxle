@@ -236,7 +236,7 @@ class exports.StatsController extends exports.ApiaxleController
         granularity:
           type: "string"
           enum: @valid_granularities
-          default: "minutes"
+          default: "minute"
           docs: "Allows you to gather statistics tuned to this level
                  of granularity. Results will still arrive in the form
                  of an epoch to results pair but will be rounded off

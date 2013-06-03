@@ -18,22 +18,22 @@ class exports.Stats extends Redis
   # * factor - granularity in seconds. This value is used to round off
   #   the timestamps
   @granularities =
-    seconds: # kept for 1 hour
+    second: # kept for 1 hour
       size:   3600
       ttl:    7200
       factor: 1
 
-    minutes: # Available for 24 hours
+    minute: # Available for 24 hours
       size:   1440
       ttl:    172800
       factor: 60
 
-     hours: # Available for 7 days
+     hour: # Available for 7 days
        size:   168
        ttl:    1209600
        factor: 3600
 
-     days: # Available for 24 hours
+     day: # Available for 24 hours
        size:   365
        ttl:    63113880
        factor: 86400

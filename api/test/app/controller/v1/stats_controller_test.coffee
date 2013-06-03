@@ -165,7 +165,7 @@ class exports.KeyringStatsTest extends ApiaxleTest
           all.push ( cb ) =>
             params = _.clone details.params
             params.from = @now_days
-            params.granularity = "days"
+            params.granularity = "day"
 
             path = "/v1/keyring/#{ keyring }/stats?#{ querystring.stringify params }"
             @GET path: path, ( err, res ) =>
@@ -229,10 +229,10 @@ class exports.ApiStatsTest extends ApiaxleTest
     hits.push ( cb ) => model.hit "twitter", "bill", [], "uncached", 200, cb
     hits.push ( cb ) => model.hit "twitter", "bob", [], "uncached", 200, cb
 
-    @test_cases = [ [ "seconds", @now_seconds ],
-                    [ "minutes", @now_minutes ],
-                    [ "hours",   @now_hours   ],
-                    [ "days",    @now_days    ] ]
+    @test_cases = [ [ "second", @now_seconds ],
+                    [ "minute", @now_minutes ],
+                    [ "hour",   @now_hours   ],
+                    [ "day",    @now_days    ] ]
 
     async.parallel hits, done
 

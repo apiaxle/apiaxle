@@ -33,7 +33,7 @@ class exports.StatsTest extends FakeAppTest
       @ok not err
       from = now_seconds - 3
 
-      @model.get ["key", "1234", "cached", "200"], "seconds", from, null, ( err, result ) =>
+      @model.get ["key", "1234", "cached", "200"], "second", from, null, ( err, result ) =>
         @ok not err
 
         # we can't mock redis so there's a possiblity that the second
@@ -47,7 +47,7 @@ class exports.StatsTest extends FakeAppTest
         @isUndefined result[server_time + 1]
 
         @equal result[server_time + 120 + 2 ], 1
-        @model.get ["key", "1234", "cached", "200"], "minutes", from, null, ( err, result ) =>
+        @model.get ["key", "1234", "cached", "200"], "minute", from, null, ( err, result ) =>
           time = Math.floor( server_time / 60 ) * 60
           @equal result[time + 120], 1
 
@@ -76,7 +76,7 @@ class exports.StatsTest extends FakeAppTest
       from = now_seconds - 3
       to   = next_seconds + 1
 
-      @model.get ["key", "1234", "200"], "seconds", from, to, ( err, result ) =>
+      @model.get ["key", "1234", "200"], "second", from, to, ( err, result ) =>
         @ok not err
         @equal result[now_seconds],1
         @equal result[next_seconds],1
@@ -87,10 +87,10 @@ class exports.StatsTest extends FakeAppTest
     all = []
 
     all.push ( cb ) =>
-      @model.get ["key", "1234", "cached", "200"], "seconds", from, from - 1000, cb
+      @model.get ["key", "1234", "cached", "200"], "second", from, from - 1000, cb
 
     all.push ( cb ) =>
-      @model.get ["key", "1234", "cached", "200"], "seconds", from - ( 1000 * 3720 ), from + 1000, cb
+      @model.get ["key", "1234", "cached", "200"], "second", from - ( 1000 * 3720 ), from + 1000, cb
 
     async.series all, ( err, result ) =>
       @isNotNull err
@@ -108,7 +108,7 @@ class exports.StatsTest extends FakeAppTest
     multi.exec ( err ) =>
       @ok not err
 
-      @model.getScores [ "key" ], "minutes", ( err, results ) =>
+      @model.getScores [ "key" ], "minute", ( err, results ) =>
         @ok not err
 
         @deepEqual results, { "1234": 3, "1235": 1 }

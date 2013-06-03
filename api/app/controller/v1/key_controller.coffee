@@ -223,7 +223,7 @@ class exports.KeyApiCharts extends StatsController
         granularity:
           type: "string"
           enum: @valid_granularities
-          default: "minutes"
+          default: "minute"
           docs: "Get charts for the most recent values in the most
                  recent GRANULARTIY."
 
