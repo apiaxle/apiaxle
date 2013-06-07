@@ -27,7 +27,7 @@ api.script ( finish ) ->
     clock = sinon.useFakeTimers from
 
     # more success than failure
-    possible_types = [ "cached", "uncached", "error" ]
+    possible_types = [ "cached", "uncached" ]
     possible_status = [ 200, 202, 200, 400, 404 ]
 
     key_pack = []
