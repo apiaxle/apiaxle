@@ -6,9 +6,7 @@ debug = require( "debug" )( "aa:catchall" )
 { KeyDisabled,
   ApiDisabled,
   EndpointMissingError,
-  EndpointTimeoutError,
-  ConnectionError,
-  DNSError } = require "../../lib/error"
+  EndpointTimeoutError } = require "../../lib/error"
 { ApiaxleController } = require "./controller"
 
 class CatchAll extends ApiaxleController
@@ -116,9 +114,9 @@ class CatchAll extends ApiaxleController
 
   @ENDPOINT_ERROR_MAP =
     ETIMEDOUT: ( ) -> new EndpointTimeoutError "API endpoint timed out."
-    ENOTFOUND: ( ) -> new EndpointMissingError "API endpoint could not be found."
-    EADDRINFO: ( ) -> new DNSError "API endpoint could not be resolved."
-    ECONNREFUSED: ( ) -> new ConnectionError "API endpoint could not be reached."
+    ENOTFOUND: ( ) -> new EndpointMissingError "API endpoint could not be reached."
+    EADDRINFO: ( ) -> new DNSError "API endpoint could not be reached."
+    ECONNREFUSED: ( ) -> new Connection "API endpoint could not be reached."
 
   _httpRequest: ( options, api, api_key, keyrings, cb ) ->
     statsModel = @app.model "stats"

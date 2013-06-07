@@ -17,3 +17,9 @@ class exports.EndpointTimeoutError extends AppError
 
 class exports.EndpointMissingError extends AppError
   @status = 502
+
+class exports.DNSError extends AppError
+  @status = 502
+
+class exports.ConnectionError extends AppError
+  @status = 502
