@@ -88,7 +88,10 @@ outputParams = ( params ) ->
       docs = "(optional) #{ docs }"
 
     if props.default?
-      docs = "(default: #{ props.default }) #{ docs }"
+      if typeof props.default is "function"
+        docs = "(default: [generated at runtime] #{ docs }"
+      else
+        docs = "(default: #{ props.default }) #{ docs }"
 
     data[param] = docs
 
