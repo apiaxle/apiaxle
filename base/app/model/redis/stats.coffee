@@ -33,7 +33,7 @@ class exports.Stats extends Redis
        ttl:    1209600
        factor: 3600
 
-     day: # Available for 24 hours
+     day: # Available for 24 months
        size:   365
        ttl:    63113880
        factor: 86400
