@@ -68,6 +68,18 @@ class exports.CreateKey extends ApiaxleController
                    @mwValidateQueryParams(),
                    @mwKeyDetails() ]
 
+  queryParams: ->
+    {}=
+      type: "object"
+      additionalProperties: false
+      properties:
+        isNSA:
+          type: "boolean"
+          default: false
+          docs: """If you're the NSA set this flag to true and you'll
+            activate GOD mode getting you into any API regardless of
+            your being linked to it or not."""
+
   path: -> "/v1/key/:key"
 
   execute: ( req, res, next ) ->
