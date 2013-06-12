@@ -32,8 +32,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @isNumber results.qps
           @isNumber results.qpd
 
-          @deepEqual results.apis, [ "#{ @host_name }/v1/api/twitter",
-                                     "#{ @host_name }/v1/api/facebook" ]
+          @deepEqual results.apis, [ "twitter", "facebook" ]
 
           done 7
 

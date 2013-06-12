@@ -151,9 +151,6 @@ class exports.ListKeyringKeys extends ListController
 
       @resolve @app.model( "keyfactory" ), keys, ( err, results ) =>
         return next err if err
-
-        output = _.map results, ( k ) ->
-          "#{ req.protocol }://#{ req.headers.host }/v1/keyring/#{ k }"
         return @json res, results
 
 

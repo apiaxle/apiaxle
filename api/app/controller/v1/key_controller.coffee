@@ -41,14 +41,11 @@ class exports.ListKeyApis extends ListController
     req.key.supportedApis ( err, apis ) =>
       return next err if err
 
-      resources = _.map apis, ( k ) ->
-        "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ k }"
-
-      return @json res, resources if not req.query.resolve
+      return @json res, apis if not req.query.resolve
 
       @resolve @app.model( "apifactory" ), apis, ( err, results ) =>
         return next err if err
-        return @json res, _.object resources, _.values( results )
+        return @json res, _.object apis, _.values( results )
 
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
@@ -115,8 +112,8 @@ class exports.ViewKey extends ApiaxleController
 
       # merge the api names with the current output
       output = req.key.data
-      output.apis = _.map apiNameList, ( a ) ->
-        "#{ req.protocol }://#{ req.headers.host }/v1/api/#{ a }"
+      output.apis = apiNameList
+
       return @json res, req.key.data
 
 class exports.DeleteKey extends ApiaxleController

@@ -206,9 +206,6 @@ class exports.ListApiKeys extends ListController
 
       @resolve @app.model( "keyfactory" ), keys, ( err, results ) =>
         return next err if err
-
-        output = _.map results, ( k ) ->
-          "#{ req.protocol }://#{ req.headers.host }/v1/key/#{ k }"
         return @json res, results
 
 class exports.ViewAllStatsForApi extends StatsController
