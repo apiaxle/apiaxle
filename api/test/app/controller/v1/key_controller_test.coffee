@@ -311,8 +311,6 @@ class exports.KeyStatsTest extends ApiaxleTest
               limitModel.apiHit "phil", 200, 100, ( err, [ qpsLeft, qpdLeft ] ) =>
                 @ok not err
 
-                # 100 - 1 because we've hit the api
-                # 99 - 5 because this user had already used 5 hits today
-                @equal qpdLeft, 94
+                @equal qpdLeft, 99
 
                 done 9
