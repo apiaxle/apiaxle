@@ -11,7 +11,7 @@ all: $(JS)
 README.md: ../README.md
 	cp ../$@ .
 
-publish: README.md $(JS)
+publish: clean README.md $(JS)
 	npm publish
 
 npminstall:
