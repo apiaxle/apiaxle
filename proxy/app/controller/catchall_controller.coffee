@@ -152,6 +152,12 @@ class CatchAll extends ApiaxleController
     { pathname, query } = url.parse req.url, true
 
     # we should make this optional
+    if query.apiaxle_sig?
+      delete query.apiaxle_sig
+    else
+      delete query.api_sig
+
+    # we should make this optional
     if query.apiaxle_key?
       delete query.apiaxle_key
     else
