@@ -157,7 +157,7 @@ class CatchAll extends ApiaxleController
     else
       delete query.api_sig
 
-    # we should make this optional
+    # we also should make this optional
     if query.apiaxle_key?
       delete query.apiaxle_key
     else

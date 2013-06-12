@@ -74,7 +74,7 @@ class exports.CatchallSigTest extends ApiaxleTest
       done 39
 
   "test signatures and expiry times": ( done ) ->
-    stub = @stubCatchallSimple 200, "{}",
+    stub = @stubCatchallSimple 200, null,
       "Content-Type": "application/json"
 
     @stubDns { "facebook.api.localhost": "127.0.0.1" }
@@ -95,7 +95,11 @@ class exports.CatchallSigTest extends ApiaxleTest
           cb()
 
     tests.push ( cb ) =>
-      @GET { path: "/?api_key=1234&api_sig=5678", host: "facebook.api.localhost" }, ( err, response ) =>
+      options =
+        path: "/?api_key=1234&api_sig=5678"
+        host: "facebook.api.localhost"
+
+      @GET options, ( err, response ) =>
         @ok not err
 
         response.parseJson ( err, json ) =>
@@ -124,6 +128,8 @@ class exports.CatchallSigTest extends ApiaxleTest
         response.parseJson ( err, json ) =>
           @ok not err
           @ok not json.results?.error?
+
+          @noMatch json.url, /api_(axle)?_sig/
 
           cb()
 
