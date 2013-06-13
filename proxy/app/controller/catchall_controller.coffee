@@ -234,4 +234,10 @@ class exports.PutCatchall extends CatchAll
   @verb: "put"
 
 class exports.DeleteCatchall extends CatchAll
-  @verb: "delete"
+  @verb: "del"
+
+class exports.HeadCatchall extends CatchAll
+  @verb: "head"
+
+class exports.PatchCatchall extends CatchAll
+  @verb: "patch"
