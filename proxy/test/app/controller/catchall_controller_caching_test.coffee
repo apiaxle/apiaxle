@@ -130,7 +130,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchallSimple 200, data,
+      stub = @stubCatchallSimpleGet 200, data,
         "Content-Type": "application/json"
 
       requestOptions =
@@ -188,7 +188,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchallSimple 202, data,
+      stub = @stubCatchallSimpleGet 202, data,
         "Content-Type": "application/json"
 
       requestOptions =
@@ -246,7 +246,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchallSimple 200, data,
+      stub = @stubCatchallSimpleGet 200, data,
         "Content-Type": "application/json"
 
       requestOptions =
@@ -295,7 +295,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchallSimple 200, data,
+      stub = @stubCatchallSimpleGet 200, data,
         "Content-Type": "application/json"
 
       requestOptions =

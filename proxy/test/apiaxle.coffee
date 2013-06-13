@@ -11,7 +11,7 @@ class exports.ApiaxleTest extends AppTest
 
   stubCatchall: ( cb ) -> @getStub GetCatchall::, "_httpRequest", cb
 
-  stubCatchallSimple: ( status, body, headers={} ) ->
+  stubCatchallSimpleGet: ( status, body, headers={} ) ->
     @stubCatchall ( options, api, key, keyrings, cb ) =>
       @fakeIncomingMessage status, body, headers, ( err, res ) =>
         # helpful for debugging

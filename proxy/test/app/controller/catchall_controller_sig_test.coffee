@@ -74,7 +74,7 @@ class exports.CatchallSigTest extends ApiaxleTest
       done 39
 
   "test signatures and expiry times": ( done ) ->
-    stub = @stubCatchallSimple 200, null,
+    stub = @stubCatchallSimpleGet 200, null,
       "Content-Type": "application/json"
 
     @stubDns { "facebook.api.localhost": "127.0.0.1" }
