@@ -317,6 +317,22 @@ class exports.CatchallTest extends ApiaxleTest
 
             done 5
 
+  "test DELETE": ( done ) ->
+    @stubDns { "facebook.api.localhost": "127.0.0.1" }
+
+    options =
+      path: "/"
+      host: "facebook.api.localhost"
+
+    @stubCatchallSimpleDelete 200, "{}",
+      "Content-Type": "application/json"
+
+    @DELETE options, ( err, response ) =>
+      @ok not err
+      @equal options.method, "DELETE"
+
+      done 1
+
   "test XML error": ( done ) ->
     apiOptions =
       endPoint: "graph.facebook.com"
