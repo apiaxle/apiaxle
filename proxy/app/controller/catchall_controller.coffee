@@ -188,7 +188,7 @@ class CatchAll extends ApiaxleController
       # here we support a default path for the request. This makes
       # sense with people like the BBC who have many APIs all sitting
       # on the one domain.
-      if ( defaultPath = req.api.data.defaultPath )
+      if ( defaultPath = req.api.data.defaultPath ) isnt "/"
         endpointUrl += defaultPath
 
       # the bit of the path that was actually requested

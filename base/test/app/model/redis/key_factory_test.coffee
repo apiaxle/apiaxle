@@ -57,6 +57,24 @@ class exports.KeyTest extends FakeAppTest
 
         done 2
 
+  "test #updating a key": ( done ) ->
+    createObj =
+      qps: 1
+      qpd: 3
+
+    @fixtures.createKey "987654321", createObj, ( err, dbKey ) =>
+      @ok not err
+      @ok dbKey.data
+
+      dbKey.update sharedSecret: "blah", ( err ) =>
+        @ok not err
+
+        @app.model( "keyfactory" ).find [ "987654321" ], ( err, results ) =>
+          @ok not err
+          @equal results["987654321"].data.sharedSecret, "blah"
+
+          done 5
+
   "test #linkToApi and #supportedApis": ( done ) ->
     fixtures =
       api:

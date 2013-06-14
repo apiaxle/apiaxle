@@ -49,7 +49,7 @@ class Key extends Model
       return cb err if err
 
       # if the qpd changes we might need to take note
-      if new_data.qpd isnt @data.qpd
+      if new_data.qpd and new_data.qpd isnt @data.qpd
         all_actions.push ( cb ) =>
           limits_model.updateQpValue redis_key_name, new_data.qpd, cb
 
