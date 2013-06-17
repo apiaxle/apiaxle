@@ -18,22 +18,33 @@ if not module.parent
     p:
       alias: "port"
       default: 3000
+      describe: "Port to bind the proxy to."
     h:
       alias: "host"
       default: "127.0.0.1"
+      describe: "Host to bind the proxy to."
+    f:
+      alias: "fork-count"
+      default: cpus.length
+      describe: "How many internal processes to fork"
+
+  optimism.boolean "help"
+  optimism.describe "help", "Show this help screen"
+
+  if optimism.argv.help
+    optimism.showHelp()
+    process.exit 0
 
   # taking a port from the commandline makes it much easier to cluster
   # the app
   { port, host } = optimism.argv
 
   if cluster.isMaster
-    # fork for each CPU
-    for i in cpus
-      cluster.fork()
+    # fork for each CPU or the specified amount
+    cluster.fork() for i in [ 1..optimism.argv["fork-count"] ]
 
     cluster.on "exit", ( worker, code, signal ) ->
       console.log( "Worker #{ worker.process.pid } died." )
-
   else
     api = new exports.ApiaxleProxy
       name: "apiaxle"
