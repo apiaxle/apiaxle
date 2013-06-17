@@ -14,10 +14,17 @@ class exports.ApiaxleProxy extends AxleApp
     controllers: "#{ __dirname }/app/controller/*_controller.{js,coffee}"
 
 if not module.parent
+  optimism = require( "optimist" ).options
+    p:
+      alias: "port"
+      default: 3000
+    h:
+      alias: "host"
+      default: "127.0.0.1"
+
   # taking a port from the commandline makes it much easier to cluster
   # the app
-  port = ( process.argv[2] or 3000 )
-  host = "127.0.0.1"
+  { port, host } = optimism.argv
 
   if cluster.isMaster
     # fork for each CPU
