@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "apiaxle-base": "1.9.25",
-    "parseopt": "1.0.0",
     "async": "0.1.9",
     "libxmljs": "0.7.1",
     "lodash": "~1.2.0",
@@ -26,7 +25,8 @@
     "sinon": "~1.6.0",
     "twerp": "~1.0.7",
     "hiredis": "~0.1.15",
-    "redis": "~0.8.3"
+    "redis": "~0.8.3",
+    "optimist": "~0.5.2"
   },
   "devDependencies": {
     "muffin": "~0",
