@@ -72,6 +72,10 @@ class exports.ApiaxleController extends Controller
 
       validators = @queryParams()
 
+      # if we're not expecting param and have them, then throw
+      if not validators.properties and _.keys( req.query ).length > 0
+        return next new ValidationError "No query parameters expected."
+
       for key, val of req.query
         # find out what type we expect
         continue unless validators.properties?[ key ]?
