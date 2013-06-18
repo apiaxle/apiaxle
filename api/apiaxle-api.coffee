@@ -37,7 +37,7 @@ if not module.parent
   optimism.boolean "help"
   optimism.describe "help", "Show this help screen"
 
-  if optimism.argv.help
+  if optimism.argv.help or optimism.argv._.length > 0
     optimism.showHelp()
     process.exit 0
 
