@@ -54,12 +54,12 @@ class exports.ReplHelper
       ask = ( cb ) =>
         @rl.question "your email> ", ( email ) =>
           @rl.question "your name> ", ( name ) =>
+            console.log( "Please wait - sending details (over https)..." )
             reg.register email, name, ( err ) =>
               if err?.name is "ValidationError"
                 console.error "Please enter a valid email address."
                 return ask cb
 
-              console.log( "Please wait - sending details (over https)..." )
               return cb err
 
       ask cb
