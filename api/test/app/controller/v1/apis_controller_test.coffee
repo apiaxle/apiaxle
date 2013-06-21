@@ -33,8 +33,8 @@ class exports.ApisControllerTest extends ApiaxleTest
         @equal json.results.length, 10
 
         # no next because we're asking for more than 10 results
-        @isUndefined json.meta.pagination.next
-        parsed = url.parse json.meta.pagination.prev, true
+        @isUndefined json.meta.pagination.next.href
+        parsed = url.parse json.meta.pagination.prev.href, true
 
         @equal "#{ parsed.protocol }//#{ parsed.host }", @host_name
         @deepEqual parsed.query,
@@ -53,8 +53,8 @@ class exports.ApisControllerTest extends ApiaxleTest
         @ok json
 
         # no next because we're asking for more than 10 results
-        @isUndefined json.meta.pagination.prev
-        parsed = url.parse json.meta.pagination.next, true
+        @isUndefined json.meta.pagination.prev.href
+        parsed = url.parse json.meta.pagination.next.href, true
 
         @equal "#{ parsed.protocol }//#{ parsed.host }", @host_name
         @deepEqual parsed.query,
@@ -109,8 +109,8 @@ class exports.ApisControllerTest extends ApiaxleTest
               @ok not err
 
               for step in [ "next", "prev" ]
-                parts = if json.meta.pagination[step]
-                  url.parse json.meta.pagination[step], true
+                parts = if json.meta.pagination[step].href
+                  url.parse json.meta.pagination[step].href, true
                 else
                   {}
 

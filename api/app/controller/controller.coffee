@@ -173,7 +173,9 @@ class exports.ListController extends exports.ApiaxleController
     url = "#{ req.protocol }://#{ req.headers.host }#{ req.path }"
     { from, to } = req.query
 
-    pagination = {}
+    pagination =
+      next: {}
+      prev: {}
 
     jump = ( to - from )
 
@@ -181,13 +183,20 @@ class exports.ListController extends exports.ApiaxleController
       next_params = _.clone req.query
       next_params.from = to + 1
       next_params.to = next_params.from + jump
-      pagination.next = "#{ url}?#{ qs.stringify next_params }"
+
+      pagination.next.href = "#{ url}?#{ qs.stringify next_params }"
+      pagination.next.from = next_params.from
+      pagination.next.to = next_params.to
+
 
     if from > 0
       prev_params = _.clone req.query
       prev_params.to = from - 1
       prev_params.from = if prev_params.to - jump < 0 then 0 else prev_params.to - jump
-      pagination.prev = "#{ url}?#{ qs.stringify prev_params }"
+
+      pagination.prev.href = "#{ url}?#{ qs.stringify prev_params }"
+      pagination.prev.from = prev_params.from
+      pagination.prev.to = prev_params.to
 
     return pagination
 
