@@ -202,11 +202,15 @@ class exports.ListApiKeys extends ListController
 
     req.api.getKeys from, to, ( err, keys ) =>
       return next err if err
-      return @json res, keys if not req.query.resolve
+
+      pag =
+        pagination: @pagination( req, keys.length )
+
+      return @json res, keys, pag if not req.query.resolve
 
       @resolve @app.model( "keyfactory" ), keys, ( err, results ) =>
         return next err if err
-        return @json res, results
+        return @json res, results, pag
 
 class exports.ViewAllStatsForApi extends StatsController
   @verb = "get"

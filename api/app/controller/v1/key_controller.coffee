@@ -41,11 +41,14 @@ class exports.ListKeyApis extends ListController
     req.key.supportedApis ( err, apis ) =>
       return next err if err
 
-      return @json res, apis if not req.query.resolve
+      pag =
+        pagination: @pagination( req, apis.length )
+
+      return @json res, apis, pag if not req.query.resolve
 
       @resolve @app.model( "apifactory" ), apis, ( err, results ) =>
         return next err if err
-        return @json res, _.object apis, _.values( results )
+        return @json res, _.object( apis, _.values( results ) ), pag
 
 class exports.CreateKey extends ApiaxleController
   @verb = "post"
