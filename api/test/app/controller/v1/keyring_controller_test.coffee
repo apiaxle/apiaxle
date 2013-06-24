@@ -24,6 +24,35 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
         done 3
 
+  "test DELETE valid keyring": ( done ) ->
+    fixtures =
+      keyring:
+        container: {}
+        container1: {}
+        container2: {}
+
+    # now try and get it
+    @fixtures.create fixtures, ( err ) =>
+      @ok not err
+
+      @GET path: "/v1/keyrings", ( err, res ) =>
+        @ok not err
+
+        res.parseJsonSuccess ( err, meta, results ) =>
+          @equal results.length, 3
+
+          @DELETE path: "/v1/keyring/container1", ( err ) =>
+            @ok not err
+
+            @GET path: "/v1/keyrings", ( err, res ) =>
+              @ok not err
+
+              res.parseJsonSuccess ( err, meta, results ) =>
+                @equal results.length, 2
+                @deepEqual results, [ "container", "container2" ]
+
+                done 2
+
   "test GET a valid keyring": ( done ) ->
     # now try and get it
     @fixtures.createKeyring "1234", {}, ( err, dbKr ) =>

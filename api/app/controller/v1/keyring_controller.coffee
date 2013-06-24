@@ -67,10 +67,9 @@ class exports.DeleteKeyring extends ApiaxleController
   execute: ( req, res, next ) ->
     model = @app.model "keyringfactory"
 
-    model.del req.params.keyring, ( err, newKeyring ) =>
+    model.delete req.params.keyring, ( err, newKeyring ) =>
       return next err if err
-
-      @json res, true
+      return @json res, true
 
 class exports.ModifyKeyring extends ApiaxleController
   @verb = "put"
