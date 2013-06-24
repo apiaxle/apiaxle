@@ -26,12 +26,18 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
   "test GET a valid keyring": ( done ) ->
     # now try and get it
-    @GET path: "/v1/keyring/1234", ( err, res ) =>
+    @fixtures.createKeyring "1234", {}, ( err, dbKr ) =>
       @ok not err
-      res.parseJson ( json ) =>
-        @ok 1
+      @ok dbKr
 
-        done 2
+      @GET path: "/v1/keyring/1234", ( err, res ) =>
+        @ok not err
+
+        res.parseJsonSuccess ( err, meta, results ) =>
+          @ok not err
+          @equal results.createdAt, dbKr.data.createdAt
+
+          done 5
 
   "test GET a list of keyrings": ( done ) ->
     all_keyrings = []
