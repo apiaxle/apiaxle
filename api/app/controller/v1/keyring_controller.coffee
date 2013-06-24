@@ -16,8 +16,9 @@ class exports.CreateKeyring extends ApiaxleController
       input: @app.model( 'keyringfactory' ).constructor.structure.properties
       response: "The inserted structure (including the new timestamp fields)."
 
-  middleware: -> [ @mwValidateQueryParams(),
-                   @mwKeyringDetails( ) ]
+  middleware: -> [ @mwContentTypeRequired(),
+                   @mwValidateQueryParams(),
+                   @mwKeyringDetails() ]
 
   path: -> "/v1/keyring/:keyring"
 
@@ -26,11 +27,9 @@ class exports.CreateKeyring extends ApiaxleController
     if req.keyring?
       return next new AlreadyExists "'#{ req.keyring.id }' already exists."
 
-    model = @app.model "keyringfactory"
-    model.create req.params.keyring, req.body, ( err, newObj ) =>
+    @app.model( "keyringfactory" ).create req.params.keyring, req.body, ( err, newObj ) =>
       return next err if err
-
-      @json res, newObj.data
+      return @json res, newObj.data
 
 class exports.ViewKeyring extends ApiaxleController
   @verb = "get"

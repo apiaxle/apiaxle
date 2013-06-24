@@ -7,6 +7,23 @@ class exports.KeyringControllerTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
+  "test POST a valid keyring": ( done ) ->
+    # now try and get it
+    options =
+      path: "/v1/keyring/helloworld"
+      headers:
+        "Content-Type": "application/json"
+      data: "{}"
+
+    @POST options, ( err, res ) =>
+      @ok not err
+
+      res.parseJsonSuccess ( err, meta, results ) =>
+        @ok not err
+        @ok results.createdAt
+
+        done 3
+
   "test GET a valid keyring": ( done ) ->
     # now try and get it
     @GET path: "/v1/keyring/1234", ( err, res ) =>
