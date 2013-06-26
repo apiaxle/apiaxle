@@ -118,7 +118,7 @@ genExampleInput = ( input ) ->
   return JSON.stringify output
 
 genExample = ( controller ) ->
-  example = "curl -X #{ controller.constructor.verb } '#{ genExamplePath( controller.path() ) }'"
+  example = "curl -X #{ controller.constructor.verb.toUpperCase() } '#{ genExamplePath( controller.path() ) }'"
 
   docs = controller.docs()
   if docs.input
