@@ -118,16 +118,18 @@ genExampleInput = ( input ) ->
   return JSON.stringify output
 
 genExample = ( controller ) ->
-  example = "curl -H 'content-type: application/json' -X #{ controller.constructor.verb.toUpperCase() } '#{ genExamplePath( controller.path() ) }'"
+  example = "curl -H 'content-type: application/json' "
+  example += "\\\n\t-X #{ controller.constructor.verb.toUpperCase() } "
 
+  # add the input if there is any
   docs = controller.docs()
-  if docs.input
-    example += " -d '#{ genExampleInput( docs.input ) }'"
+  example += "\\\n\t-d '#{ genExampleInput( docs.input ) }' " if docs.input
 
+  example += "\\\n\t'#{ genExamplePath controller.path() }' "
   return example
 
 outputExample = ( controller ) ->
-  print "<p><code>#{ genExample controller }</code></p>"
+  print "<p><pre>#{ genExample controller }</pre></p>"
 
 exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
   console.error( err ) if err
