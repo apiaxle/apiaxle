@@ -241,9 +241,3 @@ class exports.HeadCatchall extends CatchAll
 
 class exports.PatchCatchall extends CatchAll
   @verb: "patch"
-
-class exports.TraceCatchall extends CatchAll
-  @verb: "trace"
-
-class exports.ConnectCatchall extends CatchAll
-  @verb: "connect"
