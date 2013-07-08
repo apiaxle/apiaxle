@@ -195,9 +195,9 @@ class CatchAll extends ApiaxleController
       endpointUrl += pathname
 
       if query
-        endpointUrl += "?"
-        newStrings = ( "#{ key }=#{ value }" for key, value of query )
-        endpointUrl += newStrings.join( "&" )
+        endpoint = url.parse endpointUrl
+        endpoint.query = query
+        endpointUrl = url.format endpoint
 
       options =
         url: endpointUrl
