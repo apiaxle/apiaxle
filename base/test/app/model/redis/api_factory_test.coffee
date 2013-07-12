@@ -156,3 +156,50 @@ class exports.ApiTest extends FakeAppTest
             @equal supported, false
 
             done 7
+
+class exports.CaptureUrlTest extends FakeAppTest
+  @empty_db_on_setup = true
+
+  "setup model": ( done ) ->
+    @model = @app.model( "apifactory" )
+
+    done()
+
+  "setup create api": ( done ) ->
+    fixtures =
+      api:
+        bacon:
+          endPoint: "bacon.is.nice"
+
+    @fixtures.create fixtures, done
+
+  "test adding a path": ( done ) ->
+    @model.find [ "bacon" ], ( err, { bacon } ) =>
+      @ok not err
+
+      @equal bacon.data.hasCapturePaths, false
+
+      bacon.addCapturePath "animal:name", "/animal/${ name }/fire", ( err ) =>
+        @ok not err
+
+        @equal bacon.data.hasCapturePaths, true
+
+        bacon.getCapturePaths ( err, dbPaths ) =>
+          @ok not err
+          @ok dbPaths
+
+          @deepEqual dbPaths, { "animal:name": "/animal/${ name }/fire" }
+
+          bacon.removeCapturePath "animal:name", ( err ) =>
+            @ok not err
+
+            # current object now empty
+            @equal bacon.data.hasCapturePaths, false
+
+            # now test emptiness from the database too
+            @model.find [ "bacon" ], ( err, { bacon } ) =>
+              @ok not err
+
+              @equal bacon.data.hasCapturePaths, false
+
+              done 5

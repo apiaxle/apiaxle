@@ -142,6 +142,15 @@ class CatchAll extends ApiaxleController
       return statsModel.hit api, api_key, keyrings, "uncached", apiRes.statusCode, ( err, res ) ->
         return cb err, apiRes, body
 
+  recordPathDetails: ( req, pathname, query, cb ) ->
+    # strip leading, trailing slashes, get the parts
+    path_parts = pathname.replace( /^\/|\/$/g ).split "/"
+
+    for part in path_parts
+      console.log( path )
+
+    cb()
+
   execute: ( req, res, next ) ->
     if req.api.isDisabled()
       return next new ApiDisabled "This API has been disabled."
@@ -150,6 +159,10 @@ class CatchAll extends ApiaxleController
       return next new KeyDisabled "This API key has been disabled."
 
     { pathname, query } = url.parse req.url, true
+
+    # record the details about the hit in redis if asked
+    if req.api.capturePaths
+      @recordPathDetails req, pathname, query
 
     # we should make this optional
     if query.apiaxle_sig?

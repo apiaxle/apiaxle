@@ -290,6 +290,7 @@ redisCommands = [
   "hset",
   "hget",
   "hdel",
+  "hlen",
   "hmset",
   "hincrby",
   "hgetall",
