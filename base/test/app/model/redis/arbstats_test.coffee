@@ -1,8 +1,8 @@
 _ = require "lodash"
 async = require "async"
 
+{ RedisMulti } = require "../../../../app/model/redis"
 { FakeAppTest } = require "../../../apiaxle_base"
-{ Stats }   = require "../../../../app/model/redis/stats"
 
 class exports.ArbStatsTest extends FakeAppTest
   @empty_db_on_setup = true
@@ -21,7 +21,7 @@ class exports.ArbStatsTest extends FakeAppTest
 
     done 4
 
-  "test a simple counter increment": ( done ) ->
+  "test #getKeyValueTimestamps": ( done ) ->
     clock = @getClock 1357002210000 # Tue, 01 Jan 2013 01:03:30 GMT
     multi = @model.multi()
 
@@ -147,3 +147,112 @@ class exports.ArbStatsTest extends FakeAppTest
       @ok not err
 
       done 21
+
+  "test a simple counter hit": ( done ) ->
+    clock = @getClock 1357002210000 # Tue, 01 Jan 2013 01:03:30 GMT
+
+    # stub expireat so that we don't run out of time on the redis-side
+    # of things. Record the time so we can query it.
+    expireables = {}
+    stub = @getStub RedisMulti::, "expireat", ( key, ts ) =>
+      expireables[key] = ts
+
+    all = []
+
+    # log a counter
+    all.push ( cb ) =>
+      multi = @model.multi()
+      @model.logCounter multi, "bob", ( err ) =>
+        @ok not err
+
+        # should be called once for each granularity
+        @equal stub.callCount, 4
+
+        multi.exec cb
+
+    # fetch all of the names
+    all.push ( cb ) =>
+      @model.getAllCounterNames ( err, names ) =>
+        @ok not err
+        @deepEqual names, [ "bob" ]
+
+        cb()
+
+    # log another counter in the same second
+    all.push ( cb ) =>
+      multi = @model.multi()
+      @model.logCounter multi, "frank", ( err ) =>
+        @ok not err
+
+        # should be called once for each granularity
+        @equal stub.callCount, 8
+
+        multi.exec cb
+
+    # fetch all of the names again
+    all.push ( cb ) =>
+      @model.getAllCounterNames ( err, names ) =>
+        @ok not err
+        @deepEqual names, [ "bob", "frank" ]
+
+        cb()
+
+    # bob once more but a couple of seconds later
+    all.push ( cb ) =>
+      # takes us to 1357002212
+      clock.addSeconds 2
+
+      multi = @model.multi()
+      @model.logCounter multi, "bob", ( err ) =>
+        @ok not err
+
+        # should be called once for each granularity
+        @equal stub.callCount, 12
+
+        multi.exec cb
+
+    # now get the counts for bob in the last minute
+    all.push ( cb ) =>
+      @model.getCounterValues [ "bob" ], "minute", ( err, results ) =>
+        @ok not err
+
+        # only 2 in the last minute
+        @deepEqual results,
+          bob:
+            1357002180: 2
+
+        cb()
+
+    # now get the counts for bob and frank in the last minute
+    all.push ( cb ) =>
+      @model.getCounterValues [ "bob", "frank" ], "minute", ( err, results ) =>
+        @ok not err
+
+        # only 2 in the last minute
+        @deepEqual results,
+          frank:
+            1357002180: 1
+          bob:
+            1357002180: 2
+
+        cb()
+
+    # now get the counts for bob and frank in the last few seconds
+    all.push ( cb ) =>
+      @model.getCounterValues [ "bob", "frank" ], "second", ( err, results ) =>
+        @ok not err
+
+        # only 2 in the last minute
+        @deepEqual results,
+          frank:
+            1357002210: 1
+          bob:
+            1357002210: 1
+            1357002212: 1
+
+        cb()
+
+    async.series all, ( err ) =>
+      @ok not err
+
+      done 2

@@ -347,4 +347,5 @@ for command in redisCommands
 
 exports.Redis = Redis
 exports.Model = Model
+exports.RedisMulti = RedisMulti
 exports.KeyContainerModel = KeyContainerModel
