@@ -40,6 +40,10 @@ class exports.ArbStatsTest extends FakeAppTest
         # 1357002180 => Tue, 01 Jan 2013 01:03:00 GMT
         @deepEqual values.minute, [ 1356998400, 1357002180 ]
 
+        # 1356566400 => Thu, 27 Dec 2012 00:00:00 GMT
+        # 1357002000 => Tue, 01 Jan 2013 01:00:00 GMT
+        @deepEqual values.hour, [ 1356566400, 1357002000 ]
+
         cb()
 
     # 3 seconds later
@@ -54,9 +58,15 @@ class exports.ArbStatsTest extends FakeAppTest
         # 1357002213 => Tue, 01 Jan 2013 01:03:33 GMT
         @deepEqual values.second, [ 1356998400, 1357002213 ]
 
+        # doesn't change this round
         # 1356998400 => Tue, 01 Jan 2013 00:00:00 GMT
         # 1357002180 => Tue, 01 Jan 2013 01:03:00 GMT
         @deepEqual values.minute, [ 1356998400, 1357002180 ]
+
+        # doesn't change this round
+        # 1356566400 => Thu, 27 Dec 2012 00:00:00 GMT
+        # 1357002000 => Tue, 01 Jan 2013 01:00:00 GMT
+        @deepEqual values.hour, [ 1356566400, 1357002000 ]
 
         cb()
 
@@ -75,6 +85,33 @@ class exports.ArbStatsTest extends FakeAppTest
         # 1356998400 => Tue, 01 Jan 2013 00:00:00 GMT
         # 1357002360 => Tue, 01 Jan 2013 01:06:00 GMT
         @deepEqual values.minute, [ 1356998400, 1357002360 ]
+
+        # doesn't change this round
+        # 1356566400 => Thu, 27 Dec 2012 00:00:00 GMT
+        # 1357002000 => Tue, 01 Jan 2013 01:00:00 GMT
+        @deepEqual values.hour, [ 1356566400, 1357002000 ]
+
+        cb()
+
+    # 3 hours later
+    all.push ( cb ) =>
+      clock.addHours 3
+      # now we're at 1357013193 => Tue, 01 Jan 2013 04:06:33 GMT
+
+      @model.logCounter multi, "http.get.200", ( err, values ) =>
+        @ok not err
+
+        # 1357012800 => Tue, 01 Jan 2013 04:00:00 GMT
+        # 1357013193 => Tue, 01 Jan 2013 04:06:33 GMT
+        @deepEqual values.second, [ 1357012800, 1357013193 ]
+
+        # 1356998400 => Tue, 01 Jan 2013 00:00:00 GMT
+        # 1357002360 => Tue, 01 Jan 2013 04:06:00 GMT
+        @deepEqual values.minute, [ 1356998400, 1357013160 ]
+
+        # 1356566400 => Thu, 27 Dec 2012 00:00:00 GMT
+        # 1357012800 => Tue, 01 Jan 2013 04:00:00 GMT
+        @deepEqual values.hour, [ 1356566400, 1357012800 ]
 
         cb()
 
