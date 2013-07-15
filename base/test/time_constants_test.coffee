@@ -16,4 +16,7 @@ class exports.TimeConstants extends TwerpTest
     @equal tconst.hours( 1 ), 3600
     @equal tconst.hours( 20 ), 72000
 
+    @equal tconst.weeks( 1 ), 604800
+    @equal tconst.weeks( 20 ), 12096000
+
     done 6
