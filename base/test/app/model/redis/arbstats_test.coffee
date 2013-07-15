@@ -146,7 +146,28 @@ class exports.ArbStatsTest extends FakeAppTest
     async.series all, ( err ) =>
       @ok not err
 
-      done 21
+      done 16
+
+  "test #_getValidTimeRange": ( done ) ->
+    from = 1357002210
+    to = from + 120
+    @ok range = @model._getValidTimeRange "minute", from, to
+    @equal range.length, 3
+    @deepEqual range, ( i for i in [from .. to ] by 60 )
+
+    from = 1357002210
+    to = from + 20
+    @ok range = @model._getValidTimeRange "second", from, to
+    @equal range.length, 21
+    @deepEqual range, ( i for i in [from .. to ] )
+
+    from = 1357002210
+    to = from + 119
+    @ok range = @model._getValidTimeRange "minute", from, to
+    @equal range.length, 2
+    @deepEqual range, ( i for i in [from .. to ] by 60 )
+
+    done 9
 
   "test a simple counter hit": ( done ) ->
     clock = @getClock 1357002210000 # Tue, 01 Jan 2013 01:03:30 GMT
@@ -213,7 +234,10 @@ class exports.ArbStatsTest extends FakeAppTest
 
     # now get the counts for bob in the last minute
     all.push ( cb ) =>
-      @model.getCounterValues [ "bob" ], "minute", ( err, results ) =>
+      from = 1357002210
+      to = 1357002219
+
+      @model.getCounterValues [ "bob" ], "minute", from, to, ( err, results ) =>
         @ok not err
 
         # only 2 in the last minute
@@ -225,7 +249,10 @@ class exports.ArbStatsTest extends FakeAppTest
 
     # now get the counts for bob and frank in the last minute
     all.push ( cb ) =>
-      @model.getCounterValues [ "bob", "frank" ], "minute", ( err, results ) =>
+      from = 1357002210
+      to = 1357002219
+
+      @model.getCounterValues [ "bob", "frank" ], "minute", from, to, ( err, results ) =>
         @ok not err
 
         # only 2 in the last minute
@@ -242,7 +269,10 @@ class exports.ArbStatsTest extends FakeAppTest
 
     # now get the counts for bob and frank in the last few seconds
     all.push ( cb ) =>
-      @model.getCounterValues [ "bob", "frank" ], "second", ( err, results ) =>
+      from = 1357002210
+      to = 1357002219
+
+      @model.getCounterValues [ "bob", "frank" ], "second", from, to, ( err, results ) =>
         @ok not err
 
         # only 2 in the last minute
@@ -258,4 +288,4 @@ class exports.ArbStatsTest extends FakeAppTest
     async.series all, ( err ) =>
       @ok not err
 
-      done 2
+      done 18
