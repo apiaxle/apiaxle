@@ -235,6 +235,9 @@ class exports.ArbStatsTest extends FakeAppTest
           bob:
             1357002180: 2
 
+        # deepEqual uses '==' so need to check ints
+        @equal results.frank[1357002180], 1
+
         cb()
 
     # now get the counts for bob and frank in the last few seconds
