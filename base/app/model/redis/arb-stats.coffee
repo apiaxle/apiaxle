@@ -64,10 +64,25 @@ class exports.ArbStats extends Redis
   getAllCounterNames: ( cb ) ->
     @hkeys [ "meta", "counter-names" ], cb
 
+  # retuns an array of valid times for GRAN.
+  _getValidTimeRange: ( gran, from, to=@toSeconds() ) ->
+    { value } = @constructor.granularities[gran]
+
+    ticks = []
+    current_click = @roundedTimestamp from
+
+    while current_click <= to
+      ticks.push current_click
+      current_click += value
+
+    return ticks
+
   # get the counter values. Args are:
   #  * names (array) - the name of the stat to fetch
   #  * granularity - the name of the granularity results are for.
-  getCounterValues: ( names, gran, cb ) ->
+  #  * from - where the stats should start from (in seconds).
+  #  * to - where the stats should end (in seconds).
+  getCounterValues: ( names, gran, from, to, cb ) ->
     if not names or names.length is 0
       return cb Error "getCounterValues requires a list of names."
 
@@ -85,7 +100,8 @@ class exports.ArbStats extends Redis
     multi.exec ( err, results ) ->
       return cb err if err
 
-      # yuck, need to convert values to integers
+      # need to convert values to integers and get the correct time
+      # range
       output = {}
       for name in names
         for ts, count of results.shift()
