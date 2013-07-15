@@ -84,7 +84,15 @@ class exports.ArbStats extends Redis
 
     multi.exec ( err, results ) ->
       return cb err if err
-      return cb null, _.object( names, results )
+
+      # yuck, need to convert values to integers
+      output = {}
+      for name in names
+        for ts, count of results.shift()
+          output[name] ||= {}
+          output[name][ts] = parseInt count
+
+      return cb null, output
 
   logCounter: ( multi, name, cb ) ->
     # we store the timestamp against all possible names just so that
