@@ -21,6 +21,14 @@ class exports.ArbStats extends Redis
       value: tconst.minutes 1
       redis_ttl: tconst.days 1
 
+    hour:
+      value: tconst.hours 1
+      redis_ttl: tconst.weeks 1
+
+    day:
+      value: tconst.days 1
+      redis_ttl: tconst.years 2
+
   # Helper function to format timestamp in seconds. Defaults to curent
   # time
   toSeconds: ( ts=Date.now() ) -> Math.floor( ts / 1000 )
@@ -41,7 +49,7 @@ class exports.ArbStats extends Redis
 
     return [
       @roundedTimestamp( redis_ttl ),
-      @roundedTimestamp( value ),
+      @roundedTimestamp( value )
     ]
 
   logCounter: ( multi, name, cb ) ->
