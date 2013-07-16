@@ -153,12 +153,12 @@ class CatchAll extends ApiaxleController
     { pathname, query } = url.parse req.url, true
 
     # we should make this optional
-    if api.sendThroughApiSig is false
+    if not req.api.data.sendThroughApiSig
       delete query.apiaxle_sig
       delete query.api_sig
 
     # we also should make this optional
-    if api.sendThroughApiKey is false
+    if not req.api.data.sendThroughApiKey
       delete query.apiaxle_key
       delete query.api_key
 

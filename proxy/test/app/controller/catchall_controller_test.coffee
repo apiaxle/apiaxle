@@ -96,6 +96,61 @@ class exports.CatchallTest extends ApiaxleTest
 
         done 3
 
+  "test sendThroughApiSig functionality": ( done ) ->
+    fixtures =
+      api:
+        programmes:
+          endPoint: "example.com"
+          sendThroughApiSig: true
+        facebook:
+          endPoint: "example.com"
+          sendThroughApiKey: true
+        twitter:
+          endPoint: "example.com"
+      key:
+        phil:
+          forApis: [ "programmes", "facebook", "twitter" ]
+
+    expects =
+      facebook:
+        expected_path: "/?api_key=phil"
+      twitter:
+        expected_path: "/"
+      programmes:
+        expected_path: "/?api_key=phil&api_sig=bob"
+
+    @fixtures.create fixtures, ( err, [ bbc, facebook, key ] ) =>
+      @ok not err
+
+      @stubDns {
+        "facebook.api.localhost": "127.0.0.1"
+        "programmes.api.localhost": "127.0.0.1"
+        "twitter.api.localhost": "127.0.0.1"
+      }
+
+      all = []
+      for api_name, details of expects
+        do( api_name, details ) =>
+          all.push ( cb ) =>
+            stub = @stubCatchall ( options, api, key, keyrings, cb ) =>
+              { path, query } = url.parse options.url
+              @equal path, details.expected_path
+              @fakeIncomingMessage 200, {}, {}, cb
+
+            requestOptions =
+              path: "/?api_key=phil&api_sig=bob"
+              host: "#{ api_name }.api.localhost"
+
+            @GET requestOptions, ( err, res ) =>
+              @ok not err
+              stub.restore()
+              cb()
+
+      async.series all, ( err ) =>
+        @ok not err
+
+        done 7
+
   "test POST,GET,PUT and DELETE with no subdomain": ( done ) ->
     all = []
 
