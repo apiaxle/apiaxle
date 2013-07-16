@@ -152,15 +152,13 @@ class CatchAll extends ApiaxleController
     { pathname, query } = url.parse req.url, true
 
     # we should make this optional
-    if query.apiaxle_sig?
+    if api.sendThroughApiSig is false
       delete query.apiaxle_sig
-    else
       delete query.api_sig
 
     # we also should make this optional
-    if query.apiaxle_key?
+    if api.sendThroughApiKey is false
       delete query.apiaxle_key
-    else
       delete query.api_key
 
     model = @app.model "apilimits"
