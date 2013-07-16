@@ -1,3 +1,4 @@
+_ = require "lodash"
 url = require "url"
 crypto = require "crypto"
 request = require "request"
@@ -192,7 +193,7 @@ class CatchAll extends ApiaxleController
       # the bit of the path that was actually requested
       endpointUrl += pathname
 
-      if query
+      if not _.isEmpty query
         endpointUrl += "?"
         newStrings = ( "#{ key }=#{ value }" for key, value of query )
         endpointUrl += newStrings.join( "&" )
