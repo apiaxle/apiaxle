@@ -1,3 +1,4 @@
+_ = require "lodash"
 url = require "url"
 crypto = require "crypto"
 request = require "request"
@@ -152,15 +153,13 @@ class CatchAll extends ApiaxleController
     { pathname, query } = url.parse req.url, true
 
     # we should make this optional
-    if query.apiaxle_sig?
+    if not req.api.data.sendThroughApiSig
       delete query.apiaxle_sig
-    else
       delete query.api_sig
 
     # we also should make this optional
-    if query.apiaxle_key?
+    if not req.api.data.sendThroughApiKey
       delete query.apiaxle_key
-    else
       delete query.api_key
 
     model = @app.model "apilimits"
@@ -194,7 +193,7 @@ class CatchAll extends ApiaxleController
       # the bit of the path that was actually requested
       endpointUrl += pathname
 
-      if query
+      if not _.isEmpty query
         endpointUrl += "?"
         newStrings = ( "#{ key }=#{ value }" for key, value of query )
         endpointUrl += newStrings.join( "&" )

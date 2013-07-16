@@ -65,4 +65,12 @@ class exports.ApiFactory extends Redis
       strictSSL:
         type: "boolean"
         default: true
-        docs: "Set to true to require that SSL certificates be valid"
+        docs: "Set to true to require that SSL certificates be valid."
+      sendThroughApiKey:
+        type: "boolean"
+        default: false
+        docs: "If true then the api_key parameter will be passed through in the request."
+      sendThroughApiSig:
+        type: "boolean"
+        default: false
+        docs: "If true then the api_sig parameter will be passed through in the request."
