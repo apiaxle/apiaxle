@@ -8,7 +8,7 @@ class exports.ArbStatsTest extends FakeAppTest
   @empty_db_on_setup = true
 
   "setup model": ( done ) ->
-    @model = @app.model "arbstats"
+    @model = @app.model "statcounters"
 
     done()
 
