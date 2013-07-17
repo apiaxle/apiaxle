@@ -74,7 +74,7 @@ class Stat extends Redis
           # for each wanted timestamp, collect the values
           multi.hget( redis_key, hashKey ) for hashKey in wantedTs
 
-          multi.exec ( err, results ) ->
+          multi.exec ( err, results ) =>
             return cb err if err
 
             # we might want to do something with the values (like
@@ -174,6 +174,9 @@ class exports.StatTimers extends Stat
 
     # the / 1 hack is to convert the avg to a number
     return [ new_min, new_max, ( new_avg.toFixed( 2 ) / 1 ) ]
+
+  # our values are JSON so we need to parse them on the way out
+  _outputValueFilter: JSON.parse
 
   logTiming: ( multi, name, timespan, cb ) ->
     # store the name of the timer

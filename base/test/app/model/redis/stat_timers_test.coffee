@@ -64,6 +64,8 @@ class exports.TimerStatsTest extends FakeAppTest
       @model.getCounterValues [ "bob" ], "hour", from, to, ( err, results ) =>
         @ok not err
 
-        console.log( results )
+        @deepEqual results,
+          bob:
+            "1357002000": [ 1, 4, 2.5 ]
 
-        done 1
+        done 3
