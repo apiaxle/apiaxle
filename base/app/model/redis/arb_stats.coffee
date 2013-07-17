@@ -8,9 +8,13 @@ tconst = require "../../../lib/time_constants"
 
 { Redis } = require "../redis"
 
-class exports.StatCounters extends Redis
-  @instantiateOnStartup = true
-  @smallKeyName         = "cntr"
+class Stat extends Redis
+  constructor: ( args... ) ->
+    # denormalise the keys above so that we can access them quickly
+    # later
+    @gran_names = _.keys @constructor.granularities
+
+    super args...
 
   @granularities =
     second:
@@ -29,13 +33,6 @@ class exports.StatCounters extends Redis
       value: tconst.days 1
       redis_ttl: tconst.years 2
 
-  constructor: ( args... ) ->
-    # denormalise the keys above so that we can access them quickly
-    # later
-    @gran_names = _.keys @constructor.granularities
-
-    super args...
-
   # Helper function to format timestamp in seconds. Defaults to curent
   # time
   toSeconds: ( ts=Date.now() ) -> Math.floor( ts / 1000 )
@@ -43,6 +40,23 @@ class exports.StatCounters extends Redis
   # get the nearest point in time that PRECISION will fit into cleanly
   roundedTimestamp: ( precision, ts=@toSeconds() ) ->
     return Math.floor( ts / precision ) * precision
+
+  _setHashValues: ( name, setter, cb ) ->
+    all = []
+
+    for gran, props of @constructor.granularities
+      do( gran, props ) =>
+        [ rounded_ttl, rounded_ts ] = @getKeyValueTimestamps gran
+        redis_key = [ name, gran, rounded_ttl ]
+
+        all.push ( cb ) ->
+          setter rounded_ttl, rounded_ts, redis_key, props, cb
+
+    return async.series all, cb
+
+class exports.StatCounters extends Stat
+  @instantiateOnStartup = true
+  @smallKeyName         = "cntr"
 
   # this will fetch the list of key names and value name for a given
   # granularity. The first value will be used in the redis key for the
@@ -89,7 +103,7 @@ class exports.StatCounters extends Redis
     if gran not in @gran_names
       return cb Error "Granularity must be one of #{ @gran_names.join(', ') }"
 
-    [ roundedTtl, roundedValue ] = @getKeyValueTimestamps gran
+    [ rounded_ttl, rounded_ts ] = @getKeyValueTimestamps gran
 
     # collect the keys we want
     wantedTs = @_getValidTimeRange gran, from, to
@@ -100,7 +114,7 @@ class exports.StatCounters extends Redis
         all.push ( cb ) =>
           multi = @multi()
 
-          redis_key = [ name, gran, roundedTtl ]
+          redis_key = [ name, gran, rounded_ttl ]
 
           # for each wanted timestamp, collect the values
           multi.hget( redis_key, hashKey ) for hashKey in wantedTs
@@ -118,13 +132,19 @@ class exports.StatCounters extends Redis
     # we can tidy them up later (we can't use expire on hash values)
     multi.hset [ "meta", "counter-names" ], name, @toSeconds()
 
-    for gran, props of @constructor.granularities
-      [ roundedTtl, roundedValue ] = @getKeyValueTimestamps gran
-
-      redis_key = [ name, gran, roundedTtl ]
-
+    setter = ( rounded_ttl, rounded_ts, redis_key, props, cb ) ->
       # increment the value and then set its ttl
-      multi.hincrby redis_key, roundedValue, 1
-      multi.expireat redis_key, ( roundedTtl + props.value )
+      multi.hincrby redis_key, rounded_ts, 1
+      multi.expireat redis_key, ( rounded_ttl + props.value )
 
-    return cb null, multi
+      return cb null
+
+    @_setHashValues name, setter, ( err ) ->
+      return cb err if err
+      return cb null, multi
+
+class exports.StatTimings extends Stat
+  @instantiateOnStartup = true
+  @smallKeyName         = "timing"
+
+  logTiming: ( name, timespan, cb ) ->
