@@ -33,6 +33,21 @@ class Stat extends Redis
       value: tconst.days 1
       redis_ttl: tconst.years 2
 
+  # this will fetch the list of key names and value name for a given
+  # granularity. The first value will be used in the redis key for the
+  # things to update and the second is the key name of the hash. E.g.
+  #
+  # value1 = {
+  #   value2: 20
+  # }
+  getKeyValueTimestamps: ( granularity ) ->
+    { value, redis_ttl } = @constructor.granularities[granularity]
+
+    return [
+      @roundedTimestamp( redis_ttl ), # the redis key name
+      @roundedTimestamp( value ),     # the key for the hash at the above key
+    ]
+
   # Helper function to format timestamp in seconds. Defaults to curent
   # time
   toSeconds: ( ts=Date.now() ) -> Math.floor( ts / 1000 )
@@ -58,21 +73,6 @@ class Stat extends Redis
 class exports.StatCounters extends Stat
   @instantiateOnStartup = true
   @smallKeyName         = "cntr"
-
-  # this will fetch the list of key names and value name for a given
-  # granularity. The first value will be used in the redis key for the
-  # things to update and the second is the key name of the hash. E.g.
-  #
-  # value1 = {
-  #   value2: 20
-  # }
-  getKeyValueTimestamps: ( granularity ) ->
-    { value, redis_ttl } = @constructor.granularities[granularity]
-
-    return [
-      @roundedTimestamp( redis_ttl ), # the redis key name
-      @roundedTimestamp( value ),     # the key for the hash at the above key
-    ]
 
   # returns the names of all of the keys that have been used for the
   # counters so far
@@ -144,8 +144,52 @@ class exports.StatCounters extends Stat
       return cb err if err
       return cb null, multi
 
-class exports.StatTimings extends Stat
+class exports.StatTimers extends Stat
   @instantiateOnStartup = true
   @smallKeyName         = "timing"
 
-  logTiming: ( name, timespan, cb ) ->
+  _getCurrentValues: ( redis_key, rounded_ts, cb ) ->
+    multi = @multi()
+
+    multi.hget redis_key, rounded_ts
+    multi.hget redis_key, "#{ rounded_ts }-count"
+
+    multi.exec ( err, [ values, count ] ) ->
+      return cb err if err
+      return cb null, JSON.parse( values ), parseInt( count ) if values
+      return cb null, null, 0
+
+  _getNewValues: ( timespan, min, max, average, count ) ->
+    new_avg = ( ( ( average * count ) + timespan ) / ( count + 1 ) )
+    new_min = if timespan < min then timespan else min
+    new_max = if timespan > max then timespan else max
+
+    return [ new_min, new_max, new_avg.toFixed( 2 ) ]
+
+  logTiming: ( multi, name, timespan, cb ) ->
+    # store the name of the timer
+    multi.hset [ "meta", "timer-names" ], name, @toSeconds()
+
+    setter = ( rounded_ttl, rounded_ts, redis_key, props, cb ) =>
+      @_getCurrentValues redis_key, rounded_ts, ( err, values, count ) =>
+        return cb err if err
+
+        # if we haven't stored in this section before then the new
+        # values /are/ the min, max, avg and count is 1
+        new_values = if not values?
+          virgin_values = [ timespan, timespan, timespan ]
+        else
+          @_getNewValues timespan, values..., count
+
+        # set the new values
+        multi.hset redis_key, rounded_ts, JSON.stringify( new_values )
+
+        # increment the count. We don't store this in the above
+        # structure because we need it to be atomic
+        multi.hincrby redis_key, "#{ rounded_ts }-count", 1
+
+        return cb null, new_values
+
+    @_setHashValues name, setter, ( err ) ->
+      return cb err if err
+      return cb null, multi
