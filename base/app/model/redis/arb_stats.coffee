@@ -188,6 +188,9 @@ class exports.StatTimers extends Stat
         # structure because we need it to be atomic
         multi.hincrby redis_key, "#{ rounded_ts }-count", 1
 
+        # don't have it around forever
+        multi.expireat redis_key, ( rounded_ttl + props.value )
+
         return cb null, new_values
 
     @_setHashValues name, setter, ( err ) ->
