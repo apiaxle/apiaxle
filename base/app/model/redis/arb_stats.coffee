@@ -41,6 +41,7 @@ class Stat extends Redis
   roundedTimestamp: ( precision, ts=@toSeconds() ) ->
     return Math.floor( ts / precision ) * precision
 
+  # for each of the granularities run SETTER against the times
   _setHashValues: ( name, setter, cb ) ->
     all = []
 
