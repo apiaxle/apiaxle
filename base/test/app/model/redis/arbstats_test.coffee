@@ -234,8 +234,8 @@ class exports.ArbStatsTest extends FakeAppTest
 
     # now get the counts for bob in the last minute
     all.push ( cb ) =>
-      from = 1357002210
-      to = 1357002219
+      from = 1357002180
+      to = from + 600
 
       @model.getCounterValues [ "bob" ], "minute", from, to, ( err, results ) =>
         @ok not err
@@ -249,8 +249,8 @@ class exports.ArbStatsTest extends FakeAppTest
 
     # now get the counts for bob and frank in the last minute
     all.push ( cb ) =>
-      from = 1357002210
-      to = 1357002219
+      from = 1357002180
+      to = from + 600
 
       @model.getCounterValues [ "bob", "frank" ], "minute", from, to, ( err, results ) =>
         @ok not err
