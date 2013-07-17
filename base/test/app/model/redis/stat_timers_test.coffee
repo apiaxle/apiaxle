@@ -17,19 +17,18 @@ class exports.TimerStatsTest extends FakeAppTest
     sum += i for i in arr
     return ( sum / arr.length )
 
-  _logManyTimes: ( times, cb ) ->
+  _logManyTimes: ( name, times, cb ) ->
     all = []
 
     for time in times
       do( time ) =>
         all.push ( cb ) =>
           multi = @model.multi()
-          @model.logTiming multi, "/v1/api/:api", time, ( err ) =>
+          @model.logTiming multi, name, time, ( err ) =>
             return cb err if err
             multi.exec cb
 
     async.series all, cb
-
 
   "test #_getNewValues": ( done ) ->
     [ min, max, avg ] = @model._getNewValues 2, 1, 4, 2, 20
@@ -48,7 +47,23 @@ class exports.TimerStatsTest extends FakeAppTest
     done 7
 
   "test a simple hit": ( done ) ->
-    @_logManyTimes [ 1, 2, 3, 4 ], ( err, values ) =>
+    clock = @getClock 1357002210000 # Tue, 01 Jan 2013 01:03:30 GMT
+
+    # stub expireat so that we don't run out of time on the redis-side
+    # of things. Record the time so we can query it.
+    expireables = {}
+    stub = @getStub RedisMulti::, "expireat", ( key, ts ) =>
+      expireables[key] = ts
+
+    @_logManyTimes "bob", [ 1, 2, 3, 4 ], ( err, values ) =>
       @ok not err
 
-      done 1
+      from = 1357002000 # Tue, 01 Jan 2013 01:00:00 GMT
+      to = from + 120
+
+      @model.getCounterValues [ "bob" ], "hour", from, to, ( err, results ) =>
+        @ok not err
+
+        console.log( results )
+
+        done 1
