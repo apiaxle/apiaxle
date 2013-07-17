@@ -8,9 +8,9 @@ tconst = require "../../../lib/time_constants"
 
 { Redis } = require "../redis"
 
-class exports.ArbStats extends Redis
+class exports.StatCounters extends Redis
   @instantiateOnStartup = true
-  @smallKeyName         = "arb"
+  @smallKeyName         = "cntr"
 
   @granularities =
     second:
