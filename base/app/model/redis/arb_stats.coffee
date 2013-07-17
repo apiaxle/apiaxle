@@ -76,7 +76,15 @@ class Stat extends Redis
 
           multi.exec ( err, results ) ->
             return cb err if err
-            return cb null, _.pick( _.object( wantedTs, results ), ( v ) -> v? )
+
+            # we might want to do something with the values (like
+            # parse JSON)
+            filtered = if @_outputValueFilter?
+              _.map( results, @_outputValueFilter )
+            else
+              results
+
+            return cb null, _.pick( _.object( wantedTs, filtered ), ( v ) -> v? )
 
     async.parallel all, ( err, results ) ->
       return cb err if err
