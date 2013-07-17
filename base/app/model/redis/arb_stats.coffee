@@ -33,52 +33,6 @@ class Stat extends Redis
       value: tconst.days 1
       redis_ttl: tconst.years 2
 
-  # this will fetch the list of key names and value name for a given
-  # granularity. The first value will be used in the redis key for the
-  # things to update and the second is the key name of the hash. E.g.
-  #
-  # value1 = {
-  #   value2: 20
-  # }
-  getKeyValueTimestamps: ( granularity ) ->
-    { value, redis_ttl } = @constructor.granularities[granularity]
-
-    return [
-      @roundedTimestamp( redis_ttl ), # the redis key name
-      @roundedTimestamp( value ),     # the key for the hash at the above key
-    ]
-
-  # Helper function to format timestamp in seconds. Defaults to curent
-  # time
-  toSeconds: ( ts=Date.now() ) -> Math.floor( ts / 1000 )
-
-  # get the nearest point in time that PRECISION will fit into cleanly
-  roundedTimestamp: ( precision, ts=@toSeconds() ) ->
-    return Math.floor( ts / precision ) * precision
-
-  # for each of the granularities run SETTER against the times
-  _setHashValues: ( name, setter, cb ) ->
-    all = []
-
-    for gran, props of @constructor.granularities
-      do( gran, props ) =>
-        [ rounded_ttl, rounded_ts ] = @getKeyValueTimestamps gran
-        redis_key = [ name, gran, rounded_ttl ]
-
-        all.push ( cb ) ->
-          setter rounded_ttl, rounded_ts, redis_key, props, cb
-
-    return async.series all, cb
-
-class exports.StatCounters extends Stat
-  @instantiateOnStartup = true
-  @smallKeyName         = "cntr"
-
-  # returns the names of all of the keys that have been used for the
-  # counters so far
-  getAllCounterNames: ( cb ) ->
-    @hkeys [ "meta", "counter-names" ], cb
-
   # retuns an array of valid times for GRAN.
   _getValidTimeRange: ( gran, from, to=@toSeconds() ) ->
     { value } = @constructor.granularities[gran]
@@ -128,6 +82,52 @@ class exports.StatCounters extends Stat
       return cb err if err
       return cb null, _.object( names, results )
 
+  # this will fetch the list of key names and value name for a given
+  # granularity. The first value will be used in the redis key for the
+  # things to update and the second is the key name of the hash. E.g.
+  #
+  # value1 = {
+  #   value2: 20
+  # }
+  getKeyValueTimestamps: ( granularity ) ->
+    { value, redis_ttl } = @constructor.granularities[granularity]
+
+    return [
+      @roundedTimestamp( redis_ttl ), # the redis key name
+      @roundedTimestamp( value ),     # the key for the hash at the above key
+    ]
+
+  # Helper function to format timestamp in seconds. Defaults to curent
+  # time
+  toSeconds: ( ts=Date.now() ) -> Math.floor( ts / 1000 )
+
+  # get the nearest point in time that PRECISION will fit into cleanly
+  roundedTimestamp: ( precision, ts=@toSeconds() ) ->
+    return Math.floor( ts / precision ) * precision
+
+  # for each of the granularities run SETTER against the times
+  _setHashValues: ( name, setter, cb ) ->
+    all = []
+
+    for gran, props of @constructor.granularities
+      do( gran, props ) =>
+        [ rounded_ttl, rounded_ts ] = @getKeyValueTimestamps gran
+        redis_key = [ name, gran, rounded_ttl ]
+
+        all.push ( cb ) ->
+          setter rounded_ttl, rounded_ts, redis_key, props, cb
+
+    return async.series all, cb
+
+class exports.StatCounters extends Stat
+  @instantiateOnStartup = true
+  @smallKeyName         = "cntr"
+
+  # returns the names of all of the keys that have been used for the
+  # counters so far
+  getAllCounterNames: ( cb ) ->
+    @hkeys [ "meta", "counter-names" ], cb
+
   logCounter: ( multi, name, cb ) ->
     # we store the timestamp against all possible names just so that
     # we can tidy them up later (we can't use expire on hash values)
@@ -164,7 +164,8 @@ class exports.StatTimers extends Stat
     new_min = if timespan < min then timespan else min
     new_max = if timespan > max then timespan else max
 
-    return [ new_min, new_max, new_avg.toFixed( 2 ) ]
+    # the / 1 hack is to convert the avg to a number
+    return [ new_min, new_max, ( new_avg.toFixed( 2 ) / 1 ) ]
 
   logTiming: ( multi, name, timespan, cb ) ->
     # store the name of the timer
