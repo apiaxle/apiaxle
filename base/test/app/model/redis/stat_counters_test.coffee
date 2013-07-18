@@ -288,4 +288,18 @@ class exports.ArbStatsTest extends FakeAppTest
     async.series all, ( err ) =>
       @ok not err
 
-      done 18
+      expiry_times = _( expireables ).values()
+                                     .map( ( v ) => @model.toSeconds() - v )
+                                     .valueOf()
+
+      @deepEqual expiry_times, [
+        3811
+        3752
+        432212
+        36032612
+        3811
+        3752
+        432212
+        36032612 ]
+
+      done 19
