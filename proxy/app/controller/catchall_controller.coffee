@@ -207,6 +207,7 @@ class CatchAll extends ApiaxleController
         timeout: req.api.data.endPointTimeout * 1000
         headers: headers
         strictSSL: req.api.data.strictSSL
+        encoding: null
 
       options.body = req.body if req.body
 
