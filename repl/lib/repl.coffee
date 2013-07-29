@@ -92,7 +92,7 @@ class exports.ReplHelper
     # run the method
     command_object.exec commands, keypairs, cb
 
-  topLevelInput: ( err, info ) =>
+  handleReturn: ( err, info ) ->
     console.log "Error: #{ err.message }" if err
 
     if info
@@ -101,9 +101,14 @@ class exports.ReplHelper
       else
         console.log util.inspect( info, false, null ) if info
 
+  processLine: ( line, cb ) ->
+    return cb() if /^\s*$/.exec line
+    details = parser line
+
+    @runCommands details, cb
+
+  topLevelInput: ( err, info ) =>
+    @handleReturn err, info
+
     @rl.question "axle> ", ( entry ) =>
-      return @topLevelInput() if /^\s*$/.exec entry
-
-      all = parser entry
-
-      @runCommands all, @topLevelInput
+      @processLine entry, @topLevelInput

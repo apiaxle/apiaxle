@@ -4,13 +4,15 @@
 # Copyright 2011-2013 Philip Jackson.
 
 async = require "async"
+read = require "read"
+stdin = require "stdin"
 
 { ReplHelper } = require "./lib/repl"
 { ApiaxleApi } = require "apiaxle-api"
 
 finish = ( app ) ->
-  app.close()
   app.redisClient.quit()
+  app.close()
 
 axle = new ApiaxleApi
   host: "127.0.0.1"
@@ -22,15 +24,24 @@ all = []
 all.push ( cb ) -> axle.configure cb
 all.push ( cb ) -> axle.loadAndInstansiatePlugins cb
 all.push ( cb ) -> axle.redisConnect cb
-all.push ( cb ) -> axle.run cb
+all.push ( cb ) -> axle.run cb    # run the server
 
-async.series all, ( err ) ->
+async.series all, ( err, res ) ->
   throw err if err
 
   replHelper = new ReplHelper axle
-
-  # make sure we shutdown connections
-  replHelper.initReadline ( ) -> finish axle
-
-  replHelper.registrationMaybe ( err ) ->
+  if process.stdin.isTTY
+    replHelper.initReadline ( ) -> finish axle
     replHelper.topLevelInput()
+  else
+    stdin ( str ) ->
+      line_processors = []
+      for line in str.split /\r?\n/
+        do( line ) ->
+          line_processors.push ( cb ) ->
+            replHelper.processLine line, ( err, info ) ->
+              replHelper.handleReturn err, info
+              cb()
+
+      async.series line_processors, ( err ) ->
+        finish axle
