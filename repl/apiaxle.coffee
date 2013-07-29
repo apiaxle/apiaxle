@@ -4,7 +4,6 @@
 # Copyright 2011-2013 Philip Jackson.
 
 async = require "async"
-read = require "read"
 stdin = require "stdin"
 
 { ReplHelper } = require "./lib/repl"
