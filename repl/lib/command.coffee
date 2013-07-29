@@ -36,7 +36,7 @@ class exports.Command extends Module
     if options.data
       log += " with '#{ options.data }' as the body."
 
-    @app.logger.info log
+    @app.logger.debug log
 
     this[ verb ] options, ( err, res ) =>
       return cb err if err
