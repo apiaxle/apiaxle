@@ -22,6 +22,8 @@ all = []
 
 all.push ( cb ) -> axle.configure cb
 all.push ( cb ) -> axle.loadAndInstansiatePlugins cb
+all.push ( cb ) -> axle.initFourOhFour cb
+all.push ( cb ) -> axle.initErrorHandler cb
 all.push ( cb ) -> axle.redisConnect cb
 all.push ( cb ) -> axle.run cb    # run the server
 
