@@ -27,7 +27,8 @@
     "libxmljs": "~0.7.1",
     "apiaxle-api": "1.9.32",
     "sinon": "~1.6.0",
-    "twerp": "~1.0.7"
+    "twerp": "~1.0.7",
+    "stdin": "0.0.1"
   },
   "devDependencies": {
     "coffee-script": "~1.6.2"
