@@ -52,6 +52,9 @@ class exports.Command extends Module
         { type, message } = json.results.error
         return cb new Error "#{ type }: #{ message }"
 
+      if json.results
+        return cb null, json.results
+
       return cb null, json
 
   constructor: ( @app, @id ) ->
