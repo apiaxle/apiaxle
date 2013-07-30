@@ -95,13 +95,13 @@ class Stat extends Redis
   # things to update and the second is the key name of the hash. E.g.
   #
   # value1 = {
-  #   value2: 20
+  #   value2: [ ... ]
   # }
   getKeyValueTimestamps: ( granularity ) ->
     { value, redis_ttl } = @constructor.granularities[granularity]
 
     return [
-      @roundedTimestamp( redis_ttl ), # the redis key name
+      @roundedTimestamp( redis_ttl ), # the redis key ttl
       @roundedTimestamp( value ),     # the key for the hash at the above key
     ]
 
@@ -144,7 +144,7 @@ class exports.StatCounters extends Stat
     setter = ( rounded_ttl, rounded_ts, redis_key, props, cb ) ->
       # increment the value and then set its ttl
       multi.hincrby redis_key, rounded_ts, 1
-      multi.expireat redis_key, ( rounded_ttl + props.value )
+      multi.expireat redis_key, ( rounded_ts + props.value )
 
       return cb null
 
@@ -201,7 +201,7 @@ class exports.StatTimers extends Stat
         multi.hincrby redis_key, "#{ rounded_ts }-count", 1
 
         # don't have it around forever
-        multi.expireat redis_key, ( rounded_ttl + props.value )
+        multi.expireat redis_key, ( rounded_ts + props.value )
 
         return cb null, new_values
 
