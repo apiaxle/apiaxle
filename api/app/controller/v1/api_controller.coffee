@@ -292,8 +292,9 @@ class exports.ApiTimerStats extends StatsController
       verb: "GET"
       title: "Get timer stats for an api"
       response: """
-
-      """
+        Object where the keys represent the type of timer, these in
+        turn contain objects with timestamp: [ min, max, avg ]. The
+        values in the array are a span of time measured in ms."""
 
   middleware: -> [ @mwApiDetails( @app ),
                    @mwValidateQueryParams() ]
