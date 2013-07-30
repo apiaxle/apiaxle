@@ -37,8 +37,11 @@ class Stat extends Redis
   _getValidTimeRange: ( gran, from, to=@toSeconds() ) ->
     { value } = @constructor.granularities[gran]
 
+    if not from
+      from = ( to - tconst.days 1 )
+
     ticks = []
-    current_click = @roundedTimestamp from
+    current_click = @roundedTimestamp value, from
 
     while current_click <= to
       ticks.push current_click
