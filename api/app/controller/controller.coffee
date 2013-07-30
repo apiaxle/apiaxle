@@ -296,11 +296,7 @@ class exports.StatsController extends exports.ApiaxleController
       # timestamp formatting. It's already in seconds so we'll only
       # convert if the user didn't ask for them that way
       if req.query.format_timestamp isnt "epoch_seconds"
-        for type, details of results
-          for timestamp, hits of details
-            new_ts = @constructor.timestamp_formats[req.query.format_timestamp]( timestamp )
-            details[ new_ts ] = hits
-            delete details[ timestamp ]
+        results = @convertTimestamps req, results
 
       # timeseries
       if req.query.format_timeseries is true
@@ -309,6 +305,18 @@ class exports.StatsController extends exports.ApiaxleController
           return cb null, new_results
 
       return cb null, processed
+
+  convertTimestamps: ( req, results ) ->
+    type = req.query.format_timestamp
+    convertor = @constructor.timestamp_formats[type]
+
+    for type, details of results
+      for timestamp, hits of details
+        new_ts = convertor( timestamp )
+        details[new_ts] = hits
+        delete details[timestamp]
+
+    return results
 
   denormForTimeseries: ( results, cb ) ->
     new_results = {}

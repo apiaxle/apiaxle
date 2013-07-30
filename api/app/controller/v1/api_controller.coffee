@@ -281,3 +281,40 @@ class exports.ApiKeyCharts extends StatsController
     @app.model( "stats" ).getScores key, granularity, ( err, chart ) =>
       return next err if err
       return @json res, chart
+
+class exports.ApiTimerStats extends StatsController
+  @verb = "get"
+
+  desc: -> "Get timer stats for an api."
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "Get timer stats for an api"
+      response: """
+        DOCME!
+      """
+
+  middleware: -> [ @mwApiDetails( @app ),
+                   @mwValidateQueryParams() ]
+
+  path: -> "/v1/api/:api/stats/timers"
+
+  queryParams: ->
+    current = super()
+    delete current.properties.format_timeseries
+    return current
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp } = req.query
+
+    model = @app.model "stattimers"
+    model.getAllTimerNames ( err, names ) =>
+      return next err if err
+
+      model.getCounterValues names, granularity, from, to, ( err, results ) =>
+        if format_timestamp isnt "epoch_seconds"
+          results = @convertTimestamps req, results
+
+        return next err if err
+        return @json res, results
