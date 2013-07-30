@@ -27,4 +27,4 @@ class exports.TimeConstants extends TwerpTest
     @equal tconst.years( 1 ), 31449600
     @equal tconst.years( 2 ), 62899200
 
-    done 6
+    done 15

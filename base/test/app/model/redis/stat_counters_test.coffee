@@ -149,7 +149,7 @@ class exports.ArbStatsTest extends FakeAppTest
       done 16
 
   "test #_getValidTimeRange": ( done ) ->
-    from = 1357002210
+    from = 1375197120
     to = from + 120
     @ok range = @model._getValidTimeRange "minute", from, to
     @equal range.length, 3
@@ -161,7 +161,7 @@ class exports.ArbStatsTest extends FakeAppTest
     @equal range.length, 21
     @deepEqual range, ( i for i in [from .. to ] )
 
-    from = 1357002210
+    from = 1357002180
     to = from + 119
     @ok range = @model._getValidTimeRange "minute", from, to
     @equal range.length, 2
@@ -289,17 +289,11 @@ class exports.ArbStatsTest extends FakeAppTest
       @ok not err
 
       expiry_times = _( expireables ).values()
-                                     .map( ( v ) => @model.toSeconds() - v )
+                                     .map( ( v ) => v - 1357002210 )
                                      .valueOf()
 
       @deepEqual expiry_times, [
-        3811
-        3752
-        432212
-        36032612
-        3811
-        3752
-        432212
-        36032612 ]
+        3, 30, 3390, 82590,
+        1, 30, 3390, 82590 ]
 
       done 19
