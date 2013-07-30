@@ -211,18 +211,29 @@ class CatchAll extends ApiaxleController
 
       options.body = req.body if req.body
 
+      start_fetch = Date.now()
       @_fetch req, options, ( err, apiRes, body ) =>
         return next err if err
+        end_fetch = Date.now()
 
-        # copy headers from the endpoint
-        for header, value of apiRes.headers
-          res.header header, value
+        timersModel = @app.model "stattimers"
+        multi = timersModel.multi()
 
-        # let the user know what they've got left
-        res.header "X-ApiaxleProxy-Qps-Left", newQps
-        res.header "X-ApiaxleProxy-Qpd-Left", newQpd
+        ms = end_fetch - start_fetch
+        timersModel.logTiming multi, "#{ req.api.id }-http-request", ms, ( err ) ->
+          return next err if err
 
-        res.send body, apiRes.statusCode
+          # copy headers from the endpoint
+          for header, value of apiRes.headers
+            res.header header, value
+
+          # let the user know what they've got left
+          res.header "X-ApiaxleProxy-Qps-Left", newQps
+          res.header "X-ApiaxleProxy-Qpd-Left", newQpd
+
+          multi.exec ( err ) ->
+            return next err if err
+            return res.send body, apiRes.statusCode
 
 class exports.GetCatchall extends CatchAll
   @cachable: true
