@@ -292,7 +292,7 @@ class exports.ApiTimerStats extends StatsController
       verb: "GET"
       title: "Get timer stats for an api"
       response: """
-        DOCME!
+
       """
 
   middleware: -> [ @mwApiDetails( @app ),
@@ -309,12 +309,20 @@ class exports.ApiTimerStats extends StatsController
     { from, to, granularity, format_timestamp } = req.query
 
     model = @app.model "stattimers"
-    model.getAllTimerNames ( err, names ) =>
+
+    # lob off the api name as it's redundant in this context
+    timer_names = {}
+    timer_names[ "#{ req.api.id }-http-request" ] = "http-request"
+
+    model.getCounterValues _.keys( timer_names ), granularity, from, to, ( err, results ) =>
       return next err if err
 
-      model.getCounterValues names, granularity, from, to, ( err, results ) =>
-        if format_timestamp isnt "epoch_seconds"
-          results = @convertTimestamps req, results
+      for name, details of results
+        results[ timer_names[ name ] ] = details
+        delete results[ name ]
 
-        return next err if err
-        return @json res, results
+      if format_timestamp isnt "epoch_seconds"
+        results = @convertTimestamps req, results
+
+      return next err if err
+      return @json res, results
