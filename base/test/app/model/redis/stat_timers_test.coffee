@@ -69,9 +69,9 @@ class exports.TimerStatsTest extends FakeAppTest
             "1357002000": [ 1, 4, 2.5 ]
 
         expiry_times = _( expireables ).values()
-                                       .map( ( v ) => @model.toSeconds() - v )
+                                       .map( ( v ) => v - 1357002210 )
                                        .valueOf()
 
-        @deepEqual expiry_times, [ 3809, 3750, 432210, 36032610 ]
+        @deepEqual expiry_times, [ 1, 30, 3390, 82590 ]
 
         done 4
