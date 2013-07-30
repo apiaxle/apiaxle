@@ -181,6 +181,11 @@ class exports.StatTimers extends Stat
   # our values are JSON so we need to parse them on the way out
   _outputValueFilter: JSON.parse
 
+  # returns the names of all of the keys that have been used for the
+  # counters so far
+  getAllTimerNames: ( cb ) ->
+    @hkeys [ "meta", "timer-names" ], cb
+
   logTiming: ( multi, name, timespan, cb ) ->
     # store the name of the timer
     multi.hset [ "meta", "timer-names" ], name, @toSeconds()
