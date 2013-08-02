@@ -311,7 +311,7 @@ class exports.ApiTimerStats extends StatsController
         type: "string"
         optional: true
         default: false
-        docs: "Show some ApiAxle related timings."
+        docs: "Show some ApiAxle related timings too."
 
     return current
 
