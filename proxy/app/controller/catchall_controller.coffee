@@ -2,6 +2,7 @@
 # Copyright 2011-2013 Philip Jackson.
 _ = require "lodash"
 url = require "url"
+async = require "async"
 crypto = require "crypto"
 request = require "request"
 debug = require( "debug" )( "aa:catchall" )
@@ -146,6 +147,8 @@ class CatchAll extends ApiaxleController
         return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
+    start_prereq = Date.now()
+
     if req.api.isDisabled()
       return next new ApiDisabled "This API has been disabled."
 
@@ -219,8 +222,16 @@ class CatchAll extends ApiaxleController
         timersModel = @app.model "stattimers"
         multi = timersModel.multi()
 
-        ms = end_fetch - start_fetch
-        timersModel.logTiming multi, "#{ req.api.id }-http-request", ms, ( err ) ->
+        pre_req_ms = start_fetch - start_prereq
+        http_req_ms = end_fetch - start_fetch
+
+        api_id = req.api.id
+        timers = [
+          ( cb ) -> timersModel.logTiming multi, "#{ api_id }-pre-request", pre_req_ms, cb
+          ( cb ) -> timersModel.logTiming multi, "#{ api_id }-http-request", http_req_ms, cb
+        ]
+
+        async.parallel timers, ( err ) ->
           return next err if err
 
           # copy headers from the endpoint

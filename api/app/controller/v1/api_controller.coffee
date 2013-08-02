@@ -304,16 +304,28 @@ class exports.ApiTimerStats extends StatsController
   queryParams: ->
     current = super()
     delete current.properties.format_timeseries
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      debug:
+        type: "string"
+        optional: true
+        default: false
+        docs: "Show some ApiAxle related timings."
+
     return current
 
   execute: ( req, res, next ) ->
-    { from, to, granularity, format_timestamp } = req.query
+    { from, to, granularity, format_timestamp, debug } = req.query
 
     model = @app.model "stattimers"
 
     # lob off the api name as it's redundant in this context
     timer_names = {}
     timer_names[ "#{ req.api.id }-http-request" ] = "http-request"
+
+    if debug
+      timer_names[ "#{ req.api.id }-pre-request" ] = "http-pre-request"
 
     model.getCounterValues _.keys( timer_names ), granularity, from, to, ( err, results ) =>
       return next err if err
