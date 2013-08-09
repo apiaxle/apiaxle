@@ -12,9 +12,36 @@ class Api extends KeyContainerModel
 
   isDisabled: ( ) -> @data.disabled
 
+  getCapturePaths: ( cb ) ->
+    @hgetall [ "capture-paths" ], cb
+
+  removeCapturePath: ( name, cb ) ->
+    @hdel [ "capture-paths" ], name, ( err ) =>
+      return cb err if err
+
+      @hlen [ "capture-paths" ], ( err, length ) =>
+        return err if err
+
+        # if we're now empty then we need to let redis know
+        if length is 0
+          @data.hasCapturePaths = false
+          return @hset @id, "hasCapturePaths", false, cb
+
+        return cb null, true
+
+  addCapturePath: ( name, path, cb ) ->
+    multi = @multi()
+    multi.hset [ "capture-paths" ], name, path
+
+    # we also need to make sure the current object knows that there
+    # are paths set for fast access in the proxy
+    @data.hasCapturePaths = true
+    multi.hset @id, "hasCapturePaths", true
+    multi.exec cb
+
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
-  @returns   = Api
+  @returns = Api
   @structure =
     type: "object"
     additionalProperties: false
@@ -76,3 +103,7 @@ class exports.ApiFactory extends Redis
         type: "boolean"
         default: false
         docs: "If true then the api_sig parameter will be passed through in the request."
+      hasCapturePaths:
+        type: "boolean"
+        default: false
+        docs: "When true ApiAxle will parse and capture bits of information about the API being called."
