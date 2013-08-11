@@ -1,5 +1,7 @@
 class exports.PathSplitter
   getRegexpForDefinition: ( definition ) ->
+    # /animal/:breed/noise
+    #        ^^^^^^^
     re = /(?::(.+?)\b)/g
 
     new_def = definition.replace re, "(.+?)"
