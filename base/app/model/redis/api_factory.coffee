@@ -13,13 +13,13 @@ class Api extends KeyContainerModel
   isDisabled: ( ) -> @data.disabled
 
   getCapturePaths: ( cb ) ->
-    @hgetall [ "capture-paths" ], cb
+    @hgetall [ "meta:capture-paths" ], cb
 
   removeCapturePath: ( name, cb ) ->
-    @hdel [ "capture-paths" ], name, ( err ) =>
+    @hdel [ "meta:capture-paths" ], name, ( err ) =>
       return cb err if err
 
-      @hlen [ "capture-paths" ], ( err, length ) =>
+      @hlen [ "meta:capture-paths" ], ( err, length ) =>
         return err if err
 
         # if we're now empty then we need to let redis know
@@ -31,7 +31,7 @@ class Api extends KeyContainerModel
 
   addCapturePath: ( name, path, cb ) ->
     multi = @multi()
-    multi.hset [ "capture-paths" ], name, path
+    multi.hset [ "meta:capture-paths" ], name, path
 
     # we also need to make sure the current object knows that there
     # are paths set for fast access in the proxy
