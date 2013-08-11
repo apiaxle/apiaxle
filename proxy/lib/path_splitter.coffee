@@ -1,16 +1,4 @@
 class exports.PathSplitter
-  hashifyArray: ( arr ) ->
-    hash = []
-    name = ""
-
-    for part, i in arr
-      name += "#{ part }"
-      name += "/" if i isnt arr.length
-
-      hash.push name
-
-    return hash
-
   getRegexpForDefinition: ( definition ) ->
     re = /(?::(.+?)\b)/g
 
@@ -22,15 +10,20 @@ class exports.PathSplitter
   # definitions is the list of potential paths with placeholders in
   # them. For example:
   #     /animal/noise/:noise
+  #
   # should match any of:
   #     /animal/noise/bark
   #     /animal/noise/yip
   #     /animal/noise/yap
+  #
   # and for any of those, return the matching definition:
   #     /animal/noise/:noise
-  parse: ( parsed_url, definitions ) ->
-    path = parsed_url.path
+  matchDefinitions: ( path, definitions ) ->
+    all_matches = []
 
-    # strip leading and trailing slashes and split
-    path_array = path.replace( /^\/|\/$/g, "" ).split "/"
-    return @hashifyArray path_array
+    for definition in definitions
+      re = @getRegexpForDefinition definition
+      if re.exec path
+        all_matches.push definition
+
+    return all_matches

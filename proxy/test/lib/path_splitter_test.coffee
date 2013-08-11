@@ -33,16 +33,28 @@ class exports.PathSplitterTest extends ApiaxleTest
 
     done 10
 
-  # "test basic splitting": ( done ) ->
-  #   @ok ps = new PathSplitter()
+  "test basic parsing": ( done ) ->
+    @ok ps = new PathSplitter()
 
-  #   urls =
-  #     "/": [ "/" ]
-  #     "/one": [ "one/" ]
-  #     "/one/two/three": [ "one/", "one/two/", "one/two/three/" ]
+    definitions = [
+      "/animal/:breed"
+      "/animal/:breed/characteristics/:characteristic"
+    ]
 
-  #   for uri, details of urls
-  #     parsed = ps.parse( url.parse( uri, true ) )
-  #     @deepEqual parsed, details
+    paths =
+      "/": []
 
-  #   done 4
+      # matches breed absolutely
+      "/animal/horse": [ "/animal/:breed" ]
+
+      # nothing more than :breed matches
+      "/animal/horse/characteristics/": [ "/animal/:breed" ]
+
+      # matches everything
+      "/animal/horse/characteristics/tail": definitions
+
+    for path, matching_defs of paths
+      match = ps.matchDefinitions( path, definitions )
+      @deepEqual match, matching_defs
+
+    done 5
