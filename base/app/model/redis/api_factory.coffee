@@ -41,7 +41,7 @@ class Api extends KeyContainerModel
       @data.hasCapturePaths = true
       multi.hset @id, "hasCapturePaths", true
 
-    multi.exec cb
+    return multi.exec cb
 
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
