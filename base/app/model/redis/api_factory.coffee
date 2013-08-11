@@ -37,8 +37,10 @@ class Api extends KeyContainerModel
 
     # we also need to make sure the current object knows that there
     # are paths set for fast access in the proxy
-    @data.hasCapturePaths = true
-    multi.hset @id, "hasCapturePaths", true
+    if not @data.hasCapturePaths
+      @data.hasCapturePaths = true
+      multi.hset @id, "hasCapturePaths", true
+
     multi.exec cb
 
 class exports.ApiFactory extends Redis
