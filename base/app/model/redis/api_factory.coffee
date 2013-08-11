@@ -16,18 +16,20 @@ class Api extends KeyContainerModel
     @hgetall [ "meta:capture-paths" ], cb
 
   removeCapturePath: ( name, cb ) ->
-    @hdel [ "meta:capture-paths" ], name, ( err ) =>
-      return cb err if err
+    @hlen [ "meta:capture-paths" ], ( err, length ) =>
+      return err if err
 
-      @hlen [ "meta:capture-paths" ], ( err, length ) =>
-        return err if err
+      # do the delete
+      multi = @multi()
+      multi.hdel "meta:capture-paths", name
 
-        # if we're now empty then we need to let redis know
-        if length is 0
-          @data.hasCapturePaths = false
-          return @hset @id, "hasCapturePaths", false, cb
+      # if we're now empty then we need to let redis know. 1 because
+      # we've not actually done the del yet.
+      if length is 1
+        @data.hasCapturePaths = false
+        multi.hset @id, "hasCapturePaths", false
 
-        return cb null, true
+      return multi.exec cb
 
   addCapturePath: ( name, path, cb ) ->
     multi = @multi()
