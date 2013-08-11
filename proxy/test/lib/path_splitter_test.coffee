@@ -7,16 +7,33 @@ async = require "async"
 { PathSplitter } = require "../../lib/path_splitter"
 
 class exports.PathSplitterTest extends ApiaxleTest
-  "test basic splitting": ( done ) ->
+  "test #getRegexpForDefinition": ( done ) ->
     @ok ps = new PathSplitter()
+    @ok res = ps.getRegexpForDefinition "/animal/sound/:noise/file/:finder"
 
-    urls =
-      "/": [ "/" ]
-      "/one": [ "one/" ]
-      "/one/two/three": [ "one/", "one/two/", "one/two/three/" ]
+    [ re, matches ] = res
 
-    for uri, details of urls
-      parsed = ps.parse( url.parse( uri, true ) )
-      @deepEqual parsed, details
+    @ok re instanceof RegExp
 
-    done 4
+    tests = [
+      "/animal/sound/bark/file/blah",
+      "/animal/sound/yap/file/hello" ]
+
+    for test in tests
+      @match test, re
+
+    done 6
+
+  # "test basic splitting": ( done ) ->
+  #   @ok ps = new PathSplitter()
+
+  #   urls =
+  #     "/": [ "/" ]
+  #     "/one": [ "one/" ]
+  #     "/one/two/three": [ "one/", "one/two/", "one/two/three/" ]
+
+  #   for uri, details of urls
+  #     parsed = ps.parse( url.parse( uri, true ) )
+  #     @deepEqual parsed, details
+
+  #   done 4
