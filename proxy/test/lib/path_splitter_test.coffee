@@ -9,20 +9,29 @@ async = require "async"
 class exports.PathSplitterTest extends ApiaxleTest
   "test #getRegexpForDefinition": ( done ) ->
     @ok ps = new PathSplitter()
-    @ok res = ps.getRegexpForDefinition "/animal/sound/:noise/file/:finder"
 
-    [ re, matches ] = res
+    # definition and stuff that should/shouldn't match
+    definition_tests =
+      "/animal/sound/:noise/file/:finder":
+        should_match: [
+          "/animal/sound/bark/file/blah",
+          "/animal/sound/bark/file/blah/",
+          "/animal/sound/bark/file/hello world",
+          "/animal/sound/yap/file/hello?one=two" ]
+        shouldnt_match: [
+          "/animal/",
+          "/animal/sound/bark/",
+          "/animal/sound/bark/file",
+        ]
 
-    @ok re instanceof RegExp
+    for definition, tests of definition_tests
+      @ok re = ps.getRegexpForDefinition definition
+      @ok re instanceof RegExp
 
-    tests = [
-      "/animal/sound/bark/file/blah",
-      "/animal/sound/yap/file/hello" ]
+      @match test, re for test in tests.should_match
+      @noMatch test, re for test in tests.shouldnt_match
 
-    for test in tests
-      @match test, re
-
-    done 6
+    done 10
 
   # "test basic splitting": ( done ) ->
   #   @ok ps = new PathSplitter()

@@ -11,19 +11,13 @@ class exports.PathSplitter
 
     return hash
 
-  # escapeStringForRegexp: ( str ) ->
-  #   str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-
   getRegexpForDefinition: ( definition ) ->
     re = /(?::(.+?)\b)/g
-
-    matches = definition.match re
-    return [ null, null ] if not matches
 
     new_def = definition.replace re, "(.+?)"
     new_re = new RegExp new_def
 
-    return [ new_re, matches ]
+    return new_re
 
   # definitions is the list of potential paths with placeholders in
   # them. For example:
