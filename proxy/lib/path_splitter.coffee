@@ -1,13 +1,19 @@
 class exports.PathSplitter
-  getRegexpForDefinition: ( definition ) ->
+  constructor: ->
+    @re_cache = {}
+
+  getRegexpForDefinition: ( def ) ->
+    # return the cached version if we have it
+    return @re_cache[ def ] if @re_cache[ def ]
+
     # /animal/:breed/noise
     #        ^^^^^^^
     re = /(?::(.+?)\b)/g
 
-    new_def = definition.replace re, "(.+?)"
+    new_def = def.replace re, "(.+?)"
     new_re = new RegExp new_def
 
-    return new_re
+    return ( @re_cache[ def ] = new_re )
 
   # definitions is the list of potential paths with placeholders in
   # them. For example:
