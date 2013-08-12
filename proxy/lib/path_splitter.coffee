@@ -20,7 +20,7 @@ class exports.PathSplitter
   #
   # and for any of those, return the matching definition:
   #     /animal/noise/:noise
-  matchDefinitions: ( path, definitions ) ->
+  matchPathDefinitions: ( path, definitions ) ->
     all_matches = []
 
     for definition in definitions

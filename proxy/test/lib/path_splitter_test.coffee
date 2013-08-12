@@ -33,7 +33,7 @@ class exports.PathSplitterTest extends ApiaxleTest
 
     done 10
 
-  "test basic parsing": ( done ) ->
+  "test basic path parsing": ( done ) ->
     @ok ps = new PathSplitter()
 
     definitions = [
@@ -54,7 +54,7 @@ class exports.PathSplitterTest extends ApiaxleTest
       "/animal/horse/characteristics/tail": definitions
 
     for path, matching_defs of paths
-      match = ps.matchDefinitions( path, definitions )
+      match = ps.matchPathDefinitions( path, definitions )
       @deepEqual match, matching_defs
 
     done 5
