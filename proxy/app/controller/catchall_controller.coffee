@@ -268,8 +268,6 @@ class CatchAll extends ApiaxleController
 
       matches = @path_splitter.matchPathDefinitions path, capture_paths
 
-      console.log( matches )
-
       all = []
       for match in matches
         do( match ) ->
