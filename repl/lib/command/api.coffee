@@ -26,6 +26,26 @@ class exports.Api extends Command
         See the API documentation for more: http://apiaxle.com/api.html
         """
 
+  addcapturepath: ( id, commands, keypairs, cb ) ->
+    if not path = commands.shift()
+      return cb new Error "Please provide a path to link to #{ id }."
+
+    options =
+      path: "/v1/api/#{ id }/addcapturepath/#{ encodeURIComponent path }"
+      data: "{}"
+
+    @callApi "PUT", options, cb
+
+  delcapturepath: ( id, commands, keypairs, cb ) ->
+    if not path = commands.shift()
+      return cb new Error "Please provide a path remove from #{ id }."
+
+    options =
+      path: "/v1/api/#{ id }/delcapturepath/#{ encodeURIComponent path }"
+      data: "{}"
+
+    @callApi "PUT", options, cb
+
   unlinkkey: ( id, commands, keypairs, cb ) ->
     if not key = commands.shift()
       return cb new Error "Please provide a key name to link to #{ id }."
