@@ -185,14 +185,14 @@ class exports.CaptureUrlTest extends FakeAppTest
 
       # add a path
       all.push ( cb ) =>
-        bacon.addCapturePath "animal:name", "/animal/${ name }/fire", ( err ) =>
+        bacon.addCapturePath "/animal/${ name }/fire", ( err ) =>
           @ok not err
           @equal bacon.data.hasCapturePaths, true
           cb()
 
       # add another path
       all.push ( cb ) =>
-        bacon.addCapturePath "animal:element", "/animal/dragon/${ element }", ( err ) =>
+        bacon.addCapturePath "/animal/dragon/${ element }", ( err ) =>
           @ok not err
           @equal bacon.data.hasCapturePaths, true
           cb()
@@ -203,15 +203,13 @@ class exports.CaptureUrlTest extends FakeAppTest
           @ok not err
           @ok dbPaths
 
-          @deepEqual dbPaths,
-            "animal:element": "/animal/dragon/${ element }"
-            "animal:name": "/animal/${ name }/fire"
+          @deepEqual dbPaths, [ '/animal/dragon/${ element }', '/animal/${ name }/fire' ]
 
           cb()
 
       # remove one
       all.push ( cb ) =>
-        bacon.removeCapturePath "animal:name", ( err ) =>
+        bacon.removeCapturePath "/animal/${ name }/fire", ( err ) =>
           @ok not err
 
           # current object now empty
@@ -225,7 +223,7 @@ class exports.CaptureUrlTest extends FakeAppTest
           @ok not err
           @ok dbPaths
 
-          @deepEqual dbPaths, { "animal:element": "/animal/dragon/${ element }" }
+          @deepEqual dbPaths, [ "/animal/dragon/${ element }" ]
 
           cb()
 

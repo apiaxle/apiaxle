@@ -289,6 +289,7 @@ class KeyContainerModel extends Model
       return cb null, exists
 
 redisCommands = [
+  "srem",
   "hset",
   "hget",
   "hdel",
