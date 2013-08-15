@@ -13,7 +13,9 @@ debug = require( "debug" )( "aa:catchall" )
   EndpointTimeoutError,
   ConnectionError,
   DNSError } = require "../../lib/error"
+
 { ApiaxleController } = require "./controller"
+{ PathSplitter } = require "../../lib/path_splitter"
 
 class CatchAll extends ApiaxleController
   @cachable: false
@@ -25,6 +27,11 @@ class CatchAll extends ApiaxleController
                    @api,
                    @key,
                    @keyrings ]
+
+  constructor: ( args... ) ->
+    @path_splitter = new PathSplitter()
+
+    super args...
 
   _cacheHash: ( url ) ->
     md5 = crypto.createHash "md5"
@@ -155,7 +162,7 @@ class CatchAll extends ApiaxleController
     if req.key.isDisabled()
       return next new KeyDisabled "This API key has been disabled."
 
-    { pathname, query } = url.parse req.url, true
+    { path, pathname, query } = url.parse req.url, true
 
     # we should make this optional
     if not req.api.data.sendThroughApiSig
@@ -231,20 +238,45 @@ class CatchAll extends ApiaxleController
           ( cb ) -> timersModel.logTiming multi, "#{ api_id }-http-request", http_req_ms, cb
         ]
 
-        async.parallel timers, ( err ) ->
+        # counters for the segmented path parts
+        @logCapturedPaths req.api, path, ( err ) ->
           return next err if err
 
-          # copy headers from the endpoint
-          for header, value of apiRes.headers
-            res.header header, value
-
-          # let the user know what they've got left
-          res.header "X-ApiaxleProxy-Qps-Left", newQps
-          res.header "X-ApiaxleProxy-Qpd-Left", newQpd
-
-          multi.exec ( err ) ->
+          async.parallel timers, ( err ) ->
             return next err if err
-            return res.send body, apiRes.statusCode
+
+            # copy headers from the endpoint
+            for header, value of apiRes.headers
+              res.header header, value
+
+            # let the user know what they've got left
+            res.header "X-ApiaxleProxy-Qps-Left", newQps
+            res.header "X-ApiaxleProxy-Qpd-Left", newQpd
+
+            multi.exec ( err ) ->
+              return next err if err
+              return res.send body, apiRes.statusCode
+
+  logCapturedPaths: ( api, path, cb ) ->
+    #return cb null unless api.hasCapturePaths
+
+    countersModel = @app.model "statcounters"
+    multi = countersModel.multi()
+
+    api.getCapturePaths ( err, capture_paths ) =>
+      return next err if err
+
+      matches = @path_splitter.matchPathDefinitions path, [ "/yet.more.information" ]
+
+      all = []
+      for match in matches
+        do( match ) ->
+          all.push ( cb ) ->
+            countersModel.logCounter multi, "capture:#{ api.id }-#{ match }", cb
+
+      async.parallel all, ( err ) ->
+        return cb err if err
+        multi.exec cb
 
 class exports.GetCatchall extends CatchAll
   @cachable: true
