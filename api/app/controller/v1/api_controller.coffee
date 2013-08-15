@@ -321,18 +321,11 @@ class exports.ApiTimerStats extends StatsController
     model = @app.model "stattimers"
 
     # lob off the api name as it's redundant in this context
-    timer_names = {}
-    timer_names[ "#{ req.api.id }-http-request" ] = "http-request"
+    timer_names = [ "http-request" ]
+    timer_names.push "pre-request" if debug
 
-    if debug
-      timer_names[ "#{ req.api.id }-pre-request" ] = "http-pre-request"
-
-    model.getCounterValues _.keys( timer_names ), granularity, from, to, ( err, results ) =>
+    model.getCounterValues req.api.id, timer_names, granularity, from, to, ( err, results ) =>
       return next err if err
-
-      for name, details of results
-        results[ timer_names[ name ] ] = details
-        delete results[ name ]
 
       if format_timestamp isnt "epoch_seconds"
         results = @convertTimestamps req, results

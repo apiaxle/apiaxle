@@ -26,7 +26,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
 
         done 3
 
-  "test DELETE valid keyring": ( done ) ->
+  "test DELETE a valid keyring": ( done ) ->
     fixtures =
       keyring:
         container: {}
@@ -53,7 +53,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
                 @equal results.length, 2
                 @deepEqual results, [ "container", "container2" ]
 
-                done 2
+                done 7
 
   "test GET a valid keyring": ( done ) ->
     # now try and get it
