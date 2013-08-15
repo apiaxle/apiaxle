@@ -332,3 +332,27 @@ class exports.ApiTimerStats extends StatsController
 
       return next err if err
       return @json res, results
+
+class exports.AddCapturePath extends ApiaxleController
+  @verb = "put"
+
+  docs: ->
+    {}=
+      verb: "PUT"
+      title: "Add a capture path to :api"
+      response: "The path added."
+      description: """
+        Add a path that will have statistics associated with it.
+        """
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepath/:path"
+
+  execute: ( req, res, next ) ->
+    { path } = req.params
+
+    req.api.addCapturePath path, ( err ) =>
+      return next err if err
+      return @json res, path
