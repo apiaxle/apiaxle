@@ -341,18 +341,38 @@ class exports.AddCapturePath extends ApiaxleController
       verb: "PUT"
       title: "Add a capture path to :api"
       response: "The path added."
-      description: """
-        Add a path that will have statistics associated with it.
-        """
+      description: "Add a path that will have statistics associated with it."
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwApiDetails( valid_api_required=true ) ]
 
-  path: -> "/v1/api/:api/capturepath/:path"
+  path: -> "/v1/api/:api/addcapturepath/:path"
 
   execute: ( req, res, next ) ->
     { path } = req.params
 
     req.api.addCapturePath path, ( err ) =>
+      return next err if err
+      return @json res, path
+
+class exports.DelCapturePath extends ApiaxleController
+  @verb = "put"
+
+  docs: ->
+    {}=
+      verb: "PUT"
+      title: "Delete a capture path from :api"
+      response: "The path removed."
+      description: "Remove a path and prevent statistics being collected for it."
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/delcapturepath/:path"
+
+  execute: ( req, res, next ) ->
+    { path } = req.params
+
+    req.api.removeCapturePath path, ( err ) =>
       return next err if err
       return @json res, path
