@@ -260,7 +260,7 @@ class CatchAll extends ApiaxleController
   logCapturedPathsMaybe: ( api, path, cb ) ->
     return cb null unless api.hasCapturePaths
 
-    countersModel = @app.model "statcounters"
+    countersModel = @app.model "capturepaths"
     multi = countersModel.multi()
 
     api.getCapturePaths ( err, capture_paths ) =>
@@ -274,11 +274,11 @@ class CatchAll extends ApiaxleController
       for match in matches
         do( match ) ->
           all.push ( cb ) ->
-            countersModel.logCounter multi, "capture-#{ api.id }", "#{ match }", cb
+            countersModel.logCounter multi, api.id, match, cb
 
       async.parallel all, ( err ) ->
         return cb err if err
-        multi.exec cb
+        return multi.exec cb
 
 class exports.GetCatchall extends CatchAll
   @cachable: true
