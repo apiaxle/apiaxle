@@ -239,7 +239,7 @@ class CatchAll extends ApiaxleController
         ]
 
         # counters for the segmented path parts
-        @logCapturedPaths req.api, path, ( err ) ->
+        @logCapturedPathsMaybe req.api, path, ( err ) ->
           return next err if err
 
           async.parallel timers, ( err ) ->
@@ -257,8 +257,8 @@ class CatchAll extends ApiaxleController
               return next err if err
               return res.send body, apiRes.statusCode
 
-  logCapturedPaths: ( api, path, cb ) ->
-    #return cb null unless api.hasCapturePaths
+  logCapturedPathsMaybe: ( api, path, cb ) ->
+    return cb null unless api.hasCapturePaths
 
     countersModel = @app.model "statcounters"
     multi = countersModel.multi()
@@ -266,13 +266,15 @@ class CatchAll extends ApiaxleController
     api.getCapturePaths ( err, capture_paths ) =>
       return next err if err
 
-      matches = @path_splitter.matchPathDefinitions path, [ "/yet.more.information" ]
+      matches = @path_splitter.matchPathDefinitions path, capture_paths
+
+      console.log( matches )
 
       all = []
       for match in matches
         do( match ) ->
           all.push ( cb ) ->
-            countersModel.logCounter multi, "capture:#{ api.id }-#{ match }", cb
+            countersModel.logCounter multi, "capture-#{ api.id }", "#{ match }", cb
 
       async.parallel all, ( err ) ->
         return cb err if err
