@@ -183,7 +183,7 @@ class exports.ArbStatsTest extends FakeAppTest
     # log a counter
     all.push ( cb ) =>
       multi = @model.multi()
-      @model.logCounter multi, "bob", ( err ) =>
+      @model.logCounter multi, "NS", "bob", ( err ) =>
         @ok not err
 
         # should be called once for each granularity
@@ -193,7 +193,7 @@ class exports.ArbStatsTest extends FakeAppTest
 
     # fetch all of the names
     all.push ( cb ) =>
-      @model.getAllCounterNames ( err, names ) =>
+      @model.getAllCounterNames "NS", ( err, names ) =>
         @ok not err
         @deepEqual names, [ "bob" ]
 
@@ -202,7 +202,7 @@ class exports.ArbStatsTest extends FakeAppTest
     # log another counter in the same second
     all.push ( cb ) =>
       multi = @model.multi()
-      @model.logCounter multi, "frank", ( err ) =>
+      @model.logCounter multi, "NS", "frank", ( err ) =>
         @ok not err
 
         # should be called once for each granularity
@@ -212,7 +212,7 @@ class exports.ArbStatsTest extends FakeAppTest
 
     # fetch all of the names again
     all.push ( cb ) =>
-      @model.getAllCounterNames ( err, names ) =>
+      @model.getAllCounterNames "NS", ( err, names ) =>
         @ok not err
         @deepEqual names, [ "bob", "frank" ]
 
@@ -224,7 +224,7 @@ class exports.ArbStatsTest extends FakeAppTest
       clock.addSeconds 2
 
       multi = @model.multi()
-      @model.logCounter multi, "bob", ( err ) =>
+      @model.logCounter multi, "NS", "bob", ( err ) =>
         @ok not err
 
         # should be called once for each granularity
@@ -237,7 +237,7 @@ class exports.ArbStatsTest extends FakeAppTest
       from = 1357002180
       to = from + 600
 
-      @model.getCounterValues [ "bob" ], "minute", from, to, ( err, results ) =>
+      @model.getCounterValues "NS", [ "bob" ], "minute", from, to, ( err, results ) =>
         @ok not err
 
         # only 2 in the last minute
@@ -252,7 +252,7 @@ class exports.ArbStatsTest extends FakeAppTest
       from = 1357002180
       to = from + 600
 
-      @model.getCounterValues [ "bob", "frank" ], "minute", from, to, ( err, results ) =>
+      @model.getCounterValues "NS", [ "bob", "frank" ], "minute", from, to, ( err, results ) =>
         @ok not err
 
         # only 2 in the last minute
@@ -272,7 +272,7 @@ class exports.ArbStatsTest extends FakeAppTest
       from = 1357002210
       to = 1357002219
 
-      @model.getCounterValues [ "bob", "frank" ], "second", from, to, ( err, results ) =>
+      @model.getCounterValues "NS", [ "bob", "frank" ], "second", from, to, ( err, results ) =>
         @ok not err
 
         # only 2 in the last minute
