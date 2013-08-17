@@ -190,6 +190,14 @@ class exports.CaptureUrlTest extends FakeAppTest
           @equal bacon.data.hasCapturePaths, true
           cb()
 
+      # now test fullness from the database too
+      all.push ( cb ) =>
+        @model.find [ "bacon" ], ( err, { bacon } ) =>
+          @ok not err
+          @equal bacon.data.hasCapturePaths, true
+
+          cb()
+
       # add another path
       all.push ( cb ) =>
         bacon.addCapturePath "/animal/dragon/${ element }", ( err ) =>
