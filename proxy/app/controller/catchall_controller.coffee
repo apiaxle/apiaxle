@@ -258,25 +258,19 @@ class CatchAll extends ApiaxleController
               return res.send body, apiRes.statusCode
 
   logCapturedPathsMaybe: ( api, path, cb ) ->
-    return cb null unless api.hasCapturePaths
+    # only if we have some paths
+    return cb null unless api.data.hasCapturePaths
 
+    # this combines timers and counters
     countersModel = @app.model "capturepaths"
-    multi = countersModel.multi()
 
+    # fetch the paths we're looking to capture
     api.getCapturePaths ( err, capture_paths ) =>
       return next err if err
 
+      # finally, capture them. Timers and counters.
       matches = @path_splitter.matchPathDefinitions path, capture_paths
-
-      all = []
-      for match in matches
-        do( match ) ->
-          all.push ( cb ) ->
-            countersModel.logCounter multi, api.id, match, cb
-
-      async.parallel all, ( err ) ->
-        return cb err if err
-        return multi.exec cb
+      return countersModel.log api.id, matches, cb
 
 class exports.GetCatchall extends CatchAll
   @cachable: true
