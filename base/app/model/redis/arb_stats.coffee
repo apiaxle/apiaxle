@@ -56,9 +56,9 @@ class Stat extends Redis
   #  * granularity - the name of the granularity results are for.
   #  * from - where the stats should start from (in seconds).
   #  * to - where the stats should end (in seconds).
-  getCounterValues: ( namespace, names, gran, from, to, cb ) ->
+  getValues: ( namespace, names, gran, from, to, cb ) ->
     if not names or names.length is 0
-      return cb Error "getCounterValues requires a list of names."
+      return cb Error "getValues requires a list of names."
 
     if gran not in @gran_names
       return cb Error "Granularity must be one of #{ @gran_names.join(', ') }"

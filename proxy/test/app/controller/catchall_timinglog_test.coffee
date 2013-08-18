@@ -38,7 +38,7 @@ class exports.TimersTest extends ApiaxleTest
       model = @app.model "stattimers"
       names = [ "http-request" ]
 
-      model.getCounterValues "programmes", names, "hour", null, null, ( err, results ) =>
+      model.getValues "programmes", names, "hour", null, null, ( err, results ) =>
         @ok not err
 
         results = results["http-request"]

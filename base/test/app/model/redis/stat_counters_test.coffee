@@ -237,7 +237,7 @@ class exports.ArbStatsTest extends FakeAppTest
       from = 1357002180
       to = from + 600
 
-      @model.getCounterValues "NS", [ "bob" ], "minute", from, to, ( err, results ) =>
+      @model.getValues "NS", [ "bob" ], "minute", from, to, ( err, results ) =>
         @ok not err
 
         # only 2 in the last minute
@@ -252,7 +252,7 @@ class exports.ArbStatsTest extends FakeAppTest
       from = 1357002180
       to = from + 600
 
-      @model.getCounterValues "NS", [ "bob", "frank" ], "minute", from, to, ( err, results ) =>
+      @model.getValues "NS", [ "bob", "frank" ], "minute", from, to, ( err, results ) =>
         @ok not err
 
         # only 2 in the last minute
@@ -272,7 +272,7 @@ class exports.ArbStatsTest extends FakeAppTest
       from = 1357002210
       to = 1357002219
 
-      @model.getCounterValues "NS", [ "bob", "frank" ], "second", from, to, ( err, results ) =>
+      @model.getValues "NS", [ "bob", "frank" ], "second", from, to, ( err, results ) =>
         @ok not err
 
         # only 2 in the last minute

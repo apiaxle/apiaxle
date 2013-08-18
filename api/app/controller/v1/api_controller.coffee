@@ -324,7 +324,7 @@ class exports.ApiTimerStats extends StatsController
     timer_names = [ "http-request" ]
     timer_names.push "pre-request" if debug
 
-    model.getCounterValues req.api.id, timer_names, granularity, from, to, ( err, results ) =>
+    model.getValues req.api.id, timer_names, granularity, from, to, ( err, results ) =>
       return next err if err
 
       if format_timestamp isnt "epoch_seconds"

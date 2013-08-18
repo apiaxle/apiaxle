@@ -61,7 +61,7 @@ class exports.TimerStatsTest extends FakeAppTest
       from = 1357002000 # Tue, 01 Jan 2013 01:00:00 GMT
       to = from + 120
 
-      @model.getCounterValues "NS", [ "bob" ], "hour", from, to, ( err, results ) =>
+      @model.getValues "NS", [ "bob" ], "hour", from, to, ( err, results ) =>
         @ok not err
 
         @deepEqual results,
