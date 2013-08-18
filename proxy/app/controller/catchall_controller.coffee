@@ -270,7 +270,7 @@ class CatchAll extends ApiaxleController
 
       # finally, capture them. Timers and counters.
       matches = @path_splitter.matchPathDefinitions path, capture_paths
-      return countersModel.log api.id, matches, cb
+      return countersModel.log api.id, matches, 100, cb
 
 class exports.GetCatchall extends CatchAll
   @cachable: true
