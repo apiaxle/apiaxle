@@ -28,10 +28,10 @@ class exports.CapturePaths extends Redis
     for match in matches
       do( match ) =>
         all.push ( cb ) => @timer.logTiming timer_multi, api_id, match, time, cb
-        all.push ( cb ) -> timer_multi.exec cb
-
         all.push ( cb ) => @counter.logCounter counter_multi, api_id, match, cb
-        all.push ( cb ) -> counter_multi.exec cb
+
+    all.push ( cb ) -> timer_multi.exec cb
+    all.push ( cb ) -> counter_multi.exec cb
 
     return async.series all, cb
 
