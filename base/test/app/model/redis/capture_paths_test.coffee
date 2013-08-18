@@ -36,7 +36,7 @@ class exports.CountersTest extends FakeAppTest
     # hit for facebook
     all.push ( cb ) => @model.log "facebook", matches, 100, cb
 
-    # see if we can fetch the results
+    # see if we can fetch the timing results
     all.push ( cb ) =>
       @model.getTimers "facebook", matches, "minute", now - 60, now, ( err, results ) =>
         @ok not null
@@ -48,7 +48,21 @@ class exports.CountersTest extends FakeAppTest
           "/one/:two/three":
             1376853960: [ 100, 100, 100 ]
 
-        cb null
+        return cb null
+
+    # see if we can fetch the counter results
+    all.push ( cb ) =>
+      @model.getCounters "facebook", matches, "minute", now - 60, now, ( err, results ) =>
+        @ok not null
+
+        @deepEqual results,
+          "/one/:two":
+            1376853960: 1
+
+          "/one/:two/three":
+            1376853960: 1
+
+        return cb null
 
     async.series all, ( err ) =>
       @ok not err
