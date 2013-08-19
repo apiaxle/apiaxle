@@ -12,7 +12,7 @@ class exports.PathSplitterTest extends ApiaxleTest
 
     # definition and stuff that should/shouldn't match
     definition_tests =
-      "/animal/sound/:noise/file/:finder":
+      "/animal/sound/*/file/*":
         should_match: [
           "/animal/sound/bark/file/blah",
           "/animal/sound/bark/file/blah/",
@@ -37,24 +37,24 @@ class exports.PathSplitterTest extends ApiaxleTest
     @ok ps = new PathSplitter()
 
     definitions = [
-      "/animal/:breed"
-      "/animal/:breed/characteristics/:characteristic"
+      "/animal/*"
+      "/animal/*/characteristics/*"
     ]
 
     paths =
       "/": []
 
       # matches breed absolutely
-      "/animal/horse": [ "/animal/:breed" ]
+      "/animal/horse": [ "/animal/*" ]
 
       # nothing more than :breed matches
-      "/animal/horse/characteristics/": [ "/animal/:breed" ]
+      "/animal/horse/characteristics/": [ "/animal/*" ]
 
       # matches everything
       "/animal/horse/characteristics/tail": definitions
 
     for path, matching_defs of paths
-      match = ps.matchPathDefinitions( path, definitions )
+      match = ps.matchPathDefinitions path, definitions
       @deepEqual match, matching_defs
 
     done 5

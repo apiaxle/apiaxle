@@ -6,9 +6,8 @@ class exports.PathSplitter
     # return the cached version if we have it
     return @re_cache[ def ] if @re_cache[ def ]
 
-    # /animal/:breed/noise
-    #        ^^^^^^^
-    re = /(?::(.+?)\b)/g
+    # /animal/*/noise
+    re = /\*/g
 
     new_def = def.replace re, "(.+?)"
     new_re = new RegExp new_def
@@ -17,7 +16,7 @@ class exports.PathSplitter
 
   # definitions is the list of potential paths with placeholders in
   # them. For example:
-  #     /animal/noise/:noise
+  #     /animal/noise/*
   #
   # should match any of:
   #     /animal/noise/bark
@@ -25,7 +24,7 @@ class exports.PathSplitter
   #     /animal/noise/yap
   #
   # and for any of those, return the matching definition:
-  #     /animal/noise/:noise
+  #     /animal/noise/*
   matchPathDefinitions: ( path, definitions ) ->
     all_matches = []
 
