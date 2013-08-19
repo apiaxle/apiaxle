@@ -1,4 +1,4 @@
-class exports.PathSplitter
+class exports.PathGlobs
   constructor: ->
     @re_cache = {}
 

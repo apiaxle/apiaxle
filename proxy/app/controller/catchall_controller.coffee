@@ -15,7 +15,7 @@ debug = require( "debug" )( "aa:catchall" )
   DNSError } = require "../../lib/error"
 
 { ApiaxleController } = require "./controller"
-{ PathSplitter } = require "../../lib/path_splitter"
+{ PathGlobs } = require "../../lib/path_globs"
 
 class CatchAll extends ApiaxleController
   @cachable: false
@@ -29,7 +29,7 @@ class CatchAll extends ApiaxleController
                    @keyrings ]
 
   constructor: ( args... ) ->
-    @path_splitter = new PathSplitter()
+    @path_globs = new PathGlobs()
 
     super args...
 
@@ -269,7 +269,7 @@ class CatchAll extends ApiaxleController
       return next err if err
 
       # finally, capture them. Timers and counters.
-      matches = @path_splitter.matchPathDefinitions path, capture_paths
+      matches = @path_globs.matchPathDefinitions path, capture_paths
       return countersModel.log api.id, matches, timing, cb
 
 class exports.GetCatchall extends CatchAll

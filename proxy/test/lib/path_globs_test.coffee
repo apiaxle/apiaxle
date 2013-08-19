@@ -4,11 +4,11 @@ url = require "url"
 async = require "async"
 
 { ApiaxleTest } = require "../apiaxle"
-{ PathSplitter } = require "../../lib/path_splitter"
+{ PathGlobs } = require "../../lib/path_globs"
 
-class exports.PathSplitterTest extends ApiaxleTest
+class exports.PathGlobTests extends ApiaxleTest
   "test #getRegexpForDefinition": ( done ) ->
-    @ok ps = new PathSplitter()
+    @ok ps = new PathGlobs()
 
     # definition and stuff that should/shouldn't match
     definition_tests =
@@ -34,7 +34,7 @@ class exports.PathSplitterTest extends ApiaxleTest
     done 10
 
   "test basic path parsing": ( done ) ->
-    @ok ps = new PathSplitter()
+    @ok ps = new PathGlobs()
 
     definitions = [
       "/animal/*"
