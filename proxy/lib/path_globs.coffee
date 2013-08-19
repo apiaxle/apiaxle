@@ -1,18 +1,27 @@
+url = require "url"
+
 class exports.PathGlobs
   constructor: ->
     @re_cache = {}
 
   getRegexpForDefinition: ( def ) ->
-    # return the cached version if we have it
-    return @re_cache[ def ] if @re_cache[ def ]
-
     # /animal/*/noise
     re = /\*/g
 
-    new_def = def.replace re, "([^$/?]+)"
+    new_def = def.replace re, "([^$/?&]+)"
     new_re = new RegExp "^#{ new_def }" # note the anchor
 
-    return ( @re_cache[ def ] = new_re )
+    return new_re
+
+  doQueryParamsMatch: ( wanted, got ) ->
+    for expected_key, expected_value of wanted
+      if expected_value is "*" and got[expected_key]?
+        continue
+
+      if got[expected_key] isnt expected_value
+        return false
+
+    return true
 
   # definitions is the list of potential paths with placeholders in
   # them. For example:
@@ -25,11 +34,16 @@ class exports.PathGlobs
   #
   # and for any of those, return the matching definition:
   #     /animal/noise/*
-  matchPathDefinitions: ( path, definitions ) ->
+  matchPathDefinitions: ( path, query_params, definitions ) ->
     all_matches = []
 
     for definition in definitions
-      re = @getRegexpForDefinition definition
+      # firstly check the query params, we need to parse the
+      # definition itself to get the query param hash.
+      our_definitions = url.parse( definition, true )
+      continue unless @doQueryParamsMatch our_definitions.query, query_params
+
+      re = @getRegexpForDefinition our_definitions.pathname
       if re.exec path
         all_matches.push definition
 

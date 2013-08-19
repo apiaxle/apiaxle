@@ -33,7 +33,7 @@ class exports.PathGlobTests extends ApiaxleTest
 
     done 10
 
-  "test basic path parsing": ( done ) ->
+  "test basic uri parsing": ( done ) ->
     @ok ps = new PathGlobs()
 
     definitions = [
@@ -41,7 +41,7 @@ class exports.PathGlobTests extends ApiaxleTest
       "/animal/*/characteristics/*"
     ]
 
-    paths =
+    uris =
       "/": []
 
       # matches breed absolutely
@@ -53,8 +53,71 @@ class exports.PathGlobTests extends ApiaxleTest
       # matches everything
       "/animal/horse/characteristics/tail": definitions
 
-    for path, matching_defs of paths
-      match = ps.matchPathDefinitions path, definitions
+    for uri, matching_defs of uris
+      match = ps.matchPathDefinitions uri, {}, definitions
+      @deepEqual match, matching_defs
+
+    done 5
+
+  "test #doQueryParamsMatch": ( done ) ->
+    @ok ps = new PathGlobs()
+
+    # matches
+    @ok ps.doQueryParamsMatch { one: "*" }, { one: "two" }
+    @ok ps.doQueryParamsMatch { one: "two" }, { one: "two" }
+    @ok ps.doQueryParamsMatch { one: "*" }, { one: 0 }
+    @ok ps.doQueryParamsMatch { one: "*" }, { one: false }
+
+    # doesn't match
+    @ok not ps.doQueryParamsMatch { one: "two" }, { one: "three" }
+    @ok not ps.doQueryParamsMatch { one: "two" }, { one: true }
+    @ok not ps.doQueryParamsMatch { one: "two" }, { one: "*" }
+
+    # larger matches
+    want =
+      one: "two"
+      three: "four"
+    got = want
+    @ok ps.doQueryParamsMatch want, got
+
+    want =
+      one: "*"
+      three: "four"
+    @ok ps.doQueryParamsMatch want, got
+
+    want =
+      one: "*"
+      three: "*"
+    @ok ps.doQueryParamsMatch want, got
+
+    # larger non-matches
+    want =
+      one: "*"
+      three: "four"
+    got =
+      one: "two"
+      three: "five"
+    @ok not ps.doQueryParamsMatch want, got
+
+    done 12
+
+  "test uri parsing including query params": ( done ) ->
+    @ok ps = new PathGlobs()
+
+    definitions = [
+      "/animal/*?sort=asc&meta=*"
+    ]
+
+    uris =
+      "/": []
+      "/animal/dog?sort=asc": []
+      "/animal/dog?sort=asc": []
+      "/animal/dog?sort=asc&meta=hello": definitions
+
+    for uri, matching_defs of uris
+      { pathname, query } = url.parse( uri, true )
+
+      match = ps.matchPathDefinitions pathname, query, definitions
       @deepEqual match, matching_defs
 
     done 5
