@@ -9,8 +9,8 @@ class exports.PathSplitter
     # /animal/*/noise
     re = /\*/g
 
-    new_def = def.replace re, "(.+?)"
-    new_re = new RegExp new_def
+    new_def = def.replace re, "([^$/?]+)"
+    new_re = new RegExp "^#{ new_def }" # note the anchor
 
     return ( @re_cache[ def ] = new_re )
 

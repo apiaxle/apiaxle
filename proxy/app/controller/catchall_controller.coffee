@@ -162,7 +162,7 @@ class CatchAll extends ApiaxleController
     if req.key.isDisabled()
       return next new KeyDisabled "This API key has been disabled."
 
-    { path, pathname, query } = url.parse req.url, true
+    { path, pathname, query } = url.parse( req.url, true )
 
     # we should make this optional
     if not req.api.data.sendThroughApiSig
@@ -239,7 +239,7 @@ class CatchAll extends ApiaxleController
         ]
 
         # counters for the segmented path parts
-        @logCapturedPathsMaybe req.api, path, ( err ) ->
+        @logCapturedPathsMaybe req.api, path, http_req_ms, ( err ) ->
           return next err if err
 
           async.parallel timers, ( err ) ->
@@ -257,7 +257,7 @@ class CatchAll extends ApiaxleController
               return next err if err
               return res.send body, apiRes.statusCode
 
-  logCapturedPathsMaybe: ( api, path, cb ) ->
+  logCapturedPathsMaybe: ( api, path, timing, cb ) ->
     # only if we have some paths
     return cb null unless api.data.hasCapturePaths
 
@@ -270,7 +270,7 @@ class CatchAll extends ApiaxleController
 
       # finally, capture them. Timers and counters.
       matches = @path_splitter.matchPathDefinitions path, capture_paths
-      return countersModel.log api.id, matches, 100, cb
+      return countersModel.log api.id, matches, timing, cb
 
 class exports.GetCatchall extends CatchAll
   @cachable: true
