@@ -4,8 +4,9 @@ _ = require "lodash"
 path = require "path"
 async = require "async"
 express = require "express"
-redis = require "redis"
 debug = require( "debug" )( "aa:app" )
+
+watchtower = require('redis-watchtower');
 
 { Js2Xml } = require "js2xml"
 { Application } = require "scarf"
@@ -61,7 +62,23 @@ class exports.AxleApp extends Application
       return cb err if err
       return cb null, ( ) => @redisClient.quit()
 
+  redisConnectSentinel: ( cb ) =>
+    settings =
+      masterName: 'mymaster',
+      sentinels: @config.redis_sentinel
+
+    watchtower.connect settings, ( err ) =>
+      return cb err if err
+
+      @redisClient = watchtower.createClient()
+      @redisClient.on "error", console.log
+
+      cb()
+
   redisConnect: ( cb ) =>
+    # if we have sentinel stuff happening then use that.
+    return @redisConnectSentinel cb if @config.redis_sentinel
+
     # grab the redis config
     { port, host } = @config.redis
 
@@ -116,16 +133,26 @@ class exports.AxleApp extends Application
       type: "object"
       additionalProperties: false
       properties:
-       redis:
-          type: "object"
-          additionalProperties: false
-          properties:
-            port:
-              type: "integer"
-              default: 6379
-            host:
-              type: "string"
-              default: "localhost"
+       redis_sentinel:
+         type: "array"
+         items:
+           type: "object"
+           properties:
+             port:
+               type: "integer"
+             host:
+               type: "string"
+      redis:
+        type: "object"
+        optional: true
+        additionalProperties: false
+        properties:
+          port:
+            type: "integer"
+            default: 6379
+          host:
+            type: "string"
+            default: "localhost"
 
   getConfigurationSchema: ->
     _.merge @getAppConfigSchema(),
