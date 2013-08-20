@@ -239,7 +239,7 @@ class CatchAll extends ApiaxleController
         ]
 
         # counters for the segmented path parts
-        @logCapturedPathsMaybe req.api, pathname, query, http_req_ms, ( err ) ->
+        @logCapturedPathsMaybe req.api, req.key, req.keyrings, pathname, query, http_req_ms, ( err ) ->
           return next err if err
 
           async.parallel timers, ( err ) ->
@@ -257,7 +257,7 @@ class CatchAll extends ApiaxleController
               return next err if err
               return res.send body, apiRes.statusCode
 
-  logCapturedPathsMaybe: ( api, path, query, timing, cb ) ->
+  logCapturedPathsMaybe: ( api, key, keyrings, path, query, timing, cb ) ->
     # only if we have some paths
     return cb null unless api.data.hasCapturePaths
 
@@ -270,7 +270,12 @@ class CatchAll extends ApiaxleController
 
       # finally, capture them. Timers and counters.
       matches = @path_globs.matchPathDefinitions path, query, capture_paths
-      return countersModel.log api.id, matches, timing, cb
+
+      args = [ api.id,
+               key.id,
+              _.pluck( keyrings, "id" ) ]
+
+      return countersModel.log args..., matches, timing, cb
 
 class exports.GetCatchall extends CatchAll
   @cachable: true

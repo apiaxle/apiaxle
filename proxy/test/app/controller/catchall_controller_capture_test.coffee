@@ -51,7 +51,7 @@ class exports.CaptureTest extends ApiaxleTest
     now = Math.floor( Date.now() / 1000 )
     stub = @getStub RedisMulti::, "expireat", ->
 
-    fetch_args = [ [ "programmes" ], @captures, "hour", now - 2000, null ]
+    fetch_args = [ [ "api", "programmes" ], @captures, "hour", now - 2000, null ]
 
     # test that hitting root DOES log as a capture
     all.push ( cb ) =>

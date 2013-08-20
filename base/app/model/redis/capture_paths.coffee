@@ -19,7 +19,7 @@ class exports.CapturePaths extends Redis
 
     super app
 
-  log: ( namespace, matches, time, cb ) ->
+  log: ( api_id, key_id, keyring_ids, matches, time, cb ) ->
     all = []
 
     timer_multi = @timer.multi()
@@ -27,8 +27,12 @@ class exports.CapturePaths extends Redis
 
     for match in matches
       do( match ) =>
-        all.push ( cb ) => @timer.logTiming timer_multi, namespace, match, time, cb
-        all.push ( cb ) => @counter.logCounter counter_multi, namespace, match, cb
+        all.push ( cb ) => @timer.logTiming timer_multi, [ "api", api_id ], match, time, cb
+
+        # We log several counters, one for the api, one for the key,
+        # one for each keyring and combination
+        all.push ( cb ) => @counter.logCounter counter_multi, [ "api", api_id ], match, cb
+        all.push ( cb ) => @counter.logCounter counter_multi, [ "key-api", key_id, api_id ], match, cb
 
     all.push ( cb ) -> timer_multi.exec cb
     all.push ( cb ) -> counter_multi.exec cb
