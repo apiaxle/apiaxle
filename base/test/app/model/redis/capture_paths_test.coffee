@@ -34,11 +34,11 @@ class exports.CountersTest extends FakeAppTest
     all = []
 
     # hit for facebook
-    all.push ( cb ) => @model.log "facebook", matches, 100, cb
+    all.push ( cb ) => @model.log [ "facebook" ], matches, 100, cb
 
     # see if we can fetch the timing results
     all.push ( cb ) =>
-      @model.getTimers "facebook", matches, "minute", now - 60, now, ( err, results ) =>
+      @model.getTimers [ "facebook" ], matches, "minute", now - 60, now, ( err, results ) =>
         @ok not null
 
         @deepEqual results,
@@ -52,7 +52,7 @@ class exports.CountersTest extends FakeAppTest
 
     # see if we can fetch the counter results
     all.push ( cb ) =>
-      @model.getCounters "facebook", matches, "minute", now - 60, now, ( err, results ) =>
+      @model.getCounters [ "facebook" ], matches, "minute", now - 60, now, ( err, results ) =>
         @ok not null
 
         @deepEqual results,

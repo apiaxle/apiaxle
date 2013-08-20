@@ -353,7 +353,7 @@ class exports.CapturePathStatsCounters extends StatsController
 
     model = @app.model "capturepaths"
 
-    model.getCounters req.api.id, [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
+    model.getCounters [ req.api.id ], [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
       return next err if err
       return @json res, results
 
@@ -377,7 +377,7 @@ class exports.CapturePathStatsTimings extends StatsController
 
     model = @app.model "capturepaths"
 
-    model.getTimers req.api.id, [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
+    model.getTimers [ req.api.id ], [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
       return next err if err
       return @json res, results
 
@@ -470,7 +470,7 @@ class exports.CapturePathsStatsTimings extends StatsController
     req.api.getCapturePaths ( err, paths ) =>
       return next err if err
 
-      model.getTimers req.api.id, paths, granularity, from, to, ( err, results ) =>
+      model.getTimers [ req.api.id ], paths, granularity, from, to, ( err, results ) =>
         return next err if err
         return @json res, results
 
@@ -497,6 +497,6 @@ class exports.CapturePathsStatsCounters extends StatsController
     req.api.getCapturePaths ( err, paths ) =>
       return next err if err
 
-      model.getCounters req.api.id, paths, granularity, from, to, ( err, results ) =>
+      model.getCounters [ req.api.id ], paths, granularity, from, to, ( err, results ) =>
         return next err if err
         return @json res, results
