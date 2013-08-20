@@ -26,6 +26,9 @@ class exports.Api extends Command
         See the API documentation for more: http://apiaxle.com/api.html
         """
 
+  capturepaths: ( id, commands, keypairs, cb ) ->
+    @callApi "GET", path: "/v1/api/#{ id }/capturepaths", cb
+
   addcapturepath: ( id, commands, keypairs, cb ) ->
     if not path = commands.shift()
       return cb new Error "Please provide a path to link to #{ id }."
