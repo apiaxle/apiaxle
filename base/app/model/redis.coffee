@@ -102,7 +102,7 @@ class Redis
 
   # escape the id so that people can't sneak a colon in and do
   # something like modify metadata
-  escapeId: ( id ) ->
+  escapeId: ( id ) =>
     return id.replace( /([:])/g, "\\:" )
 
   _convertData: ( id, data ) =>
