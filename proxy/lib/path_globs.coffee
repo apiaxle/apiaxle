@@ -10,7 +10,7 @@ class exports.PathGlobs
     # /animal/*/noise
     re = /\*/g
 
-    new_def = def.replace re, "([^$/?&]+)"
+    new_def = def.replace re, "([^$/?&]+?)"
     new_re = new RegExp "^#{ new_def }" # note the anchor
 
     return new_re
