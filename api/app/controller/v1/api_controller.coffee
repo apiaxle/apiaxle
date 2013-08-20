@@ -446,3 +446,57 @@ class exports.DelCapturePath extends ApiaxleController
     req.api.removeCapturePath path, ( err ) =>
       return next err if err
       return @json res, path
+
+class exports.CapturePathsStatsTimings extends StatsController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "View all capture path counts for :api."
+      response: ""
+      description: "All capture paths and their timings for :api."
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepaths/stats/timers"
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp, debug } = req.query
+
+    model = @app.model "capturepaths"
+
+    req.api.getCapturePaths ( err, paths ) =>
+      return next err if err
+
+      model.getTimers req.api.id, paths, granularity, from, to, ( err, results ) =>
+        return next err if err
+        return @json res, results
+
+class exports.CapturePathsStatsCounters extends StatsController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "View all capture path counters for :api."
+      response: ""
+      description: "All capture paths and their counts for :api."
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepaths/stats/counters"
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp, debug } = req.query
+
+    model = @app.model "capturepaths"
+
+    req.api.getCapturePaths ( err, paths ) =>
+      return next err if err
+
+      model.getCounters req.api.id, paths, granularity, from, to, ( err, results ) =>
+        return next err if err
+        return @json res, results
