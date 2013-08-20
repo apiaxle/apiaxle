@@ -333,6 +333,28 @@ class exports.ApiTimerStats extends StatsController
       return next err if err
       return @json res, results
 
+class exports.ListCapturePaths extends ApiaxleController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "List capture paths."
+      response: "List of paths."
+      description: "List all of the capture paths belonging to :api."
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepaths"
+
+  execute: ( req, res, next ) ->
+    { path } = req.params
+
+    req.api.getCapturePaths ( err, paths ) =>
+      return next err if err
+      return @json res, paths
+
 class exports.AddCapturePath extends ApiaxleController
   @verb = "put"
 
