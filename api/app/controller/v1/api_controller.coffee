@@ -333,6 +333,54 @@ class exports.ApiTimerStats extends StatsController
       return next err if err
       return @json res, results
 
+class exports.CapturePathStatsCounters extends StatsController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "Capture path statistics."
+      response: ""
+      description: "List details stats for :capturepath"
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepath/:capturepath/stats/counters"
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp, debug } = req.query
+
+    model = @app.model "capturepaths"
+
+    model.getCounters req.api.id, [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
+      return next err if err
+      return @json res, results
+
+class exports.CapturePathStatsTimings extends StatsController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "Capture path statistics."
+      response: ""
+      description: "List details stats for :capturepath"
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepath/:capturepath/stats/timers"
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp, debug } = req.query
+
+    model = @app.model "capturepaths"
+
+    model.getTimers req.api.id, [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
+      return next err if err
+      return @json res, results
+
 class exports.ListCapturePaths extends ApiaxleController
   @verb = "get"
 
