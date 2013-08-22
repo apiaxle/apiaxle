@@ -38,8 +38,8 @@ class exports.CapturePaths extends Redis
           @counter.logCounter counter_multi, [ "api-key", api_id, key_id ], match, cb
 
         # for each keyring, log the count
-        for keyring in keyring_ids
-          do( keyring ) =>
+        for keyring_id in keyring_ids
+          do( keyring_id ) =>
             all.push ( cb ) =>
               @counter.logCounter counter_multi, [ "api-keyring", api_id, keyring_id ], match, cb
 

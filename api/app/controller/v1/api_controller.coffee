@@ -348,12 +348,29 @@ class exports.CapturePathStatsCounters extends StatsController
 
   path: -> "/v1/api/:api/capturepath/:capturepath/stats/counters"
 
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      forkey:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               key."
+
+    return current
+
   execute: ( req, res, next ) ->
     { from, to, granularity, format_timestamp, debug } = req.query
 
     model = @app.model "capturepaths"
 
-    model.getCounters [ req.api.id ], [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
+    namespace = [ "api", req.api.id ]
+    if forkey = req.query.forkey
+      namespace = [ "api-key", req.api.id, req.key.id ]
+
+    model.getCounters namespace, [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
       return next err if err
       return @json res, results
 
@@ -497,6 +514,6 @@ class exports.CapturePathsStatsCounters extends StatsController
     req.api.getCapturePaths ( err, paths ) =>
       return next err if err
 
-      model.getCounters [ req.api.id ], paths, granularity, from, to, ( err, results ) =>
+      model.getCounters [ "api", req.api.id ], paths, granularity, from, to, ( err, results ) =>
         return next err if err
         return @json res, results
