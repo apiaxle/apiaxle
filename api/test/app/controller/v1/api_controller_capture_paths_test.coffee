@@ -16,7 +16,7 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
     stub = @getStub RedisMulti::, "expireat", ->
 
     # fix the clock
-    clock = @getClock 1376854000000
+    @clock = @getClock 1376854000000
     @now = Math.floor( Date.now() / 1000 )
 
     done()
@@ -98,96 +98,122 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
             done 6
 
   "test requesting statistical information": ( done ) ->
-    args = [
-      @facebook.id,
-      @phil.id,
-      [ @ring1.id, @ring2.id ],
-      [ "/animal/noise", "/animal/noise/*" ],
-      100
-    ]
+    hits = []
 
-    @facebook.addCapturePath "/animal/noise/*", ( err ) =>
-      @app.model( "capturepaths" ).log args..., ( err ) =>
+    # add a new path to facebook
+    hits.push ( cb ) => @facebook.addCapturePath "/animal/noise/*", cb
+
+    # make a couple of hits on behalf of phil...
+    hits.push ( cb ) =>
+      args = [
+        @facebook.id,
+        @phil.id,
+        [ @ring1.id, @ring2.id ],
+        [ "/animal/noise", "/animal/noise/*" ],
+        100
+      ]
+
+      @app.model( "capturepaths" ).log args..., cb
+
+    # ...and then bob
+    hits.push ( cb ) =>
+      args = [
+        @facebook.id,
+        @bob.id,
+        [ @ring3.id ]
+        [ "/animal/noise" ]
+        200
+      ]
+
+      @app.model( "capturepaths" ).log args..., cb
+
+    async.series hits, ( err ) =>
+      @ok not err
+
+      # 1376853960
+      expectations = []
+      expectations.push
+        request:
+          path: "/v1/api/facebook/capturepaths/stats/timers"
+          query:
+            granularity: "day"
+            from: "1376853900"
+        result:
+          "/animal/noise":
+            1376784000: [ 100, 200, 150 ]
+          "/animal/noise/*":
+            1376784000: [ 100, 100, 100 ]
+
+      expectations.push
+        request:
+          path: "/v1/api/facebook/capturepaths/stats/counters"
+          query:
+            granularity: "day"
+            from: "1376853900"
+        result:
+          "/animal/noise":
+            1376784000: 2
+          "/animal/noise/*":
+            1376784000: 1
+
+      expectations.push
+        request:
+          path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise/stats/timers"
+          query:
+            granularity: "day"
+            from: "1376853900"
+        result:
+          "/animal/noise":
+            1376784000: [ 100, 200, 150 ]
+
+      expectations.push
+        request:
+          path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise/stats/counters"
+          query:
+            granularity: "day"
+            from: "1376853900"
+        result:
+          "/animal/noise":
+            1376784000: 2
+
+      expectations.push
+        request:
+          path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise%2F*/stats/timers"
+          query:
+            granularity: "day"
+            from: "1376853900"
+        result:
+          "/animal/noise/*":
+            1376784000: [ 100, 100, 100 ]
+
+      expectations.push
+        request:
+          path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise%2F*/stats/counters"
+          query:
+            granularity: "day"
+            from: "1376853900"
+        result:
+          "/animal/noise/*":
+            1376784000: 1
+
+      all = []
+      for details in expectations
+        do( details ) =>
+          all.push ( cb ) =>
+            { request, result } = details
+
+            path = "#{ request.path }?#{ querystring.stringify request.query }"
+
+            @GET path: path, ( err, res ) =>
+              @ok not err
+
+              res.parseJsonSuccess ( err, meta, paths ) =>
+                @ok not err
+                @deepEqual paths, result
+
+                cb()
+
+      async.series all, ( err ) =>
         @ok not err
 
-        # 1376853960
-        expectations = []
-        expectations.push
-          request:
-            path: "/v1/api/facebook/capturepaths/stats/timers"
-            query:
-              from: "1376853960"
-          result:
-            "/animal/noise":
-              1376853960: [ 100, 100, 100 ]
-            "/animal/noise/*":
-              1376853960: [ 100, 100, 100 ]
-
-        expectations.push
-          request:
-            path: "/v1/api/facebook/capturepaths/stats/counters"
-            query:
-              from: "1376853960"
-          result:
-            "/animal/noise":
-              1376853960: 1
-            "/animal/noise/*":
-              1376853960: 1
-
-        expectations.push
-          request:
-            path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise/stats/timers"
-            query:
-              from: "1376853960"
-          result:
-            "/animal/noise":
-              1376853960: [ 100, 100, 100 ]
-
-        expectations.push
-          request:
-            path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise/stats/counters"
-            query:
-              from: "1376853960"
-          result:
-            "/animal/noise":
-              1376853960: 1
-
-        expectations.push
-          request:
-            path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise%2F*/stats/timers"
-            query:
-              from: "1376853960"
-          result:
-            "/animal/noise/*":
-              1376853960: [ 100, 100, 100 ]
-
-        expectations.push
-          request:
-            path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise%2F*/stats/counters"
-            query:
-              from: "1376853960"
-          result:
-            "/animal/noise/*":
-              1376853960: 1
-
-        all = []
-        for details in expectations
-          do( details ) =>
-            all.push ( cb ) =>
-              { request, result } = details
-
-              path = "#{ request.path }?#{ querystring.stringify request.query }"
-
-              @GET path: path, ( err, res ) =>
-                @ok not err
-
-                res.parseJsonSuccess ( err, meta, paths ) =>
-                  @ok not err
-                  @deepEqual paths, result
-
-                  cb()
-
-        async.parallel all, ( err ) =>
-          @ok not err
-
-          done 1
+        done 1
