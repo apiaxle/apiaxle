@@ -158,3 +158,101 @@ class exports.ApiTest extends FakeAppTest
             @equal supported, false
 
             done 7
+
+class exports.CaptureUrlTest extends FakeAppTest
+  @empty_db_on_setup = true
+
+  "setup model": ( done ) ->
+    @model = @app.model( "apifactory" )
+
+    done()
+
+  "setup create api": ( done ) ->
+    fixtures =
+      api:
+        bacon:
+          endPoint: "bacon.is.nice"
+
+    @fixtures.create fixtures, done
+
+  "test adding/getting/removing a path": ( done ) ->
+    @model.find [ "bacon" ], ( err, { bacon } ) =>
+      @ok not err
+
+      @equal bacon.data.hasCapturePaths, false
+
+      all = []
+
+      # add a path
+      all.push ( cb ) =>
+        bacon.addCapturePath "/animal/*/fire", ( err ) =>
+          @ok not err
+          @equal bacon.data.hasCapturePaths, true
+          cb()
+
+      # now test fullness from the database too
+      all.push ( cb ) =>
+        @model.find [ "bacon" ], ( err, { bacon } ) =>
+          @ok not err
+          @equal bacon.data.hasCapturePaths, true
+
+          cb()
+
+      # add another path
+      all.push ( cb ) =>
+        bacon.addCapturePath "/animal/dragon/*", ( err ) =>
+          @ok not err
+          @equal bacon.data.hasCapturePaths, true
+          cb()
+
+      # find the paths
+      all.push ( cb ) =>
+        bacon.getCapturePaths ( err, dbPaths ) =>
+          @ok not err
+          @ok dbPaths
+
+          @deepEqual dbPaths, [ '/animal/*/fire', '/animal/dragon/*' ]
+
+          cb()
+
+      # remove one
+      all.push ( cb ) =>
+        bacon.removeCapturePath "/animal/*/fire", ( err ) =>
+          @ok not err
+
+          # current object now empty
+          @equal bacon.data.hasCapturePaths, true
+
+          cb()
+
+      # find the paths
+      all.push ( cb ) =>
+        bacon.getCapturePaths ( err, dbPaths ) =>
+          @ok not err
+          @ok dbPaths
+
+          @deepEqual dbPaths, [ "/animal/dragon/*" ]
+
+          cb()
+
+      # remove the other
+      all.push ( cb ) =>
+        bacon.removeCapturePath "animal:element", ( err ) =>
+          @ok not err
+          # current object now empty
+          @equal bacon.data.hasCapturePaths, false
+
+          cb()
+
+      # now test emptiness from the database too
+      all.push ( cb ) =>
+        @model.find [ "bacon" ], ( err, { bacon } ) =>
+          @ok not err
+          @equal bacon.data.hasCapturePaths, false
+
+          cb()
+
+      async.series all, ( err ) =>
+        @ok not err
+
+        done 19

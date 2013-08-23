@@ -24,7 +24,7 @@ bin: apiaxle-proxy.js
 	sed -i '1i#!/usr/bin/env node' $<
 
 test:
-	$(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
+	timeout 10 $(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
 
 coverage: link $(JS)
 	istanbul cover $(TWERP) `find test -name '*_test.js'`

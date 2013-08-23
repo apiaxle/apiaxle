@@ -33,6 +33,9 @@ class Stat extends Redis
       value: tconst.days 1
       redis_ttl: tconst.years 2
 
+  namespace: ( parts ) ->
+    return _( parts ).map( @escapeId ).join( ":" )
+
   # retuns an array of valid times for GRAN.
   _getValidTimeRange: ( gran, from, to=@toSeconds() ) ->
     { value } = @constructor.granularities[gran]
@@ -56,9 +59,11 @@ class Stat extends Redis
   #  * granularity - the name of the granularity results are for.
   #  * from - where the stats should start from (in seconds).
   #  * to - where the stats should end (in seconds).
-  getCounterValues: ( namespace, names, gran, from, to, cb ) ->
+  getValues: ( namespace, names, gran, from, to, cb ) ->
+    namespace = @namespace namespace
+
     if not names or names.length is 0
-      return cb Error "getCounterValues requires a list of names."
+      return cb Error "getValues requires a list of names."
 
     if gran not in @gran_names
       return cb Error "Granularity must be one of #{ @gran_names.join(', ') }"
@@ -118,7 +123,8 @@ class Stat extends Redis
   roundedTimestamp: ( precision, ts=@toSeconds() ) ->
     return Math.floor( ts / precision ) * precision
 
-  # for each of the granularities run SETTER against the times
+  # for each of the granularities run SETTER against the times. Note
+  # that namespace isn't an array here, it's already converted.
   _setHashValues: ( namespace, name, setter, cb ) ->
     all = []
 
@@ -139,9 +145,13 @@ class exports.StatCounters extends Stat
   # returns the names of all of the keys that have been used for the
   # counters so far in a particular namespace
   getAllCounterNames: ( namespace, cb ) ->
+    namespace = @namespace namespace
+
     @hkeys [ "meta", "counter-names", namespace ], cb
 
   logCounter: ( multi, namespace, name, cb ) ->
+    namespace = @namespace namespace
+
     # we store the timestamp against all possible names just so that
     # we can tidy them up later (we can't use expire on hash values)
     multi.hset [ "meta", "counter-names", namespace ], name, @toSeconds()
@@ -186,9 +196,11 @@ class exports.StatTimers extends Stat
   # returns the names of all of the keys that have been used for the
   # counters so far
   getAllTimerNames: ( namespace, cb ) ->
-    @hkeys [ "meta", "timer-names", namespace ], cb
+    @hkeys [ "meta", "timer-names", @namespace namespace ], cb
 
   logTiming: ( multi, namespace, name, timespan, cb ) ->
+    namespace = @namespace namespace
+
     # store the name of the timer
     multi.hset [ "meta", "timer-names", namespace ], name, @toSeconds()
 
