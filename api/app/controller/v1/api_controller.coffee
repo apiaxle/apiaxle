@@ -362,13 +362,13 @@ class exports.CapturePathStatsCounters extends StatsController
     return current
 
   execute: ( req, res, next ) ->
-    { from, to, granularity, format_timestamp, debug } = req.query
+    { from, to, granularity, format_timestamp, debug, forkey } = req.query
 
     model = @app.model "capturepaths"
 
     namespace = [ "api", req.api.id ]
-    if forkey = req.query.forkey
-      namespace = [ "api-key", req.api.id, req.key.id ]
+    if forkey
+      namespace = [ "api-key", req.api.id, forkey ]
 
     model.getCounters namespace, [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
       return next err if err

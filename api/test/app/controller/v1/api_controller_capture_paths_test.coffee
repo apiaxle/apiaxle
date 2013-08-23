@@ -178,6 +178,17 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
 
       expectations.push
         request:
+          path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise/stats/counters"
+          query:
+            granularity: "day"
+            from: "1376853900"
+            forkey: "bob"
+        result:
+          "/animal/noise":
+            1376784000: 1
+
+      expectations.push
+        request:
           path: "/v1/api/facebook/capturepath/%2Fanimal%2Fnoise%2F*/stats/timers"
           query:
             granularity: "day"
@@ -206,6 +217,8 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
 
             @GET path: path, ( err, res ) =>
               @ok not err
+
+              console.log( res.data )
 
               res.parseJsonSuccess ( err, meta, paths ) =>
                 @ok not err
