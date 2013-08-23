@@ -479,15 +479,32 @@ class exports.CapturePathsStatsTimings extends StatsController
 
   path: -> "/v1/api/:api/capturepaths/stats/timers"
 
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      forkey:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               key."
+
+    return current
+
   execute: ( req, res, next ) ->
-    { from, to, granularity, format_timestamp, debug } = req.query
+    { from, to, granularity, format_timestamp, debug, forkey } = req.query
 
     model = @app.model "capturepaths"
 
     req.api.getCapturePaths ( err, paths ) =>
       return next err if err
 
-      model.getTimers [ "api", req.api.id ], paths, granularity, from, to, ( err, results ) =>
+      namespace = [ "api", req.api.id ]
+      if forkey
+        namespace = [ "api-key", req.api.id, forkey ]
+
+      model.getTimers namespace, paths, granularity, from, to, ( err, results ) =>
         return next err if err
         return @json res, results
 
@@ -506,14 +523,31 @@ class exports.CapturePathsStatsCounters extends StatsController
 
   path: -> "/v1/api/:api/capturepaths/stats/counters"
 
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      forkey:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               key."
+
+    return current
+
   execute: ( req, res, next ) ->
-    { from, to, granularity, format_timestamp, debug } = req.query
+    { from, to, granularity, format_timestamp, debug, forkey } = req.query
 
     model = @app.model "capturepaths"
 
     req.api.getCapturePaths ( err, paths ) =>
       return next err if err
 
-      model.getCounters [ "api", req.api.id ], paths, granularity, from, to, ( err, results ) =>
+      namespace = [ "api", req.api.id ]
+      if forkey
+        namespace = [ "api-key", req.api.id, forkey ]
+
+      model.getCounters namespace, paths, granularity, from, to, ( err, results ) =>
         return next err if err
         return @json res, results
