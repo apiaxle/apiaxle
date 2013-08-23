@@ -346,7 +346,10 @@ class exports.CapturePathStatsCounters extends StatsController
       verb: "GET"
       title: "Capture path statistics."
       response: ""
-      description: "List details stats for :capturepath"
+      description: """
+        List details of counter stats for :capturepath belonging to
+        :api.
+      """
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwApiDetails( valid_api_required=true ) ]
@@ -394,7 +397,10 @@ class exports.CapturePathStatsTimings extends StatsController
       verb: "GET"
       title: "Capture path statistics."
       response: ""
-      description: "List details stats for :capturepath"
+      description: """
+        List details of timing stats for :capturepath belonging to
+        :api.
+      """
 
   middleware: -> [ @mwValidateQueryParams()
                    @mwApiDetails( valid_api_required=true ) ]
