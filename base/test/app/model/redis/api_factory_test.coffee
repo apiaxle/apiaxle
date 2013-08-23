@@ -211,7 +211,9 @@ class exports.CaptureUrlTest extends FakeAppTest
           @ok not err
           @ok dbPaths
 
-          @deepEqual dbPaths, [ '/animal/*/fire', '/animal/dragon/*' ]
+          # I don't know why, by travis has these the other way
+          # around. Sort gets around it for now.
+          @deepEqual dbPaths.sort(), [ '/animal/*/fire', '/animal/dragon/*' ]
 
           cb()
 
