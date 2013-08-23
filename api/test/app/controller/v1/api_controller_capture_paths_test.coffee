@@ -77,7 +77,7 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
 
           res.parseJsonSuccess ( err, meta, paths ) =>
             @ok not err
-            @deepEqual paths, [ "/animal/noise/*", "/animal/noise" ]
+            @deepEqual paths.sort(), [ "/animal/noise", "/animal/noise/*" ]
 
             done 6
 
