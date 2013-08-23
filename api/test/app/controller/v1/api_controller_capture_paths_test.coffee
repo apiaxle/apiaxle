@@ -43,8 +43,10 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
 
       all = []
       all.push ( cb ) => @ring1.linkKey "phil", cb
-      all.push ( cb ) => @ring2.linkKey "phil", cb
+      all.push ( cb ) => @ring2.linkKey "bob", cb
+
       all.push ( cb ) => @ring3.linkKey "bob", cb
+      all.push ( cb ) => @ring3.linkKey "phil", cb
 
       all.push ( cb ) => @facebook.addCapturePath "/animal/noise", cb
 
@@ -108,7 +110,7 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
       args = [
         @facebook.id,
         @phil.id,
-        [ @ring1.id, @ring2.id ],
+        [ @ring1.id, @ring3.id ],
         [ "/animal/noise", "/animal/noise/*" ],
         100
       ]
@@ -120,7 +122,7 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
       args = [
         @facebook.id,
         @bob.id,
-        [ @ring3.id ]
+        [ @ring2.id, @ring3.id ]
         [ "/animal/noise" ]
         200
       ]
@@ -162,6 +164,32 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
           query:
             granularity: "day"
             from: "1376853900"
+            forkeyring: "ring3"
+        result:
+          "/animal/noise":
+            1376784000: 2
+          "/animal/noise/*":
+            1376784000: 1
+
+      expectations.push
+        request:
+          path: "/v1/api/facebook/capturepaths/stats/counters"
+          query:
+            granularity: "day"
+            from: "1376853900"
+            forkeyring: "ring1"
+        result:
+          "/animal/noise":
+            1376784000: 1
+          "/animal/noise/*":
+            1376784000: 1
+
+      expectations.push
+        request:
+          path: "/v1/api/facebook/capturepaths/stats/counters"
+          query:
+            granularity: "day"
+            from: "1376853900"
             forkey: "phil"
         result:
           "/animal/noise":
@@ -176,6 +204,18 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
             granularity: "day"
             from: "1376853900"
             forkey: "bob"
+        result:
+          "/animal/noise":
+            1376784000: 1
+          "/animal/noise/*": {}
+
+      expectations.push
+        request:
+          path: "/v1/api/facebook/capturepaths/stats/counters"
+          query:
+            granularity: "day"
+            from: "1376853900"
+            forkeyring: "ring2"
         result:
           "/animal/noise":
             1376784000: 1

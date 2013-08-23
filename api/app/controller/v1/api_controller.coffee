@@ -229,6 +229,11 @@ class exports.ViewAllStatsForApi extends StatsController
         optional: true
         docs: "Narrow results down to all statistics for the specified
                key."
+      forkeyring:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               keyring."
 
     return current
 
@@ -358,17 +363,24 @@ class exports.CapturePathStatsCounters extends StatsController
         optional: true
         docs: "Narrow results down to all statistics for the specified
                key."
+      forkeyring:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               keyring."
 
     return current
 
   execute: ( req, res, next ) ->
-    { from, to, granularity, format_timestamp, debug, forkey } = req.query
+    { from, to, granularity, format_timestamp, debug, forkey, forkeyring } = req.query
 
     model = @app.model "capturepaths"
 
     namespace = [ "api", req.api.id ]
     if forkey
       namespace = [ "api-key", req.api.id, forkey ]
+    else if forkeyring
+      namespace = [ "api-keyring", req.api.id, forkeyring ]
 
     model.getCounters namespace, [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
       return next err if err
@@ -489,11 +501,16 @@ class exports.CapturePathsStatsTimings extends StatsController
         optional: true
         docs: "Narrow results down to all statistics for the specified
                key."
+      forkeyring:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               keyring."
 
     return current
 
   execute: ( req, res, next ) ->
-    { from, to, granularity, format_timestamp, debug, forkey } = req.query
+    { from, to, granularity, format_timestamp, debug, forkey, forkeyring } = req.query
 
     model = @app.model "capturepaths"
 
@@ -503,6 +520,8 @@ class exports.CapturePathsStatsTimings extends StatsController
       namespace = [ "api", req.api.id ]
       if forkey
         namespace = [ "api-key", req.api.id, forkey ]
+      else if forkeyring
+        namespace = [ "api-keyring", req.api.id, forkeyring ]
 
       model.getTimers namespace, paths, granularity, from, to, ( err, results ) =>
         return next err if err
@@ -533,11 +552,16 @@ class exports.CapturePathsStatsCounters extends StatsController
         optional: true
         docs: "Narrow results down to all statistics for the specified
                key."
+      forkeyring:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               keyring."
 
     return current
 
   execute: ( req, res, next ) ->
-    { from, to, granularity, format_timestamp, debug, forkey } = req.query
+    { from, to, granularity, format_timestamp, debug, forkey, forkeyring } = req.query
 
     model = @app.model "capturepaths"
 
@@ -547,6 +571,8 @@ class exports.CapturePathsStatsCounters extends StatsController
       namespace = [ "api", req.api.id ]
       if forkey
         namespace = [ "api-key", req.api.id, forkey ]
+      else if forkeyring
+        namespace = [ "api-keyring", req.api.id, forkeyring ]
 
       model.getCounters namespace, paths, granularity, from, to, ( err, results ) =>
         return next err if err
