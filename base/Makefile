@@ -22,7 +22,7 @@ link:
 dev: clean
 
 test:
-	timeout 10 $(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
+	timeout 20 $(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
 
 coverage: $(JS)
 	istanbul cover $(TWERP) `find test -name '*_test.js'`
