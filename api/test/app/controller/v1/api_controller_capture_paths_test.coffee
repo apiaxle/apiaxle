@@ -289,7 +289,7 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
 
                 cb()
 
-      async.series all, ( err ) =>
+      async.parallel all, ( err ) =>
         @ok not err
 
         done 1
