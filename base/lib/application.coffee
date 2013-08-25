@@ -66,7 +66,7 @@ class exports.AxleApp extends Application
     { port, host } = @config.redis
 
     @redisClient = redis.createClient( port, host )
-    @redisClient.on "error", ( err ) -> return cb err
+    @redisClient.on "error", ( err ) => @logger.fatal "#{ err }"
     @redisClient.on "ready", cb
 
   loadAndInstansiatePlugins: ( cb ) ->
