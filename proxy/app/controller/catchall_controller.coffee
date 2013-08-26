@@ -271,9 +271,7 @@ class CatchAll extends ApiaxleController
       # finally, capture them. Timers and counters.
       matches = @path_globs.matchPathDefinitions path, query, capture_paths
 
-      args = [ api.id,
-               key.id,
-              _.pluck( keyrings, "id" ) ]
+      args = [ api.id, key.id, keyrings ]
 
       return countersModel.log args..., matches, timing, cb
 
