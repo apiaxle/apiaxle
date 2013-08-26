@@ -15,6 +15,7 @@ class exports.AxleApp extends Application
   configure: ( cb ) ->
     # error handler
     @use @express.router
+    @disable "x-powered-by"
 
     @readConfiguration ( err, @config, filename ) =>
       return cb err if err
