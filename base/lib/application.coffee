@@ -103,7 +103,7 @@ class exports.AxleApp extends Application
             return cb null, [] if not _.keys( @plugins[category] ).length > 0
 
             list = _.keys( @plugins[category] ).join( ', ' )
-            @logger.info "Loaded #{ list } from '#{ path }'"
+            @logger.debug "Loaded #{ list } from '#{ path }'"
 
             return cb null, @plugins
 
