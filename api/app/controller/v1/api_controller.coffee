@@ -345,9 +345,7 @@ class exports.CapturePathStatsCounters extends StatsController
     {}=
       verb: "GET"
       title: "Capture path statistics."
-      response: """
-        Objects with timestamp:count.
-      """
+      response: "Objects with timestamp:count."
       description: """
         List details of counter stats for :capturepath belonging to
         :api.
@@ -494,7 +492,10 @@ class exports.CapturePathsStatsTimings extends StatsController
     {}=
       verb: "GET"
       title: "View all capture path counts for :api."
-      response: ""
+      response: """
+        Objects with timestamps as the key, each referencing an array
+        containing min, max and average times.
+      """
       description: "All capture paths and their timings for :api."
 
   middleware: -> [ @mwValidateQueryParams()
@@ -545,7 +546,7 @@ class exports.CapturePathsStatsCounters extends StatsController
     {}=
       verb: "GET"
       title: "View all capture path counters for :api."
-      response: ""
+      response: "Objects with timestamp:count."
       description: "All capture paths and their counts for :api."
 
   middleware: -> [ @mwValidateQueryParams()
