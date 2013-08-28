@@ -117,16 +117,16 @@ class exports.AxleApp extends Application
       type: "object"
       additionalProperties: false
       properties:
-       redis:
-          type: "object"
-          additionalProperties: false
-          properties:
-            port:
-              type: "integer"
-              default: 6379
-            host:
-              type: "string"
-              default: "localhost"
+        redis:
+           type: "object"
+           additionalProperties: false
+           properties:
+             port:
+               type: "integer"
+               default: 6379
+             host:
+               type: "string"
+               default: "localhost"
 
   getConfigurationSchema: ->
     _.merge @getAppConfigSchema(),
