@@ -79,7 +79,8 @@ class exports.AxleApp extends Application
       cb()
 
   redisConnect: ( cb ) =>
-    # if we have sentinel stuff happening then use that.
+    # if we have sentinel stuff happening (and it's reasonably valid)
+    # then use that
     if sent_conf = @config.redis_sentinel
       if sent_conf[0].length
         return @redisConnectSentinel cb
