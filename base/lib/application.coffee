@@ -16,6 +16,7 @@ class exports.AxleApp extends Application
   configure: ( cb ) ->
     # error handler
     @use @express.router
+    @disable "x-powered-by"
 
     @readConfiguration ( err, @config, filename ) =>
       return cb err if err
@@ -83,7 +84,7 @@ class exports.AxleApp extends Application
     { port, host } = @config.redis
 
     @redisClient = redis.createClient( port, host )
-    @redisClient.on "error", ( err ) -> return cb err
+    @redisClient.on "error", ( err ) => @logger.fatal "#{ err }"
     @redisClient.on "ready", cb
 
   loadAndInstansiatePlugins: ( cb ) ->
@@ -120,7 +121,7 @@ class exports.AxleApp extends Application
             return cb null, [] if not _.keys( @plugins[category] ).length > 0
 
             list = _.keys( @plugins[category] ).join( ', ' )
-            @logger.info "Loaded #{ list } from '#{ path }'"
+            @logger.debug "Loaded #{ list } from '#{ path }'"
 
             return cb null, @plugins
 
@@ -133,26 +134,16 @@ class exports.AxleApp extends Application
       type: "object"
       additionalProperties: false
       properties:
-       redis_sentinel:
-         type: "array"
-         items:
+        redis:
            type: "object"
+           additionalProperties: false
            properties:
              port:
                type: "integer"
+               default: 6379
              host:
                type: "string"
-      redis:
-        type: "object"
-        optional: true
-        additionalProperties: false
-        properties:
-          port:
-            type: "integer"
-            default: 6379
-          host:
-            type: "string"
-            default: "localhost"
+               default: "localhost"
 
   getConfigurationSchema: ->
     _.merge @getAppConfigSchema(),

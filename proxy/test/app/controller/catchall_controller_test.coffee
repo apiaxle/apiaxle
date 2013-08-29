@@ -388,7 +388,7 @@ class exports.CatchallTest extends ApiaxleTest
       @ok not err
       @equal options.method, "DELETE"
 
-      done 1
+      done 2
 
   "test XML error": ( done ) ->
     apiOptions =

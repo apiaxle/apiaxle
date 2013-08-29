@@ -21,6 +21,7 @@ app.all "*", ( req, res, next ) ->
     time: milliseconds
     query: req.query
     body: req.body
+    path: req.url
 
   done = () ->
     try

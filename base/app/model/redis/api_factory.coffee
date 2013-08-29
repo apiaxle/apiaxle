@@ -5,6 +5,8 @@
   KeyNotFoundError } = require "../../../lib/error"
 { KeyContainerModel, Redis } = require "../redis"
 
+async = require "async"
+
 class Api extends KeyContainerModel
   @reverseLinkFunction = "linkToApi"
   @reverseUnlinkFunction = "unlinkFromApi"
@@ -12,9 +14,45 @@ class Api extends KeyContainerModel
 
   isDisabled: ( ) -> @data.disabled
 
+  getCapturePaths: ( cb ) ->
+    @smembers [ "meta:capture-paths", @id ], cb
+
+  removeCapturePath: ( path, cb ) ->
+    @scard [ "meta:capture-paths", @id ], ( err, length ) =>
+      return err if err
+
+      all = []
+
+      # do the delete
+      all.push ( cb ) =>
+        @srem [ "meta:capture-paths", @id ], path, cb
+
+      # if we're now empty then we need to let redis know. 1 because
+      # we've not actually done the del yet.
+      if length is 1
+        @data.hasCapturePaths = false
+        all.push ( cb ) =>
+          @app.model( "apifactory" ).hset [ @id ], "hasCapturePaths", false, cb
+
+      return async.series all, cb
+
+  addCapturePath: ( path, cb ) ->
+    all = []
+
+    # we also need to make sure the current object knows that there
+    # are paths set for fast access in the proxy
+    if not @data.hasCapturePaths
+      @data.hasCapturePaths = true
+      all.push ( cb ) =>
+        @app.model( "apifactory" ).hset [ @id ], "hasCapturePaths", true, cb
+
+    all.push ( cb ) => @sadd [ "meta:capture-paths", @id ], path, cb
+
+    return async.parallel all, cb
+
 class exports.ApiFactory extends Redis
   @instantiateOnStartup = true
-  @returns   = Api
+  @returns = Api
   @structure =
     type: "object"
     additionalProperties: false
@@ -76,3 +114,7 @@ class exports.ApiFactory extends Redis
         type: "boolean"
         default: false
         docs: "If true then the api_sig parameter will be passed through in the request."
+      hasCapturePaths:
+        type: "boolean"
+        default: false
+        docs: "When true ApiAxle will parse and capture bits of information about the API being called."

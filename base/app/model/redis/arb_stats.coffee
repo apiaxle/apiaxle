@@ -33,6 +33,9 @@ class Stat extends Redis
       value: tconst.days 1
       redis_ttl: tconst.years 2
 
+  namespace: ( parts ) ->
+    return _( parts ).map( @escapeId ).join( ":" )
+
   # retuns an array of valid times for GRAN.
   _getValidTimeRange: ( gran, from, to=@toSeconds() ) ->
     { value } = @constructor.granularities[gran]
@@ -50,13 +53,17 @@ class Stat extends Redis
     return ticks
 
   # get the counter values. Args are:
+  #  * namespace - the name of the namespace in which these stats will
+  #    live.
   #  * names (array) - the name of the stat to fetch
   #  * granularity - the name of the granularity results are for.
   #  * from - where the stats should start from (in seconds).
   #  * to - where the stats should end (in seconds).
-  getCounterValues: ( names, gran, from, to, cb ) ->
+  getValues: ( namespace, names, gran, from, to, cb ) ->
+    namespace = @namespace namespace
+
     if not names or names.length is 0
-      return cb Error "getCounterValues requires a list of names."
+      return cb Error "getValues requires a list of names."
 
     if gran not in @gran_names
       return cb Error "Granularity must be one of #{ @gran_names.join(', ') }"
@@ -72,7 +79,7 @@ class Stat extends Redis
         all.push ( cb ) =>
           multi = @multi()
 
-          redis_key = [ name, gran, rounded_ttl ]
+          redis_key = [ namespace, name, gran, rounded_ttl ]
 
           # for each wanted timestamp, collect the values
           multi.hget( redis_key, hashKey ) for hashKey in wantedTs
@@ -116,14 +123,15 @@ class Stat extends Redis
   roundedTimestamp: ( precision, ts=@toSeconds() ) ->
     return Math.floor( ts / precision ) * precision
 
-  # for each of the granularities run SETTER against the times
-  _setHashValues: ( name, setter, cb ) ->
+  # for each of the granularities run SETTER against the times. Note
+  # that namespace isn't an array here, it's already converted.
+  _setHashValues: ( namespace, name, setter, cb ) ->
     all = []
 
     for gran, props of @constructor.granularities
       do( gran, props ) =>
         [ rounded_ttl, rounded_ts ] = @getKeyValueTimestamps gran
-        redis_key = [ name, gran, rounded_ttl ]
+        redis_key = [ namespace, name, gran, rounded_ttl ]
 
         all.push ( cb ) ->
           setter rounded_ttl, rounded_ts, redis_key, props, cb
@@ -135,14 +143,18 @@ class exports.StatCounters extends Stat
   @smallKeyName         = "cntr"
 
   # returns the names of all of the keys that have been used for the
-  # counters so far
-  getAllCounterNames: ( cb ) ->
-    @hkeys [ "meta", "counter-names" ], cb
+  # counters so far in a particular namespace
+  getAllCounterNames: ( namespace, cb ) ->
+    namespace = @namespace namespace
 
-  logCounter: ( multi, name, cb ) ->
+    @hkeys [ "meta", "counter-names", namespace ], cb
+
+  logCounter: ( multi, namespace, name, cb ) ->
+    namespace = @namespace namespace
+
     # we store the timestamp against all possible names just so that
     # we can tidy them up later (we can't use expire on hash values)
-    multi.hset [ "meta", "counter-names" ], name, @toSeconds()
+    multi.hset [ "meta", "counter-names", namespace ], name, @toSeconds()
 
     setter = ( rounded_ttl, rounded_ts, redis_key, props, cb ) ->
       # increment the value and then set its ttl
@@ -151,7 +163,7 @@ class exports.StatCounters extends Stat
 
       return cb null
 
-    @_setHashValues name, setter, ( err ) ->
+    @_setHashValues namespace, name, setter, ( err ) ->
       return cb err if err
       return cb null, multi
 
@@ -183,12 +195,14 @@ class exports.StatTimers extends Stat
 
   # returns the names of all of the keys that have been used for the
   # counters so far
-  getAllTimerNames: ( cb ) ->
-    @hkeys [ "meta", "timer-names" ], cb
+  getAllTimerNames: ( namespace, cb ) ->
+    @hkeys [ "meta", "timer-names", @namespace namespace ], cb
 
-  logTiming: ( multi, name, timespan, cb ) ->
+  logTiming: ( multi, namespace, name, timespan, cb ) ->
+    namespace = @namespace namespace
+
     # store the name of the timer
-    multi.hset [ "meta", "timer-names" ], name, @toSeconds()
+    multi.hset [ "meta", "timer-names", namespace ], name, @toSeconds()
 
     setter = ( rounded_ttl, rounded_ts, redis_key, props, cb ) =>
       @_getCurrentValues redis_key, rounded_ts, ( err, values, count ) =>
@@ -213,6 +227,6 @@ class exports.StatTimers extends Stat
 
         return cb null, new_values
 
-    @_setHashValues name, setter, ( err ) ->
+    @_setHashValues namespace, name, setter, ( err ) ->
       return cb err if err
       return cb null, multi

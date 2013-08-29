@@ -36,12 +36,12 @@ class exports.TimersTest extends ApiaxleTest
       @ok dnsStub.calledOnce
 
       model = @app.model "stattimers"
-      names = [ "programmes-http-request" ]
+      names = [ "http-request" ]
 
-      model.getCounterValues names, "hour", null, null, ( err, results ) =>
+      model.getValues "programmes", names, "hour", null, null, ( err, results ) =>
         @ok not err
 
-        results = results["programmes-http-request"]
+        results = results["http-request"]
 
         @ok not _.isEmpty results
         @ok times = _.keys( results )

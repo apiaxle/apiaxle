@@ -14,11 +14,10 @@ class exports.Ping extends ApiaxleController
   desc: -> "Ping controller."
 
   docs: ->
-    """
-    ### Returns
-
-    * Just a pong.
-    """
+    {}=
+      verb: "GET"
+      title: "Ping the API for a super fast response."
+      response: "Just a 'pong'."
 
   path: -> "/v1/ping"
 

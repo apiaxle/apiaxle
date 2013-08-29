@@ -138,4 +138,4 @@ class exports.CatchallSigTest extends ApiaxleTest
     async.series tests, ( err ) =>
       @ok not err
 
-      done 15
+      done 16

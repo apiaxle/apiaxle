@@ -463,4 +463,4 @@ class exports.ApiStatsTest extends ApiaxleTest
     async.series all, ( err ) =>
       @ok not err
 
-      done 25
+      done 29
