@@ -1,12 +1,14 @@
 # This code is covered by the GPL version 3.
 # Copyright 2011-2013 Philip Jackson.
+
 _ = require "lodash"
 path = require "path"
 async = require "async"
 express = require "express"
 debug = require( "debug" )( "aa:app" )
+redis = require "redis"
 
-watchtower = require('redis-watchtower');
+watchtower = require "redis-watchtower"
 
 { Js2Xml } = require "js2xml"
 { Application } = require "scarf"
@@ -78,7 +80,9 @@ class exports.AxleApp extends Application
 
   redisConnect: ( cb ) =>
     # if we have sentinel stuff happening then use that.
-    return @redisConnectSentinel cb if @config.redis_sentinel
+    if sent_conf = @config.redis_sentinel
+      if sent_conf[0].length
+        return @redisConnectSentinel cb
 
     # grab the redis config
     { port, host } = @config.redis
@@ -134,16 +138,27 @@ class exports.AxleApp extends Application
       type: "object"
       additionalProperties: false
       properties:
+        redis_sentinel:
+          type: "array"
+          optional: yes
+          items:
+            type: "object"
+            properties:
+              port:
+                type: "integer"
+              host:
+                type: "string"
         redis:
-           type: "object"
-           additionalProperties: false
-           properties:
-             port:
-               type: "integer"
-               default: 6379
-             host:
-               type: "string"
-               default: "localhost"
+          type: "object"
+          optional: yes
+          additionalProperties: no
+          properties:
+            port:
+              type: "integer"
+              default: 6379
+            host:
+              type: "string"
+              default: "localhost"
 
   getConfigurationSchema: ->
     _.merge @getAppConfigSchema(),
