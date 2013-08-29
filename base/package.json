@@ -27,7 +27,7 @@
     "hiredis": "~0.1.15",
     "redis": "~0.8.4",
     "express": "~3.2.6",
-    "redis-watchtower": "0.0.5"
+    "redis-sentinel-client": "~0.1.2"
   },
   "devDependencies": {
     "twerp": "~1.0.7",
