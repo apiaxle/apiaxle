@@ -8,7 +8,7 @@ express = require "express"
 debug = require( "debug" )( "aa:app" )
 redis = require "redis"
 
-watchtower = require "redis-watchtower"
+RedisSentinel = require "redis-sentinel-client"
 
 { Js2Xml } = require "js2xml"
 { Application } = require "scarf"
@@ -65,31 +65,24 @@ class exports.AxleApp extends Application
       return cb err if err
       return cb null, ( ) => @redisClient.quit()
 
-  redisConnectSentinel: ( cb ) =>
-    settings =
-      masterName: 'mymaster',
-      sentinels: @config.redis_sentinel
-
-    watchtower.connect settings, ( err ) =>
-      return cb err if err
-
-      @redisClient = watchtower.createClient()
-      @redisClient.on "error", console.log
-
-      cb()
-
   redisConnect: ( cb ) =>
-    # if we have sentinel stuff happening (and it's reasonably valid)
-    # then use that
-    if sent_conf = @config.redis_sentinel
-      if sent_conf[0].length
-        return @redisConnectSentinel cb
-
     # grab the redis config
-    { port, host } = @config.redis
+    { port, host, sentinel } = @config.redis
 
-    @redisClient = redis.createClient( port, host )
-    @redisClient.on "error", ( err ) => @logger.fatal "#{ err }"
+    # are we up for some sentinel fun?
+    client_library = if sentinel then RedisSentinel else RedisClient
+
+    @redisClient = client_library.createClient
+      port: port
+      host: host
+      logger: { log: -> }
+
+    if sentinel
+      @redisClient.on "failover-start", => @logger.warn "Failover starts."
+      @redisClient.on "failover-end", => @logger.warn "Failover ends."
+      @redisClient.on "disconnected", => @logger.warn "Old master disconnected."
+
+    @redisClient.on "error", ( err ) => @logger.warn "#{ err }"
     @redisClient.on "ready", cb
 
   loadAndInstansiatePlugins: ( cb ) ->
@@ -139,21 +132,13 @@ class exports.AxleApp extends Application
       type: "object"
       additionalProperties: false
       properties:
-        redis_sentinel:
-          type: "array"
-          optional: yes
-          items:
-            type: "object"
-            properties:
-              port:
-                type: "integer"
-              host:
-                type: "string"
         redis:
           type: "object"
-          optional: yes
           additionalProperties: no
           properties:
+            sentinel:
+              type: "boolean"
+              default: false
             port:
               type: "integer"
               default: 6379
