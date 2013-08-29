@@ -6,7 +6,7 @@ path = require "path"
 async = require "async"
 express = require "express"
 debug = require( "debug" )( "aa:app" )
-redis = require "redis"
+Redis = require "redis"
 
 RedisSentinel = require "redis-sentinel-client"
 
@@ -70,17 +70,18 @@ class exports.AxleApp extends Application
     { port, host, sentinel } = @config.redis
 
     # are we up for some sentinel fun?
-    client_library = if sentinel then RedisSentinel else RedisClient
-
-    @redisClient = client_library.createClient
-      port: port
-      host: host
-      logger: { log: -> }
-
+    @redisClient = null
     if sentinel
+      @redisClient = RedisSentinel.createClient
+        port: port
+        host: host
+        logger: { log: -> }
+
       @redisClient.on "failover-start", => @logger.warn "Failover starts."
       @redisClient.on "failover-end", => @logger.warn "Failover ends."
       @redisClient.on "disconnected", => @logger.warn "Old master disconnected."
+    else
+      @redisClient = Redis.createClient port, host
 
     @redisClient.on "error", ( err ) => @logger.warn "#{ err }"
     @redisClient.on "ready", cb
