@@ -25,8 +25,9 @@
     "debug": "~0.7.2",
     "request": "~2.20.0",
     "hiredis": "~0.1.15",
-    "redis": "~0.8.4",
-    "express": "~3.2.6"
+    "redis": "git+https://github.com/DocuSignDev/node_redis.git",
+    "express": "~3.2.6",
+    "redis-sentinel-client": "~0.1.2"
   },
   "devDependencies": {
     "twerp": "~1.0.7",

@@ -1,11 +1,14 @@
 # This code is covered by the GPL version 3.
 # Copyright 2011-2013 Philip Jackson.
+
 _ = require "lodash"
 path = require "path"
 async = require "async"
 express = require "express"
-redis = require "redis"
 debug = require( "debug" )( "aa:app" )
+Redis = require "redis"
+
+RedisSentinel = require "redis-sentinel-client"
 
 { Js2Xml } = require "js2xml"
 { Application } = require "scarf"
@@ -64,10 +67,23 @@ class exports.AxleApp extends Application
 
   redisConnect: ( cb ) =>
     # grab the redis config
-    { port, host } = @config.redis
+    { port, host, sentinel } = @config.redis
 
-    @redisClient = redis.createClient( port, host )
-    @redisClient.on "error", ( err ) => @logger.fatal "#{ err }"
+    # are we up for some sentinel fun?
+    @redisClient = null
+    if sentinel
+      @redisClient = RedisSentinel.createClient
+        port: port
+        host: host
+        logger: { log: -> }
+
+      @redisClient.on "failover-start", => @logger.warn "Failover starts."
+      @redisClient.on "failover-end", => @logger.warn "Failover ends."
+      @redisClient.on "disconnected", => @logger.warn "Old master disconnected."
+    else
+      @redisClient = Redis.createClient port, host
+
+    @redisClient.on "error", ( err ) => @logger.warn "#{ err }"
     @redisClient.on "ready", cb
 
   loadAndInstansiatePlugins: ( cb ) ->
@@ -118,15 +134,18 @@ class exports.AxleApp extends Application
       additionalProperties: false
       properties:
         redis:
-           type: "object"
-           additionalProperties: false
-           properties:
-             port:
-               type: "integer"
-               default: 6379
-             host:
-               type: "string"
-               default: "localhost"
+          type: "object"
+          additionalProperties: no
+          properties:
+            sentinel:
+              type: "boolean"
+              default: false
+            port:
+              type: "integer"
+              default: 6379
+            host:
+              type: "string"
+              default: "localhost"
 
   getConfigurationSchema: ->
     _.merge @getAppConfigSchema(),
