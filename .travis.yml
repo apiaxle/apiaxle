@@ -1,6 +1,8 @@
 env: "NODE_ENV=test"
 language: "node_js"
 before_script:
+  - "npm cache clear apiaxle-base"
+  - "npm cache clear apiaxle-api"
   - "make npminstall"
   - "make all"
   - "make link"
