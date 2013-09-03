@@ -134,7 +134,7 @@ class Stat extends Redis
         redis_key = [ namespace, name, gran, rounded_ttl ]
 
         all.push ( cb ) ->
-          setter rounded_ttl, rounded_ts, redis_key, props, cb
+          setter rounded_ts, redis_key, props, cb
 
     return async.series all, cb
 
@@ -156,10 +156,10 @@ class exports.StatCounters extends Stat
     # we can tidy them up later (we can't use expire on hash values)
     multi.hset [ "meta", "counter-names", namespace ], name, @toSeconds()
 
-    setter = ( rounded_ttl, rounded_ts, redis_key, props, cb ) ->
+    setter = ( rounded_ts, redis_key, props, cb ) ->
       # increment the value and then set its ttl
       multi.hincrby redis_key, rounded_ts, 1
-      multi.expireat redis_key, ( rounded_ts + props.value )
+      multi.expireat redis_key, ( rounded_ts + props.redis_ttl )
 
       return cb null
 
@@ -204,7 +204,7 @@ class exports.StatTimers extends Stat
     # store the name of the timer
     multi.hset [ "meta", "timer-names", namespace ], name, @toSeconds()
 
-    setter = ( rounded_ttl, rounded_ts, redis_key, props, cb ) =>
+    setter = ( rounded_ts, redis_key, props, cb ) =>
       @_getCurrentValues redis_key, rounded_ts, ( err, values, count ) =>
         return cb err if err
 
@@ -223,7 +223,7 @@ class exports.StatTimers extends Stat
         multi.hincrby redis_key, "#{ rounded_ts }-count", 1
 
         # don't have it around forever
-        multi.expireat redis_key, ( rounded_ts + props.value )
+        multi.expireat redis_key, ( rounded_ts + props.redis_ttl )
 
         return cb null, new_values
 

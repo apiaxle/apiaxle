@@ -77,8 +77,6 @@ class exports.TimersTest extends ApiaxleTest
           @deepEqual results["1323892800"], [ 0, 0, 0 ]
           @deepEqual results["1323900000"], [ 0, 0, 0 ]
 
-          console.log( expire_list )
-
           return cb()
 
     async.series all, ( err ) =>
