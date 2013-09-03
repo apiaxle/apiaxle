@@ -5,6 +5,7 @@ url    = require "url"
 async  = require "async"
 libxml = require "libxmljs"
 
+{ RedisMulti } = require "../../../../base/app/model/redis"
 { ApiaxleTest } = require "../../apiaxle"
 
 class exports.TimersTest extends ApiaxleTest
@@ -23,31 +24,64 @@ class exports.TimersTest extends ApiaxleTest
     @fixtures.create fixture, done
 
   "test timings are captured": ( done ) ->
+    clock = @getClock 1323892867000
+
     requestOptions =
       path: "/?api_key=phil"
       host: "programmes.api.localhost"
 
     dnsStub = @stubDns { "programmes.api.localhost": "127.0.0.1" }
-    stub = @stubCatchallSimpleGet 200, null,
+    httpStub = @stubCatchallSimpleGet 200, null,
       "Content-Type": "application/json"
 
-    @GET requestOptions, ( err, response ) =>
-      @ok not err
-      @ok dnsStub.calledOnce
+    expire_list = {}
+    expireStub = @getStub RedisMulti::, "expireat", ( key, ts ) =>
+      expire_list[key] = ( ts - Math.floor( Date.now() / 1000 ) )
 
-      model = @app.model "stattimers"
-      names = [ "http-request" ]
-
-      model.getValues "programmes", names, "hour", null, null, ( err, results ) =>
+    all = []
+    all.push ( cb ) =>
+      @GET requestOptions, ( err, response ) =>
         @ok not err
+        @ok dnsStub.calledOnce
+        @ok httpStub.calledOnce
 
-        results = results["http-request"]
+        model = @app.model "stattimers"
+        names = [ "http-request" ]
 
-        @ok not _.isEmpty results
-        @ok times = _.keys( results )
-        @equal times.length, 1
+        model.getValues [ "programmes" ], names, "hour", null, null, ( err, results ) =>
+          @ok not err
 
-        @ok values = results[times[0]]
-        @equal values.length, 3
+          results = results["http-request"]
 
-        done 8
+          @deepEqual results["1323892800"], [ 0, 0, 0 ]
+
+          return cb()
+
+    all.push ( cb ) =>
+      # just move on
+      clock.addHours 2
+
+      @GET requestOptions, ( err, response ) =>
+        @ok not err
+        @ok dnsStub.calledTwice
+        @ok httpStub.calledTwice
+
+        model = @app.model "stattimers"
+        names = [ "http-request" ]
+
+        model.getValues [ "programmes" ], names, "hour", null, null, ( err, results ) =>
+          @ok not err
+
+          results = results["http-request"]
+
+          @deepEqual results["1323892800"], [ 0, 0, 0 ]
+          @deepEqual results["1323900000"], [ 0, 0, 0 ]
+
+          console.log( expire_list )
+
+          return cb()
+
+    async.series all, ( err ) =>
+      @ok not err
+
+      done 12
