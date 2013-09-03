@@ -293,7 +293,8 @@ class exports.ArbStatsTest extends FakeAppTest
                                      .valueOf()
 
       @deepEqual expiry_times, [
-        3, 30, 3390, 82590,
-        1, 30, 3390, 82590 ]
+        7202,86370,604590,62895390,
+        7200,86370,604590,62895390
+      ]
 
       done 19

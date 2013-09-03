@@ -72,6 +72,6 @@ class exports.TimerStatsTest extends FakeAppTest
                                        .map( ( v ) => v - 1357002210 )
                                        .valueOf()
 
-        @deepEqual expiry_times, [ 1, 30, 3390, 82590 ]
+        @deepEqual expiry_times, [ 7200, 86370, 604590, 62895390 ]
 
         done 4
