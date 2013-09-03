@@ -234,8 +234,8 @@ class CatchAll extends ApiaxleController
 
         api_id = req.api.id
         timers = [
-          ( cb ) -> timersModel.logTiming multi, api_id, "pre-request", pre_req_ms, cb
-          ( cb ) -> timersModel.logTiming multi, api_id, "http-request", http_req_ms, cb
+          ( cb ) -> timersModel.logTiming multi, [ api_id ], "pre-request", pre_req_ms, cb
+          ( cb ) -> timersModel.logTiming multi, [ api_id ], "http-request", http_req_ms, cb
         ]
 
         # counters for the segmented path parts
