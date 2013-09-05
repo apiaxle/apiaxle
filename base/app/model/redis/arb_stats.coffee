@@ -211,7 +211,7 @@ class exports.StatTimers extends Stat
         # if we haven't stored in this section before then the new
         # values /are/ the min, max, avg and count is 1
         new_values = if not values?
-          virgin_values = [ timespan, timespan, timespan ]
+          [ timespan, timespan, timespan ]
         else
           @_getNewValues timespan, values..., count
 
