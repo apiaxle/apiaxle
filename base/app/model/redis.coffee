@@ -128,7 +128,6 @@ class Redis
     return data
 
   find: ( ids, cb ) ->
-    redisdebug "find '#{ ids }'"
     # fetch all of the hits from redis
     multi = @multi()
     for id in ids

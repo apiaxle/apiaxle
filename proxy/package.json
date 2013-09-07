@@ -20,13 +20,14 @@
     "libxmljs": "0.7.1",
     "lodash": "~1.2.0",
     "request": "~2.16.6",
-    "scarf": "0.0.8",
+    "scarf": "0.0.9",
     "debug": "~0.7.2",
     "sinon": "~1.6.0",
     "twerp": "~1.0.7",
     "hiredis": "~0.1.15",
     "redis": "git+https://github.com/DocuSignDev/node_redis.git",
-    "optimist": "~0.5.2"
+    "optimist": "~0.5.2",
+    "http-proxy": "~0.10.3"
   },
   "devDependencies": {
     "muffin": "~0",

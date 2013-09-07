@@ -15,11 +15,21 @@ RedisSentinel = require "redis-sentinel-client"
 { NotFoundError } = require "./error"
 
 class exports.AxleApp extends Application
-  configure: ( cb ) ->
+  configureExpress: ( cb ) ->
     # error handler
     @use @express.router
     @disable "x-powered-by"
 
+    # very simple logger if we're at debug log level
+    @debugOn = @config.application.debug is true
+    if @debugOn
+      @logger.warn "Debug mode is switched on"
+
+      @use ( req, res, next ) =>
+        @logger.debug "#{ req.method } - #{ req.url }"
+        next()
+
+  configure: ( cb ) ->
     @readConfiguration ( err, @config, filename ) =>
       return cb err if err
 
@@ -29,15 +39,6 @@ class exports.AxleApp extends Application
         return cb err if err
 
         debug "Setting up logger"
-
-        # very simple logger if we're at debug log level
-        @debugOn = @config.application.debug is true
-        if @debugOn
-          @logger.warn "Debug mode is switched on"
-
-          @use ( req, res, next ) =>
-            @logger.debug "#{ req.method } - #{ req.url }"
-            next()
 
         @logger.info "Loaded configuration from #{ filename }"
         return cb null

@@ -24,7 +24,7 @@
     "apiaxle-base": "1.10.3",
     "libxmljs": "~0.7.1",
     "moment": "~2.0.0",
-    "scarf": "0.0.8",
+    "scarf": "0.0.9",
     "sinon": "~1.6.0",
     "twerp": "~1.0.7",
     "express": "~3.2.5",
