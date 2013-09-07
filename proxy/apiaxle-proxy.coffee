@@ -33,13 +33,18 @@ class exports.ApiaxleProxy extends AxleApp
 
   error: ( err, res ) -> res.end err.message
 
+  getKeyrings: ( cb ) ->
+    @key.supportedKeyrings ( err, keyrings ) =>
+      return cb err if err
+      return cb null, ( @keyrings = keyrings )
+
   getApi: ( name, cb ) ->
     @model( "apifactory" ).find [ name ], ( err, results ) =>
       return cb err if err
 
       if not results[name]?
         # no api found
-        return next new ApiUnknown "'#{ req.subdomain }' is not known to us."
+        return cb new ApiUnknown "'#{ req.subdomain }' is not known to us."
 
       return cb null, ( @api = results[name] )
 
@@ -146,7 +151,10 @@ class exports.ApiaxleProxy extends AxleApp
 
           @getKey req, ( err, key ) =>
             return @error err, res if err
-            proxy.proxyRequest req, res, @getHttpProxyOptions( api )
+
+            @getKeyrings ( err, keyrings ) =>
+              return @error err, res if err
+              return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
 
     server.listen @options.port
 
