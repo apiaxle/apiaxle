@@ -47,8 +47,8 @@ class exports.ApiaxleProxy extends AxleApp
     key = ( req.query.apiaxle_key or req.query.api_key )
 
     # if the key isn't a query param, check a regex SFTODO
-    # if not key
-    #   key = @getRegexKey req.url, req.api.data.extractKeyRegex
+    if not key
+      key = @getRegexKey req.url, @api.data.extractKeyRegex
 
     if not key
       return cb new KeyError "No api_key specified."
