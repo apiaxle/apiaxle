@@ -395,8 +395,11 @@ class exports.CatchallTest extends ApiaxleTest
       path: "/"
       host: "facebook.api.localhost"
 
-    @stubCatchallSimpleDelete 200, "{}",
-      "Content-Type": "application/json"
+    # mock out the http call
+    scope = nock( "http://graph.facebook.com" )
+      .delete( "/bastard/1234/hello/" )
+      .once()
+      .reply( 200, "{}", { "Content-Type": "application/json" } )
 
     @DELETE options, ( err, response ) =>
       @ok not err
