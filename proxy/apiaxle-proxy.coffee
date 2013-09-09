@@ -180,12 +180,10 @@ class exports.ApiaxleProxy extends AxleApp
               # the bit of the path that was actually requested
               endpointUrl += pathname
 
-              # we should make this optional
               if not @api.data.sendThroughApiSig
                 delete query.apiaxle_sig
                 delete query.api_sig
 
-              # we also should make this optional
               if not @api.data.sendThroughApiKey
                 delete query.apiaxle_key
                 delete query.api_key

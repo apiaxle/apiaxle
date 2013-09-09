@@ -4,6 +4,8 @@ url    = require "url"
 async  = require "async"
 libxml = require "libxmljs"
 
+nock = require "nock"
+
 { ApiaxleTest } = require "../../apiaxle"
 
 class exports.CatchallTest extends ApiaxleTest
@@ -83,10 +85,11 @@ class exports.CatchallTest extends ApiaxleTest
     @fixtures.create fixture, ( err, [ api, key ] ) =>
       @ok not err
 
-      stub = @stubCatchall ( options, api, key, keyrings, cb ) =>
-        { path, query } = url.parse options.url
-        @equal path, "/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json"
-        @fakeIncomingMessage 200, {}, {}, cb
+      # mock out the http call
+      nock( api.data.endPoint )
+        .get()
+        .once()
+        .reply( 200, "{}" )
 
       requestOptions =
         path: "/genres/drama/scifiandfantasy/schedules/upcoming.json?api_key=phil"
@@ -104,6 +107,7 @@ class exports.CatchallTest extends ApiaxleTest
         programmes:
           endPoint: "example.com"
           sendThroughApiSig: true
+          sendThroughApiKey: true
         facebook:
           endPoint: "example.com"
           sendThroughApiKey: true
@@ -134,18 +138,19 @@ class exports.CatchallTest extends ApiaxleTest
       for api_name, details of expects
         do( api_name, details ) =>
           all.push ( cb ) =>
-            stub = @stubCatchall ( options, api, key, keyrings, cb ) =>
-              { path, query } = url.parse options.url
-              @equal path, details.expected_path
-              @fakeIncomingMessage 200, {}, {}, cb
-
             requestOptions =
               path: "/?api_key=phil&api_sig=bob"
               host: "#{ api_name }.api.localhost"
 
+            # mock out the http call
+            scope = nock( "http://example.com" )
+              .get( details.expected_path )
+              .once()
+              .reply( 200, "{}" )
+
             @GET requestOptions, ( err, res ) =>
+              @ok scope.isDone()
               @ok not err
-              stub.restore()
               cb()
 
       async.series all, ( err ) =>
@@ -278,8 +283,10 @@ class exports.CatchallTest extends ApiaxleTest
           one: 1
           two: 2
 
-        stub = @stubCatchallSimpleGet 200, data,
-          "Content-Type": "application/json"
+        # mock out the http call
+        nock( apiOptions.endPoint )
+          .once()
+          .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/cock.bastard?api_key=1234"
@@ -287,7 +294,7 @@ class exports.CatchallTest extends ApiaxleTest
 
         @stubDns { "facebook.api.localhost": "127.0.0.1" }
         @GET requestOptions, ( err, response ) =>
-          @ok stub.calledOnce
+          console.log( response )
 
           @ok not err
           @equal response.contentType, "application/json"
