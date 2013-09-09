@@ -51,6 +51,57 @@ class exports.ApiaxleProxy extends AxleApp
   getKeyringNames: ( req, cb ) ->
     req.key.supportedKeyrings cb
 
+  _cacheHash: ( url ) ->
+    md5 = crypto.createHash "md5"
+    md5.update @app.options.env
+    md5.update url
+    md5.digest "hex"
+
+  _cacheTtl: ( req, cb ) ->
+    # just cache GETs
+    return cb null, false, 0 unless req.method is "GET"
+
+    mustRevalidate = false
+
+    # cache-control might want us to do something. We only care about
+    # a few of the pragmas
+    if cacheControl = @_parseCacheControl req
+      # we might have to revalidate if the client has asked us to
+      mustRevalidate = ( not not cacheControl[ "proxy-revalidate" ] )
+
+      # don't cache anything
+      if cacheControl[ "no-cache" ]
+        return cb null, mustRevalidate, 0
+
+      # explicit ttl
+      if ttl = cacheControl[ "s-maxage" ]
+        return cb null, mustRevalidate, ttl
+
+    # return the global cache
+    return cb null, mustRevalidate, req.api.data.globalCache
+
+  # returns an object which looks like this (with all fields being
+  # optional):
+  #
+  # {
+  #   "s-maxage" : <seconds>
+  #   "proxy-revalidate" : true|false
+  #   "no-cache" : true|false
+  # }
+  _parseCacheControl: ( req ) ->
+    return {} unless req.headers["cache-control"]
+
+    res = {}
+    header = req.headers["cache-control"].replace new RegExp( " ", "g" ), ""
+
+    for directive in header.split ","
+      [ key, value ] = directive.split "="
+      value or= true
+
+      res[ key ] = value
+
+    return res
+
   getApi: ( name, cb ) ->
     @model( "apifactory" ).find [ name ], ( err, results ) =>
       return cb err if err
@@ -250,13 +301,20 @@ class exports.ApiaxleProxy extends AxleApp
         return @error err, req, res if err
 
         req = @rebuildRequest req, pathname, query
-        return proxy.proxyRequest req, res, @getHttpProxyOptions( req.api )
+        @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
+          return @error err, req, res if err
+          return proxy.proxyRequest req, res, @getHttpProxyOptions( req.api )
 
     @server.proxy.on "proxyError", @handleProxyError
     @server.listen @options.port, cb
 
   handleProxyError: ( err, req, res ) =>
     statsModel = @model "stats"
+
+    # handle connection reset specially for now. We do want to report
+    # it (can we?!), but don't want to log it
+    error = new ConnectionError "Connection was reset by client"
+    return @error error, req, res
 
     # if we know how to handle an error then we also log it
     if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
