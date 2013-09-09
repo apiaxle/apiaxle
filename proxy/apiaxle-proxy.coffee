@@ -145,6 +145,7 @@ class exports.ApiaxleProxy extends AxleApp
     @endpoint_caches[api.data.endPoint] =
       host: host
       port: ( port or 80 )
+      timeout: ( api.data.endPointTimeout * 1000 )
 
     return @endpoint_caches[api.data.endPoint]
 
