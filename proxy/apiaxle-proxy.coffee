@@ -267,7 +267,7 @@ class exports.ApiaxleProxy extends AxleApp
 
     # if we're here its a new kind of error, don't want to call
     # statsModel.hit without knowing what it is for now
-    @logger.warn "Error won't be statistically logged: '#{ err.message }'"
+    @logger.warn "Error won't be statistically logged: '#{ err.code }, #{ err.message }'"
     error = new Error "Unrecognised error: '#{ err.message }'."
 
     return @error error, req, res
