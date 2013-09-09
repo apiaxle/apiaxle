@@ -40,7 +40,7 @@ class exports.CatchallTest extends ApiaxleTest
 
           done 6
 
-  "test disabled Key causes error": ( done ) ->
+  "test disabled key causes error": ( done ) ->
     fixture =
       api:
         programmes:

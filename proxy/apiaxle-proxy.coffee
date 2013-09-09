@@ -125,7 +125,7 @@ class exports.ApiaxleProxy extends AxleApp
           all.push ( cb ) =>
             @validateToken providedToken, key, results[key].data.sharedSecret, cb
 
-        async.series all, ( err ) ->
+        async.series all, ( err ) =>
           return cb err if err
 
           results[key].data.key = key

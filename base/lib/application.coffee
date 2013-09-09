@@ -186,9 +186,10 @@ class exports.AxleApp extends Application
         results: output
 
     # need xml
-    res.writeHead 400, { "Content-Type": "application/json" }
+    res.writeHead 400, { "Content-Type": "application/xml" }
     js2xml = new Js2Xml "error", output.error
     return res.end js2xml.toString()
 
+  # this will come from an express app
   onError: ( err, req, res, next ) ->
     @rawError err, res, req.api
