@@ -18,10 +18,20 @@ cpus = require("os").cpus()
 { ApiUnknown,
   KeyError,
   ApiDisabled,
-  KeyDisabled } = require "./lib/error"
+  KeyDisabled,
+  EndpointMissingError,
+  EndpointTimeoutError,
+  ConnectionError,
+  DNSError } = require "./lib/error"
 
 class exports.ApiaxleProxy extends AxleApp
   @plugins = {}
+
+  @ENDPOINT_ERROR_MAP =
+    ETIMEDOUT: ( ) -> new EndpointTimeoutError "API endpoint timed out."
+    ENOTFOUND: ( ) -> new EndpointMissingError "API endpoint could not be found."
+    EADDRINFO: ( ) -> new DNSError "API endpoint could not be resolved."
+    ECONNREFUSED: ( ) -> new ConnectionError "API endpoint could not be reached."
 
   # we don't use the constructor in scarf because we don't want to use
   # express in this instance.
@@ -150,7 +160,6 @@ class exports.ApiaxleProxy extends AxleApp
     return @endpoint_caches[api.data.endPoint]
 
   rebuildRequest: ( req, pathname, query ) ->
-    endpointHost = @api.data.endPoint
     endpointUrl = ""
 
     # here we support a default path for the request. This makes
@@ -176,7 +185,6 @@ class exports.ApiaxleProxy extends AxleApp
       endpointUrl += newStrings.join( "&" )
 
     # here's the actual setting
-    req.headers.host = endpointHost
     req.url = endpointUrl
 
     return req
@@ -203,6 +211,16 @@ class exports.ApiaxleProxy extends AxleApp
 
               req = @rebuildRequest req, pathname, query
               return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
+
+    server.proxy.on "proxyError", ( err, req, res ) =>
+      if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
+        return @error err_func(), res
+
+      # if we're here its a new kind of error, don't want to call
+      # statsModel.hit without knowing what it is for now
+      @app.logger.warn "Error won't be statistically logged: '#{ err.message }'"
+      error = new Error "Unrecognised error: '#{ err.message }'."
+      return @error error, res
 
     server.listen @options.port, cb
 
