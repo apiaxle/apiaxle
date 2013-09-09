@@ -148,6 +148,38 @@ class exports.ApiaxleProxy extends AxleApp
 
     return @endpoint_caches[api.data.endPoint]
 
+  rebuildRequest: ( req, pathname, query ) ->
+    endpointHost = @api.data.endPoint
+    endpointUrl = ""
+
+    # here we support a default path for the request. This makes
+    # sense with people like the BBC who have many APIs all sitting
+    # on the one domain.
+    if ( defaultPath = @api.data.defaultPath )
+      endpointUrl += defaultPath
+
+    # the bit of the path that was actually requested
+    endpointUrl += pathname
+
+    if not @api.data.sendThroughApiSig
+      delete query.apiaxle_sig
+      delete query.api_sig
+
+    if not @api.data.sendThroughApiKey
+      delete query.apiaxle_key
+      delete query.api_key
+
+    if not _.isEmpty query
+      endpointUrl += "?"
+      newStrings = ( "#{ key }=#{ value }" for key, value of query )
+      endpointUrl += newStrings.join( "&" )
+
+    # here's the actual setting
+    req.headers.host = endpointHost
+    req.url = endpointUrl
+
+    return req
+
   run: ( cb ) ->
     server = httpProxy.createServer ( req, res, proxy ) =>
       @getApiName req, ( err, name ) =>
@@ -168,35 +200,7 @@ class exports.ApiaxleProxy extends AxleApp
             @getKeyrings ( err, keyrings ) =>
               return @error err, res if err
 
-              endpointHost = @api.data.endPoint
-              endpointUrl = ""
-
-              # here we support a default path for the request. This makes
-              # sense with people like the BBC who have many APIs all sitting
-              # on the one domain.
-              if ( defaultPath = @api.data.defaultPath )
-                endpointUrl += defaultPath
-
-              # the bit of the path that was actually requested
-              endpointUrl += pathname
-
-              if not @api.data.sendThroughApiSig
-                delete query.apiaxle_sig
-                delete query.api_sig
-
-              if not @api.data.sendThroughApiKey
-                delete query.apiaxle_key
-                delete query.api_key
-
-              if not _.isEmpty query
-                endpointUrl += "?"
-                newStrings = ( "#{ key }=#{ value }" for key, value of query )
-                endpointUrl += newStrings.join( "&" )
-
-              # here's the actual setting
-              req.headers.host = endpointHost
-              req.url = endpointUrl
-
+              req = @rebuildRequest req, pathname, query
               return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
 
     server.listen @options.port, cb
