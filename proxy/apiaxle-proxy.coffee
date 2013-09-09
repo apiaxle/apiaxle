@@ -191,8 +191,10 @@ class exports.ApiaxleProxy extends AxleApp
   applyLimits: ( key, cb ) ->
     @model( "apilimits" ).apiHit key.id, key.qps, key.qpd, cb
 
+  close: ( cb ) -> @server.close()
+
   run: ( cb ) ->
-    server = httpProxy.createServer ( req, res, proxy ) =>
+    @server = httpProxy.createServer ( req, res, proxy ) =>
       # parse the url to get the keys
       { query, pathname } = urllib.parse req.url, true
 
@@ -227,8 +229,8 @@ class exports.ApiaxleProxy extends AxleApp
         req = @rebuildRequest req, pathname, query
         return proxy.proxyRequest req, res, @getHttpProxyOptions( @api )
 
-    server.proxy.on "proxyError", @handleProxyError
-    server.listen @options.port, cb
+    @server.proxy.on "proxyError", @handleProxyError
+    @server.listen @options.port, cb
 
   handleProxyError: ( err, req, res ) =>
     statsModel = @model "stats"

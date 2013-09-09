@@ -157,7 +157,7 @@ class exports.AppTest extends TwerpTest
     if @constructor.start_webserver
       @app.close()
 
-    @app.redisClient.quit( )
+    @app.redisClient.quit()
 
     super done
 
