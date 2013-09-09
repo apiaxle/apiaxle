@@ -180,13 +180,13 @@ class exports.AxleApp extends Application
         version: 1
         status_code: status
 
-      res.writeHead 400, { "Content-Type": "application/json" }
+      res.writeHead status, { "Content-Type": "application/json" }
       return res.end JSON.stringify
         meta: meta
         results: output
 
     # need xml
-    res.writeHead 400, { "Content-Type": "application/xml" }
+    res.writeHead status, { "Content-Type": "application/xml" }
     js2xml = new Js2Xml "error", output.error
     return res.end js2xml.toString()
 

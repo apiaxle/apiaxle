@@ -16,7 +16,8 @@ cpus = require("os").cpus()
 { AxleApp } = require "apiaxle-base"
 { ApiUnknown,
   KeyError,
-  ApiDisabled } = require "./lib/error"
+  ApiDisabled,
+  KeyDisabled } = require "./lib/error"
 
 class exports.ApiaxleProxy extends AxleApp
   @plugins = {}
@@ -47,7 +48,7 @@ class exports.ApiaxleProxy extends AxleApp
 
       if not results[name]?
         # no api found
-        return cb new ApiUnknown "'#{ req.subdomain }' is not known to us."
+        return cb new ApiUnknown "'#{ name }' is not known to us."
 
       if results[name].isDisabled()
         return cb new ApiDisabled "This API has been disabled."
@@ -117,6 +118,9 @@ class exports.ApiaxleProxy extends AxleApp
 
         if supported is false
           return cb new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
+
+        if results[key].isDisabled()
+          return cb new KeyDisabled "This API key has been disabled."
 
         if results[key]?.data.sharedSecret
           if not providedToken = ( req.query.apiaxle_sig or req.query.api_sig )
