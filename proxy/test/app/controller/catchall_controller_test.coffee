@@ -284,7 +284,8 @@ class exports.CatchallTest extends ApiaxleTest
           two: 2
 
         # mock out the http call
-        nock( apiOptions.endPoint )
+        scope = nock( "http://graph.facebook.com" )
+          .get( "/cock.bastard" )
           .once()
           .reply( 200, data, { "Content-Type": "application/json" } )
 
@@ -294,9 +295,8 @@ class exports.CatchallTest extends ApiaxleTest
 
         @stubDns { "facebook.api.localhost": "127.0.0.1" }
         @GET requestOptions, ( err, response ) =>
-          console.log( response )
-
           @ok not err
+          @ok scope.isDone()
           @equal response.contentType, "application/json"
 
           @ok response.headers[ "x-apiaxleproxy-qps-left" ]
