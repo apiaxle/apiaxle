@@ -48,10 +48,10 @@ class exports.ApiaxleProxy extends AxleApp
   error: ( err, res ) ->
     @rawError err, res, @api
 
-  getKeyrings: ( cb ) ->
+  getKeyringNames: ( cb ) ->
     @key.supportedKeyrings ( err, keyrings ) =>
       return cb err if err
-      return cb null, ( @keyrings = keyrings )
+      return cb null, ( @keyring_names = keyrings )
 
   getApi: ( name, cb ) ->
     @model( "apifactory" ).find [ name ], ( err, results ) =>
@@ -206,7 +206,7 @@ class exports.ApiaxleProxy extends AxleApp
           @getKey req, ( err, key ) =>
             return @error err, res if err
 
-            @getKeyrings ( err, keyrings ) =>
+            @getKeyringNames ( err, keyrings ) =>
               return @error err, res if err
 
               req = @rebuildRequest req, pathname, query
@@ -222,7 +222,7 @@ class exports.ApiaxleProxy extends AxleApp
     if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
       new_err = err_func()
 
-      return statsModel.hit @api.id, @key.id, @keyrings, "error", new_err.name, ( err ) =>
+      return statsModel.hit @api.id, @key.id, @keyring_names, "error", new_err.name, ( err ) =>
         return @error new_err, res, @api
 
     # if we're here its a new kind of error, don't want to call
