@@ -14,7 +14,9 @@ cluster = require "cluster"
 cpus = require("os").cpus()
 
 { AxleApp } = require "apiaxle-base"
-{ ApiUnknown, KeyError } = require "./lib/error"
+{ ApiUnknown,
+  KeyError,
+  ApiDisabled } = require "./lib/error"
 
 class exports.ApiaxleProxy extends AxleApp
   @plugins = {}
@@ -45,6 +47,9 @@ class exports.ApiaxleProxy extends AxleApp
       if not results[name]?
         # no api found
         return cb new ApiUnknown "'#{ req.subdomain }' is not known to us."
+
+      if results[name].isDisabled()
+        return cb new ApiDisabled "This API has been disabled."
 
       return cb null, ( @api = results[name] )
 
@@ -156,7 +161,7 @@ class exports.ApiaxleProxy extends AxleApp
               return @error err, res if err
               return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
 
-    server.listen @options.port
+    server.listen @options.port, cb
 
 if not module.parent
   optimism = require( "optimist" ).options
