@@ -212,17 +212,26 @@ class exports.ApiaxleProxy extends AxleApp
               req = @rebuildRequest req, pathname, query
               return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
 
-    server.proxy.on "proxyError", ( err, req, res ) =>
-      if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
-        return @error err_func(), res
-
-      # if we're here its a new kind of error, don't want to call
-      # statsModel.hit without knowing what it is for now
-      @app.logger.warn "Error won't be statistically logged: '#{ err.message }'"
-      error = new Error "Unrecognised error: '#{ err.message }'."
-      return @error error, res
+    server.proxy.on "proxyError", @handleProxyError
 
     server.listen @options.port, cb
+
+  handleProxyError: ( err, req, res ) =>
+    statsModel = @model "stats"
+
+    # if we know how to handle an error then we also log it
+    if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
+      new_err = err_func()
+
+      return statsModel.hit @api.id, @key.id, @keyrings, "error", new_err.name, ( err ) =>
+        return @error new_err, res, @api
+
+    # if we're here its a new kind of error, don't want to call
+    # statsModel.hit without knowing what it is for now
+    @app.logger.warn "Error won't be statistically logged: '#{ err.message }'"
+    error = new Error "Unrecognised error: '#{ err.message }'."
+
+    return @error error, res, @api
 
 if not module.parent
   optimism = require( "optimist" ).options
