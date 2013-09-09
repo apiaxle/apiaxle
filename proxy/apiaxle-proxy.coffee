@@ -33,7 +33,8 @@ class exports.ApiaxleProxy extends AxleApp
 
     return cb new ApiUnknown "No api specified (via subdomain)"
 
-  error: ( err, res ) -> res.end err.message
+  error: ( err, res ) ->
+    @rawError err, res, @api
 
   getKeyrings: ( cb ) ->
     @key.supportedKeyrings ( err, keyrings ) =>
