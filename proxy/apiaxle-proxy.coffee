@@ -114,15 +114,11 @@ class exports.ApiaxleProxy extends AxleApp
 
   # Attempts to parse regex from url
   getRegexKey: ( url, regex ) ->
-    if not regex
-      return null
-
-    matches = url.match new RegExp(regex)
+    matches = url.match new RegExp( regex )
 
     if matches and matches.length > 1
       return matches[1]
 
-    # Default out
     return null
 
   authenticateWithKey: ( key, api, query, cb ) ->
@@ -198,7 +194,7 @@ class exports.ApiaxleProxy extends AxleApp
   run: ( cb ) ->
     server = httpProxy.createServer ( req, res, proxy ) =>
       # parse the url to get the keys
-      { query, pathname, url } = urllib.parse req.url, true
+      { query, pathname } = urllib.parse req.url, true
 
       queue = []
 
@@ -207,7 +203,7 @@ class exports.ApiaxleProxy extends AxleApp
       queue.push ( cb ) => @getApi @api_name, cb
 
       # key details
-      queue.push ( cb ) => @getKeyName query, url, cb
+      queue.push ( cb ) => @getKeyName query, req.url, cb
       queue.push ( cb ) => @getKey @key_name, cb
       queue.push ( cb ) => @authenticateWithKey @key, @api, query, cb
 
