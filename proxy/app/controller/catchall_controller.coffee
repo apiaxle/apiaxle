@@ -141,6 +141,7 @@ class CatchAll extends ApiaxleController
           new_err = err_func()
 
           return statsModel.hit api, api_key, keyrings, "error", new_err.name, ( err, res ) ->
+            return cb err if err
             return cb new_err
 
         # if we're here its a new kind of error, don't want to call
