@@ -3,6 +3,7 @@
 # This code is covered by the GPL version 3.
 # Copyright 2011-2013 Philip Jackson.
 
+_ = require "lodash"
 fs = require "fs"
 url = require "url"
 redis = require "redis"
@@ -117,7 +118,7 @@ class exports.ApiaxleProxy extends AxleApp
         return cb err if err
 
         if supported is false
-          return cb new KeyError "'#{ key }' is not a valid key for '#{ req.subdomain }'"
+          return cb new KeyError "'#{ key }' is not a valid key for '#{ @api.id }'"
 
         if results[key].isDisabled()
           return cb new KeyDisabled "This API key has been disabled."
@@ -156,14 +157,48 @@ class exports.ApiaxleProxy extends AxleApp
           return @error err, res if err
 
           # parse the url to get the keys
-          parsed_url = url.parse req.url, true
-          req.query = parsed_url.query
+          { query, pathname } = url.parse req.url, true
+
+          # TODO: remove the requirement for this
+          req.query = query
 
           @getKey req, ( err, key ) =>
             return @error err, res if err
 
             @getKeyrings ( err, keyrings ) =>
               return @error err, res if err
+
+              endpointHost = @api.data.endPoint
+              endpointUrl = ""
+
+              # here we support a default path for the request. This makes
+              # sense with people like the BBC who have many APIs all sitting
+              # on the one domain.
+              if ( defaultPath = @api.data.defaultPath )
+                endpointUrl += defaultPath
+
+              # the bit of the path that was actually requested
+              endpointUrl += pathname
+
+              # we should make this optional
+              if not @api.data.sendThroughApiSig
+                delete query.apiaxle_sig
+                delete query.api_sig
+
+              # we also should make this optional
+              if not @api.data.sendThroughApiKey
+                delete query.apiaxle_key
+                delete query.api_key
+
+              if not _.isEmpty query
+                endpointUrl += "?"
+                newStrings = ( "#{ key }=#{ value }" for key, value of query )
+                endpointUrl += newStrings.join( "&" )
+
+              # here's the actual setting
+              req.headers.host = endpointHost
+              req.url = endpointUrl
+
               return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
 
     server.listen @options.port, cb
