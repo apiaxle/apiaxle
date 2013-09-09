@@ -327,8 +327,11 @@ class exports.CatchallTest extends ApiaxleTest
         data = JSON.stringify
           one: 1
 
-        @stubCatchallSimpleGet 200, data,
-          "Content-Type": "application/json"
+        # mock out the http call
+        scope = nock( "http://graph.facebook.com" )
+          .get( "/cock.bastard" )
+          .once()
+          .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/cock.bastard?apiaxle_key=1234&api_key=5678"
@@ -364,8 +367,11 @@ class exports.CatchallTest extends ApiaxleTest
         data = JSON.stringify
           one: 1
 
-        @stubCatchallSimpleGet 200, data,
-          "Content-Type": "application/json"
+        # mock out the http call
+        scope = nock( "http://graph.facebook.com" )
+          .get( "/bastard/1234/hello/" )
+          .once()
+          .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/bastard/1234/hello/"
@@ -374,6 +380,7 @@ class exports.CatchallTest extends ApiaxleTest
         @stubDns { "facebook.api.localhost": "127.0.0.1" }
         @GET requestOptions, ( err, response ) =>
           @ok not err
+          @ok scope.isDone()
 
           response.parseJson ( err, json ) =>
             @ok not err
