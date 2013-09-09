@@ -191,34 +191,29 @@ class exports.ApiaxleProxy extends AxleApp
 
   run: ( cb ) ->
     server = httpProxy.createServer ( req, res, proxy ) =>
-      @getApiName req, ( err, name ) =>
+      # parse the url to get the keys
+      { query, pathname, url } = urllib.parse req.url, true
+
+      queue = []
+
+      # api details
+      queue.push ( cb ) => @getApiName req, cb
+      queue.push ( cb ) => @getApi @api_name, cb
+
+      # key details
+      queue.push ( cb ) => @getKeyName query, url, cb
+      queue.push ( cb ) => @getKey @key_name, cb
+      queue.push ( cb ) => @authenticateWithKey @key, @api, query, cb
+
+      # we don't need to resolve the keyrings to their full
+      # objects at the moment.
+      queue.push ( cb ) => @getKeyringNames @key, cb
+
+      async.series queue, ( err ) =>
         return @error err, res if err
 
-        @getApi name, ( err, api ) =>
-          return @error err, res if err
-
-          # parse the url to get the keys
-          { query, pathname, url } = urllib.parse req.url, true
-
-          # TODO: remove the requirement for this
-          req.query = query
-
-          queue = []
-
-          # key details
-          queue.push ( cb ) => @getKeyName query, url, cb
-          queue.push ( cb ) => @getKey @key_name, cb
-          queue.push ( cb ) => @authenticateWithKey @key, @api, query, cb
-
-          # we don't need to resolve the keyrings to their full
-          # objects at the moment.
-          queue.push ( cb ) => @getKeyringNames @key, cb
-
-          async.series queue, ( err ) =>
-            return @error err, res if err
-
-            req = @rebuildRequest req, pathname, query
-            return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
+        req = @rebuildRequest req, pathname, query
+        return proxy.proxyRequest req, res, @getHttpProxyOptions( @api )
 
     server.proxy.on "proxyError", @handleProxyError
     server.listen @options.port, cb
