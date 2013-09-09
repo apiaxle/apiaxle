@@ -5,7 +5,7 @@
 
 _ = require "lodash"
 fs = require "fs"
-url = require "url"
+urllib = require "url"
 redis = require "redis"
 async = require "async"
 http = require "http"
@@ -41,15 +41,15 @@ class exports.ApiaxleProxy extends AxleApp
 
   getApiName: ( req, cb ) ->
     if parts = /^(.+?)\.api\./.exec req.headers.host
-      return cb null, parts[1]
+      return cb null, ( @api_name = parts[1] )
 
     return cb new ApiUnknown "No api specified (via subdomain)"
 
   error: ( err, res ) ->
     @rawError err, res, @api
 
-  getKeyringNames: ( cb ) ->
-    @key.supportedKeyrings ( err, keyrings ) =>
+  getKeyringNames: ( key, cb ) ->
+    key.supportedKeyrings ( err, keyrings ) =>
       return cb err if err
       return cb null, ( @keyring_names = keyrings )
 
@@ -66,17 +66,22 @@ class exports.ApiaxleProxy extends AxleApp
 
       return cb null, ( @api = results[name] )
 
-  getKey: ( req, cb ) ->
-    key = ( req.query.apiaxle_key or req.query.api_key )
+  getKeyName: ( query, url, cb ) ->
+    key = ( query.apiaxle_key or query.api_key )
 
     # if the key isn't a query param, check a regex SFTODO
     if not key
-      key = @getRegexKey req.url, @api.data.extractKeyRegex
+      key = @getRegexKey url, @api.data.extractKeyRegex
 
     if not key
       return cb new KeyError "No api_key specified."
 
-    return @authenticateWithKey key, req, cb
+    return cb null, ( @key_name = key )
+
+  getKey: ( name, cb ) ->
+    @model( "keyfactory" ).find [ name ], ( err, results ) =>
+      return cb err if err
+      return cb null, ( @key = results[name] )
 
   validateToken: ( providedToken, key, sharedSecret, cb ) ->
     now = Date.now() / 1000
@@ -117,34 +122,29 @@ class exports.ApiaxleProxy extends AxleApp
     # Default out
     return null
 
-  authenticateWithKey: ( key, req, cb ) ->
-    @model( "keyfactory" ).find [ key ], ( err, results ) =>
+  authenticateWithKey: ( key, api, query, cb ) ->
+    all = []
+
+    # check the key is for this api
+    api.supportsKey key.id, ( err, supported ) =>
       return cb err if err
 
-      all = []
+      if ( not key ) or ( not supported )
+        return cb new KeyError "'#{ key.id }' is not a valid key for '#{ @api.id }'"
 
-      # check the key is for this api
-      @api.supportsKey key, ( err, supported ) =>
+      if key.isDisabled()
+        return cb new KeyDisabled "This API key has been disabled."
+
+      if key.data.sharedSecret
+        if not providedToken = ( query.apiaxle_sig or query.api_sig )
+          return cb new KeyError "A signature is required for this API."
+
+        all.push ( cb ) =>
+          @validateToken providedToken, key, key.data.sharedSecret, cb
+
+      async.series all, ( err ) =>
         return cb err if err
-
-        if supported is false
-          return cb new KeyError "'#{ key }' is not a valid key for '#{ @api.id }'"
-
-        if results[key].isDisabled()
-          return cb new KeyDisabled "This API key has been disabled."
-
-        if results[key]?.data.sharedSecret
-          if not providedToken = ( req.query.apiaxle_sig or req.query.api_sig )
-            return cb new KeyError "A signature is required for this API."
-
-          all.push ( cb ) =>
-            @validateToken providedToken, key, results[key].data.sharedSecret, cb
-
-        async.series all, ( err ) =>
-          return cb err if err
-
-          results[key].data.key = key
-          return cb null, ( @key = results[key] )
+        return cb null, key
 
   getHttpProxyOptions: ( api ) ->
     ep = api.data.endPoint
@@ -198,19 +198,27 @@ class exports.ApiaxleProxy extends AxleApp
           return @error err, res if err
 
           # parse the url to get the keys
-          { query, pathname } = url.parse req.url, true
+          { query, pathname, url } = urllib.parse req.url, true
 
           # TODO: remove the requirement for this
           req.query = query
 
-          @getKey req, ( err, key ) =>
+          queue = []
+
+          # key details
+          queue.push ( cb ) => @getKeyName query, url, cb
+          queue.push ( cb ) => @getKey @key_name, cb
+          queue.push ( cb ) => @authenticateWithKey @key, @api, query, cb
+
+          # we don't need to resolve the keyrings to their full
+          # objects at the moment.
+          queue.push ( cb ) => @getKeyringNames @key, cb
+
+          async.series queue, ( err ) =>
             return @error err, res if err
 
-            @getKeyringNames ( err, keyrings ) =>
-              return @error err, res if err
-
-              req = @rebuildRequest req, pathname, query
-              return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
+            req = @rebuildRequest req, pathname, query
+            return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
 
     server.proxy.on "proxyError", @handleProxyError
     server.listen @options.port, cb
