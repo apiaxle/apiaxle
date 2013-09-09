@@ -41,17 +41,15 @@ class exports.ApiaxleProxy extends AxleApp
 
   getApiName: ( req, cb ) ->
     if parts = /^(.+?)\.api\./.exec req.headers.host
-      return cb null, ( @api_name = parts[1] )
+      return cb null, ( req.api_name = parts[1] )
 
     return cb new ApiUnknown "No api specified (via subdomain)"
 
-  error: ( err, res ) ->
-    @rawError err, res, @api
+  error: ( err, req, res ) ->
+    @rawError err, res, req.api
 
-  getKeyringNames: ( key, cb ) ->
-    key.supportedKeyrings ( err, keyrings ) =>
-      return cb err if err
-      return cb null, ( @keyring_names = keyrings )
+  getKeyringNames: ( req, cb ) ->
+    req.key.supportedKeyrings cb
 
   getApi: ( name, cb ) ->
     @model( "apifactory" ).find [ name ], ( err, results ) =>
@@ -64,19 +62,19 @@ class exports.ApiaxleProxy extends AxleApp
       if results[name].isDisabled()
         return cb new ApiDisabled "This API has been disabled."
 
-      return cb null, ( @api = results[name] )
+      return cb null, results[name]
 
-  getKeyName: ( query, url, cb ) ->
+  getKeyName: ( req, query, cb ) ->
     key = ( query.apiaxle_key or query.api_key )
 
     # if the key isn't a query param, check a regex SFTODO
     if not key
-      key = @getRegexKey url, @api.data.extractKeyRegex
+      key = @getRegexKey req.url, req.api.data.extractKeyRegex
 
     if not key
       return cb new KeyError "No api_key specified."
 
-    return cb null, ( @key_name = key )
+    return cb null, key
 
   getKey: ( name, cb ) ->
     @model( "keyfactory" ).find [ name ], ( err, results ) =>
@@ -84,7 +82,7 @@ class exports.ApiaxleProxy extends AxleApp
         return cb new KeyError "'#{ name }' is not a valid key."
 
       return cb err if err
-      return cb null, ( @key = results[name] )
+      return cb null, results[name]
 
   validateToken: ( providedToken, key, sharedSecret, cb ) ->
     now = Date.now() / 1000
@@ -129,7 +127,7 @@ class exports.ApiaxleProxy extends AxleApp
       return cb err if err
 
       if not supported
-        return cb new KeyError "'#{ key.id }' is not a valid key for '#{ @api.id }'"
+        return cb new KeyError "'#{ key.id }' is not a valid key for '#{ req.api.id }'"
 
       if key.isDisabled()
         return cb new KeyDisabled "This API key has been disabled."
@@ -164,17 +162,17 @@ class exports.ApiaxleProxy extends AxleApp
     # here we support a default path for the request. This makes
     # sense with people like the BBC who have many APIs all sitting
     # on the one domain.
-    if ( defaultPath = @api.data.defaultPath )
+    if ( defaultPath = req.api.data.defaultPath )
       endpointUrl += defaultPath
 
     # the bit of the path that was actually requested
     endpointUrl += pathname
 
-    if not @api.data.sendThroughApiSig
+    if not req.api.data.sendThroughApiSig
       delete query.apiaxle_sig
       delete query.api_sig
 
-    if not @api.data.sendThroughApiKey
+    if not req.api.data.sendThroughApiKey
       delete query.apiaxle_key
       delete query.api_key
 
@@ -194,6 +192,13 @@ class exports.ApiaxleProxy extends AxleApp
   close: ( cb ) -> @server.close()
 
   run: ( cb ) ->
+    # takes the request, a name and a cb. Used to make a suitable
+    # callback replacement that can assign to req[thing_name]
+    assReq = ( req, res, name, cb ) =>
+      return ( err, result ) =>
+        return cb @error( err, req, res ) if err
+        return cb null, ( req[name] = result )
+
     @server = httpProxy.createServer ( req, res, proxy ) =>
       # parse the url to get the keys
       { query, pathname } = urllib.parse req.url, true
@@ -201,21 +206,21 @@ class exports.ApiaxleProxy extends AxleApp
       queue = []
 
       # api details
-      queue.push ( cb ) => @getApiName req, cb
-      queue.push ( cb ) => @getApi @api_name, cb
+      queue.push ( cb ) => @getApiName req, assReq( req, res, "api_name", cb )
+      queue.push ( cb ) => @getApi req.api_name, assReq( req, res, "api", cb )
 
       # key details
-      queue.push ( cb ) => @getKeyName query, req.url, cb
-      queue.push ( cb ) => @getKey @key_name, cb
-      queue.push ( cb ) => @authenticateWithKey @key, @api, query, cb
+      queue.push ( cb ) => @getKeyName req, query, assReq( req, res, "key_name", cb )
+      queue.push ( cb ) => @getKey req.key_name, assReq( req, res, "key", cb )
+      queue.push ( cb ) => @authenticateWithKey req.key, req.api, query, cb
 
       # we don't need to resolve the keyrings to their full
       # objects at the moment.
-      queue.push ( cb ) => @getKeyringNames @key, cb
+      queue.push ( cb ) => @getKeyringNames req, assReq( req, res, "keyring_names", cb )
 
       # deal with qps, qpd limitations
       queue.push ( cb ) =>
-        @applyLimits @key, ( err, [ newQps, newQpd ] ) ->
+        @applyLimits req.key, ( err, [ newQps, newQpd ] ) ->
           return cb err if err
 
           # set the helper headers ready to pass though
@@ -224,10 +229,10 @@ class exports.ApiaxleProxy extends AxleApp
           return cb null
 
       async.series queue, ( err ) =>
-        return @error err, res if err
+        return @error err, req, res if err
 
         req = @rebuildRequest req, pathname, query
-        return proxy.proxyRequest req, res, @getHttpProxyOptions( @api )
+        return proxy.proxyRequest req, res, @getHttpProxyOptions( req.api )
 
     @server.proxy.on "proxyError", @handleProxyError
     @server.listen @options.port, cb
@@ -239,15 +244,15 @@ class exports.ApiaxleProxy extends AxleApp
     if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
       new_err = err_func()
 
-      return statsModel.hit @api.id, @key.id, @keyring_names, "error", new_err.name, ( err ) =>
-        return @error new_err, res, @api
+      return statsModel.hit req.api.id, req.key.id, req.keyring_names, "error", new_err.name, ( err ) =>
+        return @error new_error, req, res, req.api
 
     # if we're here its a new kind of error, don't want to call
     # statsModel.hit without knowing what it is for now
     @logger.warn "Error won't be statistically logged: '#{ err.message }'"
     error = new Error "Unrecognised error: '#{ err.message }'."
 
-    return @error error, res, @api
+    return @error error, req, res
 
 if not module.parent
   optimism = require( "optimist" ).options
