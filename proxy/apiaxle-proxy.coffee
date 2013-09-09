@@ -80,6 +80,9 @@ class exports.ApiaxleProxy extends AxleApp
 
   getKey: ( name, cb ) ->
     @model( "keyfactory" ).find [ name ], ( err, results ) =>
+      if not results[name]
+        return cb new KeyError "'#{ name }' is not a valid key."
+
       return cb err if err
       return cb null, ( @key = results[name] )
 
@@ -129,7 +132,7 @@ class exports.ApiaxleProxy extends AxleApp
     api.supportsKey key.id, ( err, supported ) =>
       return cb err if err
 
-      if ( not key ) or ( not supported )
+      if not supported
         return cb new KeyError "'#{ key.id }' is not a valid key for '#{ @api.id }'"
 
       if key.isDisabled()
