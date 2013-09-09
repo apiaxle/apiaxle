@@ -213,7 +213,6 @@ class exports.ApiaxleProxy extends AxleApp
               return proxy.proxyRequest req, res, @getHttpProxyOptions( api )
 
     server.proxy.on "proxyError", @handleProxyError
-
     server.listen @options.port, cb
 
   handleProxyError: ( err, req, res ) =>
