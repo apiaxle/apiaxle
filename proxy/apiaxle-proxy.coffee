@@ -192,6 +192,9 @@ class exports.ApiaxleProxy extends AxleApp
 
     return req
 
+  applyLimits: ( key, cb ) ->
+    @model( "apilimits" ).apiHit key.id, key.qps, key.qpd, cb
+
   run: ( cb ) ->
     server = httpProxy.createServer ( req, res, proxy ) =>
       # parse the url to get the keys
@@ -211,6 +214,16 @@ class exports.ApiaxleProxy extends AxleApp
       # we don't need to resolve the keyrings to their full
       # objects at the moment.
       queue.push ( cb ) => @getKeyringNames @key, cb
+
+      # deal with qps, qpd limitations
+      queue.push ( cb ) =>
+        @applyLimits @key, ( err, [ newQps, newQpd ] ) ->
+          return cb err if err
+
+          # set the helper headers ready to pass though
+          res.setHeader "X-ApiaxleProxy-Qps-Left", newQps
+          res.setHeader "X-ApiaxleProxy-Qpd-Left", newQpd
+          return cb null
 
       async.series queue, ( err ) =>
         return @error err, res if err
