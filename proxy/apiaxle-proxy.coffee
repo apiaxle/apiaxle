@@ -191,6 +191,24 @@ class exports.ApiaxleProxy extends AxleApp
 
   close: ( cb ) -> @server.close()
 
+  logCapturedPathsMaybe: ( req, pathname, query, timing, cb ) ->
+    # only if we have some paths
+    return cb null unless api.data.hasCapturePaths
+
+    # this combines timers and counters
+    countersModel = @app.model "capturepaths"
+
+    # fetch the paths we're looking to capture
+    api.getCapturePaths ( err, capture_paths ) =>
+      return next err if err
+
+      # finally, capture them. Timers and counters.
+      matches = @path_globs.matchPathDefinitions pathname, query, capture_paths
+
+      args = [ req.api.id, req.key.id, req.keyrings ]
+
+      return countersModel.log args..., matches, timing, cb
+
   run: ( cb ) ->
     # takes the request, a name and a cb. Used to make a suitable
     # callback replacement that can assign to req[thing_name]
