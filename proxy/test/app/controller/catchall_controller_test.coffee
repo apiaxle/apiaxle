@@ -345,6 +345,7 @@ class exports.CatchallTest extends ApiaxleTest
         @stubDns { "facebook.api.localhost": "127.0.0.1" }
         @GET requestOptions, ( err, response ) =>
           @ok not err
+          @ok scope.isDone()
 
           response.parseJson ( err, json ) =>
             @ok not err
