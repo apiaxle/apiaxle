@@ -4,6 +4,7 @@ _ = require "lodash"
 url    = require "url"
 async  = require "async"
 libxml = require "libxmljs"
+nock = require "nock"
 
 { ApiaxleTest } = require "../../apiaxle"
 { RedisMulti } = require "../../../../base/app/model/redis"
@@ -41,8 +42,6 @@ class exports.CaptureTest extends ApiaxleTest
 
   "test timings/counters are captured": ( done ) ->
     dnsStub = @stubDns { "programmes.api.localhost": "127.0.0.1" }
-    stub = @stubCatchallSimpleGet 200, null,
-      "Content-Type": "application/json"
 
     all = []
 
@@ -58,6 +57,11 @@ class exports.CaptureTest extends ApiaxleTest
       requestOptions =
         path: "/programme/toystory?api_key=phil"
         host: "programmes.api.localhost"
+
+      scope = nock( "http://bbc.co.uk" )
+        .get( "/programme/toystory" )
+        .once()
+        .reply( 200, "{}" )
 
       @GET requestOptions, cb
 

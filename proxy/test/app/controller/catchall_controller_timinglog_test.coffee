@@ -2,6 +2,7 @@
 # Copyright 2011-2013 Philip Jackson.
 _ = require "lodash"
 url    = require "url"
+nock = require "nock"
 async  = require "async"
 libxml = require "libxmljs"
 
@@ -19,6 +20,7 @@ class exports.TimersTest extends ApiaxleTest
           endPoint: "bbc.co.uk"
       key:
         phil:
+          qps: 200
           forApis: [ "programmes" ]
 
     @fixtures.create fixture, done
@@ -31,8 +33,10 @@ class exports.TimersTest extends ApiaxleTest
       host: "programmes.api.localhost"
 
     dnsStub = @stubDns { "programmes.api.localhost": "127.0.0.1" }
-    httpStub = @stubCatchallSimpleGet 200, null,
-      "Content-Type": "application/json"
+    scope = nock( "http://bbc.co.uk" )
+      .get( "/" )
+      .once()
+      .reply( 200, "{}" )
 
     expire_list = {}
     expireStub = @getStub RedisMulti::, "expireat", ( key, ts ) =>
@@ -43,7 +47,8 @@ class exports.TimersTest extends ApiaxleTest
       @GET requestOptions, ( err, response ) =>
         @ok not err
         @ok dnsStub.calledOnce
-        @ok httpStub.calledOnce
+        @ok scope.isDone(),
+          "All nock scopes exhausted."
 
         model = @app.model "stattimers"
         names = [ "http-request" ]
