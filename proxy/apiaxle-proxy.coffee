@@ -39,98 +39,58 @@ class exports.ApiaxleProxy extends AxleApp
     @endpoint_caches = {}
     @setOptions options
 
-  getApiName: ( req, cb ) ->
+  getApiName: ( req, res, next ) =>
     if parts = /^(.+?)\.api\./.exec req.headers.host
-      return cb null, ( req.api_name = parts[1] )
+      req.api_name = parts[1]
+      return next()
 
-    return cb new ApiUnknown "No api specified (via subdomain)"
+    return next new ApiUnknown "No api specified (via subdomain)"
 
-  getKeyringNames: ( req, cb ) ->
-    req.key.supportedKeyrings cb
+  getKeyringNames: ( req, res, next ) ->
+    req.key.supportedKeyrings ( err, names ) ->
+      return next err if err
 
-  _cacheHash: ( url ) ->
-    md5 = crypto.createHash "md5"
-    md5.update @app.options.env
-    md5.update url
-    md5.digest "hex"
+      req.keyring_names = names
+      return next()
 
-  _cacheTtl: ( req, cb ) ->
-    # just cache GETs
-    return cb null, false, 0 unless req.method is "GET"
+  getApi: ( req, res, next ) =>
+    @model( "apifactory" ).find [ req.api_name ], ( err, results ) =>
+      return next err if err
 
-    mustRevalidate = false
+      api = results[req.api_name]
 
-    # cache-control might want us to do something. We only care about
-    # a few of the pragmas
-    if cacheControl = @_parseCacheControl req
-      # we might have to revalidate if the client has asked us to
-      mustRevalidate = ( not not cacheControl[ "proxy-revalidate" ] )
-
-      # don't cache anything
-      if cacheControl[ "no-cache" ]
-        return cb null, mustRevalidate, 0
-
-      # explicit ttl
-      if ttl = cacheControl[ "s-maxage" ]
-        return cb null, mustRevalidate, ttl
-
-    # return the global cache
-    return cb null, mustRevalidate, req.api.data.globalCache
-
-  # returns an object which looks like this (with all fields being
-  # optional):
-  #
-  # {
-  #   "s-maxage" : <seconds>
-  #   "proxy-revalidate" : true|false
-  #   "no-cache" : true|false
-  # }
-  _parseCacheControl: ( req ) ->
-    return {} unless req.headers["cache-control"]
-
-    res = {}
-    header = req.headers["cache-control"].replace new RegExp( " ", "g" ), ""
-
-    for directive in header.split ","
-      [ key, value ] = directive.split "="
-      value or= true
-
-      res[ key ] = value
-
-    return res
-
-  getApi: ( name, cb ) ->
-    @model( "apifactory" ).find [ name ], ( err, results ) =>
-      return cb err if err
-
-      if not results[name]?
+      if not api?
         # no api found
-        return cb new ApiUnknown "'#{ name }' is not known to us."
+        return next new ApiUnknown "'#{ req.api_name }' is not known to us."
 
-      if results[name].isDisabled()
-        return cb new ApiDisabled "This API has been disabled."
+      if api.isDisabled()
+        return next new ApiDisabled "This API has been disabled."
 
-      return cb null, results[name]
+      req.api = api
+      return next()
 
-  getKeyName: ( req, query, cb ) ->
-    key = ( query.apiaxle_key or query.api_key )
+  getKeyName: ( req, res, next ) =>
+    key = ( req.parsed_url.query.apiaxle_key or req.parsed_url.query.api_key )
 
-    # if the key isn't a query param, check a regex SFTODO
+    # if the key isn't a query param, check a regex
     if not key
       key = @getRegexKey req.url, req.api.data.extractKeyRegex
 
     if not key
-      return cb new KeyError "No api_key specified."
+      return next new KeyError "No api_key specified."
 
-    return cb null, key
+    req.key_name = key
+    return next()
 
-  getKey: ( name, cb ) ->
-    @model( "keyfactory" ).find [ name ], ( err, results ) =>
-      if not results[name]
-        return cb new KeyError "'#{ name }' is not a valid key."
+  getKey: ( req, res, next ) =>
+    @model( "keyfactory" ).find [ req.key_name ], ( err, results ) =>
+      return next err if err
 
-      return cb err if err
-      return cb null, results[name]
+      if not results[req.key_name]
+        return next new KeyError "'#{ req.key_name }' is not a valid key."
+
+      req.key = results[req.key_name]
+      return next()
 
   validateToken: ( providedToken, key, sharedSecret, cb ) ->
     now = Date.now() / 1000
@@ -167,44 +127,42 @@ class exports.ApiaxleProxy extends AxleApp
 
     return null
 
-  authenticateWithKey: ( key, api, query, cb ) ->
+  authenticateWithKey: ( req, res, next ) =>
     all = []
 
-    # check the key is for this api
-    api.supportsKey key.id, ( err, supported ) =>
-      return cb err if err
+    # check the req.key is for this req.api
+    req.api.supportsKey req.key.id, ( err, supported ) =>
+      return next err if err
 
       if not supported
-        return cb new KeyError "'#{ key.id }' is not a valid key for '#{ req.api.id }'"
+        return next new KeyError "'#{ req.key.id }' is not a valid req.key for '#{ req.req.api.id }'"
 
-      if key.isDisabled()
-        return cb new KeyDisabled "This API key has been disabled."
+      if req.key.isDisabled()
+        return next new KeyDisabled "This API key has been disabled."
 
-      if key.data.sharedSecret
-        if not providedToken = ( query.apiaxle_sig or query.api_sig )
-          return cb new KeyError "A signature is required for this API."
+      if req.key.data.sharedSecret
+        if not providedToken = ( query.req.apiaxle_sig or query.req.api_sig )
+          return next new KeyError "A signature is required for this API."
 
         all.push ( cb ) =>
-          @validateToken providedToken, key, key.data.sharedSecret, cb
+          @validateToken providedToken, req.key, req.key.data.sharedSecret, cb
 
-      async.series all, ( err ) =>
-        return cb err if err
-        return cb null, key
+      async.series all, next
 
-  getHttpProxyOptions: ( api ) ->
-    ep = api.data.endPoint
+  getHttpProxyOptions: ( req ) ->
+    ep = req.api.data.endPoint
     return @endpoint_caches[ep] if @endpoint_caches[ep]
 
     [ host, port ] = ep.split ":"
 
-    @endpoint_caches[api.data.endPoint] =
+    @endpoint_caches[req.api.data.endPoint] =
       host: host
       port: ( port or 80 )
-      timeout: ( api.data.endPointTimeout * 1000 )
+      timeout: ( req.api.data.endPointTimeout * 1000 )
 
-    return @endpoint_caches[api.data.endPoint]
+    return @endpoint_caches[req.api.data.endPoint]
 
-  rebuildRequest: ( req, pathname, query ) ->
+  removeInvalidQueryParams: ( req, res, next ) =>
     endpointUrl = ""
 
     # here we support a default path for the request. This makes
@@ -213,8 +171,9 @@ class exports.ApiaxleProxy extends AxleApp
     if ( defaultPath = req.api.data.defaultPath )
       endpointUrl += defaultPath
 
-    # the bit of the path that was actually requested
-    endpointUrl += pathname
+    endpointUrl += req.parsed_url.pathname
+
+    query = req.parsed_url.query
 
     if not req.api.data.sendThroughApiSig
       delete query.apiaxle_sig
@@ -232,10 +191,23 @@ class exports.ApiaxleProxy extends AxleApp
     # here's the actual setting
     req.url = endpointUrl
 
-    return req
+    return next()
 
-  applyLimits: ( key, cb ) ->
-    @model( "apilimits" ).apiHit key.id, key.data.qps, key.data.qpd, cb
+  applyLimits: ( req, res, next ) =>
+    args = [
+      req.key.id
+      req.key.data.qps
+      req.key.data.qpd
+    ]
+
+    @model( "apilimits" ).apiHit args..., ( err, [ newQps, newQpd ] ) ->
+      return next err if err
+
+      # let the user know what they have left
+      res.setHeader "X-ApiaxleProxy-Qps-Left", newQps
+      res.setHeader "X-ApiaxleProxy-Qpd-Left", newQpd
+
+      return next()
 
   close: ( cb ) -> @server.close()
 
@@ -244,7 +216,7 @@ class exports.ApiaxleProxy extends AxleApp
     return cb null unless api.data.hasCapturePaths
 
     # this combines timers and counters
-    countersModel = @app.model "capturepaths"
+    countersModel = @model "capturepaths"
 
     # fetch the paths we're looking to capture
     api.getCapturePaths ( err, capture_paths ) =>
@@ -257,6 +229,10 @@ class exports.ApiaxleProxy extends AxleApp
 
       return countersModel.log args..., matches, timing, cb
 
+  parseUrl: ( req, res, next ) =>
+    req.parsed_url = urllib.parse req.url, true
+    next();
+
   run: ( cb ) ->
     # takes the request, a name and a cb. Used to make a suitable
     # callback replacement that can assign to req[thing_name]
@@ -265,50 +241,34 @@ class exports.ApiaxleProxy extends AxleApp
         return cb @error( err, req, res ) if err
         return cb null, ( req[name] = result )
 
-    mw = ( res, req, next ) ->
-      return next new Error "jhi"
+    mw = [
+      # puts the query params on req
+      @parseUrl,
 
-    @server = httpProxy.createServer mw, ( req, res, proxy ) =>
-      proxy.proxyRequest req, res, { port: 80, host: "localhost" }
+      # handle getting the API. If the api is invalid an error will be
+      # thrown.
+      @getApiName,
+      @getApi,
 
-      # # parse the url to get the keys
-      # { query, pathname } = urllib.parse req.url, true
+      # get the valid key and keyrings. If the key is invalid an error
+      # will be thrown.
+      @getKeyName,
+      @getKey,
+      @authenticateWithKey,
+      @getKeyringNames,
 
-      # queue = []
+      # make sure the key still has the right to use the api (that
+      # limits/quotas haven't been met yet)
+      @applyLimits,
 
-      # # api details
-      # queue.push ( cb ) => @getApiName req, assReq( req, res, "api_name", cb )
-      # queue.push ( cb ) => @getApi req.api_name, assReq( req, res, "api", cb )
+      # we might not want to pass through the key/sig query parameters
+      @removeInvalidQueryParams
+    ]
 
-      # # key details
-      # queue.push ( cb ) => @getKeyName req, query, assReq( req, res, "key_name", cb )
-      # queue.push ( cb ) => @getKey req.key_name, assReq( req, res, "key", cb )
-      # queue.push ( cb ) => @authenticateWithKey req.key, req.api, query, cb
-
-      # # we don't need to resolve the keyrings to their full
-      # # objects at the moment.
-      # queue.push ( cb ) => @getKeyringNames req, assReq( req, res, "keyring_names", cb )
-
-      # # deal with qps, qpd limitations
-      # queue.push ( cb ) =>
-      #   @applyLimits req.key, ( err, [ newQps, newQpd ] ) ->
-      #     return cb err if err
-
-      #     # set the helper headers ready to pass though
-      #     res.setHeader "X-ApiaxleProxy-Qps-Left", newQps
-      #     res.setHeader "X-ApiaxleProxy-Qpd-Left", newQpd
-      #     return cb null
-
-      # async.series queue, ( err ) =>
-      #   return @error err, req, res if err
-
-      #   req = @rebuildRequest req, pathname, query
-      #   @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
-      #     return @error err, req, res if err
-      #     return proxy.proxyRequest req, res, @getHttpProxyOptions( req.api )
+    @server = httpProxy.createServer mw..., ( req, res, proxy ) =>
+      return proxy.proxyRequest req, res, @getHttpProxyOptions( req )
 
     @server.proxy.on "middlewareError", @error
-
     @server.proxy.on "proxyError", @handleProxyError
     @server.listen @options.port, cb
 
