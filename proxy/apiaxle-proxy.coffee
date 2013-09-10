@@ -238,7 +238,7 @@ class exports.ApiaxleProxy extends AxleApp
     return req
 
   applyLimits: ( key, cb ) ->
-    @model( "apilimits" ).apiHit key.id, key.qps, key.qpd, cb
+    @model( "apilimits" ).apiHit key.id, key.data.qps, key.data.qpd, cb
 
   close: ( cb ) -> @server.close()
 
