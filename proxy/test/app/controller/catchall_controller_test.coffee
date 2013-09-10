@@ -395,23 +395,31 @@ class exports.CatchallTest extends ApiaxleTest
             done 5
 
   "test DELETE": ( done ) ->
-    @stubDns { "facebook.api.localhost": "127.0.0.1" }
+    fixture =
+      api:
+        facebook:
+          endPoint: "example.blah"
+      key:
+        phil:
+          forApis: [ "facebook" ]
 
-    options =
-      path: "/"
-      host: "facebook.api.localhost"
+    @fixtures.create fixture, ( err, [ api, key ] ) =>
+      @stubDns { "facebook.api.localhost": "127.0.0.1" }
 
-    # mock out the http call
-    scope = nock( "http://graph.facebook.com" )
-      .delete( "/bastard/1234/hello/" )
-      .once()
-      .reply( 200, "{}", { "Content-Type": "application/json" } )
+      options =
+        path: "/?api_key=phil"
+        host: "facebook.api.localhost"
 
-    @DELETE options, ( err, response ) =>
-      @ok not err
-      @equal options.method, "DELETE"
+      scope = nock( "http://example.blah" )
+        .delete( "/" )
+        .once()
+        .reply( 200, "{}", { "Content-Type": "application/json" } )
 
-      done 2
+      @DELETE options, ( err, response ) =>
+        @ok not err
+        @ok scope.isDone()
+
+        done 2
 
   "test XML error": ( done ) ->
     apiOptions =
