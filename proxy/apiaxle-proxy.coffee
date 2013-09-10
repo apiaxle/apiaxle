@@ -21,6 +21,8 @@ cpus = require("os").cpus()
   ConnectionError,
   DNSError } = require "./lib/error"
 
+{ PathGlobs } = require "./lib/path_globs"
+
 class exports.ApiaxleProxy extends AxleApp
   @plugins = {}
 
@@ -35,6 +37,7 @@ class exports.ApiaxleProxy extends AxleApp
   constructor: ( options ) ->
     @endpoint_caches = {}
     @setOptions options
+    @path_globs = new PathGlobs()
 
   getApiName: ( req, res, next ) =>
     if parts = /^(.+?)\.api\./.exec req.headers.host
@@ -208,27 +211,36 @@ class exports.ApiaxleProxy extends AxleApp
 
   close: ( cb ) -> @server.close()
 
-  logCapturedPathsMaybe: ( req, pathname, query, timing, cb ) ->
+  logCapturedPathsMaybe: ( req, timing, cb ) ->
+    { pathname, query } = req.parsed_url
+
     # only if we have some paths
-    return cb null unless api.data.hasCapturePaths
+    return cb null unless req.api.data.hasCapturePaths
 
     # this combines timers and counters
     countersModel = @model "capturepaths"
 
     # fetch the paths we're looking to capture
-    api.getCapturePaths ( err, capture_paths ) =>
+    req.api.getCapturePaths ( err, capture_paths ) =>
       return next err if err
 
       # finally, capture them. Timers and counters.
       matches = @path_globs.matchPathDefinitions pathname, query, capture_paths
 
-      args = [ req.api.id, req.key.id, req.keyrings ]
-
+      args = [ req.api.id, req.key.id, req.keyring_names ]
       return countersModel.log args..., matches, timing, cb
 
   parseUrl: ( req, res, next ) =>
     req.parsed_url = urllib.parse req.url, true
     next();
+
+  setTiming: ( name ) ->
+    return ( req, res, next ) ->
+      now = Date.now()
+
+      req.timing ||= { first: now }
+      req.timing[name] = now
+      next()
 
   run: ( cb ) ->
     # takes the request, a name and a cb. Used to make a suitable
@@ -239,27 +251,38 @@ class exports.ApiaxleProxy extends AxleApp
         return cb null, ( req[name] = result )
 
     mw = [
+      @setTiming( "start" ),
+
       # puts the query params on req
       @parseUrl,
+      @setTiming( "url-parsed" ),
 
       # handle getting the API. If the api is invalid an error will be
       # thrown.
       @getApiName,
       @getApi,
+      @setTiming( "api-fetched" ),
 
       # get the valid key and keyrings. If the key is invalid an error
       # will be thrown.
       @getKeyName,
       @getKey,
+      @setTiming( "key-fetched" ),
+
       @authenticateWithKey,
+      @setTiming( "key-authenticated" ),
+
       @getKeyringNames,
+      @setTiming( "keyrings-fetched" ),
 
       # make sure the key still has the right to use the api (that
       # limits/quotas haven't been met yet)
       @applyLimits,
+      @setTiming( "limits-applied" ),
 
       # we might not want to pass through the key/sig query parameters
       @removeInvalidQueryParams
+      @setTiming( "query-modified" ),
     ]
 
     @server = httpProxy.createServer mw..., ( req, res, proxy ) =>
@@ -267,22 +290,24 @@ class exports.ApiaxleProxy extends AxleApp
 
     @server.proxy.on "middlewareError", @error
     @server.proxy.on "proxyError", @handleProxyError
+    @server.proxy.on "end", ( req, res, something ) =>
+      @logCapturedPathsMaybe req, ( Date.now() - req.timing.first ), ( err ) =>
+        @logger.warn err if err
+
     @server.listen @options.port, cb
 
   handleProxyError: ( err, req, res ) =>
     statsModel = @model "stats"
 
-    # handle connection reset specially for now. We do want to report
-    # it (can we?!), but don't want to log it
-    error = new ConnectionError "Connection was reset by client"
-    return @error error, req, res
+    # handle connection reset specially for now
+    return res.end() if err.code is "ECONNRESET"
 
     # if we know how to handle an error then we also log it
     if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
       new_err = err_func()
 
       return statsModel.hit req.api.id, req.key.id, req.keyring_names, "error", new_err.name, ( err ) =>
-        return @error new_error, req, res, req.api
+        return @error new_err, req, res
 
     # if we're here its a new kind of error, don't want to call
     # statsModel.hit without knowing what it is for now

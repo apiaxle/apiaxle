@@ -161,7 +161,7 @@ class exports.AxleApp extends Application
 
   # because the proxy doesn't use express we can't use nice things
   # like res.json here.
-  error: ( err, res, req ) ->
+  error: ( err, req, res ) ->
     output =
       error:
         type: err.name
