@@ -86,8 +86,8 @@ class exports.CatchallTest extends ApiaxleTest
       @ok not err
 
       # mock out the http call
-      nock( api.data.endPoint )
-        .get()
+      scope = nock( "http://#{ api.data.endPoint }" )
+        .get( "/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json" )
         .once()
         .reply( 200, "{}" )
 
@@ -97,6 +97,7 @@ class exports.CatchallTest extends ApiaxleTest
 
       @stubDns { "programmes.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
+        @ok scope.isDone()
         @ok not err
 
         done 3
