@@ -45,9 +45,6 @@ class exports.ApiaxleProxy extends AxleApp
 
     return cb new ApiUnknown "No api specified (via subdomain)"
 
-  error: ( err, req, res ) ->
-    @rawError err, res, req.api
-
   getKeyringNames: ( req, cb ) ->
     req.key.supportedKeyrings cb
 
@@ -268,42 +265,49 @@ class exports.ApiaxleProxy extends AxleApp
         return cb @error( err, req, res ) if err
         return cb null, ( req[name] = result )
 
-    @server = httpProxy.createServer ( req, res, proxy ) =>
-      # parse the url to get the keys
-      { query, pathname } = urllib.parse req.url, true
+    mw = ( res, req, next ) ->
+      return next new Error "jhi"
 
-      queue = []
+    @server = httpProxy.createServer mw, ( req, res, proxy ) =>
+      proxy.proxyRequest req, res, { port: 80, host: "localhost" }
 
-      # api details
-      queue.push ( cb ) => @getApiName req, assReq( req, res, "api_name", cb )
-      queue.push ( cb ) => @getApi req.api_name, assReq( req, res, "api", cb )
+      # # parse the url to get the keys
+      # { query, pathname } = urllib.parse req.url, true
 
-      # key details
-      queue.push ( cb ) => @getKeyName req, query, assReq( req, res, "key_name", cb )
-      queue.push ( cb ) => @getKey req.key_name, assReq( req, res, "key", cb )
-      queue.push ( cb ) => @authenticateWithKey req.key, req.api, query, cb
+      # queue = []
 
-      # we don't need to resolve the keyrings to their full
-      # objects at the moment.
-      queue.push ( cb ) => @getKeyringNames req, assReq( req, res, "keyring_names", cb )
+      # # api details
+      # queue.push ( cb ) => @getApiName req, assReq( req, res, "api_name", cb )
+      # queue.push ( cb ) => @getApi req.api_name, assReq( req, res, "api", cb )
 
-      # deal with qps, qpd limitations
-      queue.push ( cb ) =>
-        @applyLimits req.key, ( err, [ newQps, newQpd ] ) ->
-          return cb err if err
+      # # key details
+      # queue.push ( cb ) => @getKeyName req, query, assReq( req, res, "key_name", cb )
+      # queue.push ( cb ) => @getKey req.key_name, assReq( req, res, "key", cb )
+      # queue.push ( cb ) => @authenticateWithKey req.key, req.api, query, cb
 
-          # set the helper headers ready to pass though
-          res.setHeader "X-ApiaxleProxy-Qps-Left", newQps
-          res.setHeader "X-ApiaxleProxy-Qpd-Left", newQpd
-          return cb null
+      # # we don't need to resolve the keyrings to their full
+      # # objects at the moment.
+      # queue.push ( cb ) => @getKeyringNames req, assReq( req, res, "keyring_names", cb )
 
-      async.series queue, ( err ) =>
-        return @error err, req, res if err
+      # # deal with qps, qpd limitations
+      # queue.push ( cb ) =>
+      #   @applyLimits req.key, ( err, [ newQps, newQpd ] ) ->
+      #     return cb err if err
 
-        req = @rebuildRequest req, pathname, query
-        @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
-          return @error err, req, res if err
-          return proxy.proxyRequest req, res, @getHttpProxyOptions( req.api )
+      #     # set the helper headers ready to pass though
+      #     res.setHeader "X-ApiaxleProxy-Qps-Left", newQps
+      #     res.setHeader "X-ApiaxleProxy-Qpd-Left", newQpd
+      #     return cb null
+
+      # async.series queue, ( err ) =>
+      #   return @error err, req, res if err
+
+      #   req = @rebuildRequest req, pathname, query
+      #   @_cacheTtl req, ( err, mustRevalidate, cacheTtl ) =>
+      #     return @error err, req, res if err
+      #     return proxy.proxyRequest req, res, @getHttpProxyOptions( req.api )
+
+    @server.proxy.on "middlewareError", @error
 
     @server.proxy.on "proxyError", @handleProxyError
     @server.listen @options.port, cb

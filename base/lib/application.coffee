@@ -161,7 +161,7 @@ class exports.AxleApp extends Application
 
   # because the proxy doesn't use express we can't use nice things
   # like res.json here.
-  rawError: ( err, res, api ) ->
+  error: ( err, res, req ) ->
     output =
       error:
         type: err.name
@@ -175,7 +175,7 @@ class exports.AxleApp extends Application
 
     status = err.constructor.status or 400
 
-    if api?.data.apiFormat isnt "xml"
+    if req.api?.data.apiFormat isnt "xml"
       meta =
         version: 1
         status_code: status
@@ -192,4 +192,4 @@ class exports.AxleApp extends Application
 
   # this will come from an express app
   onError: ( err, req, res, next ) ->
-    @rawError err, res, req.api
+    @error err, res, req
