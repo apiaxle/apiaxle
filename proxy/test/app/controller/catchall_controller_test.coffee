@@ -115,6 +115,8 @@ class exports.CatchallTest extends ApiaxleTest
           endPoint: "example.com"
       key:
         phil:
+          qps: 20
+          qpd: 30
           forApis: [ "programmes", "facebook", "twitter" ]
 
     expects =
@@ -149,7 +151,9 @@ class exports.CatchallTest extends ApiaxleTest
               .reply( 200, "{}" )
 
             @GET requestOptions, ( err, res ) =>
-              @ok scope.isDone()
+              @ok scope.isDone(),
+                "Nocks for #{ details.expected_path } not exhausted."
+
               @ok not err
               cb()
 
