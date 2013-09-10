@@ -4,11 +4,8 @@
 # Copyright 2011-2013 Philip Jackson.
 
 _ = require "lodash"
-fs = require "fs"
 urllib = require "url"
-redis = require "redis"
 async = require "async"
-http = require "http"
 httpProxy = require "http-proxy"
 
 cluster = require "cluster"
