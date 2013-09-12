@@ -27,7 +27,7 @@
     "hiredis": "~0.1.15",
     "redis": "git+https://github.com/DocuSignDev/node_redis.git",
     "optimist": "~0.5.2",
-    "http-proxy": "~0.10.3"
+    "http-proxy": "git+https://github.com/apiaxle/node-http-proxy.git"
   },
   "devDependencies": {
     "muffin": "~0",
