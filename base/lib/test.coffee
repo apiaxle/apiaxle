@@ -130,8 +130,8 @@ class exports.AppTest extends TwerpTest
     all = []
 
     all.push ( cb ) => @app.configure cb
-    all.push ( cb ) => @app.loadAndInstansiatePlugins cb
     all.push ( cb ) => @app.redisConnect cb
+    all.push ( cb ) => @app.loadAndInstansiatePlugins cb
     all.push ( cb ) => @app.initErrorHandler cb
 
     async.series all, ( err ) ->

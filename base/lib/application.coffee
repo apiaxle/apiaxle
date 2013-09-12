@@ -59,8 +59,8 @@ class exports.AxleApp extends Application
     all = []
 
     all.push ( cb ) => @configure cb
-    all.push ( cb ) => @loadAndInstansiatePlugins cb
     all.push ( cb ) => @redisConnect cb
+    all.push ( cb ) => @loadAndInstansiatePlugins cb
 
     async.series all, ( err ) =>
       return cb err if err
