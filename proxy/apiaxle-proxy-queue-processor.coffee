@@ -20,9 +20,9 @@ class ApiaxleQueueProcessor extends AxleApp
   run: ->
     queue = @model( "queue" )
 
-    queue.on "message", ( chan, message ) ->
-      { api, key, keyrings, timing } = JSON.parse( message )
-      # console.log( api )
+    queue.ee.on "hit", ( chan, message ) ->
+      { api_name, key_name, keyring_names, timing } = JSON.parse( message )
+      console.log( api_name )
 
     queue.subscribe "hit"
 
