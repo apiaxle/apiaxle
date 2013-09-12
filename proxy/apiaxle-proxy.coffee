@@ -36,12 +36,20 @@ class exports.ApiaxleProxy extends AxleApp
   # express in this instance.
   constructor: ( options ) ->
     @endpoint_caches = {}
+    @hostname_caches = {}
+
     @setOptions options
     @path_globs = new PathGlobs()
 
   getApiName: ( req, res, next ) =>
-    if parts = /^(.+?)\.api\./.exec req.headers.host
-      req.api_name = parts[1]
+    { host } = req.headers
+
+    # we have cache hit
+    if req.api_name = @hostname_caches[host]
+      return next()
+
+    if parts = /^(.+?)\.api\./.exec host
+      @hostname_caches[host] = req.api_name = parts[1]
       return next()
 
     return next new ApiUnknown "No api specified (via subdomain)"
@@ -239,7 +247,7 @@ class exports.ApiaxleProxy extends AxleApp
       now = Date.now()
 
       req.timing ||= { first: now }
-      req.timing[name] = now
+      req.timing[name] = now - req.timing.first
       next()
 
   run: ( cb ) ->
@@ -282,17 +290,23 @@ class exports.ApiaxleProxy extends AxleApp
 
       # we might not want to pass through the key/sig query parameters
       @removeInvalidQueryParams
-      @setTiming( "query-modified" ),
     ]
 
     @server = httpProxy.createServer mw..., ( req, res, proxy ) =>
+      @setTiming( "start-request" )( req, res, -> )
       return proxy.proxyRequest req, res, @getHttpProxyOptions( req )
 
     @server.proxy.on "middlewareError", @error
     @server.proxy.on "proxyError", @handleProxyError
     @server.proxy.on "end", ( req, res, something ) =>
-      @logCapturedPathsMaybe req, ( Date.now() - req.timing.first ), ( err ) =>
-        @logger.warn err if err
+      @setTiming( "end-request" )( req, res, -> )
+
+      # now append what we've done to the queue
+      @model( "queue" ).publish "hit", JSON.stringify
+        api_name: req.api_name
+        key_name: req.key_name
+        keyring_names: req.keyring_names
+        timing: req.timing
 
     @server.listen @options.port, cb
 
