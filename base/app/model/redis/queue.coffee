@@ -21,12 +21,11 @@ class exports.Queue extends Redis
     app.redisClient.on "message", ( chan, message ) =>
       parsed_chan = @_getHitName( chan )
       switch parsed_chan
-        when "hit" then @ee.emit( "hit", chan, message )
+        when "hit" then @ee.emit "hit", chan, message
 
   _getHitName: ( chan ) ->
-    if @channame_cache[chan]
-      @channame_cache[chan]
-    else
-      parts = /:([^:]+)$/.exec chan
-      @channame_cache[chan] = parts[1]
+    return @channame_cache[chan] if @channame_cache[chan]
+
+    parts = /:([^:]+)$/.exec chan
+    @channame_cache[chan] = parts[1]
 
