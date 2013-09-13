@@ -18,6 +18,8 @@ class exports.Queue extends Redis
     @ee = new EventEmitter()
     @channame_cache = {}
 
+    # get a message, parse the chan (it's come from our redis key
+    # manipulation stuff)
     app.redisClient.on "message", ( chan, message ) =>
       parsed_chan = @_getHitName( chan )
       switch parsed_chan
@@ -26,6 +28,7 @@ class exports.Queue extends Redis
   _getHitName: ( chan ) ->
     return @channame_cache[chan] if @channame_cache[chan]
 
+    # keep hold of the result for use later, running that re is
+    # expensive
     parts = /:([^:]+)$/.exec chan
     @channame_cache[chan] = parts[1]
-
