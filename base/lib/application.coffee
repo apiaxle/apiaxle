@@ -59,33 +59,33 @@ class exports.AxleApp extends Application
     all = []
 
     all.push ( cb ) => @configure cb
-    all.push ( cb ) => @redisConnect cb
+    all.push ( cb ) => @redisConnect "redisClient", cb
     all.push ( cb ) => @loadAndInstansiatePlugins cb
 
     async.series all, ( err ) =>
       return cb err if err
       return cb null, ( ) => @redisClient.quit()
 
-  redisConnect: ( cb ) =>
+  redisConnect: ( client_name, cb ) =>
     # grab the redis config
     { port, host, sentinel } = @config.redis
 
     # are we up for some sentinel fun?
-    @redisClient = null
+    this[client_name] = null
     if sentinel
-      @redisClient = RedisSentinel.createClient
+      this[client_name] = RedisSentinel.createClient
         port: port
         host: host
         logger: { log: -> }
 
-      @redisClient.on "failover-start", => @logger.warn "Failover starts."
-      @redisClient.on "failover-end", => @logger.warn "Failover ends."
-      @redisClient.on "disconnected", => @logger.warn "Old master disconnected."
+      this[client_name].on "failover-start", => @logger.warn "Failover starts."
+      this[client_name].on "failover-end", => @logger.warn "Failover ends."
+      this[client_name].on "disconnected", => @logger.warn "Old master disconnected."
     else
-      @redisClient = Redis.createClient port, host
+      this[client_name] = Redis.createClient port, host
 
-    @redisClient.on "error", ( err ) => @logger.warn "#{ err }"
-    @redisClient.on "ready", cb
+    this[client_name].on "error", ( err ) => @logger.warn "#{ err }"
+    this[client_name].on "ready", cb
 
   loadAndInstansiatePlugins: ( cb ) ->
     @plugins = {}

@@ -59,7 +59,7 @@ if not module.parent
     all = []
 
     all.push ( cb ) -> api.configure cb
-    all.push ( cb ) -> api.redisConnect cb
+    all.push ( cb ) -> api.redisConnect "redisClient", cb
     all.push ( cb ) -> api.loadAndInstansiatePlugins cb
     all.push ( cb ) -> api.run cb
 

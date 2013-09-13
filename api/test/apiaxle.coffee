@@ -15,7 +15,7 @@ class exports.ApiaxleTest extends AppTest
     all = []
 
     all.push ( cb ) => @app.configure cb
-    all.push ( cb ) => @app.redisConnect cb
+    all.push ( cb ) => @app.redisConnect "redisClient", cb
     all.push ( cb ) => @app.loadAndInstansiatePlugins cb
     all.push ( cb ) => @app.initFourOhFour cb
     all.push ( cb ) => @app.initErrorHandler cb
