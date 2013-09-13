@@ -138,19 +138,22 @@ class exports.ApiaxleProxy extends AxleApp
   authenticateWithKey: ( req, res, next ) =>
     all = []
 
+    # outright disabled
+    if req.key.isDisabled()
+      return next new KeyDisabled "This API key has been disabled."
+
+    if req.key.data.sharedSecret
+      if not providedToken = ( query.req.apiaxle_sig or query.req.api_sig )
+        return next new KeyError "A signature is required for this API."
+
     # check the req.key is for this req.api
     req.api.supportsKey req.key.id, ( err, supported ) =>
       return next err if err
 
+      # this API doesn't know about the key
       if not supported
         return next new KeyError "'#{ req.key.id }' is not a valid req.key for '#{ req.req.api.id }'"
 
-      if req.key.isDisabled()
-        return next new KeyDisabled "This API key has been disabled."
-
-      if req.key.data.sharedSecret
-        if not providedToken = ( query.req.apiaxle_sig or query.req.api_sig )
-          return next new KeyError "A signature is required for this API."
 
         all.push ( cb ) =>
           @validateToken providedToken, req.key, req.key.data.sharedSecret, cb
