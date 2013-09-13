@@ -219,25 +219,6 @@ class exports.ApiaxleProxy extends AxleApp
 
   close: ( cb ) -> @server.close()
 
-  logCapturedPathsMaybe: ( req, timing, cb ) ->
-    { pathname, query } = req.parsed_url
-
-    # only if we have some paths
-    return cb null unless req.api.data.hasCapturePaths
-
-    # this combines timers and counters
-    countersModel = @model "capturepaths"
-
-    # fetch the paths we're looking to capture
-    req.api.getCapturePaths ( err, capture_paths ) =>
-      return next err if err
-
-      # finally, capture them. Timers and counters.
-      matches = @path_globs.matchPathDefinitions pathname, query, capture_paths
-
-      args = [ req.api.id, req.key.id, req.keyring_names ]
-      return countersModel.log args..., matches, timing, cb
-
   parseUrl: ( req, res, next ) =>
     req.parsed_url = urllib.parse req.url, true
     next();
@@ -301,12 +282,15 @@ class exports.ApiaxleProxy extends AxleApp
     @server.proxy.on "end", ( req, res, something ) =>
       @setTiming( "end-request" )( req, res, -> )
 
-      # now append what we've done to the queue
+      # now append what we've done to the queue, shame about the
+      # JSON.stringify here (perf.-wise) but I don't want to invent
+      # some awful protocol for the sake of 20 extra hits per second
       @model( "queue" ).publish "hit", JSON.stringify
         api_name: req.api_name
         key_name: req.key_name
         keyring_names: req.keyring_names
         timing: req.timing
+        parsed_url: req.parsed_url
 
     @server.listen @options.port, cb
 

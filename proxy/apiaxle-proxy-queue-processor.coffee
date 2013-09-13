@@ -1,7 +1,5 @@
 #!/usr/bin/env coffee
 
-#!/usr/bin/env coffee
-
 # This code is covered by the GPL version 3.
 # Copyright 2011-2013 Philip Jackson.
 
@@ -14,15 +12,24 @@ cluster = require "cluster"
 
 { AxleApp } = require "apiaxle-base"
 
-class ApiaxleQueueProcessor extends AxleApp
+class exports.ApiaxleQueueProcessor extends AxleApp
   @plugins = {}
+
+  processHit: ( options ) ->
+    { api_name,
+      key_name,
+      keyring_names,
+      timing,
+      parsed_url } = options
+
+  error: ( err ) ->
+    @logger.warn "#{ err.name } - #{ err.message }"
 
   run: ->
     queue = @model( "queue" )
 
-    queue.ee.on "hit", ( chan, message ) ->
-      { api_name, key_name, keyring_names, timing } = JSON.parse( message )
-      console.log( api_name )
+    queue.ee.on "hit", ( chan, message ) =>
+      @processHit JSON.parse( message )
 
     queue.subscribe "hit"
 
@@ -47,7 +54,7 @@ if not module.parent
     cluster.on "exit", ( worker, code, signal ) ->
       console.log( "Worker #{ worker.process.pid } died." )
   else
-    api = new ApiaxleQueueProcessor()
+    api = new exports.ApiaxleQueueProcessor()
 
     all = []
 
