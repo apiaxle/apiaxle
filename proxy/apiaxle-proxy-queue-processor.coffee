@@ -11,9 +11,14 @@ httpProxy = require "http-proxy"
 cluster = require "cluster"
 
 { AxleApp } = require "apiaxle-base"
+{ PathGlobs } = require "./lib/path_globs"
 
 class exports.ApiaxleQueueProcessor extends AxleApp
   @plugins = {}
+
+  constructor: ( app ) ->
+    super app
+    @path_globs = new PathGlobs()
 
   processHit: ( options ) ->
     { api_name,
@@ -22,7 +27,35 @@ class exports.ApiaxleQueueProcessor extends AxleApp
       timing,
       parsed_url } = options
 
-    console.log( api_name )
+    @model( "apifactory" ).find [ api_name ], ( err, results ) =>
+      return @error err if err
+
+      all = []
+
+      all.push ( cb ) =>
+        @logCapturedPathsMaybe results[api_name], key_name, keyring_names, parsed_url, 3, cb
+
+      async.series all, ( err, res ) =>
+        @error err if err
+
+  logCapturedPathsMaybe: ( api, key_name, keyring_names, parsed_url, timing, cb ) ->
+    { pathname, query } = parsed_url
+
+    # only if we have some paths
+    return cb null unless api.data.hasCapturePaths
+
+    # this combines timers and counters
+    countersModel = @model "capturepaths"
+
+    # fetch the paths we're looking to capture
+    api.getCapturePaths ( err, capture_paths ) =>
+      return next err if err
+
+      # finally, capture them. Timers and counters.
+      matches = @path_globs.matchPathDefinitions pathname, query, capture_paths
+
+      args = [ api.id, key_name, keyring_names ]
+      return countersModel.log args..., matches, timing, cb
 
   error: ( err, type="warn" ) ->
     @logger[type] "#{ err.name } - #{ err.message }"
