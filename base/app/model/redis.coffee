@@ -318,7 +318,6 @@ redisCommands = [
   "setex",
   "smembers",
   "srem",
-  "subscribe",
   "ttl",
   "zadd",
   "zcard",
@@ -347,6 +346,14 @@ for command in redisCommands
 
       redisdebug "Redis '#{ command }' on '#{ key }'"
       @app.redisClient[ command ]( full_key, args... )
+
+# subscribe is special in that we can only have one client
+Redis::subscribe = ( key, args... ) ->
+  if not @app.redisSubscripeClient?
+    throw Error "No redisSubscripeClient on app available."
+
+  full_key = @getKey key
+  @app.redisSubscripeClient.subscribe( full_key, args... )
 
 exports.Redis = Redis
 exports.Model = Model
