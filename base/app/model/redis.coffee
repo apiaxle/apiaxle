@@ -349,11 +349,11 @@ for command in redisCommands
 
 # subscribe is special in that we can only have one client
 Redis::subscribe = ( key, args... ) ->
-  if not @app.redisSubscripeClient?
-    throw Error "No redisSubscripeClient on app available."
+  if not @app.redisSubscribeClient?
+    throw Error "No redisSubscribeClient on app available."
 
   full_key = @getKey key
-  @app.redisSubscripeClient.subscribe( full_key, args... )
+  @app.redisSubscribeClient.subscribe( full_key, args... )
 
 exports.Redis = Redis
 exports.Model = Model

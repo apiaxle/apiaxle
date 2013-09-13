@@ -18,9 +18,10 @@ class exports.Queue extends Redis
     @ee = new EventEmitter()
     @channame_cache = {}
 
+  listen: ->
     # get a message, parse the chan (it's come from our redis key
     # manipulation stuff)
-    app.redisClient.on "message", ( chan, message ) =>
+    @app.redisSubscribeClient.on "message", ( chan, message ) =>
       parsed_chan = @_getHitName( chan )
       switch parsed_chan
         when "hit" then @ee.emit "hit", chan, message

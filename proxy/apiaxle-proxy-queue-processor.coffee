@@ -22,8 +22,10 @@ class exports.ApiaxleQueueProcessor extends AxleApp
       timing,
       parsed_url } = options
 
-  error: ( err ) ->
-    @logger.warn "#{ err.name } - #{ err.message }"
+    console.log( api_name )
+
+  error: ( err, type="warn" ) ->
+    @logger[type] "#{ err.name } - #{ err.message }"
 
   run: ->
     queue = @model( "queue" )
@@ -31,7 +33,12 @@ class exports.ApiaxleQueueProcessor extends AxleApp
     queue.ee.on "hit", ( chan, message ) =>
       @processHit JSON.parse( message )
 
-    queue.subscribe "hit"
+    try
+      queue.listen()
+      queue.subscribe "hit"
+    catch err
+      @error err, "error"
+      process.exit 1
 
 if not module.parent
   optimism = require( "optimist" ).options
@@ -60,6 +67,7 @@ if not module.parent
 
     all.push ( cb ) -> api.configure cb
     all.push ( cb ) -> api.redisConnect "redisClient", cb
+    all.push ( cb ) -> api.redisConnect "redisSubscribeClient", cb
     all.push ( cb ) -> api.loadAndInstansiatePlugins cb
     all.push ( cb ) -> api.run cb
 
