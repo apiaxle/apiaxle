@@ -282,7 +282,7 @@ class exports.ApiaxleProxy extends AxleApp
 
     @server.proxy.on "middlewareError", @error
     @server.proxy.on "proxyError", @handleProxyError
-    @server.proxy.on "end", ( req, res, something ) =>
+    @server.proxy.on "end", ( req, res, proxyRes ) =>
       @setTiming( "end-request" )( req, res, -> )
 
       # now append what we've done to the queue, shame about the
@@ -294,8 +294,26 @@ class exports.ApiaxleProxy extends AxleApp
         keyring_names: req.keyring_names
         timing: req.timing
         parsed_url: req.parsed_url
+        status: proxyRes?.statusCode
 
     @server.listen @options.port, cb
+
+  error: ( err, req, res ) =>
+    @setTiming( "end-request" )( req, res, -> )
+
+    req.error = err
+
+    # no status and a new error field
+    @model( "queue" ).publish "hit", JSON.stringify
+      api_name: req.api_name
+      key_name: req.key_name
+      keyring_names: req.keyring_names
+      timing: req.timing
+      parsed_url: req.parsed_url
+      error: req.error
+
+    # now for the actual response
+    super err, req, res
 
   handleProxyError: ( err, req, res ) =>
     statsModel = @model "stats"
@@ -304,16 +322,13 @@ class exports.ApiaxleProxy extends AxleApp
     return res.end() if err.code is "ECONNRESET"
 
     # if we know how to handle an error then we also log it
-    if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
-      new_err = err_func()
-
-      return statsModel.hit req.api.id, req.key.id, req.keyring_names, "error", new_err.name, ( err ) =>
-        return @error new_err, req, res
-
-    # if we're here its a new kind of error, don't want to call
-    # statsModel.hit without knowing what it is for now
-    @logger.warn "Error won't be statistically logged: '#{ err.code }, #{ err.message }'"
-    error = new Error "Unrecognised error: '#{ err.message }'."
+    error = if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
+      err_func()
+    else
+      # if we're here its a new kind of error, don't want to call
+      # statsModel.hit without knowing what it is for now
+      @logger.warn "Error won't be statistically logged: '#{ err.code }, #{ err.message }'"
+      new Error "Unrecognised error: '#{ err.message }'."
 
     return @error error, req, res
 

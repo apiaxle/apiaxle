@@ -21,19 +21,27 @@ class exports.ApiaxleQueueProcessor extends AxleApp
     @path_globs = new PathGlobs()
 
   processHit: ( options ) ->
-    { api_name,
+    { error,
+      status_code,
+      api_name,
       key_name,
       keyring_names,
       timing,
       parsed_url } = options
+
+    # nothing we can really do here other than log
+    if error and not api_name
+      return @error "#{ error.code } - #{ error.message }"
 
     @model( "apifactory" ).find [ api_name ], ( err, results ) =>
       return @error err if err
 
       all = []
 
-      all.push ( cb ) =>
-        @logCapturedPathsMaybe results[api_name], key_name, keyring_names, parsed_url, 3, cb
+      # capture paths
+      if not error
+        all.push ( cb ) =>
+          @logCapturedPathsMaybe results[api_name], key_name, keyring_names, parsed_url, 3, cb
 
       async.series all, ( err, res ) =>
         @error err if err
