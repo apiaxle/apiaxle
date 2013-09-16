@@ -161,7 +161,7 @@ class exports.CatchallTest extends ApiaxleTest
       async.series all, ( err ) =>
         @ok not err
 
-        done 7
+        done 8
 
   "test POST,GET,PUT and DELETE with no subdomain": ( done ) ->
     all = []
@@ -351,7 +351,7 @@ class exports.CatchallTest extends ApiaxleTest
             @ok not err
             @equal json.one, 1
 
-            done 5
+            done 6
 
   "test GET with regex key": ( done ) ->
     apiOptions =
@@ -392,7 +392,7 @@ class exports.CatchallTest extends ApiaxleTest
             @ok not err
             @equal json.one, 1
 
-            done 5
+            done 6
 
   "test DELETE": ( done ) ->
     fixture =
