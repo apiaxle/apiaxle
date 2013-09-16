@@ -7,6 +7,7 @@ _ = require "lodash"
 urllib = require "url"
 async = require "async"
 httpProxy = require "http-proxy"
+crypto = require "crypto"
 
 cluster = require "cluster"
 cpus = require("os").cpus()
@@ -136,14 +137,14 @@ class exports.ApiaxleProxy extends AxleApp
     return null
 
   authenticateWithKey: ( req, res, next ) =>
-    all = []
-
     # outright disabled
     if req.key.isDisabled()
       return next new KeyDisabled "This API key has been disabled."
 
     if req.key.data.sharedSecret
-      if not providedToken = ( query.req.apiaxle_sig or query.req.api_sig )
+      { apiaxle_sig, api_sig } = req.parsed_url.query
+
+      if not providedToken = ( apiaxle_sig or api_sig )
         return next new KeyError "A signature is required for this API."
 
     # check the req.key is for this req.api
@@ -154,11 +155,7 @@ class exports.ApiaxleProxy extends AxleApp
       if not supported
         return next new KeyError "'#{ req.key.id }' is not a valid req.key for '#{ req.req.api.id }'"
 
-
-        all.push ( cb ) =>
-          @validateToken providedToken, req.key, req.key.data.sharedSecret, cb
-
-      async.series all, next
+      return @validateToken providedToken, req.key_name, req.key.data.sharedSecret, next
 
   getHttpProxyOptions: ( req ) ->
     ep = req.api.data.endPoint

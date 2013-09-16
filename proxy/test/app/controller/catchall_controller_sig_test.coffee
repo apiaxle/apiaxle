@@ -2,6 +2,7 @@
 # Copyright 2011-2013 Philip Jackson.
 crypto = require "crypto"
 async = require "async"
+nock = require "nock"
 
 { ApiaxleTest } = require "../../apiaxle"
 
@@ -15,7 +16,7 @@ class exports.CatchallSigTest extends ApiaxleTest
         facebook:
           apiFormat: "json"
           globalCache: 30
-          endPoint: "example.com"
+          endPoint: "doesntresolve.blah"
       key:
         1234:
           sharedSecret: "bob-the-builder"
@@ -33,8 +34,6 @@ class exports.CatchallSigTest extends ApiaxleTest
     return hmac.digest "hex"
 
   "test #validateToken": ( done ) ->
-    controller = @app.controller "getcatchall"
-
     # pause time and get the current epoch
     clock = @getClock()
     now = Math.floor( Date.now() / 1000 )
@@ -48,7 +47,7 @@ class exports.CatchallSigTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          controller.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
+          @app.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
             @ok not err
             @ok token
 
@@ -61,7 +60,7 @@ class exports.CatchallSigTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          controller.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
+          @app.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
             @ok err,
               "There should be an error for a token that's #{ validSeconds } out."
 
@@ -76,9 +75,6 @@ class exports.CatchallSigTest extends ApiaxleTest
       done 39
 
   "test signatures and expiry times": ( done ) ->
-    stub = @stubCatchallSimpleGet 200, null,
-      "Content-Type": "application/json"
-
     @stubDns { "facebook.api.localhost": "127.0.0.1" }
 
     tests = []
@@ -124,8 +120,15 @@ class exports.CatchallSigTest extends ApiaxleTest
         path: "/?api_key=1234&api_sig=#{validSig}"
         host: "facebook.api.localhost"
 
+      # mock out the http call just incase
+      scope = nock( "http://doesntresolve.blah" )
+        .get( "/" )
+        .once()
+        .reply( 200, JSON.stringify( { url: "HI" }) )
+
       @GET httpOptions, ( err, response ) =>
         @ok not err
+        @ok scope.isDone()
 
         response.parseJson ( err, json ) =>
           @ok not err
@@ -138,4 +141,4 @@ class exports.CatchallSigTest extends ApiaxleTest
     async.series tests, ( err ) =>
       @ok not err
 
-      done 16
+      done 17
