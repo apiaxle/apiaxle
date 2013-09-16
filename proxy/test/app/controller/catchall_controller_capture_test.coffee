@@ -8,6 +8,7 @@ nock = require "nock"
 
 { ApiaxleTest } = require "../../apiaxle"
 { RedisMulti } = require "../../../../base/app/model/redis"
+{ ApiaxleQueueProcessor } = require "../../../apiaxle-proxy-queue-processor"
 
 class exports.CaptureTest extends ApiaxleTest
   @start_webserver = true
@@ -40,6 +41,16 @@ class exports.CaptureTest extends ApiaxleTest
 
       async.series all, done
 
+  "setup queue processor": ( done ) ->
+    # this is a really poor hack, work out how to get the queue
+    # processor running alongside the webserver somehow...
+    @queue_proc = new ApiaxleQueueProcessor()
+
+    @queue_proc.plugins = {}
+    @queue_proc.plugins.models = @app.plugins.models
+
+    done()
+
   "test timings/counters are captured": ( done ) ->
     dnsStub = @stubDns { "programmes.api.localhost": "127.0.0.1" }
 
@@ -52,20 +63,45 @@ class exports.CaptureTest extends ApiaxleTest
 
     fetch_args = [ [ "api", "programmes" ], @captures, "hour", now - 2000, null ]
 
+    model = @app.model "capturepaths"
+
+    # default options for @queue.processHit
+    default_queue_hit_options =
+      api_name: "programmes"
+      key_name: "phil"
+      keyring_names: []
+      timing:
+        "start-request": 6
+        "end-request": 10
+      parsed_url:
+        query: {}
+
+    scope1 = null
+    scope2 = null
+    scope3 = null
+
     # test that hitting root DOES log as a capture
     all.push ( cb ) =>
-      requestOptions =
-        path: "/programme/toystory?api_key=phil"
-        host: "programmes.api.localhost"
-
-      scope = nock( "http://bbc.co.uk" )
+      scope1 = nock( "http://bbc.co.uk" )
         .get( "/programme/toystory" )
         .once()
         .reply( 200, "{}" )
 
+      requestOptions =
+        path: "/programme/toystory?api_key=phil"
+        host: "programmes.api.localhost"
+
       @GET requestOptions, cb
 
-    model = @app.model "capturepaths"
+    # need to fake the pub/sub thing happening. See above about this
+    # being a bit of a hack...
+    all.push ( cb ) =>
+      opts = _.extend default_queue_hit_options,
+        parsed_url:
+          pathname: "/programme/toystory"
+
+      return @queue_proc.processHit opts, cb
+
     all.push ( cb ) =>
       # one set of timings
       model.getTimers fetch_args..., ( err, timings ) =>
@@ -73,7 +109,7 @@ class exports.CaptureTest extends ApiaxleTest
         @deepEqual timings,
           "/brand/*/programme/*": {}
           "/programme/*":
-            1376852400: [0, 0, 0] # 0 because we stubbed
+            1376852400: [4, 4, 4]
 
         return cb()
 
@@ -90,11 +126,24 @@ class exports.CaptureTest extends ApiaxleTest
 
     # another hit for the same capture path
     all.push ( cb ) =>
+      scope2 = nock( "http://bbc.co.uk" )
+        .get( "/programme/bobthebuilder" )
+        .once()
+        .reply( 200, "{}" )
+
       requestOptions =
         path: "/programme/bobthebuilder?api_key=phil"
         host: "programmes.api.localhost"
 
       @GET requestOptions, cb
+
+    # account for the new hit above
+    all.push ( cb ) =>
+      opts = _.extend default_queue_hit_options,
+        parsed_url:
+          pathname: "/programme/bobthebuilder"
+
+      return @queue_proc.processHit opts, cb
 
     # counters should be up by one
     all.push ( cb ) =>
@@ -110,11 +159,24 @@ class exports.CaptureTest extends ApiaxleTest
 
     # another hit for the same capture path
     all.push ( cb ) =>
+      scope3 = nock( "http://bbc.co.uk" )
+        .get( "/brand/bobthebuilder/programme/two" )
+        .once()
+        .reply( 200, "{}" )
+
       requestOptions =
         path: "/brand/bobthebuilder/programme/two?api_key=phil"
         host: "programmes.api.localhost"
 
       @GET requestOptions, cb
+
+    # account for the next hit
+    all.push ( cb ) =>
+      opts = _.extend default_queue_hit_options,
+        parsed_url:
+          pathname: "/brand/bobthebuilder/programme/two"
+
+      return @queue_proc.processHit opts, cb
 
     # counters should be up by one
     all.push ( cb ) =>
@@ -131,5 +193,8 @@ class exports.CaptureTest extends ApiaxleTest
 
     async.series all, ( err ) =>
       @ok not err
+      @ok scope1.isDone()
+      @ok scope2.isDone()
+      @ok scope3.isDone()
 
-      done 7
+      done 12

@@ -251,34 +251,38 @@ class exports.ApiaxleProxy extends AxleApp
         return cb null, ( req[name] = result )
 
     mw = [
-      @setTiming( "start" ),
-
       # puts the query params on req
+      @setTiming( "start-url-parsed" ),
       @parseUrl,
-      @setTiming( "url-parsed" ),
+      @setTiming( "end-url-parsed" ),
 
       # handle getting the API. If the api is invalid an error will be
       # thrown.
+      @setTiming( "start-api-fetched" ),
       @getApiName,
       @getApi,
-      @setTiming( "api-fetched" ),
+      @setTiming( "end-api-fetched" ),
 
       # get the valid key and keyrings. If the key is invalid an error
       # will be thrown.
+      @setTiming( "start-key-fetched" ),
       @getKeyName,
       @getKey,
-      @setTiming( "key-fetched" ),
+      @setTiming( "end-key-fetched" ),
 
+      @setTiming( "start-key-authenticated" ),
       @authenticateWithKey,
-      @setTiming( "key-authenticated" ),
+      @setTiming( "end-key-authenticated" ),
 
+      @setTiming( "start-keyrings-fetched" ),
       @getKeyringNames,
-      @setTiming( "keyrings-fetched" ),
+      @setTiming( "end-keyrings-fetched" ),
 
       # make sure the key still has the right to use the api (that
       # limits/quotas haven't been met yet)
+      @setTiming( "start-limits-applied" ),
       @applyLimits,
-      @setTiming( "limits-applied" ),
+      @setTiming( "end-limits-applied" ),
 
       # we might not want to pass through the key/sig query parameters
       @removeInvalidQueryParams

@@ -16,11 +16,11 @@ cluster = require "cluster"
 class exports.ApiaxleQueueProcessor extends AxleApp
   @plugins = {}
 
-  constructor: ( app ) ->
-    super app
+  constructor: ->
+    super
     @path_globs = new PathGlobs()
 
-  processHit: ( options ) ->
+  processHit: ( options, cb ) ->
     { error,
       status_code,
       api_name,
@@ -30,21 +30,25 @@ class exports.ApiaxleQueueProcessor extends AxleApp
       parsed_url } = options
 
     # nothing we can really do here other than log
-    if error and not api_name
-      return @error "#{ error.code } - #{ error.message }"
+    return cb error if error and not api_name
 
     @model( "apifactory" ).find [ api_name ], ( err, results ) =>
-      return @error err if err
+      return cb err if err
 
       all = []
 
       # capture paths
       if not error
         all.push ( cb ) =>
-          @logCapturedPathsMaybe results[api_name], key_name, keyring_names, parsed_url, 3, cb
+          time = ( timing["end-request"] - timing["start-request"] )
+          @logCapturedPathsMaybe results[api_name],
+                                 key_name,
+                                 keyring_names,
+                                 parsed_url,
+                                 time,
+                                 cb
 
-      async.series all, ( err, res ) =>
-        @error err if err
+      return async.series all, cb
 
   logCapturedPathsMaybe: ( api, key_name, keyring_names, parsed_url, timing, cb ) ->
     { pathname, query } = parsed_url
