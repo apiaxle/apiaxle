@@ -101,7 +101,7 @@ class exports.ApiaxleProxy extends AxleApp
       req.key = results[req.key_name]
       return next()
 
-  validateToken: ( providedToken, key, sharedSecret, cb ) ->
+  validateToken: ( providedToken, key_name, sharedSecret, cb ) ->
     now = Date.now() / 1000
 
     potentials = [
@@ -117,7 +117,7 @@ class exports.ApiaxleProxy extends AxleApp
 
       hmac = crypto.createHmac "sha1", sharedSecret
       hmac.update date
-      hmac.update key
+      hmac.update key_name
 
       processed = hmac.digest "hex"
 
@@ -137,25 +137,36 @@ class exports.ApiaxleProxy extends AxleApp
     return null
 
   authenticateWithKey: ( req, res, next ) =>
+    all = []
+
     # outright disabled
     if req.key.isDisabled()
       return next new KeyDisabled "This API key has been disabled."
 
+    # there's a shared secret, do the token thing
     if req.key.data.sharedSecret
       { apiaxle_sig, api_sig } = req.parsed_url.query
 
       if not providedToken = ( apiaxle_sig or api_sig )
         return next new KeyError "A signature is required for this API."
 
+      all.push ( cb ) =>
+        @validateToken providedToken, req.key_name, req.key.data.sharedSecret, cb
+
     # check the req.key is for this req.api
-    req.api.supportsKey req.key.id, ( err, supported ) =>
+    all.push ( cb ) ->
+      req.api.supportsKey req.key.id, ( err, supported ) =>
+        return cb err if err
+
+        # this API doesn't know about the key
+        if not supported
+          return cb new KeyError "'#{ req.key.id }' is not a valid req.key for '#{ req.req.api.id }'"
+
+        return cb()
+
+    return async.series all, ( err ) ->
       return next err if err
-
-      # this API doesn't know about the key
-      if not supported
-        return next new KeyError "'#{ req.key.id }' is not a valid req.key for '#{ req.req.api.id }'"
-
-      return @validateToken providedToken, req.key_name, req.key.data.sharedSecret, next
+      return next()
 
   getHttpProxyOptions: ( req ) ->
     ep = req.api.data.endPoint
