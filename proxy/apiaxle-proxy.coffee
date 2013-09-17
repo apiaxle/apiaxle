@@ -36,7 +36,6 @@ class exports.ApiaxleProxy extends AxleApp
   # we don't use the constructor in scarf because we don't want to use
   # express in this instance.
   constructor: ( options ) ->
-    @url_parse_cache = {}
     @hostname_caches = {}
 
     @setOptions options
@@ -231,10 +230,7 @@ class exports.ApiaxleProxy extends AxleApp
   close: ( cb ) -> @server.close()
 
   parseUrl: ( req, res, next ) =>
-    if not @url_parse_cache[req.url]
-      @url_parse_cache[req.url] = urllib.parse req.url, true
-
-    req.parsed_url = @url_parse_cache[req.url]
+    req.parsed_url = urllib.parse req.url, true
     next();
 
   setTiming: ( name ) ->
