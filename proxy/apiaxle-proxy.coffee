@@ -36,7 +36,7 @@ class exports.ApiaxleProxy extends AxleApp
   # we don't use the constructor in scarf because we don't want to use
   # express in this instance.
   constructor: ( options ) ->
-    @endpoint_caches = {}
+    @url_parse_cache = {}
     @hostname_caches = {}
 
     @setOptions options
@@ -231,7 +231,10 @@ class exports.ApiaxleProxy extends AxleApp
   close: ( cb ) -> @server.close()
 
   parseUrl: ( req, res, next ) =>
-    req.parsed_url = urllib.parse req.url, true
+    if not @url_parse_cache[req.url]
+      @url_parse_cache[req.url] = urllib.parse req.url, true
+
+    req.parsed_url = @url_parse_cache[req.url]
     next();
 
   setTiming: ( name ) ->
@@ -288,19 +291,18 @@ class exports.ApiaxleProxy extends AxleApp
       @removeInvalidQueryParams
     ]
 
-    opts =
-      host: "graph.facebook.com"
-      port: 80
-
     svr = http.createServer ( request, response ) ->
-      proxyRequest = http.request opts
+      # run the middleware
+      ittr = ( f, cb ) -> f( request, response, cb )
+      async.eachSeries mw, ittr, ( err ) -> request.pipe proxyRequest
 
+      opts =
+        host: "localhost"
+        port: 80
+
+      proxyRequest = http.request opts
       proxyRequest.on "response", ( proxyResponse ) ->
         proxyResponse.pipe response
-
-      ittr = ( f, cb ) -> f( request, response, cb )
-      async.eachSeries mw, ittr, ( err ) ->
-        request.pipe proxyRequest
 
     svr.listen 4000
 
