@@ -6,8 +6,8 @@
 _ = require "lodash"
 urllib = require "url"
 async = require "async"
-httpProxy = require "http-proxy"
 crypto = require "crypto"
+http = require "http"
 
 cluster = require "cluster"
 cpus = require("os").cpus()
@@ -288,27 +288,39 @@ class exports.ApiaxleProxy extends AxleApp
       @removeInvalidQueryParams
     ]
 
-    @server = httpProxy.createServer mw..., ( req, res, proxy ) =>
-      @setTiming( "start-request" )( req, res, -> )
-      return proxy.proxyRequest req, res, @getHttpProxyOptions( req )
+    opts =
+      host: "localhost"
+      port: 80
 
-    @server.proxy.on "middlewareError", @error
-    @server.proxy.on "proxyError", @handleProxyError
-    @server.proxy.on "end", ( req, res, proxyRes ) =>
-      @setTiming( "end-request" )( req, res, -> )
+    http.createServer((request, response) ->
+      proxyRequest = http.request opts
 
-      # now append what we've done to the queue, shame about the
-      # JSON.stringify here (perf.-wise) but I don't want to invent
-      # some awful protocol for the sake of 20 extra hits per second
-      @model( "queue" ).publish "hit", JSON.stringify
-        api_name: req.api_name
-        key_name: req.key_name
-        keyring_names: req.keyring_names
-        timing: req.timing
-        parsed_url: req.parsed_url
-        status: proxyRes?.statusCode
+      proxyRequest.on "response", (proxyResponse) ->
+        proxyResponse.pipe response
 
-    @server.listen @options.port, cb
+      request.pipe proxyRequest
+    ).listen 4000
+
+
+    # @server = httpProxy.createServer mw..., ( req, res, proxy ) =>
+    #   @setTiming( "start-request" )( req, res, -> )
+    #   return proxy.proxyRequest req, res, @getHttpProxyOptions( req )
+
+    # @server.proxy.on "middlewareError", @error
+    # @server.proxy.on "proxyError", @handleProxyError
+    # @server.proxy.on "end", ( req, res, proxyRes ) =>
+    #   @setTiming( "end-request" )( req, res, -> )
+
+    #   # now append what we've done to the queue, shame about the
+    #   # JSON.stringify here (perf.-wise) but I don't want to invent
+    #   # some awful protocol for the sake of 20 extra hits per second
+    #   @model( "queue" ).publish "hit", JSON.stringify
+    #     api_name: req.api_name
+    #     key_name: req.key_name
+    #     keyring_names: req.keyring_names
+    #     timing: req.timing
+    #     parsed_url: req.parsed_url
+    #     status: proxyRes?.statusCode
 
   error: ( err, req, res ) =>
     @setTiming( "end-request" )( req, res, -> )
