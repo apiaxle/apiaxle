@@ -298,13 +298,12 @@ class exports.ApiaxleProxy extends AxleApp
         proxyReq.on "response", ( proxyRes ) =>
           proxyRes.pipe res
           @setTiming( "end-request" )( req, res, -> )
-          console.log( req.timing )
 
         proxyReq.on "error", ( err ) => @handleProxyError err, req, res
 
         return req.pipe proxyReq
 
-    svr.listen 4000
+    svr.listen @options.port, @options.host, cb
 
   error: ( err, req, res ) =>
     @setTiming( "end-request" )( req, res, -> )
