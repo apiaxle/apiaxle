@@ -39,6 +39,10 @@ class exports.ApiaxleQueueProcessor extends AxleApp
 
       # capture paths
       if not error
+        all.push ( cb ) =>
+          model = @model "stats"
+          return model.hit api_name, key_name, keyring_names, "uncached", status_code, cb
+
         # the request time in ms
         time = ( timing["end-request"] - timing["start-request"] )
 
