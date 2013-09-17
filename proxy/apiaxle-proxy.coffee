@@ -293,7 +293,7 @@ class exports.ApiaxleProxy extends AxleApp
       @setTiming( "begin-request" )
     ]
 
-    svr = http.createServer ( req, res ) =>
+    @server = http.createServer ( req, res ) =>
       # run the middleware, this will populate req.api etc
       ittr = ( f, cb ) -> f( req, res, cb )
       async.eachSeries mw, ittr, ( err ) =>
@@ -301,6 +301,10 @@ class exports.ApiaxleProxy extends AxleApp
 
         proxyReq = http.request @getHttpProxyOptions( req )
         proxyReq.on "response", ( proxyRes ) =>
+          # copy the response headers
+          for hdr, val of proxyRes.headers
+            res.setHeader hdr, val
+
           proxyRes.pipe res
           @setTiming( "end-request" )( req, res, -> )
 
@@ -308,7 +312,7 @@ class exports.ApiaxleProxy extends AxleApp
 
         return req.pipe proxyReq
 
-    svr.listen @options.port, @options.host, cb
+    @server.listen @options.port, @options.host, cb
 
   error: ( err, req, res ) =>
     @setTiming( "end-request" )( req, res, -> )
