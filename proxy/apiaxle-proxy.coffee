@@ -298,7 +298,9 @@ class exports.ApiaxleProxy extends AxleApp
       proxyRequest.on "response", ( proxyResponse ) ->
         proxyResponse.pipe response
 
-      request.pipe proxyRequest
+      ittr = ( f, cb ) -> f( request, response, cb )
+      async.eachSeries mw, ittr, ( err ) ->
+        request.pipe proxyRequest
 
     svr.listen 4000
 
