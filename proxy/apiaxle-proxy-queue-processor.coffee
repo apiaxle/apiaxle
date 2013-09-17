@@ -39,8 +39,22 @@ class exports.ApiaxleQueueProcessor extends AxleApp
 
       # capture paths
       if not error
+        # the request time in ms
+        time = ( timing["end-request"] - timing["start-request"] )
+
         all.push ( cb ) =>
-          time = ( timing["end-request"] - timing["start-request"] )
+          timersModel = @model "stattimers"
+          multi = timersModel.multi()
+
+          timers = [
+            ( cb ) -> timersModel.logTiming multi, [ api_name ], "http-request", time, cb
+          ]
+
+          async.series timers, ( err ) ->
+            return cb err if err
+            return multi.exec cb
+
+        all.push ( cb ) =>
           @logCapturedPathsMaybe results[api_name],
                                  key_name,
                                  keyring_names,
