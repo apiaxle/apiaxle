@@ -291,18 +291,20 @@ class exports.ApiaxleProxy extends AxleApp
       @removeInvalidQueryParams
     ]
 
-    svr = http.createServer ( request, response ) ->
-      # run the middleware
-      ittr = ( f, cb ) -> f( request, response, cb )
-      async.eachSeries mw, ittr, ( err ) -> request.pipe proxyRequest
-
+    svr = http.createServer ( req, res ) =>
       opts =
-        host: "localhost"
+        hostname: "localhosts"
         port: 80
 
-      proxyRequest = http.request opts
-      proxyRequest.on "response", ( proxyResponse ) ->
-        proxyResponse.pipe response
+      proxyReq = http.request opts
+      proxyReq.on "response", ( proxyRes ) -> proxyRes.pipe res
+      proxyReq.on "error", ( err ) => @handleProxyError err, req, res
+
+      # run the middleware
+      ittr = ( f, cb ) -> f( req, res, cb )
+      async.eachSeries mw, ittr, ( err ) =>
+        return @error err, req, res if err
+        return req.pipe proxyReq
 
     svr.listen 4000
 
