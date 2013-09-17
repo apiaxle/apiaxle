@@ -174,12 +174,12 @@ class exports.ApiaxleProxy extends AxleApp
 
     [ host, port ] = ep.split ":"
 
-    @endpoint_caches[req.api.data.endPoint] =
+    @endpoint_caches[ep] =
       host: host
       port: ( port or 80 )
-      timeout: ( req.api.data.endPointTimeout * 1000 )
 
-    return @endpoint_caches[req.api.data.endPoint]
+    @endpoint_caches[ep].timeout = ( req.api.data.endPointTimeout * 1000 )
+    return @endpoint_caches[ep]
 
   removeInvalidQueryParams: ( req, res, next ) =>
     endpointUrl = ""
