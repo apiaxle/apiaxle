@@ -16,7 +16,6 @@
     "test": "make test"
   },
   "dependencies": {
-    "async": "~0.2.9",
     "lodash": "~1.2.0",
     "js2xml": "0.0.6",
     "libxmljs": "~0.7.1",
@@ -27,7 +26,8 @@
     "hiredis": "~0.1.15",
     "redis": "git+https://github.com/DocuSignDev/node_redis.git",
     "express": "~3.2.6",
-    "redis-sentinel-client": "~0.1.2"
+    "redis-sentinel-client": "~0.1.2",
+    "async": "~0.2.9"
   },
   "devDependencies": {
     "twerp": "~1.0.7",
