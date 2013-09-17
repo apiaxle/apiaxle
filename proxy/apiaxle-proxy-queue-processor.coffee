@@ -37,8 +37,11 @@ class exports.ApiaxleQueueProcessor extends AxleApp
 
       all = []
 
-      # capture paths
-      if not error
+      if error
+        all.push ( cb ) =>
+          model = @model "stats"
+          return model.hit api_name, key_name, keyring_names, "error", err.name, cb
+      else
         all.push ( cb ) =>
           model = @model "stats"
           return model.hit api_name, key_name, keyring_names, "uncached", status_code, cb
@@ -50,6 +53,7 @@ class exports.ApiaxleQueueProcessor extends AxleApp
           timersModel = @model "stattimers"
           multi = timersModel.multi()
 
+          # add more timers here if need be
           timers = [
             ( cb ) -> timersModel.logTiming multi, [ api_name ], "http-request", time, cb
           ]
@@ -94,7 +98,7 @@ class exports.ApiaxleQueueProcessor extends AxleApp
     queue = @model( "queue" )
 
     queue.ee.on "hit", ( chan, message ) =>
-      @processHit JSON.parse( message )
+      @processHit JSON.parse( message ), ->
 
     try
       queue.listen()
