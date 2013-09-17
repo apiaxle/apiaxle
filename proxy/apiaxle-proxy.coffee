@@ -284,6 +284,8 @@ class exports.ApiaxleProxy extends AxleApp
       @setTiming( "start-limits-applied" ),
       @applyLimits,
       @setTiming( "end-limits-applied" ),
+
+      @setTiming( "begin-request" )
     ]
 
     svr = http.createServer ( req, res ) =>
@@ -293,7 +295,11 @@ class exports.ApiaxleProxy extends AxleApp
         return @error err, req, res if err
 
         proxyReq = http.request @getHttpProxyOptions( req )
-        proxyReq.on "response", ( proxyRes ) -> proxyRes.pipe res
+        proxyReq.on "response", ( proxyRes ) =>
+          proxyRes.pipe res
+          @setTiming( "end-request" )( req, res, -> )
+          console.log( req.timing )
+
         proxyReq.on "error", ( err ) => @handleProxyError err, req, res
 
         return req.pipe proxyReq
