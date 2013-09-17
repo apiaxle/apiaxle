@@ -182,6 +182,8 @@ class exports.ApiaxleProxy extends AxleApp
 
     options = @endpoint_caches[ep]
     options.path = @buildPath req
+    options.method = req.method
+
     return options
 
   buildPath: ( req ) =>
