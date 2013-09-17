@@ -37,6 +37,7 @@ class exports.ApiaxleProxy extends AxleApp
   # express in this instance.
   constructor: ( options ) ->
     @hostname_caches = {}
+    @endpoint_caches = {}
 
     @setOptions options
     @path_globs = new PathGlobs()
@@ -169,18 +170,21 @@ class exports.ApiaxleProxy extends AxleApp
 
   getHttpProxyOptions: ( req ) ->
     ep = req.api.data.endPoint
-    return @endpoint_caches[ep] if @endpoint_caches[ep]
 
-    [ host, port ] = ep.split ":"
+    if not @endpoint_caches[ep]
+      [ host, port ] = ep.split ":"
 
-    @endpoint_caches[ep] =
-      host: host
-      port: ( port or 80 )
+      @endpoint_caches[ep] =
+        host: host
+        port: ( port or 80 )
 
-    @endpoint_caches[ep].timeout = ( req.api.data.endPointTimeout * 1000 )
-    return @endpoint_caches[ep]
+      @endpoint_caches[ep].timeout = ( req.api.data.endPointTimeout * 1000 )
 
-  removeInvalidQueryParams: ( req, res, next ) =>
+    options = @endpoint_caches[ep]
+    options.path = @buildPath req
+    return options
+
+  buildPath: ( req ) =>
     endpointUrl = ""
 
     # here we support a default path for the request. This makes
@@ -207,9 +211,7 @@ class exports.ApiaxleProxy extends AxleApp
       endpointUrl += newStrings.join( "&" )
 
     # here's the actual setting
-    req.url = endpointUrl
-
-    return next()
+    return endpointUrl
 
   applyLimits: ( req, res, next ) =>
     args = [
@@ -282,24 +284,18 @@ class exports.ApiaxleProxy extends AxleApp
       @setTiming( "start-limits-applied" ),
       @applyLimits,
       @setTiming( "end-limits-applied" ),
-
-      # we might not want to pass through the key/sig query parameters
-      @removeInvalidQueryParams
     ]
 
     svr = http.createServer ( req, res ) =>
-      opts =
-        hostname: "localhosts"
-        port: 80
-
-      proxyReq = http.request opts
-      proxyReq.on "response", ( proxyRes ) -> proxyRes.pipe res
-      proxyReq.on "error", ( err ) => @handleProxyError err, req, res
-
-      # run the middleware
+      # run the middleware, this will populate req.api etc
       ittr = ( f, cb ) -> f( req, res, cb )
       async.eachSeries mw, ittr, ( err ) =>
         return @error err, req, res if err
+
+        proxyReq = http.request @getHttpProxyOptions( req )
+        proxyReq.on "response", ( proxyRes ) -> proxyRes.pipe res
+        proxyReq.on "error", ( err ) => @handleProxyError err, req, res
+
         return req.pipe proxyReq
 
     svr.listen 4000
