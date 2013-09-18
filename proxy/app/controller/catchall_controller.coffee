@@ -1,4 +1,8 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
+_ = require "lodash"
 url = require "url"
+async = require "async"
 crypto = require "crypto"
 request = require "request"
 debug = require( "debug" )( "aa:catchall" )
@@ -9,7 +13,9 @@ debug = require( "debug" )( "aa:catchall" )
   EndpointTimeoutError,
   ConnectionError,
   DNSError } = require "../../lib/error"
+
 { ApiaxleController } = require "./controller"
+{ PathGlobs } = require "../../lib/path_globs"
 
 class CatchAll extends ApiaxleController
   @cachable: false
@@ -21,6 +27,11 @@ class CatchAll extends ApiaxleController
                    @api,
                    @key,
                    @keyrings ]
+
+  constructor: ( args... ) ->
+    @path_globs = new PathGlobs()
+
+    super args...
 
   _cacheHash: ( url ) ->
     md5 = crypto.createHash "md5"
@@ -143,24 +154,24 @@ class CatchAll extends ApiaxleController
         return cb err, apiRes, body
 
   execute: ( req, res, next ) ->
+    start_prereq = Date.now()
+
     if req.api.isDisabled()
       return next new ApiDisabled "This API has been disabled."
 
     if req.key.isDisabled()
       return next new KeyDisabled "This API key has been disabled."
 
-    { pathname, query } = url.parse req.url, true
+    { path, pathname, query } = url.parse( req.url, true )
 
     # we should make this optional
-    if query.apiaxle_sig?
+    if not req.api.data.sendThroughApiSig
       delete query.apiaxle_sig
-    else
       delete query.api_sig
 
     # we also should make this optional
-    if query.apiaxle_key?
+    if not req.api.data.sendThroughApiKey
       delete query.apiaxle_key
-    else
       delete query.api_key
 
     model = @app.model "apilimits"
@@ -194,7 +205,7 @@ class CatchAll extends ApiaxleController
       # the bit of the path that was actually requested
       endpointUrl += pathname
 
-      if query
+      if not _.isEmpty query
         endpoint = url.parse endpointUrl
         endpoint.query = query
         endpointUrl = url.format endpoint
@@ -206,21 +217,63 @@ class CatchAll extends ApiaxleController
         timeout: req.api.data.endPointTimeout * 1000
         headers: headers
         strictSSL: req.api.data.strictSSL
+        encoding: null
 
       options.body = req.body if req.body
 
+      start_fetch = Date.now()
       @_fetch req, options, ( err, apiRes, body ) =>
         return next err if err
+        end_fetch = Date.now()
 
-        # copy headers from the endpoint
-        for header, value of apiRes.headers
-          res.header header, value
+        timersModel = @app.model "stattimers"
+        multi = timersModel.multi()
 
-        # let the user know what they've got left
-        res.header "X-ApiaxleProxy-Qps-Left", newQps
-        res.header "X-ApiaxleProxy-Qpd-Left", newQpd
+        pre_req_ms = start_fetch - start_prereq
+        http_req_ms = end_fetch - start_fetch
 
-        res.send body, apiRes.statusCode
+        api_id = req.api.id
+        timers = [
+          ( cb ) -> timersModel.logTiming multi, [ api_id ], "pre-request", pre_req_ms, cb
+          ( cb ) -> timersModel.logTiming multi, [ api_id ], "http-request", http_req_ms, cb
+        ]
+
+        # counters for the segmented path parts
+        @logCapturedPathsMaybe req.api, req.key, req.keyrings, pathname, query, http_req_ms, ( err ) ->
+          return next err if err
+
+          async.parallel timers, ( err ) ->
+            return next err if err
+
+            # copy headers from the endpoint
+            for header, value of apiRes.headers
+              res.header header, value
+
+            # let the user know what they've got left
+            res.header "X-ApiaxleProxy-Qps-Left", newQps
+            res.header "X-ApiaxleProxy-Qpd-Left", newQpd
+
+            multi.exec ( err ) ->
+              return next err if err
+              return res.send body, apiRes.statusCode
+
+  logCapturedPathsMaybe: ( api, key, keyrings, path, query, timing, cb ) ->
+    # only if we have some paths
+    return cb null unless api.data.hasCapturePaths
+
+    # this combines timers and counters
+    countersModel = @app.model "capturepaths"
+
+    # fetch the paths we're looking to capture
+    api.getCapturePaths ( err, capture_paths ) =>
+      return next err if err
+
+      # finally, capture them. Timers and counters.
+      matches = @path_globs.matchPathDefinitions path, query, capture_paths
+
+      args = [ api.id, key.id, keyrings ]
+
+      return countersModel.log args..., matches, timing, cb
 
 class exports.GetCatchall extends CatchAll
   @cachable: true

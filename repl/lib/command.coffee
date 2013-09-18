@@ -1,3 +1,5 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
 _ = require "lodash"
 
 { Module, httpHelpers } = require "apiaxle-base"
@@ -34,7 +36,7 @@ class exports.Command extends Module
     if options.data
       log += " with '#{ options.data }' as the body."
 
-    @app.logger.info log
+    @app.logger.debug log
 
     this[ verb ] options, ( err, res ) =>
       return cb err if err
@@ -49,6 +51,9 @@ class exports.Command extends Module
       if status > 200 and status < 400 and json.results?.error?
         { type, message } = json.results.error
         return cb new Error "#{ type }: #{ message }"
+
+      if json.results
+        return cb null, json.results
 
       return cb null, json
 

@@ -1,3 +1,5 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
 # A class that provides a mixin type interface.
 moduleKeywords = [ "extended", "included" ]
 

@@ -10,7 +10,7 @@
   ],
   "description": "Shared core functionality for apiaxle.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "1.9.30",
+  "version": "1.10.3",
   "main": "index",
   "scripts": {
     "test": "make test"
@@ -21,12 +21,13 @@
     "js2xml": "0.0.6",
     "libxmljs": "~0.7.1",
     "date-utils": "~1.2.13",
-    "scarf": "0.0.6",
+    "scarf": "0.0.8",
     "debug": "~0.7.2",
     "request": "~2.20.0",
     "hiredis": "~0.1.15",
-    "redis": "~0.8.4",
-    "express": "~3.2.6"
+    "redis": "git+https://github.com/DocuSignDev/node_redis.git",
+    "express": "~3.2.6",
+    "redis-sentinel-client": "~0.1.2"
   },
   "devDependencies": {
     "twerp": "~1.0.7",

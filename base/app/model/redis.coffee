@@ -1,3 +1,5 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
 async = require "async"
 _ = require "lodash"
 events = require "events"
@@ -100,7 +102,7 @@ class Redis
 
   # escape the id so that people can't sneak a colon in and do
   # something like modify metadata
-  escapeId: ( id ) ->
+  escapeId: ( id ) =>
     return id.replace( /([:])/g, "\\:" )
 
   _convertData: ( id, data ) =>
@@ -287,9 +289,11 @@ class KeyContainerModel extends Model
       return cb null, exists
 
 redisCommands = [
+  "srem",
   "hset",
   "hget",
   "hdel",
+  "hlen",
   "hmset",
   "hincrby",
   "hgetall",
@@ -345,4 +349,5 @@ for command in redisCommands
 
 exports.Redis = Redis
 exports.Model = Model
+exports.RedisMulti = RedisMulti
 exports.KeyContainerModel = KeyContainerModel

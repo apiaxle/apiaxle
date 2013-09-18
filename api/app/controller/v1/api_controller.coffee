@@ -1,3 +1,5 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
 _ = require "lodash"
 async = require "async"
 
@@ -227,6 +229,11 @@ class exports.ViewAllStatsForApi extends StatsController
         optional: true
         docs: "Narrow results down to all statistics for the specified
                key."
+      forkeyring:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               keyring."
 
     return current
 
@@ -279,3 +286,306 @@ class exports.ApiKeyCharts extends StatsController
     @app.model( "stats" ).getScores key, granularity, ( err, chart ) =>
       return next err if err
       return @json res, chart
+
+class exports.ApiTimerStats extends StatsController
+  @verb = "get"
+
+  desc: -> "Get timer stats for an api."
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "Get timer stats for an api"
+      response: """
+        Object where the keys represent the type of timer, these in
+        turn contain objects with timestamp: [ min, max, avg ]. The
+        values in the array are a span of time measured in ms."""
+
+  middleware: -> [ @mwApiDetails( @app ),
+                   @mwValidateQueryParams() ]
+
+  path: -> "/v1/api/:api/stats/timers"
+
+  queryParams: ->
+    current = super()
+    delete current.properties.format_timeseries
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      debug:
+        type: "string"
+        optional: true
+        default: false
+        docs: "Show some ApiAxle related timings too."
+
+    return current
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp, debug } = req.query
+
+    model = @app.model "stattimers"
+
+    # lob off the api name as it's redundant in this context
+    timer_names = [ "http-request" ]
+    timer_names.push "pre-request" if debug
+
+    model.getValues [ req.api.id ], timer_names, granularity, from, to, ( err, results ) =>
+      return next err if err
+
+      if format_timestamp isnt "epoch_seconds"
+        results = @convertTimestamps req, results
+
+      return next err if err
+      return @json res, results
+
+class exports.CapturePathStatsCounters extends StatsController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "Capture path statistics."
+      response: "Objects with timestamp:count."
+      description: """
+        List details of counter stats for :capturepath belonging to
+        :api.
+      """
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepath/:capturepath/stats/counters"
+
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      forkey:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               key."
+      forkeyring:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               keyring."
+
+    return current
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp, debug, forkey, forkeyring } = req.query
+
+    model = @app.model "capturepaths"
+
+    namespace = [ "api", req.api.id ]
+    if forkey
+      namespace = [ "api-key", req.api.id, forkey ]
+    else if forkeyring
+      namespace = [ "api-keyring", req.api.id, forkeyring ]
+
+    model.getCounters namespace, [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
+      return next err if err
+      return @json res, results
+
+class exports.CapturePathStatsTimings extends StatsController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "Capture path statistics."
+      response: """
+        Objects with timestamps as the key, each referencing an array
+        containing min, max and average times.
+      """
+      description: """
+        List details of timing stats for :capturepath belonging to
+        :api.
+      """
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepath/:capturepath/stats/timers"
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp, debug } = req.query
+
+    model = @app.model "capturepaths"
+
+    model.getTimers [ "api", req.api.id ], [ req.params.capturepath ], granularity, from, to, ( err, results ) =>
+      return next err if err
+      return @json res, results
+
+class exports.ListCapturePaths extends ApiaxleController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "List capture paths."
+      response: "List of paths."
+      description: "List all of the capture paths belonging to :api."
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepaths"
+
+  execute: ( req, res, next ) ->
+    { path } = req.params
+
+    req.api.getCapturePaths ( err, paths ) =>
+      return next err if err
+      return @json res, paths
+
+class exports.AddCapturePath extends ApiaxleController
+  @verb = "put"
+
+  docs: ->
+    {}=
+      verb: "PUT"
+      title: "Add a capture path to :api"
+      response: "The path added."
+      description: "Add a path that will have statistics associated with it."
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/addcapturepath/:path"
+
+  execute: ( req, res, next ) ->
+    { path } = req.params
+
+    req.api.addCapturePath path, ( err ) =>
+      return next err if err
+      return @json res, path
+
+class exports.DelCapturePath extends ApiaxleController
+  @verb = "put"
+
+  docs: ->
+    {}=
+      verb: "PUT"
+      title: "Delete a capture path from :api"
+      response: "The path removed."
+      description: "Remove a path and prevent statistics being collected for it."
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/delcapturepath/:path"
+
+  execute: ( req, res, next ) ->
+    { path } = req.params
+
+    req.api.removeCapturePath path, ( err ) =>
+      return next err if err
+      return @json res, path
+
+class exports.CapturePathsStatsTimings extends StatsController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "View all capture path counts for :api."
+      response: """
+        Objects with timestamps as the key, each referencing an array
+        containing min, max and average times.
+      """
+      description: "All capture paths and their timings for :api."
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepaths/stats/timers"
+
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      forkey:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               key."
+      forkeyring:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               keyring."
+
+    return current
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp, debug, forkey, forkeyring } = req.query
+
+    model = @app.model "capturepaths"
+
+    req.api.getCapturePaths ( err, paths ) =>
+      return next err if err
+
+      namespace = [ "api", req.api.id ]
+      if forkey
+        namespace = [ "api-key", req.api.id, forkey ]
+      else if forkeyring
+        namespace = [ "api-keyring", req.api.id, forkeyring ]
+
+      model.getTimers namespace, paths, granularity, from, to, ( err, results ) =>
+        return next err if err
+        return @json res, results
+
+class exports.CapturePathsStatsCounters extends StatsController
+  @verb = "get"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "View all capture path counters for :api."
+      response: "Objects with timestamp:count."
+      description: "All capture paths and their counts for :api."
+
+  middleware: -> [ @mwValidateQueryParams()
+                   @mwApiDetails( valid_api_required=true ) ]
+
+  path: -> "/v1/api/:api/capturepaths/stats/counters"
+
+  queryParams: ->
+    current = super()
+
+    # extends the base class queryParams
+    _.extend current.properties,
+      forkey:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               key."
+      forkeyring:
+        type: "string"
+        optional: true
+        docs: "Narrow results down to all statistics for the specified
+               keyring."
+
+    return current
+
+  execute: ( req, res, next ) ->
+    { from, to, granularity, format_timestamp, debug, forkey, forkeyring } = req.query
+
+    model = @app.model "capturepaths"
+
+    req.api.getCapturePaths ( err, paths ) =>
+      return next err if err
+
+      namespace = [ "api", req.api.id ]
+      if forkey
+        namespace = [ "api-key", req.api.id, forkey ]
+      else if forkeyring
+        namespace = [ "api-keyring", req.api.id, forkeyring ]
+
+      model.getCounters namespace, paths, granularity, from, to, ( err, results ) =>
+        return next err if err
+        return @json res, results

@@ -1,3 +1,5 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
 _     = require "lodash"
 async = require "async"
 querystring = require "querystring"
@@ -461,4 +463,4 @@ class exports.ApiStatsTest extends ApiaxleTest
     async.series all, ( err ) =>
       @ok not err
 
-      done 25
+      done 29

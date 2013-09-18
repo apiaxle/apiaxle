@@ -1,3 +1,5 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
 crypto = require "crypto"
 async = require "async"
 
@@ -136,4 +138,4 @@ class exports.CatchallSigTest extends ApiaxleTest
     async.series tests, ( err ) =>
       @ok not err
 
-      done 15
+      done 16

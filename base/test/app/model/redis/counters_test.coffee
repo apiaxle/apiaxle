@@ -1,3 +1,5 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
 async = require "async"
 
 { FakeAppTest } = require "../../../apiaxle_base"
@@ -55,7 +57,7 @@ class exports.CountersTest extends FakeAppTest
           done 4
 
   "test #getHour": ( done ) ->
-    clock = @getClock()
+    clock = @getClock 1323892867000
 
     @model.apiHit "facebook", "1234", 200, ( err, [ min, hour, day, month, year ] ) =>
       @ok not err

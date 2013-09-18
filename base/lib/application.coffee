@@ -1,9 +1,14 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
+
 _ = require "lodash"
 path = require "path"
 async = require "async"
 express = require "express"
-redis = require "redis"
 debug = require( "debug" )( "aa:app" )
+Redis = require "redis"
+
+RedisSentinel = require "redis-sentinel-client"
 
 { Js2Xml } = require "js2xml"
 { Application } = require "scarf"
@@ -13,6 +18,7 @@ class exports.AxleApp extends Application
   configure: ( cb ) ->
     # error handler
     @use @express.router
+    @disable "x-powered-by"
 
     @readConfiguration ( err, @config, filename ) =>
       return cb err if err
@@ -61,10 +67,23 @@ class exports.AxleApp extends Application
 
   redisConnect: ( cb ) =>
     # grab the redis config
-    { port, host } = @config.redis
+    { port, host, sentinel } = @config.redis
 
-    @redisClient = redis.createClient( port, host )
-    @redisClient.on "error", ( err ) -> return cb err
+    # are we up for some sentinel fun?
+    @redisClient = null
+    if sentinel
+      @redisClient = RedisSentinel.createClient
+        port: port
+        host: host
+        logger: { log: -> }
+
+      @redisClient.on "failover-start", => @logger.warn "Failover starts."
+      @redisClient.on "failover-end", => @logger.warn "Failover ends."
+      @redisClient.on "disconnected", => @logger.warn "Old master disconnected."
+    else
+      @redisClient = Redis.createClient port, host
+
+    @redisClient.on "error", ( err ) => @logger.warn "#{ err }"
     @redisClient.on "ready", cb
 
   loadAndInstansiatePlugins: ( cb ) ->
@@ -101,7 +120,7 @@ class exports.AxleApp extends Application
             return cb null, [] if not _.keys( @plugins[category] ).length > 0
 
             list = _.keys( @plugins[category] ).join( ', ' )
-            @logger.info "Loaded #{ list } from '#{ path }'"
+            @logger.debug "Loaded #{ list } from '#{ path }'"
 
             return cb null, @plugins
 
@@ -114,10 +133,13 @@ class exports.AxleApp extends Application
       type: "object"
       additionalProperties: false
       properties:
-       redis:
+        redis:
           type: "object"
-          additionalProperties: false
+          additionalProperties: no
           properties:
+            sentinel:
+              type: "boolean"
+              default: false
             port:
               type: "integer"
               default: 6379

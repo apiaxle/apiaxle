@@ -1,3 +1,5 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
 { Command } = require "../command"
 querystring = require "querystring"
 
@@ -23,6 +25,41 @@ class exports.Api extends Command
 
         See the API documentation for more: http://apiaxle.com/api.html
         """
+
+  capturepathstimers: ( id, commands, keypairs, cb ) ->
+    qs = querystring.stringify keypairs
+
+    @callApi "GET", path: "/v1/api/#{ id }/capturepaths/stats/timers?#{ qs }", cb
+
+  capturepathscounters: ( id, commands, keypairs, cb ) ->
+    qs = querystring.stringify keypairs
+
+    @callApi "GET", path: "/v1/api/#{ id }/capturepaths/stats/counters?#{ qs }", cb
+
+  capturepaths: ( id, commands, keypairs, cb ) ->
+    qs = querystring.stringify keypairs
+
+    @callApi "GET", path: "/v1/api/#{ id }/capturepaths?#{ qs }", cb
+
+  addcapturepath: ( id, commands, keypairs, cb ) ->
+    if not path = commands.shift()
+      return cb new Error "Please provide a path to link to #{ id }."
+
+    options =
+      path: "/v1/api/#{ id }/addcapturepath/#{ encodeURIComponent path }"
+      data: "{}"
+
+    @callApi "PUT", options, cb
+
+  delcapturepath: ( id, commands, keypairs, cb ) ->
+    if not path = commands.shift()
+      return cb new Error "Please provide a path remove from #{ id }."
+
+    options =
+      path: "/v1/api/#{ id }/delcapturepath/#{ encodeURIComponent path }"
+      data: "{}"
+
+    @callApi "PUT", options, cb
 
   unlinkkey: ( id, commands, keypairs, cb ) ->
     if not key = commands.shift()

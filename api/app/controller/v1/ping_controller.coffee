@@ -1,3 +1,5 @@
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
 _ = require "lodash"
 
 mypackage = require "../../../package.json"
@@ -12,11 +14,10 @@ class exports.Ping extends ApiaxleController
   desc: -> "Ping controller."
 
   docs: ->
-    """
-    ### Returns
-
-    * Just a pong.
-    """
+    {}=
+      verb: "GET"
+      title: "Ping the API for a super fast response."
+      response: "Just a 'pong'."
 
   path: -> "/v1/ping"
 

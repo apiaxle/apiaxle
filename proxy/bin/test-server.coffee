@@ -1,5 +1,8 @@
 #!/usr/bin/env coffee
 
+# This code is covered by the GPL version 3.
+# Copyright 2011-2013 Philip Jackson.
+
 express = require "express"
 
 app = express.createServer()
@@ -18,6 +21,7 @@ app.all "*", ( req, res, next ) ->
     time: milliseconds
     query: req.query
     body: req.body
+    path: req.url
 
   done = () ->
     try
