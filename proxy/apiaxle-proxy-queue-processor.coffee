@@ -38,9 +38,12 @@ class exports.ApiaxleQueueProcessor extends AxleApp
       all = []
 
       if error
-        all.push ( cb ) =>
-          model = @model "stats"
-          return model.hit api_name, key_name, keyring_names, "error", err.name, cb
+        if key_name
+          all.push ( cb ) =>
+            @logger.debug "Logging error #{ error.name } - #{ error.message }"
+
+            model = @model "stats"
+            return model.hit api_name, key_name, ( keyring_names or [] ), "error", error.name, cb
       else
         all.push ( cb ) =>
           model = @model "stats"
@@ -128,7 +131,8 @@ if not module.parent
     cluster.on "exit", ( worker, code, signal ) ->
       console.log( "Worker #{ worker.process.pid } died." )
   else
-    api = new exports.ApiaxleQueueProcessor()
+    api = new exports.ApiaxleQueueProcessor
+      name: "apiaxle"
 
     all = []
 
