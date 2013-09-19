@@ -192,4 +192,4 @@ class exports.AxleApp extends Application
 
   # this will come from an express app
   onError: ( err, req, res, next ) ->
-    @error err, res, req
+    @error err, req, res
