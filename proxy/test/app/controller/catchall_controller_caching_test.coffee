@@ -1,6 +1,7 @@
 # This code is covered by the GPL version 3.
 # Copyright 2011-2013 Philip Jackson.
 async = require "async"
+nock = require "nock"
 
 { ApiaxleTest } = require "../../apiaxle"
 
@@ -8,37 +9,13 @@ class exports.CatchallCachingTest extends ApiaxleTest
   @start_webserver = true
   @empty_db_on_setup = true
 
-  "test only get should be cachable": ( done ) ->
-    all = []
-
-    for type in [ "post", "put", "delete" ]
-      controller = @app.controller "#{type}catchall"
-
-      req =
-        headers: {}
-        api:
-          globalCache: 20
-
-      all.push ( cb ) =>
-        controller._cacheTtl req, ( err, mustRevalidate, ttl ) =>
-          @ok not mustRevalidate
-          @ok not err
-          @equal ttl, 0
-
-          cb()
-
-    async.series all, ( err, res ) =>
-      done 9
-
   _runCacheControlTests: ( tests, cb ) ->
-    controller = @app.controller "getcatchall"
-
     runnables = []
 
     for test in tests
       do ( test ) =>
         runnables.push ( cb ) =>
-          controller._cacheTtl test.req, ( err, mustRevalidate, ttl ) =>
+          @app._cacheTtl test.req, ( err, mustRevalidate, ttl ) =>
             @ok not err
             @equal ttl, test.should.ttl
             @equal mustRevalidate, test.should.mustRevalidate
@@ -132,8 +109,10 @@ class exports.CatchallCachingTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchallSimpleGet 200, data,
-        "Content-Type": "application/json"
+      scope1 = nock( "http://example.com" )
+        .get( "/" )
+        .once()
+        .reply( 200, JSON.stringify( { two: 2 } ) )
 
       requestOptions =
         path: "/cock.bastard?api_key=1234"
@@ -142,7 +121,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
         @ok not err
-        @ok stub.calledOnce
+        @ok scope1.calledOnce
 
         response.parseJson ( err, json ) =>
           @ok not err
@@ -154,7 +133,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
             @ok not err
 
             # we shouldn't have called the http req again
-            @ok stub.calledOnce, "result comes from cache"
+            @ok scope1.isDone(), "result comes from cache"
 
             @isUndefined json.error
             @deepEqual json.two, 2
@@ -190,8 +169,10 @@ class exports.CatchallCachingTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchallSimpleGet 202, data,
-        "Content-Type": "application/json"
+      scope1 = nock( "http://example.com" )
+        .get( "/" )
+        .twice()
+        .reply( 200, JSON.stringify( { two: 2 } ) )
 
       requestOptions =
         path: "/cock.bastard?api_key=1234"
@@ -202,7 +183,6 @@ class exports.CatchallCachingTest extends ApiaxleTest
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
         @ok not err
-        @ok stub.calledOnce
 
         @equal response.statusCode, 202
         @equal response.headers[ "content-type" ], "application/json"
@@ -224,7 +204,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
               @isUndefined json.error
 
               # we shouldn't have called the http req again
-              @ok stub.calledOnce, "result comes from cache"
+              @ok scope1.isDone(), "result comes from cache"
 
               @isUndefined json.error
               @deepEqual json.two, 2
@@ -246,10 +226,12 @@ class exports.CatchallCachingTest extends ApiaxleTest
       @ok not err
 
       # make sure we don't actually hit facebook
-      data = JSON.stringify { two: 2 }
+      data =
 
-      stub = @stubCatchallSimpleGet 200, data,
-        "Content-Type": "application/json"
+      scope1 = nock( "http://example.com" )
+        .get( "/cock.bastard" )
+        .twice()
+        .reply( 200, JSON.stringify( { two: 2 } ) )
 
       requestOptions =
         path: "/cock.bastard?api_key=1234"
@@ -261,8 +243,6 @@ class exports.CatchallCachingTest extends ApiaxleTest
       @GET requestOptions, ( err, response ) =>
         @ok not err
 
-        @ok stub.calledOnce
-
         response.parseJson ( err, json ) =>
           @ok not err
           @isUndefined json.error
@@ -273,7 +253,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
             @ok not err
 
             # we shouldn't have called the http req again
-            @ok stub.calledTwice, "result comes from http request"
+            @ok scope1.isDone(), "result comes from http request"
 
             @isUndefined json.error
             @deepEqual json.two, 2
@@ -297,8 +277,10 @@ class exports.CatchallCachingTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      stub = @stubCatchallSimpleGet 200, data,
-        "Content-Type": "application/json"
+      scope1 = nock( "http://example.com" )
+        .get( "/cock.bastard" )
+        .twice()
+        .reply( 200, JSON.stringify( { two: 2 } ) )
 
       requestOptions =
         path: "/cock.bastard?api_key=1234"
@@ -310,8 +292,6 @@ class exports.CatchallCachingTest extends ApiaxleTest
       @GET requestOptions, ( err, response ) =>
         @ok not err
 
-        @ok stub.calledOnce
-
         response.parseJson ( err, json ) =>
           @ok not err
           @isUndefined json.error
@@ -322,7 +302,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
             @ok not err
 
             # we shouldn't have called the http req again
-            @ok stub.calledTwice, "result comes from http request"
+            @ok scope1.isDone(), "result comes from http request"
 
             @isUndefined json.error
             @deepEqual json.two, 2
