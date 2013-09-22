@@ -334,7 +334,9 @@ class exports.ApiaxleProxy extends AxleApp
   handleProxyError: ( err, req, res ) =>
     statsModel = @model "stats"
 
-    # handle connection reset specially for now
+    # I'm not sure what the right thing to do here is. There could be
+    # floods of these from dodgy clients. Perhaps a counter in the
+    # future?
     return res.end() if err.code is "ECONNRESET"
 
     # if we know how to handle an error then we also log it
