@@ -350,12 +350,13 @@ class exports.ApiaxleProxy extends AxleApp
 
         proxyReq = http.request @getHttpProxyOptions( req )
         proxyReq.on "response", ( proxyRes ) =>
+          proxyRes.on "end", =>
+            @setTiming( "end-request" )( req, res, -> )
+
           # copy the response headers
-          for hdr, val of proxyRes.headers
-            res.setHeader hdr, val
+          res.setHeader hdr, val for hdr, val of proxyRes.headers
 
           proxyRes.pipe res
-          @setTiming( "end-request" )( req, res, -> )
 
         proxyReq.on "error", ( err ) => @handleProxyError err, req, res
 
