@@ -28,6 +28,6 @@ coverage: $(JS)
 	istanbul cover $(TWERP) `find test -name '*_test.js'`
 
 clean:
-	@rm -fr $(JS) coverage
+	@rm -vfr $(JS) coverage
 
 .PHONY: clean test coverage dev
