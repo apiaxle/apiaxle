@@ -109,8 +109,8 @@ class exports.CatchallCachingTest extends ApiaxleTest
       # make sure we don't actually hit facebook
       data = JSON.stringify { two: 2 }
 
-      scope1 = nock( "http://example.com" )
-        .get( "/" )
+      scope1 = nock( "http://facebook.example.com" )
+        .get( "/cock.bastard" )
         .once()
         .reply( 200, JSON.stringify( { two: 2 } ) )
 
@@ -121,19 +121,26 @@ class exports.CatchallCachingTest extends ApiaxleTest
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
       @GET requestOptions, ( err, response ) =>
         @ok not err
-        @ok scope1.calledOnce
+
+        # we shouldn't have called the http req again
+        @ok scope1.isDone(), "result comes from cache"
 
         response.parseJson ( err, json ) =>
           @ok not err
           @isUndefined json.error
           @deepEqual json.two, 2
 
+          # NOTE: this should never be hit
+          scope2 = nock( "http://facebook.example.com" )
+            .get( "/cock.bastard" )
+            .once()
+            .reply( 500 )
+
           # now this call should come from cache
           @GET requestOptions, ( err, response ) =>
             @ok not err
-
-            # we shouldn't have called the http req again
-            @ok scope1.isDone(), "result comes from cache"
+            @ok not scope2.isDone(),
+              "We tried to use HTTP where we shouldn't have."
 
             @isUndefined json.error
             @deepEqual json.two, 2
