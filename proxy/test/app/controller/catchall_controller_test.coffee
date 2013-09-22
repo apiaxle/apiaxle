@@ -290,12 +290,12 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-          .get( "/cock.bastard" )
+          .get( "/some.username" )
           .once()
           .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
-          path: "/cock.bastard?api_key=1234"
+          path: "/some.username?api_key=1234"
           host: "facebook.api.localhost"
 
         @stubDns { "facebook.api.localhost": "127.0.0.1" }
@@ -334,12 +334,12 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-          .get( "/cock.bastard" )
+          .get( "/some.username" )
           .once()
           .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
-          path: "/cock.bastard?apiaxle_key=1234&api_key=5678"
+          path: "/some.username?apiaxle_key=1234&api_key=5678"
           host: "facebook.api.localhost"
 
         @stubDns { "facebook.api.localhost": "127.0.0.1" }

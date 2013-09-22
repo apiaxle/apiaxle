@@ -110,12 +110,12 @@ class exports.CatchallCachingTest extends ApiaxleTest
       data = JSON.stringify { two: 2 }
 
       scope1 = nock( "http://facebook.example.com" )
-        .get( "/cock.bastard" )
+        .get( "/some.username" )
         .once()
         .reply( 200, JSON.stringify( { two: 2 } ) )
 
       requestOptions =
-        path: "/cock.bastard?api_key=1234"
+        path: "/some.username?api_key=1234"
         host: "facebook.api.localhost"
 
       @stubDns { "facebook.api.localhost": "127.0.0.1" }
@@ -132,7 +132,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
 
           # NOTE: this should never be hit
           scope2 = nock( "http://facebook.example.com" )
-            .get( "/cock.bastard" )
+            .get( "/some.username" )
             .once()
             .reply( 500 )
 
@@ -182,7 +182,7 @@ class exports.CatchallCachingTest extends ApiaxleTest
         .reply( 200, JSON.stringify( { two: 2 } ) )
 
       requestOptions =
-        path: "/cock.bastard?api_key=1234"
+        path: "/some.username?api_key=1234"
         host: "facebook.api.localhost"
         headers:
           "Cache-Control": "s-maxage=30"
@@ -236,12 +236,12 @@ class exports.CatchallCachingTest extends ApiaxleTest
       data =
 
       scope1 = nock( "http://example.com" )
-        .get( "/cock.bastard" )
+        .get( "/some.username" )
         .twice()
         .reply( 200, JSON.stringify( { two: 2 } ) )
 
       requestOptions =
-        path: "/cock.bastard?api_key=1234"
+        path: "/some.username?api_key=1234"
         host: "facebook.api.localhost"
         headers:
           "Cache-Control": "no-cache"
@@ -285,12 +285,12 @@ class exports.CatchallCachingTest extends ApiaxleTest
       data = JSON.stringify { two: 2 }
 
       scope1 = nock( "http://example.com" )
-        .get( "/cock.bastard" )
+        .get( "/some.username" )
         .twice()
         .reply( 200, JSON.stringify( { two: 2 } ) )
 
       requestOptions =
-        path: "/cock.bastard?api_key=1234"
+        path: "/some.username?api_key=1234"
         host: "facebook.api.localhost"
         headers:
           "Cache-Control": "s-maxage=30, proxy-revalidate"
