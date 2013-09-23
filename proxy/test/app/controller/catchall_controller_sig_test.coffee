@@ -15,7 +15,6 @@ class exports.CatchallSigTest extends ApiaxleTest
       api:
         facebook:
           apiFormat: "json"
-          globalCache: 30
           endPoint: "doesntresolve.blah"
       key:
         1234:

@@ -296,6 +296,8 @@ class exports.ApiaxleProxy extends AxleApp
     @server = http.createServer ( req, res ) =>
       # run the middleware, this will populate req.api etc
       ittr = ( f, cb ) -> f( req, res, cb )
+
+      # run the middleware above
       async.eachSeries mw, ittr, ( err ) =>
         return @error err, req, res if err
 

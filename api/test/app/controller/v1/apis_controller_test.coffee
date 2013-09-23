@@ -18,7 +18,6 @@ class exports.ApisControllerTest extends ApiaxleTest
       do ( i ) =>
         fixtures.push ( cb ) =>
           options =
-            globalCache: i
             endPoint: "api_#{i}.com"
 
           model.create "api_#{i}", options, cb
@@ -68,7 +67,6 @@ class exports.ApisControllerTest extends ApiaxleTest
           name = "api_#{i}"
 
           @ok json.results[ name ]
-          @equal json.results[ name ].globalCache, i
           @equal json.results[ name ].endPoint, "api_#{i}.com"
 
         done 24
