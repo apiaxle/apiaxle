@@ -20,8 +20,8 @@ npminstall:
 link:
 	npm link ../base
 
-bin: apiaxle-proxy.js
-	sed -i '1i#!/usr/bin/env node' $<
+bin: apiaxle-proxy.js apiaxle-proxy-queue-processor.js
+	sed -i '1i#!/usr/bin/env node' $^
 
 test:
 	timeout 20 $(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
@@ -32,4 +32,4 @@ coverage: link $(JS)
 clean:
 	@rm -fvr $(JS) coverage
 
-.PHONY: clean test coverage link
+.PHONY: clean test coverage link bin
