@@ -18,7 +18,6 @@ class exports.ApiaxleQueueProcessor extends AxleApp
   constructor: ->
     super
     @path_globs = new PathGlobs()
-    @count = 0
 
   processHit: ( options, cb ) ->
     { error,
@@ -40,14 +39,9 @@ class exports.ApiaxleQueueProcessor extends AxleApp
       if error
         if key_name
           all.push ( cb ) =>
-            @logger.debug "Logging error #{ error.name } - #{ error.message }"
-
             model = @model "stats"
             return model.hit api_name, key_name, ( keyring_names or [] ), "error", error.name, cb
       else
-        if @count++ % 100 == 0
-          @logger.debug "Logged #{ @count } hits"
-
         all.push ( cb ) =>
           model = @model "stats"
           return model.hit api_name, key_name, keyring_names, "uncached", status_code, cb
