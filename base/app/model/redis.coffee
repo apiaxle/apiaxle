@@ -329,15 +329,12 @@ for command in redisCommands
 
     RedisMulti::[ command ] = ( key, args... ) ->
       full_key = @getKey key
-
       RedisMulti.__super__[ command ].apply this, [ full_key, args... ]
 
     # Redis just offloads to the attached redis client. Perhaps we
     # should inherit from redis as RedisMulti does
     Redis::[ command ] = ( key, args... ) ->
       full_key = @getKey key
-
-      redisdebug "Redis '#{ command }' on '#{ key }'"
       @app.redisClient[ command ]( full_key, args... )
 
 # subscribe is special in that we can only have one client
