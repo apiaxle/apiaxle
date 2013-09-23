@@ -63,10 +63,6 @@ class exports.ApiFactory extends Redis
       updatedAt:
         type: "integer"
         optional: true
-      globalCache:
-        type: "integer"
-        docs: "The time in seconds that every call under this API should be cached."
-        default: 0
       endPoint:
         type: "string"
         required: true
