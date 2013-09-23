@@ -9,8 +9,6 @@ async  = require "async"
 libxml = require "libxmljs"
 _      = require "lodash"
 
-debug = require( "debug" )( "tests:base" )
-
 { Application } = require "./application"
 { TwerpTest }   = require "twerp"
 { Redis }       = require "../app/model/redis"
@@ -80,7 +78,6 @@ class exports.AppTest extends TwerpTest
     all = []
 
     if not @app = app_mem
-      debug "Constructing application"
       @app = app_mem = new @constructor.appClass
         env: "test"
         port: @constructor.port

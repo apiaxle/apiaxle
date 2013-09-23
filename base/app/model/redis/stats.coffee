@@ -3,7 +3,6 @@
 # Store and access real time hits per second
 async   = require "async"
 _       = require "lodash"
-debug = require( "debug" )( "aa:stats" )
 
 {Redis} = require "../redis"
 

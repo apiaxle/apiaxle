@@ -1,7 +1,6 @@
 # Store and access real time hits per second
 _ = require "lodash"
 async = require "async"
-debug = require( "debug" )( "aa:stats" )
 
 # a bunch of constants to make things more readable
 tconst = require "../../../lib/time_constants"

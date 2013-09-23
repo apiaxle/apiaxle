@@ -5,7 +5,6 @@ _ = require "lodash"
 path = require "path"
 async = require "async"
 express = require "express"
-debug = require( "debug" )( "aa:app" )
 Redis = require "redis"
 
 RedisSentinel = require "redis-sentinel-client"
@@ -33,12 +32,8 @@ class exports.AxleApp extends Application
     @readConfiguration ( err, @config, filename ) =>
       return cb err if err
 
-      debug "Reading configuration"
-
       @setupLogger @config.logging, ( err, @logger ) =>
         return cb err if err
-
-        debug "Setting up logger"
 
         @logger.info "Loaded configuration from #{ filename }"
         return cb null
@@ -104,8 +99,6 @@ class exports.AxleApp extends Application
               inst = null
 
               try
-                debug "Loading plugin #{ name }"
-
                 inst = new constructor this
                 friendly_name = if constructor.plugin_name
                   constructor.plugin_name
