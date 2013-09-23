@@ -42,55 +42,6 @@ class exports.ApiaxleProxy extends AxleApp
     @setOptions options
     @path_globs = new PathGlobs()
 
-  _cacheHash: ( url ) ->
-    md5 = crypto.createHash "md5"
-    md5.update @app.options.env
-    md5.update url
-    md5.digest "hex"
-
-  _cacheTtl: ( req, cb ) ->
-    mustRevalidate = false
-
-    # cache-control might want us to do something. We only care about
-    # a few of the pragmas
-    if cacheControl = @_parseCacheControl req
-
-      # we might have to revalidate if the client has asked us to
-      mustRevalidate = ( not not cacheControl[ "proxy-revalidate" ] )
-
-      # don't cache anything
-      if cacheControl[ "no-cache" ]
-        return cb null, mustRevalidate, 0
-
-      # explicit ttl
-      if ttl = cacheControl[ "s-maxage" ]
-        return cb null, mustRevalidate, ttl
-
-    # return the global cache
-    return cb null, mustRevalidate, req.api.data.globalCache
-
-  # returns an object which looks like this (with all fields being
-  # optional):
-  #
-  # {
-  #   "s-maxage" : <seconds>
-  #   "proxy-revalidate" : true|false
-  #   "no-cache" : true|false
-  # }
-  _parseCacheControl: ( req ) ->
-    return {} unless req.headers["cache-control"]
-
-    res = {}
-    header = req.headers["cache-control"].replace new RegExp( " ", "g" ), ""
-
-    for directive in header.split ","
-      [ key, value ] = directive.split "="
-      value or= true
-
-      res[ key ] = value
-
-    return res
-
   getApiName: ( req, res, next ) =>
     { host } = req.headers
 
@@ -356,6 +307,7 @@ class exports.ApiaxleProxy extends AxleApp
           # copy the response headers
           res.setHeader hdr, val for hdr, val of proxyRes.headers
 
+          # pipe the actual request
           proxyRes.pipe res
 
         proxyReq.on "error", ( err ) => @handleProxyError err, req, res
