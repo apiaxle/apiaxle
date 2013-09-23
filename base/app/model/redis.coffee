@@ -330,7 +330,6 @@ for command in redisCommands
     RedisMulti::[ command ] = ( key, args... ) ->
       full_key = @getKey key
 
-      redismultidebug "RedisMulti '#{ command }' on '#{ key }'"
       RedisMulti.__super__[ command ].apply this, [ full_key, args... ]
 
     # Redis just offloads to the attached redis client. Perhaps we
