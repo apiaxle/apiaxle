@@ -12,7 +12,8 @@
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
   "version": "1.10.3",
   "bin": {
-    "apiaxle-proxy": "./apiaxle-proxy.js"
+    "apiaxle-proxy": "./apiaxle-proxy.js",
+    "apiaxle-proxy-queue-processor": "./apiaxle-proxy-queue-processor.js"
   },
   "dependencies": {
     "apiaxle-base": "1.10.3",
