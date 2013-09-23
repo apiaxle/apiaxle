@@ -6,7 +6,6 @@
 _ = require "lodash"
 urllib = require "url"
 async = require "async"
-httpProxy = require "http-proxy"
 
 cluster = require "cluster"
 
