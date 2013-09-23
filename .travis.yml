@@ -6,5 +6,4 @@ before_script:
   - "make link"
 script: "make test"
 node_js:
-  - "0.8"
   - "0.10"
