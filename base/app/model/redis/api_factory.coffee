@@ -81,10 +81,6 @@ class exports.ApiFactory extends Redis
         type: "integer"
         default: 2
         docs: "Seconds to wait before timing out the connection"
-      endPointMaxRedirects:
-        type: "integer"
-        default: 2
-        docs: "Max redirects that are allowed when endpoint called."
       extractKeyRegex:
         type: "string"
         docs: "Regular expression used to extract API key from url. Axle will use the **first** matched grouping and then apply that as the key. Using the `api_key` or `apiaxle_key` will take precedence."
