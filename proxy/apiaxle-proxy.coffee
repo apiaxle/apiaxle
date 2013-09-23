@@ -302,9 +302,20 @@ class exports.ApiaxleProxy extends AxleApp
         return @error err, req, res if err
 
         proxyReq = http.request @getHttpProxyOptions( req )
+
+        # make sure we timeout if asked to
+        proxyReq.setTimeout req.api.data.endPointTimeout
+
         proxyReq.on "response", ( proxyRes ) =>
           proxyRes.on "end", =>
-            @setTiming( "end-request" )( req, res, -> )
+            @setTiming( "end-request" ) req, res, =>
+              @model( "queue" ).publish "hit", JSON.stringify
+                api_name: req.api_name
+                key_name: req.key_name
+                keyring_names: req.keyring_names
+                timing: req.timing
+                parsed_url: req.parsed_url
+                status_code: proxyRes.statusCode
 
           # copy the response headers
           res.setHeader hdr, val for hdr, val of proxyRes.headers
