@@ -318,8 +318,9 @@ class exports.ApiaxleProxy extends AxleApp
         # use the correct module and create the correct agent (http vs
         # https)
         mod = if req.api.data.protocol is "https" then https else http
+
         req_options = @getHttpProxyOptions req
-        req_options.agent ||= new mod.Agent( maxSockets: 100 )
+        req_options.agent = new mod.Agent( maxSockets: 100 )
 
         proxyReq = mod.request req_options
 
