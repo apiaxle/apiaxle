@@ -23,6 +23,7 @@ cpus = require("os").cpus()
   DNSError } = require "./lib/error"
 
 { PathGlobs } = require "./lib/path_globs"
+{ ApiaxleQueueProcessor } = require "./apiaxle-proxy-queue-processor"
 
 class exports.ApiaxleProxy extends AxleApp
   @plugins = {}
@@ -36,10 +37,16 @@ class exports.ApiaxleProxy extends AxleApp
   # we don't use the constructor in scarf because we don't want to use
   # express in this instance.
   constructor: ( options ) ->
+    @setOptions options
+
     @hostname_caches = {}
     @endpoint_caches = {}
 
-    @setOptions options
+    # setup the queue processor if we need it
+    if @options.processQueue
+      @queue_proc = new ApiaxleQueueProcessor
+        name: options.name
+
     @path_globs = new PathGlobs()
 
   getApiName: ( req, res, next ) =>
@@ -293,6 +300,12 @@ class exports.ApiaxleProxy extends AxleApp
       @setTiming( "begin-request" )
     ]
 
+
+      # share the plugins with the queue proc
+    if @queue_proc?
+      @queue_proc.plugins = {}
+      @queue_proc.plugins.models = @plugins.models
+
     @server = http.createServer ( req, res ) =>
       # run the middleware, this will populate req.api etc
       ittr = ( f, cb ) -> f( req, res, cb )
@@ -309,13 +322,21 @@ class exports.ApiaxleProxy extends AxleApp
         proxyReq.on "response", ( proxyRes ) =>
           proxyRes.on "end", =>
             @setTiming( "end-request" ) req, res, =>
-              @model( "queue" ).publish "hit", JSON.stringify
+              hit_options =
                 api_name: req.api_name
                 key_name: req.key_name
                 keyring_names: req.keyring_names
                 timing: req.timing
                 parsed_url: req.parsed_url
                 status_code: proxyRes.statusCode
+
+              # we leave the processing to the queue handler. Just
+              # fire the message and forget.
+              if not @options.processQueue
+                return @model( "queue" ).publish "hit", JSON.stringify( hit_options )
+
+              # we need to handle the queue ourselves
+              @queue_proc.processHit hit_options
 
           # copy the response headers
           res.setHeader hdr, val for hdr, val of proxyRes.headers
@@ -379,6 +400,12 @@ if not module.parent
       alias: "fork-count"
       default: cpus.length
       describe: "How many internal processes to fork"
+    q:
+      alias: "process-queue"
+      default: false
+      describe: "If your willing to take the performance penalty, process " +
+                "each request from this system, rather than using " +
+                "apiaxle-proxy-queue-processor."
 
   optimism.boolean "help"
   optimism.describe "help", "Show this help screen"
@@ -402,6 +429,7 @@ if not module.parent
       name: "apiaxle"
       port: port
       host: host
+      processQueue: optimism.argv["process-queue"]
 
     all = []
 
