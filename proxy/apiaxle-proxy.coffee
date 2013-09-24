@@ -169,7 +169,7 @@ class exports.ApiaxleProxy extends AxleApp
 
         # this API doesn't know about the key
         if not supported
-          return cb new KeyError "'#{ req.key.id }' is not a valid req.key for '#{ req.req.api.id }'"
+          return cb new KeyError "'#{ req.key.id }' is not a valid req.key for '#{ req.api.id }'"
 
         return cb()
 
@@ -302,8 +302,7 @@ class exports.ApiaxleProxy extends AxleApp
       @setTiming( "begin-request" )
     ]
 
-
-      # share the plugins with the queue proc
+    # share the plugins with the queue proc
     if @queue_proc?
       @queue_proc.plugins = {}
       @queue_proc.plugins.models = @plugins.models
