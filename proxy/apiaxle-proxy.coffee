@@ -185,8 +185,8 @@ class exports.ApiaxleProxy extends AxleApp
 
       @endpoint_caches[ep] =
         host: host
-        port: ( port or 80 )
 
+      @endpoint_caches[ep].port = port if port
       @endpoint_caches[ep].timeout = ( req.api.data.endPointTimeout * 1000 )
 
     options = @endpoint_caches[ep]
@@ -317,11 +317,9 @@ class exports.ApiaxleProxy extends AxleApp
 
         # use the correct module and create the correct agent (http vs
         # https)
-        mod = if req.api.protocol is "https" then https else http
-        agent = new mod.Agent 100
-
+        mod = if req.api.data.protocol is "https" then https else http
         req_options = @getHttpProxyOptions req
-        req_options.agent = agent
+        req_options.agent ||= new mod.Agent( maxSockets: 100 )
 
         proxyReq = mod.request req_options
 
