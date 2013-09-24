@@ -7,7 +7,9 @@ _ = require "lodash"
 urllib = require "url"
 async = require "async"
 crypto = require "crypto"
+
 http = require "http"
+https = require "https"
 
 cluster = require "cluster"
 cpus = require("os").cpus()
@@ -314,7 +316,15 @@ class exports.ApiaxleProxy extends AxleApp
       async.eachSeries mw, ittr, ( err ) =>
         return @error err, req, res if err
 
-        proxyReq = http.request @getHttpProxyOptions( req )
+        # use the correct module and create the correct agent (http vs
+        # https)
+        mod = if req.api.protocol is "https" then https else http
+        agent = new mod.Agent 100
+
+        req_options = @getHttpProxyOptions req
+        req_options.agent = agent
+
+        proxyReq = mod.request req_options
 
         # make sure we timeout if asked to
         proxyReq.setTimeout req.api.data.endPointTimeout
