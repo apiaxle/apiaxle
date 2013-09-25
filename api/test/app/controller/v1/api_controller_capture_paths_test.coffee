@@ -112,7 +112,8 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
         @phil.id,
         [ @ring1.id, @ring3.id ],
         [ "/animal/noise", "/animal/noise/*" ],
-        100
+        100,
+        Date.now()
       ]
 
       @app.model( "capturepaths" ).log args..., cb
@@ -124,7 +125,8 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
         @bob.id,
         [ @ring2.id, @ring3.id ]
         [ "/animal/noise" ]
-        200
+        200,
+        Date.now()
       ]
 
       @app.model( "capturepaths" ).log args..., cb

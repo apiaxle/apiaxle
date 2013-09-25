@@ -183,7 +183,7 @@ class exports.ArbStatsTest extends FakeAppTest
     # log a counter
     all.push ( cb ) =>
       multi = @model.multi()
-      @model.logCounter multi, [ "NS" ], "bob", ( err ) =>
+      @model.logCounter multi, [ "NS" ], "bob", Date.now(), ( err ) =>
         @ok not err
 
         # should be called once for each granularity
@@ -202,7 +202,7 @@ class exports.ArbStatsTest extends FakeAppTest
     # log another counter in the same second
     all.push ( cb ) =>
       multi = @model.multi()
-      @model.logCounter multi, [ "NS" ], "frank", ( err ) =>
+      @model.logCounter multi, [ "NS" ], "frank", Date.now(), ( err ) =>
         @ok not err
 
         # should be called once for each granularity
@@ -224,7 +224,7 @@ class exports.ArbStatsTest extends FakeAppTest
       clock.addSeconds 2
 
       multi = @model.multi()
-      @model.logCounter multi, [ "NS" ], "bob", ( err ) =>
+      @model.logCounter multi, [ "NS" ], "bob", Date.now(), ( err ) =>
         @ok not err
 
         # should be called once for each granularity

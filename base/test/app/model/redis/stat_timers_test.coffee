@@ -17,14 +17,14 @@ class exports.TimerStatsTest extends FakeAppTest
     sum += i for i in arr
     return ( sum / arr.length )
 
-  _logManyTimes: ( name, times, cb ) ->
+  _logManyTimes: ( name, durations, cb ) ->
     all = []
 
-    for time in times
-      do( time ) =>
+    for duration in durations
+      do( duration ) =>
         all.push ( cb ) =>
           multi = @model.multi()
-          @model.logTiming multi, [ "NS" ], name, time, ( err ) =>
+          @model.logTiming multi, [ "NS" ], name, duration, Date.now(), ( err ) =>
             return cb err if err
             multi.exec cb
 

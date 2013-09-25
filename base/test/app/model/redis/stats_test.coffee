@@ -67,11 +67,10 @@ class exports.StatsTest extends FakeAppTest
     multi = @model.multi()
 
     clock.set now
-    @model.recordHit multi, ["key","1234", "200"]
+    @model.recordHit multi, now_seconds, ["key","1234", "200"]
 
-    # jump into the next hour
     clock.set next
-    @model.recordHit multi, ["key","1234", "200"]
+    @model.recordHit multi, next_seconds, ["key","1234", "200"]
 
     multi.exec ( err ) =>
       @ok not err
@@ -80,8 +79,8 @@ class exports.StatsTest extends FakeAppTest
 
       @model.get ["key", "1234", "200"], "second", from, to, ( err, result ) =>
         @ok not err
-        @equal result[now_seconds],1
-        @equal result[next_seconds],1
+        @equal result[now_seconds], 1
+        @equal result[next_seconds], 1
         done 4
 
   "test #Invalid time range": ( done ) ->
@@ -101,11 +100,11 @@ class exports.StatsTest extends FakeAppTest
   "test #getScores": ( done ) ->
     multi = @model.multi()
 
-    @model.recordScore multi, [ "key" ], "1234"
-    @model.recordScore multi, [ "key" ], "1234"
-    @model.recordScore multi, [ "key" ], "1234"
+    @model.recordScore multi, Date.now(), [ "key" ], "1234"
+    @model.recordScore multi, Date.now(), [ "key" ], "1234"
+    @model.recordScore multi, Date.now(), [ "key" ], "1234"
 
-    @model.recordScore multi, [ "key" ], "1235"
+    @model.recordScore multi, Date.now(), [ "key" ], "1235"
 
     multi.exec ( err ) =>
       @ok not err
