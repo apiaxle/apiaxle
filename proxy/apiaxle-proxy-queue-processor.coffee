@@ -46,7 +46,7 @@ class exports.ApiaxleQueueProcessor extends AxleApp
         duration = ( timing["end-request"] - timing["start-request"] )
 
         # the actual clock time this happened
-        time = timing.first
+        time = Math.floor( timing.first / 1000 )
 
         all.push ( cb ) =>
           model = @model "stats"
@@ -58,7 +58,7 @@ class exports.ApiaxleQueueProcessor extends AxleApp
 
           # add more timers here if need be
           timers = [
-            ( cb ) -> timersModel.logTiming multi, [ api_name ], "http-request", duration, cb
+            ( cb ) -> timersModel.logTiming multi, [ api_name ], "http-request", duration, time, cb
           ]
 
           async.series timers, ( err ) ->

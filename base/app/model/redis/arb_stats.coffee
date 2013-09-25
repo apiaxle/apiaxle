@@ -148,12 +148,12 @@ class exports.StatCounters extends Stat
 
     @hkeys [ "meta", "counter-names", namespace ], cb
 
-  logCounter: ( multi, namespace, name, cb ) ->
+  logCounter: ( multi, namespace, name, time, cb ) ->
     namespace = @namespace namespace
 
     # we store the timestamp against all possible names just so that
     # we can tidy them up later (we can't use expire on hash values)
-    multi.hset [ "meta", "counter-names", namespace ], name, @toSeconds()
+    multi.hset [ "meta", "counter-names", namespace ], name, time
 
     setter = ( rounded_ts, redis_key, props, cb ) ->
       # increment the value and then set its ttl
@@ -181,10 +181,10 @@ class exports.StatTimers extends Stat
       return cb null, JSON.parse( values ), parseInt( count ) if values
       return cb null, null, 0
 
-  _getNewValues: ( timespan, min, max, average, count ) ->
-    new_avg = ( ( ( average * count ) + timespan ) / ( count + 1 ) )
-    new_min = if timespan < min then timespan else min
-    new_max = if timespan > max then timespan else max
+  _getNewValues: ( duration, min, max, average, count ) ->
+    new_avg = ( ( ( average * count ) + duration ) / ( count + 1 ) )
+    new_min = if duration < min then duration else min
+    new_max = if duration > max then duration else max
 
     # the / 1 hack is to convert the avg to a number
     return [ new_min, new_max, ( new_avg.toFixed( 2 ) / 1 ) ]
@@ -197,11 +197,11 @@ class exports.StatTimers extends Stat
   getAllTimerNames: ( namespace, cb ) ->
     @hkeys [ "meta", "timer-names", @namespace namespace ], cb
 
-  logTiming: ( multi, namespace, name, timespan, cb ) ->
+  logTiming: ( multi, namespace, name, duration, time, cb ) ->
     namespace = @namespace namespace
 
     # store the name of the timer
-    multi.hset [ "meta", "timer-names", namespace ], name, @toSeconds()
+    multi.hset [ "meta", "timer-names", namespace ], name, time
 
     setter = ( rounded_ts, redis_key, props, cb ) =>
       @_getCurrentValues redis_key, rounded_ts, ( err, values, count ) =>
@@ -210,9 +210,9 @@ class exports.StatTimers extends Stat
         # if we haven't stored in this section before then the new
         # values /are/ the min, max, avg and count is 1
         new_values = if not values?
-          [ timespan, timespan, timespan ]
+          [ duration, duration, duration ]
         else
-          @_getNewValues timespan, values..., count
+          @_getNewValues duration, values..., count
 
         # set the new values
         multi.hset redis_key, rounded_ts, JSON.stringify( new_values )
