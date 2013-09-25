@@ -71,11 +71,12 @@ class exports.ApiaxleQueueProcessor extends AxleApp
                                  keyring_names,
                                  parsed_url,
                                  duration,
+                                 time,
                                  cb
 
       return async.series all, cb
 
-  logCapturedPathsMaybe: ( api, key_name, keyring_names, parsed_url, timing, cb ) ->
+  logCapturedPathsMaybe: ( api, key_name, keyring_names, parsed_url, duration, time, cb ) ->
     { pathname, query } = parsed_url
 
     # only if we have some paths
@@ -92,7 +93,7 @@ class exports.ApiaxleQueueProcessor extends AxleApp
       matches = @path_globs.matchPathDefinitions pathname, query, capture_paths
 
       args = [ api.id, key_name, keyring_names ]
-      return countersModel.log args..., matches, timing, cb
+      return countersModel.log args..., matches, duration, time, cb
 
   error: ( err, type="warn" ) ->
     @logger[type] "#{ err.name } - #{ err.message }"

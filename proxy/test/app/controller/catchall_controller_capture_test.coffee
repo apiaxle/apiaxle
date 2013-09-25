@@ -73,6 +73,7 @@ class exports.CaptureTest extends ApiaxleTest
       timing:
         "start-request": 6
         "end-request": 10
+        "first": Date.now()
       parsed_url:
         query: {}
 
