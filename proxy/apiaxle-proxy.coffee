@@ -178,18 +178,18 @@ class exports.ApiaxleProxy extends AxleApp
       return next()
 
   getHttpProxyOptions: ( req ) ->
-    ep = req.api.data.endPoint
+    key = "#{ req.api.data.protocol }#{ req.api.data.endPoint }"
 
-    if not @endpoint_caches[ep]
-      [ host, port ] = ep.split ":"
+    if not @endpoint_caches[key]
+      [ host, port ] = req.api.data.endPoint.split ":"
 
-      @endpoint_caches[ep] =
+      @endpoint_caches[key] =
         host: host
 
-      @endpoint_caches[ep].port = port if port
-      @endpoint_caches[ep].timeout = ( req.api.data.endPointTimeout * 1000 )
+      @endpoint_caches[key].port = port if port
+      @endpoint_caches[key].timeout = ( req.api.data.endPointTimeout * 1000 )
 
-    options = @endpoint_caches[ep]
+    options = @endpoint_caches[key]
     options.path = @buildPath req
 
     delete req.headers.host
@@ -259,7 +259,7 @@ class exports.ApiaxleProxy extends AxleApp
 
   run: ( cb ) ->
     # takes the request, a name and a cb. Used to make a suitable
-    # callback replacement that can assign to req[thing_name]
+    # callback rkeylacement that can assign to req[thing_name]
     assReq = ( req, res, name, cb ) =>
       return ( err, result ) =>
         return cb @error( err, req, res ) if err
@@ -320,7 +320,7 @@ class exports.ApiaxleProxy extends AxleApp
         mod = if req.api.data.protocol is "https" then https else http
 
         req_options = @getHttpProxyOptions req
-        req_options.agent = new mod.Agent( maxSockets: 100 )
+        req_options.agent ||= new mod.Agent( maxSockets: 100 )
 
         proxyReq = mod.request req_options
 
