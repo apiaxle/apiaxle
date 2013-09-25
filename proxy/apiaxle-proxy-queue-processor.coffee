@@ -43,22 +43,22 @@ class exports.ApiaxleQueueProcessor extends AxleApp
             return model.hit api_name, key_name, ( keyring_names or [] ), "error", error.name, cb
       else
         # the request time in ms
-        time = ( timing["end-request"] - timing["start-request"] )
+        duration = ( timing["end-request"] - timing["start-request"] )
+
+        # the actual clock time this happened
+        time = timing.first
 
         all.push ( cb ) =>
           model = @model "stats"
-          return model.hit api_name, key_name, keyring_names, "uncached", status_code, cb
+          return model.hit api_name, key_name, keyring_names, "uncached", status_code, time, cb
 
         all.push ( cb ) =>
           timersModel = @model "stattimers"
           multi = timersModel.multi()
 
-          # the request time in ms
-          time = ( timing["end-request"] - timing["start-request"] )
-
           # add more timers here if need be
           timers = [
-            ( cb ) -> timersModel.logTiming multi, [ api_name ], "http-request", time, cb
+            ( cb ) -> timersModel.logTiming multi, [ api_name ], "http-request", duration, cb
           ]
 
           async.series timers, ( err ) ->
@@ -70,7 +70,7 @@ class exports.ApiaxleQueueProcessor extends AxleApp
                                  key_name,
                                  keyring_names,
                                  parsed_url,
-                                 time,
+                                 duration,
                                  cb
 
       return async.series all, cb
