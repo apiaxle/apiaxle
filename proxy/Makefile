@@ -24,7 +24,7 @@ bin: apiaxle-proxy.js apiaxle-proxy-queue-processor.js
 	sed -i '1i#!/usr/bin/env node' $^
 
 test:
-	timeout 40 $(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
+	$(TWERP) $(MY_TWERP_OPTIONS) `find test -name '*_test.coffee'`
 
 coverage: link $(JS)
 	istanbul cover $(TWERP) `find test -name '*_test.js'`
