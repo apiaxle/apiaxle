@@ -299,7 +299,7 @@ class exports.ApiaxleProxy extends AxleApp
       @applyLimits,
       @setTiming( "end-limits-applied" ),
 
-      @setTiming( "begin-request" )
+      @setTiming( "start-request" )
     ]
 
     # share the plugins with the queue proc
