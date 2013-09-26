@@ -25,7 +25,7 @@ cpus = require("os").cpus()
   DNSError } = require "./lib/error"
 
 { PathGlobs } = require "./lib/path_globs"
-{ ApiaxleQueueProcessor } = require "./apiaxle-proxy-queue-processor"
+{ ApiaxleQueueProcessor } = require "./apiaxle-proxy-event-subscriber"
 
 class exports.ApiaxleProxy extends AxleApp
   @plugins = {}
@@ -413,7 +413,7 @@ if not module.parent
       default: false
       describe: "If your willing to take the performance penalty, process " +
                 "each request from this system, rather than using " +
-                "apiaxle-proxy-queue-processor."
+                "apiaxle-proxy-event-subscriber."
 
   optimism.boolean "help"
   optimism.describe "help", "Show this help screen"

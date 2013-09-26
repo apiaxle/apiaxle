@@ -8,7 +8,7 @@ libxml = require "libxmljs"
 
 { RedisMulti } = require "../../../../base/app/model/redis"
 { ApiaxleTest } = require "../../apiaxle"
-{ ApiaxleQueueProcessor } = require "../../../apiaxle-proxy-queue-processor"
+{ ApiaxleQueueProcessor } = require "../../../apiaxle-proxy-event-subscriber"
 
 class exports.TimersTest extends ApiaxleTest
   @start_webserver = true

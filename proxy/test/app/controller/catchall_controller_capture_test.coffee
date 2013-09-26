@@ -8,7 +8,7 @@ nock = require "nock"
 
 { ApiaxleTest } = require "../../apiaxle"
 { RedisMulti } = require "../../../../base/app/model/redis"
-{ ApiaxleQueueProcessor } = require "../../../apiaxle-proxy-queue-processor"
+{ ApiaxleQueueProcessor } = require "../../../apiaxle-proxy-event-subscriber"
 
 class exports.CaptureTest extends ApiaxleTest
   @start_webserver = true

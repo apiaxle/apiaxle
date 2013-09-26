@@ -20,7 +20,7 @@ npminstall:
 link:
 	npm link ../base
 
-bin: apiaxle-proxy.js apiaxle-proxy-queue-processor.js
+bin: apiaxle-proxy.js apiaxle-proxy-event-subscriber.js
 	sed -i '1i#!/usr/bin/env node' $^
 
 test:
