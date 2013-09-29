@@ -320,7 +320,9 @@ class exports.ApiaxleProxy extends AxleApp
         mod = if req.api.data.protocol is "https" then https else http
 
         req_options = @getHttpProxyOptions req
-        req_options.agent ||= new mod.Agent( maxSockets: 100 )
+        req_options.agent ||= new mod.Agent
+          maxSockets: 100
+          rejectUnauthorized: req.api.data.strictSSL
 
         proxyReq = mod.request req_options
 
