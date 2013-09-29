@@ -325,7 +325,11 @@ class exports.ApiaxleProxy extends AxleApp
         proxyReq = mod.request req_options
 
         # make sure we timeout if asked to
-        proxyReq.setTimeout req.api.data.endPointTimeout
+        proxyReq.setTimeout ( req.api.data.endPointTimeout * 1000 ), ->
+          e = new Error "ETIMEDOUT"
+          e.code = "ETIMEDOUT"
+          proxyReq.emit "error", e
+          proxyReq.abort()
 
         proxyReq.on "response", ( proxyRes ) =>
           proxyRes.on "end", =>
