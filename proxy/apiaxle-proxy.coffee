@@ -402,7 +402,7 @@ if not module.parent
   optimism = require( "optimist" ).options
     p:
       alias: "port"
-      default: 3000
+      default: 4000
       describe: "Port to bind the proxy to."
     h:
       alias: "host"
