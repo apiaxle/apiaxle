@@ -101,15 +101,12 @@ class exports.ApiaxleQueueProcessor extends AxleApp
   run: ->
     queue = @model( "queue" )
 
-    queue.ee.on "hit", ( chan, message ) =>
-      @processHit JSON.parse( message ), ->
+    p = =>
+      queue.brpop "queue", 2000, ( err, message ) =>
+        @processHit JSON.parse( message[1] ), =>
+          setTimeout p, 1
 
-    try
-      queue.listen()
-      queue.subscribe "hit"
-    catch err
-      @error err, "error"
-      process.exit 1
+    p()
 
 if not module.parent
   optimism = require( "optimist" ).options {}

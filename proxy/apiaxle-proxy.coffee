@@ -347,7 +347,7 @@ class exports.ApiaxleProxy extends AxleApp
               # we leave the processing to the queue handler. Just
               # fire the message and forget.
               if not @options.processQueue
-                return @model( "queue" ).publish "hit", JSON.stringify( hit_options )
+                return @model( "queue" ).rpush "queue", JSON.stringify( hit_options )
 
               # we need to handle the queue ourselves
               @queue_proc.processHit hit_options

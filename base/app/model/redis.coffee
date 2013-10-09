@@ -283,6 +283,7 @@ class KeyContainerModel extends Model
 
 redisCommands = [
   "decr",
+  "brpop",
   "del",
   "exists",
   "expire",
