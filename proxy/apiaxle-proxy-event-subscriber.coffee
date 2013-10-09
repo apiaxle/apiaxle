@@ -112,12 +112,7 @@ class exports.ApiaxleQueueProcessor extends AxleApp
       process.exit 1
 
 if not module.parent
-  optimism = require( "optimist" ).options
-    f:
-      alias: "fork-count"
-      default: 1
-      describe: "How many internal processes to fork"
-
+  optimism = require( "optimist" ).options {}
   optimism.boolean "help"
   optimism.describe "help", "Show this help screen"
 
@@ -127,7 +122,7 @@ if not module.parent
 
   if cluster.isMaster
     # fork for each CPU or the specified amount
-    cluster.fork() for i in [ 1..optimism.argv["fork-count"] ]
+    cluster.fork()
 
     cluster.on "exit", ( worker, code, signal ) ->
       console.log( "Worker #{ worker.process.pid } died." )
