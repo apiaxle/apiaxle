@@ -10,7 +10,7 @@
   ],
   "description": "ApiAxle's own API. Provision keys and APIs.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "1.11.4",
+  "version": "1.11.5",
   "main": "index",
   "scripts": {
     "test": "cake test"
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "lodash": "~1.2.0",
-    "apiaxle-base": "1.11.4",
+    "apiaxle-base": "1.11.5",
     "libxmljs": "~0.7.1",
     "moment": "~2.0.0",
     "scarf": "0.0.10",
