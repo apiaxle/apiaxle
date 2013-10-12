@@ -369,8 +369,7 @@ class exports.ApiaxleProxy extends AxleApp
 
     req.error = err
 
-    # no status and a new error field
-    @model( "queue" ).publish "hit", JSON.stringify
+    details =
       api_name: req.api_name
       key_name: req.key_name
       keyring_names: req.keyring_names
@@ -378,8 +377,23 @@ class exports.ApiaxleProxy extends AxleApp
       parsed_url: req.parsed_url
       error: req.error
 
+    run = []
+
+    if not @options.processQueue
+      run.push ( cb ) =>
+        @model( "queue" ).rpush "queue", JSON.stringify( details ), cb
+    else
+      run.push ( cb ) =>
+        @queue_proc.processHit details, cb
+
     # now for the actual response
-    super err, req, res
+    async.series run, ( subErr, results ) =>
+      spr = exports.ApiaxleProxy.__super__.error
+
+      if subErr
+        return spr.apply this, [ subErr, req, res ]
+
+      return spr.apply this, [ err, req, res ]
 
   handleProxyError: ( err, req, res ) =>
     statsModel = @model "stats"

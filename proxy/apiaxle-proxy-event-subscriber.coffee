@@ -31,6 +31,9 @@ class exports.ApiaxleQueueProcessor extends AxleApp
     # nothing we can really do here other than log
     return cb error if error and not api_name
 
+    # the actual clock time this happened
+    time = Math.floor( timing.first / 1000 )
+
     @model( "apifactory" ).find [ api_name ], ( err, results ) =>
       return cb err if err
 
@@ -39,14 +42,16 @@ class exports.ApiaxleQueueProcessor extends AxleApp
       if error
         if key_name
           all.push ( cb ) =>
-            model = @model "stats"
-            return model.hit api_name, key_name, ( keyring_names or [] ), "error", error.name, cb
+            return @model( "stats" ).hit api_name,
+                                         key_name,
+                                         ( keyring_names or [] ),
+                                         "error",
+                                         error.name,
+                                         time,
+                                         cb
       else
         # the request time in ms
         duration = ( timing["end-request"] - timing["start-request"] )
-
-        # the actual clock time this happened
-        time = Math.floor( timing.first / 1000 )
 
         all.push ( cb ) =>
           model = @model "stats"
