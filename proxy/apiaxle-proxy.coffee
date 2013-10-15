@@ -336,9 +336,8 @@ class exports.ApiaxleProxy extends AxleApp
         ended = no
 
         proxyReq.on "response", ( proxyRes ) =>
-          proxyRes.on "close", =>
-            if not ended
-              proxyRes.emit "end"
+          proxyRes.on "close", ->
+            proxyRes.emit "end" if not ended
 
           proxyRes.on "end", =>
             ended = yes
