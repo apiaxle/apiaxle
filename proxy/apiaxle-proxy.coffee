@@ -333,8 +333,16 @@ class exports.ApiaxleProxy extends AxleApp
           proxyReq.emit "error", e
           proxyReq.abort()
 
+        ended = no
+
         proxyReq.on "response", ( proxyRes ) =>
+          proxyRes.on "close", =>
+            if not ended
+              proxyRes.emit "end"
+
           proxyRes.on "end", =>
+            ended = yes
+
             @setTiming( "end-request" ) req, res, =>
               hit_options =
                 api_name: req.api_name
@@ -353,7 +361,7 @@ class exports.ApiaxleProxy extends AxleApp
               @queue_proc.processHit hit_options
 
           # copy the response headers
-          res.setHeader hdr, val for hdr, val of proxyRes.headers
+          res.writeHead proxyRes.statusCode, proxyRes.headers
 
           # pipe the actual request
           proxyRes.pipe res
