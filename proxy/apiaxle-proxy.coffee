@@ -14,7 +14,9 @@ https = require "https"
 cluster = require "cluster"
 cpus = require("os").cpus()
 
+{ tconst } = require "apiaxle-base"
 { AxleApp } = require "apiaxle-base"
+
 { ApiUnknown,
   KeyError,
   ApiDisabled,
@@ -112,8 +114,11 @@ class exports.ApiaxleProxy extends AxleApp
       # now link the key
       create_link.push ( cb ) -> req.api.linkKey key_name, cb
 
-      async.series create_link, ( err, [ new_key ] ) ->
-        return cb err, new_key
+      # have this key expire in a day (as it's temorary)
+      create_link.push ( cb ) -> model.expire key_name, tconst.days( 1 ), cb
+
+      # return the new key
+      async.series create_link, ( err, [ new_key ] ) -> cb err, new_key
 
   getKeyName: ( req, res, next ) =>
     { apiaxle_key, api_key } = req.parsed_url.query

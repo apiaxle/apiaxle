@@ -8,3 +8,4 @@ module.exports =
   Module: require( "./lib/module" ).Module
   package: require( "./package.json" )
   ValidationError: require( "./lib/error" ).ValidationError
+  tconst: require "./lib/time_constants"
