@@ -87,20 +87,60 @@ class exports.ApiaxleProxy extends AxleApp
       req.api = api
       return next()
 
+  # create a key (which expires) from the IP address and use
+  # that. Assumes req.api.data.extractKeyRegex has already been
+  # checked.
+  createKeyBasedOnIp: ( req, cb ) ->
+    # try to get the ip address
+    ip = ( req.headers["x-fowarded-for"] or req.connection.remoteAddress )
+    key_name = "ip-#{ ip }"
+
+    model = @model "keyfactory"
+    model.find [ key_name ], ( err, results ) =>
+      return cb err if err
+
+      # we've a hit, return the key
+      return cb null, results[key_name] if results[key_name]
+
+      create_link = []
+
+      # create the key
+      create_link.push ( cb ) ->
+        { keylessQps, keylessQpd } = req.api.data
+        model.create key_name, { qps: keylessQps, qpd: keylessQpd }, cb
+
+      # now link the key
+      create_link.push ( cb ) -> req.api.linkKey key_name, cb
+
+      async.series create_link, ( err, [ new_key ] ) ->
+        return cb err, new_key
+
   getKeyName: ( req, res, next ) =>
-    key = ( req.parsed_url.query.apiaxle_key or req.parsed_url.query.api_key )
+    { apiaxle_key, api_key } = req.parsed_url.query
 
-    # if the key isn't a query param, check a regex
-    if not key
-      key = @getRegexKey req.url, req.api.data.extractKeyRegex
+    if req.key_name = ( apiaxle_key or api_key )
+      return next()
 
-    if not key
-      return next new KeyError "No api_key specified."
+    # if the key isn't a query param, check a regexp on the url
+    if req.key_name = @getRegexKey req.url, req.api.data.extractKeyRegex
+      return next()
 
-    req.key_name = key
-    return next()
+    # base the keys on ip addresses
+    if req.api.data.allowKeylessUse
+      return @createKeyBasedOnIp req, ( err, key ) ->
+        # setting req.key here means we won't try to fetch it from
+        # redis again later
+        req.key = key
+        req.key_name = key.id
+        return next()
+
+    return next new KeyError "No api_key specified."
 
   getKey: ( req, res, next ) =>
+    # it's possible we've already got this thanks to the keyless
+    # stuff
+    return next() if req.key
+
     @model( "keyfactory" ).find [ req.key_name ], ( err, results ) =>
       return next err if err
 
@@ -169,7 +209,7 @@ class exports.ApiaxleProxy extends AxleApp
 
         # this API doesn't know about the key
         if not supported
-          return cb new KeyError "'#{ req.key.id }' is not a valid req.key for '#{ req.api.id }'"
+          return cb new KeyError "'#{ req.key.id }' is not a valid key for '#{ req.api.id }'"
 
         return cb()
 
