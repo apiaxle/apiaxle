@@ -110,3 +110,18 @@ class exports.ApiFactory extends Redis
         type: "boolean"
         default: false
         docs: "When true ApiAxle will parse and capture bits of information about the API being called."
+      allowKeylessUse:
+        type: "boolean"
+        optional: true
+        default: false
+        docs: "If true then allow keyless access to this API. Also see keylessQps and keylessQpd."
+      keylessQps:
+        type: "integer"
+        optional: false
+        default: 2
+        docs: "How many queries per second an anonymous key should have."
+      keylessQpd:
+        type: "integer"
+        optional: false
+        default: 172800
+        docs: "How many queries per day an anonymous key should have."
