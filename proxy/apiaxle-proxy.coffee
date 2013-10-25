@@ -94,7 +94,13 @@ class exports.ApiaxleProxy extends AxleApp
   # checked.
   createKeyBasedOnIp: ( req, cb ) ->
     # try to get the ip address
-    ip = ( req.headers["x-fowarded-for"] or req.connection.remoteAddress )
+    # TODO: I think x-forwarded-for can have many, comma seperated
+    # addresses.
+    ip = req.headers['x-forwarded-for'] or
+         req.connection.remoteAddress or
+         req.socket.remoteAddress or
+         req.connection.socket.remoteAddress
+
     key_name = "ip-#{ ip }"
 
     model = @model "keyfactory"
