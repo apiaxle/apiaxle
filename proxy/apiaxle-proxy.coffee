@@ -104,18 +104,18 @@ class exports.ApiaxleProxy extends AxleApp
       # we've a hit, return the key
       return cb null, results[key_name] if results[key_name]
 
-      create_link = []
+      create_link = [
+        # create the key
+        ( cb ) ->
+          { keylessQps, keylessQpd } = req.api.data
+          model.create key_name, { qps: keylessQps, qpd: keylessQpd }, cb
 
-      # create the key
-      create_link.push ( cb ) ->
-        { keylessQps, keylessQpd } = req.api.data
-        model.create key_name, { qps: keylessQps, qpd: keylessQpd }, cb
+        # now link the key
+        ( cb ) -> req.api.linkKey key_name, cb
 
-      # now link the key
-      create_link.push ( cb ) -> req.api.linkKey key_name, cb
-
-      # have this key expire in a day (as it's temorary)
-      create_link.push ( cb ) -> model.expire key_name, tconst.days( 1 ), cb
+        # have this key expire in a day (as it's temorary)
+        ( cb ) -> model.expire key_name, tconst.days( 1 ), cb
+      ]
 
       # return the new key
       async.series create_link, ( err, [ new_key ] ) -> cb err, new_key
