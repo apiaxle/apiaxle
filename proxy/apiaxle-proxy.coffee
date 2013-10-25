@@ -138,6 +138,9 @@ class exports.ApiaxleProxy extends AxleApp
 
     # base the keys on ip addresses
     if req.api.data.allowKeylessUse
+      # notify the stats system that this is a keyless request
+      req.is_keyless = true
+
       return @createKeyBasedOnIp req, ( err, key ) ->
         # setting req.key here means we won't try to fetch it from
         # redis again later
@@ -399,6 +402,7 @@ class exports.ApiaxleProxy extends AxleApp
               hit_options =
                 api_name: req.api_name
                 key_name: req.key_name
+                is_keyless: ( not not req.is_keyless )
                 keyring_names: req.keyring_names
                 timing: req.timing
                 parsed_url: req.parsed_url
@@ -432,6 +436,7 @@ class exports.ApiaxleProxy extends AxleApp
     details =
       api_name: req.api_name
       key_name: req.key_name
+      is_keyless: ( not not req.is_keyless )
       keyring_names: req.keyring_names
       timing: req.timing
       parsed_url: req.parsed_url
