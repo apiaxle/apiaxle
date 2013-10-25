@@ -26,6 +26,7 @@ class exports.ApiaxleQueueProcessor extends AxleApp
       key_name,
       keyring_names,
       timing,
+      is_keyless,
       parsed_url } = options
 
     # nothing we can really do here other than log
