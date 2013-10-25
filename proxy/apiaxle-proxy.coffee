@@ -257,15 +257,8 @@ class exports.ApiaxleProxy extends AxleApp
       req.timing[name] = now - req.timing.first
       next()
 
-  run: ( cb ) ->
-    # takes the request, a name and a cb. Used to make a suitable
-    # callback rkeylacement that can assign to req[thing_name]
-    assReq = ( req, res, name, cb ) =>
-      return ( err, result ) =>
-        return cb @error( err, req, res ) if err
-        return cb null, ( req[name] = result )
-
-    mw = [
+  middleware: ->
+    return [
       # puts the query params on req
       @setTiming( "start-url-parsed" ),
       @parseUrl,
@@ -302,6 +295,15 @@ class exports.ApiaxleProxy extends AxleApp
       @setTiming( "start-request" )
     ]
 
+
+  run: ( cb ) ->
+    # takes the request, a name and a cb. Used to make a suitable
+    # callback rkeylacement that can assign to req[thing_name]
+    assReq = ( req, res, name, cb ) =>
+      return ( err, result ) =>
+        return cb @error( err, req, res ) if err
+        return cb null, ( req[name] = result )
+
     # share the plugins with the queue proc
     if @queue_proc?
       @queue_proc.plugins = {}
@@ -312,7 +314,7 @@ class exports.ApiaxleProxy extends AxleApp
       ittr = ( f, cb ) -> f( req, res, cb )
 
       # run the middleware above
-      async.eachSeries mw, ittr, ( err ) =>
+      async.eachSeries @middleware(), ittr, ( err ) =>
         return @error err, req, res if err
 
         # use the correct module and create the correct agent (http vs
