@@ -96,7 +96,7 @@ class exports.ApiaxleProxy extends AxleApp
     # try to get the ip address
     # TODO: I think x-forwarded-for can have many, comma seperated
     # addresses.
-    ip = req.headers['x-forwarded-for'] or
+    ip = req.headers["x-forwarded-for"] or
          req.connection.remoteAddress or
          req.socket.remoteAddress or
          req.connection.socket.remoteAddress
