@@ -114,14 +114,22 @@ class exports.ApiFactory extends Redis
         type: "boolean"
         optional: true
         default: false
-        docs: "If true then allow keyless access to this API. Also see keylessQps and keylessQpd."
+        docs: "If true then allow for keyless access to this API. Also see keylessQps and keylessQpd."
       keylessQps:
         type: "integer"
         optional: false
         default: 2
-        docs: "How many queries per second an anonymous key should have."
+        docs: "How many queries per second an anonymous key should have " +
+              "when it's created. Note that changing this will not affect " +
+              "on temporary keys that have already been created. However, as " +
+              "temprary keys only live for 24 hours, this limit will be " +
+              "applied when that period expires."
       keylessQpd:
         type: "integer"
         optional: false
         default: 172800
-        docs: "How many queries per day an anonymous key should have."
+        docs: "How many queries per day an anonymous key should have " +
+              "when it's created. Note that changing this will not affect " +
+              "on temporary keys that have already been created. However, as " +
+              "temprary keys only live for 24 hours, this limit will be " +
+              "applied when that period expires."
