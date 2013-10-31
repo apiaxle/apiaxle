@@ -103,7 +103,10 @@ class exports.ReplHelper
 
   processLine: ( line, cb ) ->
     return cb() if /^\s*$/.exec line
-    details = parser line
+    try
+      details = parser line
+    catch err
+      return cb null, "Parser error: #{ err.message } (try quoting?)"
 
     @runCommands details, cb
 
