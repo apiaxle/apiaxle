@@ -4,6 +4,7 @@
 # Copyright 2011-2013 Philip Jackson.
 
 _ = require "lodash"
+qs = require "querystring"
 urllib = require "url"
 async = require "async"
 crypto = require "crypto"
@@ -273,10 +274,9 @@ class exports.ApiaxleProxy extends AxleApp
       delete query.apiaxle_key
       delete query.api_key
 
+
     if not _.isEmpty query
-      endpointUrl += "?"
-      newStrings = ( "#{ key }=#{ value }" for key, value of query )
-      endpointUrl += newStrings.join( "&" )
+      endpointUrl += "?#{ qs.stringify query }"
 
     # here's the actual setting
     return endpointUrl
