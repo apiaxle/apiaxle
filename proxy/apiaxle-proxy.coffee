@@ -469,7 +469,9 @@ class exports.ApiaxleProxy extends AxleApp
     # I'm not sure what the right thing to do here is. There could be
     # floods of these from dodgy clients. Perhaps a counter in the
     # future?
-    return res.end() if err.code is "ECONNRESET"
+    if err.code is "ECONNRESET"
+      @logger.debug "Received an #{ err.code }."
+      return
 
     # if we know how to handle an error then we also log it
     error = if err_func = @constructor.ENDPOINT_ERROR_MAP[ err.code ]
