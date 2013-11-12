@@ -10,13 +10,13 @@
   ],
   "description": "The actual proxy part of ApiAxle.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "1.12.2",
+  "version": "1.12.3",
   "bin": {
     "apiaxle-proxy": "./apiaxle-proxy.js",
     "apiaxle-proxy-event-subscriber": "./apiaxle-proxy-event-subscriber.js"
   },
   "dependencies": {
-    "apiaxle-base": "1.12.2",
+    "apiaxle-base": "1.12.3",
     "libxmljs": "0.7.1",
     "lodash": "~2.2.1",
     "scarf": "0.0.10",
