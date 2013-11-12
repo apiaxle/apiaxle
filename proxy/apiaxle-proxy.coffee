@@ -380,7 +380,8 @@ class exports.ApiaxleProxy extends AxleApp
           maxSockets: 100
           rejectUnauthorized: req.api.data.strictSSL
 
-        @logger.debug "Backend call to '#{ req.api.data.protocol }://" +
+        @logger.debug "Backend: #{ req_options.method } to " +
+                      "'#{ req.api.data.protocol }://" +
                       "#{ req_options.host}#{ req_options.path }"
         proxyReq = mod.request req_options
 
