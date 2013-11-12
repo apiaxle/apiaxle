@@ -102,7 +102,7 @@ class exports.ApiaxleProxy extends AxleApp
          req.socket.remoteAddress or
          req.connection.socket.remoteAddress
 
-    key_name = "ip-#{ ip }"
+    key_name = "ip-#{ req.api_name }-#{ ip }"
 
     model = @model "keyfactory"
     model.find [ key_name ], ( err, results ) =>

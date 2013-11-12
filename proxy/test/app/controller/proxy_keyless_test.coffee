@@ -39,7 +39,7 @@ class exports.CatchallKeylessTest extends ApiaxleTest
 
         model = @app.model( "keyfactory" )
 
-        key_name = "ip-127.0.0.1"
+        key_name = "ip-facebook-127.0.0.1"
         model.find [ key_name ], ( err, results ) =>
           @ok not err
           @ok dbKey = results[key_name]
