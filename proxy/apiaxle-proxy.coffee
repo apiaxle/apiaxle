@@ -425,7 +425,9 @@ class exports.ApiaxleProxy extends AxleApp
           # pipe the actual request
           proxyRes.pipe res
 
-        proxyReq.on "error", ( err ) => @handleProxyError err, req, res
+        proxyReq.on "error", ( err ) =>
+          @logger.debug "Proxy error: #{ err.message }"
+          @handleProxyError err, req, res
 
         return req.pipe proxyReq
 
