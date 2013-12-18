@@ -202,8 +202,6 @@ class exports.ListController extends exports.ApiaxleController
     return pagination
 
   execute: ( req, res, next ) ->
-    console.log( "HI" )
-
     model = @app.model @modelName()
 
     { from, to } = req.query
