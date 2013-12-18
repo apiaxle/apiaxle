@@ -64,7 +64,7 @@ class exports.ApiaxleController extends Controller
 
       all = {}
       for id, data of results
-        all[id] = if data.data? then data.data else data
+        all[id] = if data?.data? then data.data else data
 
       return cb null, all
 
@@ -190,7 +190,6 @@ class exports.ListController extends exports.ApiaxleController
       pagination.next.from = next_params.from
       pagination.next.to = next_params.to
 
-
     if from > 0
       prev_params = _.clone req.query
       prev_params.to = from - 1
@@ -203,6 +202,8 @@ class exports.ListController extends exports.ApiaxleController
     return pagination
 
   execute: ( req, res, next ) ->
+    console.log( "HI" )
+
     model = @app.model @modelName()
 
     { from, to } = req.query
