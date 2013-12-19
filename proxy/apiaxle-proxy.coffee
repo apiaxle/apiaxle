@@ -119,9 +119,6 @@ class exports.ApiaxleProxy extends AxleApp
 
         # now link the key
         ( cb ) -> req.api.linkKey key_name, cb
-
-        # have this key expire in a day (as it's temorary)
-        ( cb ) -> model.expire key_name, tconst.days( 1 ), cb
       ]
 
       # return the new key

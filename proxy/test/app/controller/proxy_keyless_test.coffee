@@ -51,8 +51,4 @@ class exports.CatchallKeylessTest extends ApiaxleTest
           @equal response.headers["x-apiaxleproxy-qps-left"], 3
           @equal response.headers["x-apiaxleproxy-qpd-left"], 11
 
-          model.ttl key_name, ( err, ttl ) =>
-            @ok ttl > 1000,
-              "ttl on the new key should be set"
-
-            done 6
+          done 6
