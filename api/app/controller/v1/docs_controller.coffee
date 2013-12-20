@@ -14,7 +14,7 @@ class exports.DocsModel extends ApiaxleController
       if docs = details.constructor.structure
         all[model] = docs
 
-    res.json all
+    @json res, all
 
 class exports.DocsControllers extends ApiaxleController
   @verb = "get"
@@ -25,10 +25,8 @@ class exports.DocsControllers extends ApiaxleController
     all = {}
 
     for controller, details of @app.plugins.controllers
-      console.log( details )
-
       if docs = details.docs?()
         all[controller] = docs
         all[controller].path = details.path()
 
-    res.json all
+    @json res, all
