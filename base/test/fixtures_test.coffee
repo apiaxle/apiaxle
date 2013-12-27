@@ -23,15 +23,23 @@ class exports.ApiTest extends FakeAppTest
         5678:
           forApis: [ "twitter" ]
 
+    console.log( 1 )
+
     @fixtures.create structure, ( err, results ) =>
       @ok not err
       @ok results
       @equal results.length, 4
 
+      console.log( 2 )
+
       all_tests = []
 
       all_tests.push ( cb ) =>
+        console.log( 3 )
+
         @app.model( "apifactory" ).find [ "facebook" ], ( err, results ) =>
+          console.log( 3.1 )
+
           @ok not err
           @ok results.facebook
           @equal results.facebook.data.endPoint, "graph.facebook.com"
@@ -39,14 +47,22 @@ class exports.ApiTest extends FakeAppTest
           cb()
 
       all_tests.push ( cb ) =>
+        console.log( 4 )
+
         @app.model( "apifactory" ).find [ "twitter" ], ( err, results ) =>
+          console.log( 4.1 )
+
           @ok not err
           @ok results.twitter
 
           cb()
 
       all_tests.push ( cb ) =>
+        console.log( 5 )
+
         @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
+          console.log( 5.1 )
+
           @ok not err
           @ok results["1234"]
 
