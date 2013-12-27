@@ -19,11 +19,16 @@ class exports.RedisTest extends FakeAppTest
   "test finding an object without @returns set": ( done ) ->
     @ok test_model = new TestModel @app
 
+    console.log( 1 )
+
     test_model.create "hello", { one: 1 }, ( err, newObject ) =>
+      console.log( 2 )
+
       @ok not err
       @equal newObject.one, 1
 
       test_model.find [ "hello" ], ( err, results ) =>
+        console.log( 3 )
         @ok not err
         @ok results
 
