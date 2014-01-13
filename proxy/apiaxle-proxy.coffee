@@ -51,6 +51,7 @@ class exports.ApiaxleProxy extends AxleApp
     if @options.processQueue
       @queue_proc = new ApiaxleQueueProcessor
         name: options.name
+        disableTimings: options.disableTimings
 
     @path_globs = new PathGlobs()
 
@@ -503,6 +504,10 @@ if not module.parent
       describe: "If your willing to take the performance penalty, process " +
                 "each request from this system, rather than using " +
                 "apiaxle-proxy-event-subscriber."
+    t:
+      alias: "disable-timings"
+      default: false
+      describe: "Disable timing processing only makes sense with -q."
 
   optimism.boolean "help"
   optimism.describe "help", "Show this help screen"
@@ -527,6 +532,7 @@ if not module.parent
       port: port
       host: host
       processQueue: optimism.argv["process-queue"]
+      disableTimings: optimism.argv["disable-timings"]
 
     all = []
 
