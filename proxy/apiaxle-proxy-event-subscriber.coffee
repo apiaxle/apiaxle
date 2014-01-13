@@ -15,8 +15,8 @@ cluster = require "cluster"
 class exports.ApiaxleQueueProcessor extends AxleApp
   @plugins = {}
 
-  constructor: ->
-    super
+  constructor: ( @options ) ->
+    super @options
     @path_globs = new PathGlobs()
 
   processHit: ( options, cb ) ->
@@ -58,18 +58,19 @@ class exports.ApiaxleQueueProcessor extends AxleApp
           model = @model "stats"
           return model.hit api_name, key_name, keyring_names, "uncached", status_code, time, cb
 
-        all.push ( cb ) =>
-          timersModel = @model "stattimers"
-          multi = timersModel.multi()
+        if not @options.disableTimings
+          all.push ( cb ) =>
+            timersModel = @model "stattimers"
+            multi = timersModel.multi()
 
-          # add more timers here if need be
-          timers = [
-            ( cb ) -> timersModel.logTiming multi, [ api_name ], "http-request", duration, time, cb
-          ]
+            # add more timers here if need be
+            timers = [
+              ( cb ) -> timersModel.logTiming multi, [ api_name ], "http-request", duration, time, cb
+            ]
 
-          async.series timers, ( err ) ->
-            return cb err if err
-            return multi.exec cb
+            async.series timers, ( err ) ->
+              return cb err if err
+              return multi.exec cb
 
         all.push ( cb ) =>
           @logCapturedPathsMaybe results[api_name],
@@ -120,6 +121,10 @@ if not module.parent
       alias: "fork-count"
       default: 1
       describe: "How many internal processes to fork"
+    t:
+      alias: "disable-timings"
+      default: false
+      describe: "Disable timing processing."
 
   optimism.boolean "help"
   optimism.describe "help", "Show this help screen"
@@ -137,6 +142,7 @@ if not module.parent
   else
     api = new exports.ApiaxleQueueProcessor
       name: "apiaxle"
+      disableTimings: optimism.argv["disable-timings"]
 
     all = []
 
