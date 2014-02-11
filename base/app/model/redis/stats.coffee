@@ -182,7 +182,6 @@ class exports.Stats extends Redis
     @recordHit multi, time, [ "api", api, cached, code ]
     @recordHit multi, time, [ "key", key, cached, code ]
     @recordHit multi, time, [ "key-api", key, api, cached, code ]
-    @recordHit multi, time, [ "api-key", api, key, cached, code ]
 
     @recordScore multi, time, [ "api" ], api
     @recordScore multi, time, [ "key" ], key
