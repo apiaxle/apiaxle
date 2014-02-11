@@ -148,7 +148,14 @@ class exports.StatCounters extends Stat
 
     @hkeys [ "meta", "counter-names", namespace ], cb
 
-  logCounter: ( multi, namespace, name, time, cb ) ->
+  # multi     - the redis multi object
+  # namespace - an array of strings to use as the namespace, you'll
+  #             need to reference these to get them back out.
+  # name      - the item you're storing a count for (like the api key, for
+  #             example).
+  # time      - the time this happens. At the moment this isn't used for
+  #             anything but eventually could be used to tidy up.
+  logCounter: ( multi, namespace, name, time=Date.now(), cb ) ->
     namespace = @namespace namespace
 
     # we store the timestamp against all possible names just so that
