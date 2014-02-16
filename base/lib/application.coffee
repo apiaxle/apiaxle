@@ -152,6 +152,12 @@ class exports.AxleApp extends Application
   model: ( name ) ->
     return @plugins.models[name]
 
+  getErrorFormat: ( req ) ->
+    if req.api?.data.apiFormat is "xml"
+      return "xml"
+
+    return "json"
+
   # because the proxy doesn't use express we can't use nice things
   # like res.json here.
   error: ( err, req, res ) ->
@@ -168,7 +174,7 @@ class exports.AxleApp extends Application
 
     status = err.constructor.status or 400
 
-    if req.api?.data.apiFormat isnt "xml"
+    if @getErrorFormat( req ) is "json"
       meta =
         version: 1
         status_code: status
