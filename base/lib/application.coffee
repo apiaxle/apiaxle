@@ -153,6 +153,10 @@ class exports.AxleApp extends Application
     return @plugins.models[name]
 
   getErrorFormat: ( req ) ->
+    { query } = req.parsed_url
+    if query.format and query.format in [ "xml", "json" ]
+      return query.format
+
     if req.api?.data.apiFormat is "xml"
       return "xml"
 

@@ -443,3 +443,33 @@ class exports.CatchallTest extends ApiaxleTest
           @ok xmlDoc.get "/error/message[text()='No api_key specified.']"
 
           done 7
+
+  "test usig format to determine the error format": ( done ) ->
+    apiOptions =
+      endPoint: "graph.facebook.com"
+      apiFormat: "xml"
+
+    @fixtures.createApi "facebook", apiOptions, ( err ) =>
+      @ok not err
+
+      @stubDns { "facebook.api.localhost": "127.0.0.1" }
+
+      @GET { path: "/?format=json", host: "facebook.api.localhost" }, ( err, response ) =>
+        @ok not err
+
+        @match response.headers[ "content-type" ], /application\/json/
+
+        response.parseJson ( err, json ) =>
+          @ok not err
+          @ok json
+
+          @GET { path: "/?format=xml", host: "facebook.api.localhost" }, ( err, response ) =>
+            @ok not err
+
+            @match response.headers[ "content-type" ], /application\/xml/
+
+            response.parseXml ( err, json ) =>
+              @ok not err
+              @ok json
+
+              done 9
