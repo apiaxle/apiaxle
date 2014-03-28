@@ -126,9 +126,9 @@ class exports.ApiaxleProxy extends AxleApp
       async.series create_link, ( err, [ new_key ] ) -> cb err, new_key
 
   getKeyName: ( req, res, next ) =>
-    { apiaxle_key, api_key } = req.parsed_url.query
+    { apiaxle_key, api_key, key } = req.parsed_url.query
 
-    if req.key_name = ( apiaxle_key or api_key )
+    if req.key_name = ( apiaxle_key or api_key or key )
       return next()
 
     # if the key isn't a query param, check a regexp on the url
@@ -271,7 +271,7 @@ class exports.ApiaxleProxy extends AxleApp
     if not req.api.data.sendThroughApiKey
       delete query.apiaxle_key
       delete query.api_key
-
+      delete query.key
 
     if not _.isEmpty query
       endpointUrl += "?#{ qs.stringify query }"

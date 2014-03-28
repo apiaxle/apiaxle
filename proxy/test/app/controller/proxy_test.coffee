@@ -313,6 +313,46 @@ class exports.CatchallTest extends ApiaxleTest
 
             done 9
 
+  "test GET with key, rather than api_key": ( done ) ->
+    apiOptions =
+      endPoint: "graph.facebook.com"
+      apiFormat: "json"
+
+    # we create the API
+    @fixtures.createApi "facebook", apiOptions, ( err ) =>
+      @ok not err
+
+      keyOptions =
+        forApis: [ "facebook" ]
+
+      @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
+        @ok not err
+
+        # make sure we don't actually hit facebook
+        data = JSON.stringify
+          one: 1
+
+        # mock out the http call
+        scope = nock( "http://graph.facebook.com" )
+          .get( "/some.username" )
+          .once()
+          .reply( 200, data, { "Content-Type": "application/json" } )
+
+        requestOptions =
+          path: "/some.username?key=1234"
+          host: "facebook.api.localhost"
+
+        @stubDns { "facebook.api.localhost": "127.0.0.1" }
+        @GET requestOptions, ( err, response ) =>
+          @ok not err
+          @ok scope.isDone()
+
+          response.parseJson ( err, json ) =>
+            @ok not err
+            @equal json.one, 1
+
+            done 6
+
   "test GET with apiaxle_key, rather than api_key": ( done ) ->
     apiOptions =
       endPoint: "graph.facebook.com"
