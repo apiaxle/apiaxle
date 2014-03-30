@@ -2,8 +2,8 @@ env: "NODE_ENV=test"
 language: "node_js"
 before_script:
   - "cd api && make npminstall"
-  - "cd api && make all"
-  - "cd api && make link"
+  - "make all"
+  - "make link"
 script: "cd api && make test"
 node_js:
   - "0.10"
