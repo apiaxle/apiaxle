@@ -28,9 +28,6 @@
     "async": "~0.2.9"
   },
   "devDependencies": {
-    "muffin": "~0",
-    "coffeelint": "0.5",
-    "istanbul": "~0",
     "coffee-script": "~1.6.2",
     "nock": "~0.22.1"
   }
