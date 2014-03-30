@@ -4,6 +4,6 @@ before_script:
   - "cd api && make npminstall"
   - "make all"
   - "make link"
-script: "cd api && make test"
+script: "make test"
 node_js:
   - "0.10"
