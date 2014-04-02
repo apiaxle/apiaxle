@@ -39,8 +39,9 @@ module.exports = ( str ) ->
   # bools
   t.addRule(/(true|false)/, "boolean")
 
-  # int
-  t.addRule(/^(\d+)$/, "digit")
+  # numbers
+  t.addRule(/^-$/, "digit")
+  t.addRule(/^(-?\d+)$/, "digit")
 
   # whitespace
   t.addRule /^\s+$/, "seperator"

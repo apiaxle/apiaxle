@@ -16,7 +16,7 @@ class exports.TestParser extends TwerpTest
       "one cacheTime=20": [ [ "one" ], { cacheTime: 20 } ]
 
       # numbers
-      '1 2 3 4': [ [ 1, 2, 3, 4 ], {} ]
+      '1 2 3 4 -1': [ [ 1, 2, 3, 4, -1 ], {} ]
 
       # option=string
       'api create facebook "endPoint"="graph"': [ [ "api", "create", "facebook" ], { endPoint: "graph" } ]
