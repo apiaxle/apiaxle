@@ -40,7 +40,7 @@ module.exports = ( str ) ->
   t.addRule(/(true|false)/, "boolean")
 
   # int
-  t.addRule(/^(\d+)$/, "digit")
+  t.addRule(/^-1$|^(\d+)$/, "digit")
 
   # whitespace
   t.addRule /^\s+$/, "seperator"
