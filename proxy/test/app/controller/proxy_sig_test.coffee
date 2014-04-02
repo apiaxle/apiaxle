@@ -59,11 +59,11 @@ class exports.CatchallSigTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          @app.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
+          @app.validateToken token, "1234", "bob-the-builder", ( err ) =>
             @ok err,
               "There should be an error for a token that's #{ validSeconds } out."
 
-            @match err.message, /Invalid signature/
+            @equal err.message, "Invalid signature \(got #{ token }\)."
             @equal err.name, "KeyError"
 
             cb()
@@ -106,7 +106,7 @@ class exports.CatchallSigTest extends ApiaxleTest
 
           @ok jsonerr
           @equal jsonerr.type, "KeyError"
-          @match jsonerr.message, /Invalid signature/
+          @equal jsonerr.message, "Invalid signature (got 5678)."
 
           cb()
 
