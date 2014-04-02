@@ -187,7 +187,7 @@ class exports.ApiaxleProxy extends AxleApp
         return cb null, processed
 
     # none of the potential matches matched
-    return cb new KeyError "Invalid signature (got #{processed})."
+    return cb new KeyError "Invalid signature (got #{providedToken})."
 
   # Attempts to parse regex from url
   getRegexKey: ( url, regex ) ->
