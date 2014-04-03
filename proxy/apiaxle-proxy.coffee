@@ -380,7 +380,7 @@ class exports.ApiaxleProxy extends AxleApp
 
         @logger.debug "Backend: #{ req_options.method } to " +
                       "'#{ req.api.data.protocol }://" +
-                      "#{ req_options.host}#{ req_options.path }"
+                      "#{ req_options.host}:#{ req_options.port }#{ req_options.path }"
         proxyReq = mod.request req_options
 
         # make sure we timeout if asked to
