@@ -68,6 +68,20 @@ class exports.CatchallSigTest extends ApiaxleTest
 
             cb()
 
+    # all of these should be fine now that we have a 7 second skew
+    # window
+    for validSeconds in [ -4, 4, -5, 5, -6, 6, -7, 7 ]
+      do( validSeconds ) =>
+        all.push ( cb ) =>
+          keyTime = now + validSeconds
+          token = @generateSig keyTime
+
+          @app.validateToken 7, token, "1234", "bob-the-builder", ( err, token ) =>
+            @ok not err
+            @ok token
+
+            cb()
+
     async.series all, ( err ) =>
       @ok not err
 
