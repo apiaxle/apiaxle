@@ -46,7 +46,7 @@ class exports.CatchallSigTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          @app.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
+          @app.validateToken 3, token, "1234", "bob-the-builder", ( err, token ) =>
             @ok not err
             @ok token
 
@@ -59,12 +59,26 @@ class exports.CatchallSigTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          @app.validateToken token, "1234", "bob-the-builder", ( err ) =>
+          @app.validateToken 3, token, "1234", "bob-the-builder", ( err ) =>
             @ok err,
               "There should be an error for a token that's #{ validSeconds } out."
 
             @equal err.message, "Invalid signature \(got #{ token }\)."
             @equal err.name, "KeyError"
+
+            cb()
+
+    # all of these should be fine now that we have a 7 second skew
+    # window
+    for validSeconds in [ -4, 4, -5, 5, -6, 6, -7, 7 ]
+      do( validSeconds ) =>
+        all.push ( cb ) =>
+          keyTime = now + validSeconds
+          token = @generateSig keyTime
+
+          @app.validateToken 7, token, "1234", "bob-the-builder", ( err, token ) =>
+            @ok not err
+            @ok token
 
             cb()
 
