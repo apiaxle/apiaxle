@@ -163,16 +163,14 @@ class exports.ApiaxleProxy extends AxleApp
       req.key = results[req.key_name]
       return next()
 
-  validateToken: ( providedToken, key_name, sharedSecret, cb ) ->
+  validateToken: ( skewCount, providedToken, key_name, sharedSecret, cb ) ->
     now = Date.now() / 1000
 
-    potentials = [
-      now,
-
-      now + 1, now - 1,
-      now + 2, now - 2,
-      now + 3, now - 3
-    ]
+    # add more potential calls.
+    potentials = [ now ]
+    for count in [1..skewCount ]
+      potentials.push( now - count )
+      potentials.push( now + count )
 
     for potential in potentials
       date = Math.floor( potential ).toString()
@@ -213,7 +211,7 @@ class exports.ApiaxleProxy extends AxleApp
         return next new KeyError "A signature is required for this API."
 
       all.push ( cb ) =>
-        @validateToken providedToken, req.key_name, req.key.data.sharedSecret, cb
+        @validateToken req.api.tokenSkewProtectionCount, providedToken, req.key_name, req.key.data.sharedSecret, cb
 
     # check the req.key is for this req.api
     all.push ( cb ) ->

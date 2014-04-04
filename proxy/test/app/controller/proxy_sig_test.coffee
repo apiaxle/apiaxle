@@ -46,7 +46,7 @@ class exports.CatchallSigTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          @app.validateToken token, "1234", "bob-the-builder", ( err, token ) =>
+          @app.validateToken 3, token, "1234", "bob-the-builder", ( err, token ) =>
             @ok not err
             @ok token
 
@@ -59,7 +59,7 @@ class exports.CatchallSigTest extends ApiaxleTest
           keyTime = now + validSeconds
           token = @generateSig keyTime
 
-          @app.validateToken token, "1234", "bob-the-builder", ( err ) =>
+          @app.validateToken 3, token, "1234", "bob-the-builder", ( err ) =>
             @ok err,
               "There should be an error for a token that's #{ validSeconds } out."
 
