@@ -73,7 +73,7 @@ class exports.ApiFactory extends Redis
         default: "http"
         docs: "The protocol for the API, whether or not to use SSL"
       tokenSkewProtectionCount:
-        type: "number"
+        type: "integer"
         default: 3
         docs: "The amount of seconds you allow a valid token to be calculated against, either side of the current second. The higher the number the greater the computational cost."
       apiFormat:
