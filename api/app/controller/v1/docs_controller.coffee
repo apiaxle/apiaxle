@@ -7,6 +7,12 @@ class exports.DocsModel extends ApiaxleController
 
   path: -> "/v1/docs/models"
 
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "JSON representation of the model docs."
+      response: "JSON for each model, including types etc."
+
   execute: ( req, res, next ) ->
     all = {}
 
@@ -20,6 +26,12 @@ class exports.DocsControllers extends ApiaxleController
   @verb = "get"
 
   path: -> "/v1/docs/controllers"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "JSON representation of the controller docs."
+      response: "JSON for each controller."
 
   execute: ( req, res, next ) ->
     all = {}
