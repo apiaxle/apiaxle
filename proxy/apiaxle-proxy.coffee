@@ -168,9 +168,7 @@ class exports.ApiaxleProxy extends AxleApp
 
     # add more potential calls.
     potentials = [ now ]
-    for count in [1..skewCount ]
-      potentials.push( now - count )
-      potentials.push( now + count )
+    potentials.push( now - c, now + c ) for c in [1..skewCount ]
 
     for potential in potentials
       date = Math.floor( potential ).toString()
