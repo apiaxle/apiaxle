@@ -44,6 +44,7 @@ class exports.ApiaxleProxy extends AxleApp
   constructor: ( options ) ->
     @setOptions options
 
+    @pathname_caches = {}
     @hostname_caches = {}
     @endpoint_caches = {}
 
@@ -66,6 +67,10 @@ class exports.ApiaxleProxy extends AxleApp
       @hostname_caches[host] = req.api_name = parts[1]
       return next()
 
+    if api = @pathname_caches[req.parsed_url.path]
+      req.api_name = api
+      return next()
+
     # we've not got the API via the host
     routes = @config.routing?.path_to_api
     for path, api of routes
@@ -73,6 +78,7 @@ class exports.ApiaxleProxy extends AxleApp
 
       if re.exec req.parsed_url.path
         req.api_name = api
+        @pathname_caches[req.parsed_url.path] = api
         return next()
 
     return next new ApiUnknown "No api specified (via subdomain)"
