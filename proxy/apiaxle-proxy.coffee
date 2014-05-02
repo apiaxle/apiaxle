@@ -66,6 +66,15 @@ class exports.ApiaxleProxy extends AxleApp
       @hostname_caches[host] = req.api_name = parts[1]
       return next()
 
+    # we've not got the API via the host
+    routes = @config.routing?.path_to_api
+    for path, api of routes
+      re = new RegExp path
+
+      if re.exec req.parsed_url.path
+        req.api_name = api
+        return next()
+
     return next new ApiUnknown "No api specified (via subdomain)"
 
   getKeyringNames: ( req, res, next ) ->

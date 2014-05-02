@@ -141,10 +141,24 @@ class exports.AxleApp extends Application
               type: "string"
               default: "localhost"
 
+  getRoutingSchema: ->
+    {}=
+      type: "object"
+      additionalProperties: false
+      properties:
+        routing:
+          type: "object"
+          additionalProperties: false
+          properties:
+            path_to_api:
+              type: "object"
+              additionalProperties: true
+
   getConfigurationSchema: ->
     _.merge @getAppConfigSchema(),
             @getLoggingConfigSchema(),
-            @getApiaxleConfigSchema()
+            @getApiaxleConfigSchema(),
+            @getRoutingSchema()
 
   controller: ( name ) ->
     return @plugins.controllers[name]
