@@ -12,5 +12,11 @@
       "type": "file",
       "filename": "./test.log"
     }]
+  },
+  "routing": {
+    "uri_to_api": {
+      "\.com/free": "weather-free",
+      "\.com/premium": "weather-premium"
+    }
   }
 }
