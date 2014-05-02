@@ -19,7 +19,6 @@
     "apiaxle-base": "1.12.18",
     "libxmljs": "0.7.1",
     "lodash": "~2.2.1",
-    "scarf": "0.0.10",
     "sinon": "~1.6.0",
     "twerp": "~1.0.7",
     "hiredis": "~0.1.15",
