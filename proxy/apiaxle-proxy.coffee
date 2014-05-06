@@ -224,7 +224,7 @@ class exports.ApiaxleProxy extends AxleApp
         return next new KeyError "A signature is required for this API."
 
       all.push ( cb ) =>
-        @validateToken req.api.tokenSkewProtectionCount, providedToken, req.key_name, req.key.data.sharedSecret, cb
+        @validateToken req.api.data.tokenSkewProtectionCount, providedToken, req.key_name, req.key.data.sharedSecret, cb
 
     # check the req.key is for this req.api
     all.push ( cb ) ->
