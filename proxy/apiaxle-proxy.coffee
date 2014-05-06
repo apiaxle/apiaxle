@@ -320,8 +320,14 @@ class exports.ApiaxleProxy extends AxleApp
       req.timing[name] = now - req.timing.first
       next()
 
+  logRequest: ( req, res, next ) =>
+    @logger.debug "%s %s", req.method, req.url
+    next()
+
   middleware: ->
     return [
+      @logRequest,
+
       # puts the query params on req
       @setTiming( "start-url-parsed" ),
       @parseUrl,
