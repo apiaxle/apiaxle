@@ -13,7 +13,7 @@ class exports.ApiLimits extends Redis
   @qpsExpires = 1
 
   qpsKey: ( key ) ->
-    seconds = Math.round( Date.now() / 1000 )
+    seconds = Math.floor( Date.now() / 1000 )
 
     return [ "qps", seconds, key ]
 
@@ -64,7 +64,8 @@ class exports.ApiLimits extends Redis
 
       # if currentQp is null then this is the first time we've used
       # it. Decrement the limit because this counts as a hit.
-      return @setInitialQp qpKey, qpExpires, ( qpLimit - 1 ), cb if not currentQp?
+      if not currentQp?
+        return @setInitialQp qpKey, qpExpires, ( qpLimit - 1 ), cb
 
       # we're allowed the call
       current = parseInt( currentQp )
