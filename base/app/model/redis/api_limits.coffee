@@ -67,8 +67,10 @@ class exports.ApiLimits extends Redis
       return @setInitialQp qpKey, qpExpires, ( qpLimit - 1 ), cb if not currentQp?
 
       # we're allowed the call
-      if currentQp > "0"
-        return cb null, newQp
+      current = parseInt( currentQp )
+      return cb null, newQp if current > 0
+
+      @app.logger.debug "Refusing hit as '#{ qpKey }' is #{ current }."
 
       # if we get here we've made too many calls
       return cb new QpErrorClass "Queries exceeded (#{ qpLimit } allowed).", null
