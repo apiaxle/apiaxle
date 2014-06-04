@@ -7,7 +7,7 @@ async = require "async"
 express = require "express"
 Redis = require "redis"
 
-RedisSentinel = require "redis-sentinel-client"
+Redis = require "redis"
 
 { Js2Xml } = require "js2xml"
 { Application } = require "scarf"
@@ -68,7 +68,7 @@ class exports.AxleApp extends Application
     # are we up for some sentinel fun?
     this[client_name] = null
     if sentinel
-      this[client_name] = RedisSentinel.createClient
+      this[client_name] = Redis.createClient
         port: port
         host: host
         logger: { log: -> }

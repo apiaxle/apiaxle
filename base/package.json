@@ -22,11 +22,10 @@
     "date-utils": "~1.2.13",
     "scarf": "0.0.10",
     "request": "~2.20.0",
-    "hiredis": "~0.1.15",
-    "redis": "git+https://github.com/DocuSignDev/node_redis.git",
     "express": "~3.2.6",
-    "redis-sentinel-client": "~0.1.2",
-    "async": "~0.2.9"
+    "async": "~0.2.9",
+    "redis": "^0.10.3",
+    "hiredis": "^0.1.17"
   },
   "devDependencies": {
     "twerp": "~1.0.7",
