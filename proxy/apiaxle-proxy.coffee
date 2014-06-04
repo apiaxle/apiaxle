@@ -144,6 +144,8 @@ class exports.ApiaxleProxy extends AxleApp
     { apiaxle_key, api_key, key } = req.parsed_url.query
 
     if req.key_name = ( apiaxle_key or api_key or key )
+      if typeof req.key_name isnt "string"
+        return next new Error "Api key is malformed."
       return next()
 
     # if the key isn't a query param, check a regexp on the url
