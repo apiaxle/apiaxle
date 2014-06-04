@@ -56,11 +56,7 @@ class exports.ApiLimits extends Redis
     # first, we need to do the initial get because it's possible the
     # qpKey doesn't exist already and we can't determine that from a
     # decr
-    multi = @multi()
-    multi.get qpKey
-    multi.decr qpKey
-
-    multi.exec ( err, [ currentQp, newQp ] ) =>
+    @get qpKey, ( err, currentQp ) =>
       return cb err if err
 
       # if currentQp is null then this is the first time we've used
@@ -69,10 +65,11 @@ class exports.ApiLimits extends Redis
         return @setInitialQp qpKey, qpExpires, ( qpLimit - 1 ), cb
 
       # we're allowed the call
-      current = parseInt( currentQp )
-      return cb null, newQp if current > 0
+      @decr qpKey, ( err, newQp ) =>
+        current = parseInt( currentQp )
+        return cb null, newQp if current > 0
 
-      @app.logger.debug "Refusing hit as '#{ qpKey }' is #{ current }."
+        @app.logger.debug "Refusing hit as '#{ qpKey }' is #{ current }."
 
-      # if we get here we've made too many calls
-      return cb new QpErrorClass "Queries exceeded (#{ qpLimit } allowed).", null
+        # if we get here we've made too many calls
+        return cb new QpErrorClass "Queries exceeded (#{ qpLimit } allowed).", null
