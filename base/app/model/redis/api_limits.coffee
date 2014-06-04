@@ -10,7 +10,7 @@ class exports.ApiLimits extends Redis
   @smallKeyName = "al"
 
   @qpdExpires = 86400
-  @qpsExpires = 3
+  @qpsExpires = 1
 
   qpsKey: ( key ) ->
     seconds = Math.floor( Date.now() / 1000 )
