@@ -10,7 +10,7 @@ class exports.ApiLimits extends Redis
   @smallKeyName = "al"
 
   @qpdExpires = 86400
-  @qpsExpires = 1
+  @qpsExpires = 3
 
   qpsKey: ( key ) ->
     seconds = Math.floor( Date.now() / 1000 )
@@ -21,7 +21,8 @@ class exports.ApiLimits extends Redis
     return [ "qpd", @dayString(), key ]
 
   setInitialQp: ( key, expires, qp, cb ) ->
-    @setex key, expires, qp, ( err ) ->
+    @setex key, expires, qp, ( err ) =>
+      @app.logger.debug "Setting '#{ key }' to #{ qp } (expiring in #{ expires })"
       return cb err if err
       return cb null, qp
 
