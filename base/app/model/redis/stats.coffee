@@ -87,7 +87,7 @@ class exports.Stats extends Redis
   getScores: ( db_key, gran, cb ) ->
     temp_key = db_key.concat [ gran, "score" ]
 
-    return @zrevrangeOpt temp_key, [ 0, 100, "WITHSCORES" ], ( err, scores ) ->
+    return @zrevrangeOpt temp_key, [ 0, 1000, "WITHSCORES" ], ( err, scores ) ->
       all = {}
 
       # zip up the array into an object
