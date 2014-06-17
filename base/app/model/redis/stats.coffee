@@ -186,7 +186,7 @@ class exports.Stats extends Redis
     # we don't capture key errors because one of the issues might be
     # that they used the key to call the wrong API. In that case,
     # their score will appear against that API.
-    if code isnt "KeyError"
+    if code not in [ "KeyError", "KeyDisabled" ]
       @recordScore multi, time, [ "api" ], api
       @recordScore multi, time, [ "key" ], key
       @recordScore multi, time, [ "key-api", key ], api
@@ -198,7 +198,7 @@ class exports.Stats extends Redis
       @recordHit multi, time, [ "keyring-api", keyring, api, cached, code ]
       @recordHit multi, time, [ "keyring-key", keyring, key, cached, code ]
 
-      if code isnt "KeyError"
+      if not code not in [ "KeyError", "KeyDisabled" ]
         @recordScore multi, time, [ "keyring" ], keyring
         @recordScore multi, time, [ "keyring-api", keyring ], api
         @recordScore multi, time, [ "keyring-key", keyring ], key
