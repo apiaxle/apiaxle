@@ -498,8 +498,6 @@ class exports.ApiaxleProxy extends AxleApp
       return spr.apply this, [ err, req, res ]
 
   handleProxyError: ( err, req, res ) =>
-    statsModel = @model "stats"
-
     # I'm not sure what the right thing to do here is. There could be
     # floods of these from dodgy clients. Perhaps a counter in the
     # future?

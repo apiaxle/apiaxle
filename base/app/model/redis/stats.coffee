@@ -87,7 +87,7 @@ class exports.Stats extends Redis
   getScores: ( db_key, gran, cb ) ->
     temp_key = db_key.concat [ gran, "score" ]
 
-    return @zrevrangeOpt temp_key, [ 0, 100, "WITHSCORES" ], ( err, scores ) ->
+    return @zrevrangeOpt temp_key, [ 0, 1000, "WITHSCORES" ], ( err, scores ) ->
       all = {}
 
       # zip up the array into an object
@@ -183,10 +183,14 @@ class exports.Stats extends Redis
     @recordHit multi, time, [ "key", key, cached, code ]
     @recordHit multi, time, [ "key-api", key, api, cached, code ]
 
-    @recordScore multi, time, [ "api" ], api
-    @recordScore multi, time, [ "key" ], key
-    @recordScore multi, time, [ "key-api", key ], api
-    @recordScore multi, time, [ "api-key", api ], key
+    # we don't capture key errors because one of the issues might be
+    # that they used the key to call the wrong API. In that case,
+    # their score will appear against that API.
+    if code not in [ "KeyError", "KeyDisabled" ]
+      @recordScore multi, time, [ "api" ], api
+      @recordScore multi, time, [ "key" ], key
+      @recordScore multi, time, [ "key-api", key ], api
+      @recordScore multi, time, [ "api-key", api ], key
 
     # record the keyring stats too
     for keyring in keyrings
@@ -194,8 +198,9 @@ class exports.Stats extends Redis
       @recordHit multi, time, [ "keyring-api", keyring, api, cached, code ]
       @recordHit multi, time, [ "keyring-key", keyring, key, cached, code ]
 
-      @recordScore multi, time, [ "keyring" ], keyring
-      @recordScore multi, time, [ "keyring-api", keyring ], api
-      @recordScore multi, time, [ "keyring-key", keyring ], key
+      if not code not in [ "KeyError", "KeyDisabled" ]
+        @recordScore multi, time, [ "keyring" ], keyring
+        @recordScore multi, time, [ "keyring-api", keyring ], api
+        @recordScore multi, time, [ "keyring-key", keyring ], key
 
     return multi.exec cb
