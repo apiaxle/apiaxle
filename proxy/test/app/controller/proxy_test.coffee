@@ -513,3 +513,43 @@ class exports.CatchallTest extends ApiaxleTest
               @ok json
 
               done 9
+
+  "test api with CORS enabled": ( done ) ->
+    apiOptions =
+      endPoint: "localhost"
+      corsEnabled: true
+
+    @fixtures.createApi "corsenabled.api.localhost", apiOptions, ( err ) =>
+      @ok not err
+
+      @stubDns { "corsapi.api.localhost": "127.0.0.1" }
+
+      @GET { path: "/", host: "corsenabled.api.localhost" }, ( err, response ) =>
+        @ok not err
+
+        @match response.headers[ "Access-Control-Allow-Origin" ], "*"
+        @match response.headers[ "Access-Control-Allow-Credentials" ], true
+        @match response.headers[ "Access-Control-Allow-Methods" ], "GET, POST, PUT, DELETE"
+        @match response.headers[ "Access-Control-Allow-Headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
+
+        done 4
+
+  "test api with CORS disabled": ( done ) ->
+    apiOptions =
+      endPoint: "localhost"
+      corsEnabled: true
+
+    @fixtures.createApi "corsdisabled.api.localhost", apiOptions, ( err ) =>
+      @ok not err
+
+      @stubDns { "corsdisabled.api.localhost": "127.0.0.1" }
+
+      @GET { path: "/", host: "corsenabled.api.localhost" }, ( err, response ) =>
+        @ok not err
+
+        @isNull response.headers[ "Access-Control-Allow-Origin" ]
+        @isNull response.headers[ "Access-Control-Allow-Credentials" ]
+        @isNull response.headers[ "Access-Control-Allow-Methods" ]
+        @isNull response.headers[ "Access-Control-Allow-Headers" ]
+
+        done 4

@@ -137,3 +137,11 @@ class exports.ApiFactory extends Redis
               "on temporary keys that have already been created. However, as " +
               "temprary keys only live for 24 hours, this limit will be " +
               "applied when that period expires."
+      corsEnabled:
+        type: "boolean"
+        optional: true
+        default: false
+        docs: "Whether or not you want to enable CORS (http://www.w3.org/TR/cors/) " +
+              "support. This enables CORS for all origins and is intended to be simple " +
+              "and cover the majority of users. If you need more refined configuration we " +
+              "suggest you use something like varnish or nginx to do this."
