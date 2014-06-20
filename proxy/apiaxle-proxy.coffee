@@ -299,7 +299,7 @@ class exports.ApiaxleProxy extends AxleApp
       req.key.data.qpd
     ]
 
-    @model( "apilimits" ).apiHit args..., ( err, [ newQps, newQpd ] ) ->
+    @model( "apilimits" ).apiHit args..., ( err, [ newQpd, newQps ] ) ->
       return next err if err
 
       # let the user know what they have left

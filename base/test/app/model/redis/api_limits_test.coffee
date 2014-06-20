@@ -22,7 +22,7 @@ class exports.QpdTest extends FakeAppTest
   "test first apiHit": ( done ) ->
     model = @app.model "apilimits"
 
-    model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
+    model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
       @ok not err
       @equal currentQps, 1
       @equal currentQpd, 19
@@ -37,7 +37,7 @@ class exports.QpdTest extends FakeAppTest
     qpsKeyStub = @getStub ApiLimits::, "qpsKey", -> "qpsTestKey"
     qpdKeyStub = @getStub ApiLimits::, "qpdKey", -> "qpdTestKey"
 
-    model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
+    model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
       @ok not err
       @equal currentQps, 1
       @equal currentQpd, 19
@@ -45,7 +45,7 @@ class exports.QpdTest extends FakeAppTest
       @ok qpsKeyStub.called
       @ok qpdKeyStub.called
 
-      model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
+      model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
         @ok not err
         @equal currentQps, 0
         @equal currentQpd, 18
@@ -63,7 +63,7 @@ class exports.QpdTest extends FakeAppTest
     qpsKeyStub = @getStub ApiLimits::, "qpsKey", -> "qpsTestKey"
     qpdKeyStub = @getStub ApiLimits::, "qpdKey", -> "qpdTestKey"
 
-    model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
+    model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
       @ok not err
       @equal currentQps, 1
       @equal currentQpd, 19
@@ -71,7 +71,7 @@ class exports.QpdTest extends FakeAppTest
       @ok qpsKeyStub.called
       @ok qpdKeyStub.called
 
-      model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
+      model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
         @ok not err
         @equal currentQps, 0
         @equal currentQpd, 18
@@ -79,7 +79,7 @@ class exports.QpdTest extends FakeAppTest
         @ok qpsKeyStub.called
         @ok qpdKeyStub.called
 
-        model.apiHit "1234", 2, 20, ( err, [ currentQps, currentQpd ] ) =>
+        model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
           @ok qpsKeyStub.called
           @ok qpdKeyStub.called
 
