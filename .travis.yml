@@ -7,3 +7,5 @@ before_script:
 script: "make test"
 node_js:
   - "0.10.25"
+services:
+  - redis-server
