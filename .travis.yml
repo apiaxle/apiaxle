@@ -6,6 +6,6 @@ before_script:
   - "make link"
 script: "make test"
 node_js:
-  - "0.10.25"
+  - "0.10"
 services:
   - redis-server
