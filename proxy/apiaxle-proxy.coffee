@@ -19,13 +19,13 @@ cpus = require("os").cpus()
 { AxleApp } = require "apiaxle-base"
 
 { ApiUnknown,
-  KeyError,
-  ApiDisabled,
-  KeyDisabled,
-  EndpointMissingError,
-  EndpointTimeoutError,
-  ConnectionError,
-  DNSError } = require "./lib/error"
+KeyError,
+ApiDisabled,
+KeyDisabled,
+EndpointMissingError,
+EndpointTimeoutError,
+ConnectionError,
+DNSError } = require "./lib/error"
 
 { PathGlobs } = require "./lib/path_globs"
 { ApiaxleQueueProcessor } = require "./apiaxle-proxy-event-subscriber"
@@ -114,9 +114,9 @@ class exports.ApiaxleProxy extends AxleApp
     # TODO: I think x-forwarded-for can have many, comma seperated
     # addresses.
     ip = req.headers["x-forwarded-for"] or
-         req.connection.remoteAddress or
-         req.socket.remoteAddress or
-         req.connection.socket.remoteAddress
+    req.connection.remoteAddress or
+    req.socket.remoteAddress or
+    req.connection.socket.remoteAddress
 
     key_name = "ip-#{ req.api_name }-#{ ip }"
 
@@ -373,14 +373,13 @@ class exports.ApiaxleProxy extends AxleApp
 
   applyCors: ( req, res, next ) =>
     # If CORS is not enabled, proceed
-    if not req.api.corsEnabled
-      return next()
+    if req.api.data.corsEnabled
+      res.setHeader "Access-Control-Allow-Origin", "*"
+      res.setHeader "Access-Control-Allow-Credentials", "true"
+      res.setHeader "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE"
+      res.setHeader "Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
 
-    res.setHeader "Access-Control-Allow-Origin", "*"
-    res.setHeader "Access-Control-Allow-Credentials", true
-    res.setHeader "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE"
-    res.setHeader "Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
-
+    return next()
 
   run: ( cb ) ->
     # takes the request, a name and a cb. Used to make a suitable
@@ -413,8 +412,8 @@ class exports.ApiaxleProxy extends AxleApp
           rejectUnauthorized: req.api.data.strictSSL
 
         @logger.debug "Backend: #{ req_options.method } to " +
-                      "'#{ req.api.data.protocol }://" +
-                      "#{ req_options.host}:#{ req_options.port }#{ req_options.path }"
+        "'#{ req.api.data.protocol }://" +
+        "#{ req_options.host}:#{ req_options.port }#{ req_options.path }"
         proxyReq = mod.request req_options
 
         # make sure we timeout if asked to
@@ -534,8 +533,8 @@ if not module.parent
       alias: "process-queue"
       default: false
       describe: "If your willing to take the performance penalty, process " +
-                "each request from this system, rather than using " +
-                "apiaxle-proxy-event-subscriber."
+      "each request from this system, rather than using " +
+      "apiaxle-proxy-event-subscriber."
     t:
       alias: "disable-timings"
       default: false
