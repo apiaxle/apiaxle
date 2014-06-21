@@ -87,9 +87,9 @@ class exports.CatchallTest extends ApiaxleTest
 
       # mock out the http call
       scope = nock( "http://#{ api.data.endPoint }" )
-        .get( "/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json" )
-        .once()
-        .reply( 200, "{}" )
+      .get( "/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json" )
+      .once()
+      .reply( 200, "{}" )
 
       requestOptions =
         path: "/genres/drama/scifiandfantasy/schedules/upcoming.json?api_key=phil"
@@ -147,9 +147,9 @@ class exports.CatchallTest extends ApiaxleTest
 
             # mock out the http call
             scope = nock( "http://example.com" )
-              .get( details.expected_path )
-              .once()
-              .reply( 200, "{}" )
+            .get( details.expected_path )
+            .once()
+            .reply( 200, "{}" )
 
             @GET requestOptions, ( err, res ) =>
               @ok scope.isDone(),
@@ -290,9 +290,9 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-          .get( "/some.username" )
-          .once()
-          .reply( 200, data, { "Content-Type": "application/json" } )
+        .get( "/some.username" )
+        .once()
+        .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/some.username?api_key=1234"
@@ -334,9 +334,9 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-          .get( "/some.username" )
-          .once()
-          .reply( 200, data, { "Content-Type": "application/json" } )
+        .get( "/some.username" )
+        .once()
+        .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/some.username?key=1234"
@@ -374,9 +374,9 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-          .get( "/some.username" )
-          .once()
-          .reply( 200, data, { "Content-Type": "application/json" } )
+        .get( "/some.username" )
+        .once()
+        .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/some.username?apiaxle_key=1234&api_key=5678"
@@ -415,9 +415,9 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-          .get( "/bastard/1234/hello/" )
-          .once()
-          .reply( 200, data, { "Content-Type": "application/json" } )
+        .get( "/bastard/1234/hello/" )
+        .once()
+        .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/bastard/1234/hello/"
@@ -451,9 +451,9 @@ class exports.CatchallTest extends ApiaxleTest
         host: "facebook.api.localhost"
 
       scope = nock( "http://example.blah" )
-        .delete( "/" )
-        .once()
-        .reply( 200, "{}", { "Content-Type": "application/json" } )
+      .delete( "/" )
+      .once()
+      .reply( 200, "{}", { "Content-Type": "application/json" } )
 
       @DELETE options, ( err, response ) =>
         @ok not err
@@ -519,37 +519,67 @@ class exports.CatchallTest extends ApiaxleTest
       endPoint: "localhost"
       corsEnabled: true
 
-    @fixtures.createApi "corsenabled.api.localhost", apiOptions, ( err ) =>
+    @fixtures.createApi "corsenabled", apiOptions, ( err ) =>
       @ok not err
 
-      @stubDns { "corsapi.api.localhost": "127.0.0.1" }
+      @stubDns { "corsenabled.api.localhost": "127.0.0.1" }
 
       @GET { path: "/", host: "corsenabled.api.localhost" }, ( err, response ) =>
         @ok not err
 
-        @match response.headers[ "Access-Control-Allow-Origin" ], "*"
-        @match response.headers[ "Access-Control-Allow-Credentials" ], true
-        @match response.headers[ "Access-Control-Allow-Methods" ], "GET, POST, PUT, DELETE"
-        @match response.headers[ "Access-Control-Allow-Headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
+        @equal response.headers[ "access-control-allow-origin" ], "*"
+        @equal response.headers[ "access-control-allow-credentials" ], "true"
+        @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE"
+        @equal response.headers[ "access-control-allow-headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
 
         done 4
 
   "test api with CORS disabled": ( done ) ->
     apiOptions =
       endPoint: "localhost"
-      corsEnabled: true
+      corsEnabled: false
 
-    @fixtures.createApi "corsdisabled.api.localhost", apiOptions, ( err ) =>
+    @fixtures.createApi "corsdisabled", apiOptions, ( err ) =>
       @ok not err
 
       @stubDns { "corsdisabled.api.localhost": "127.0.0.1" }
 
-      @GET { path: "/", host: "corsenabled.api.localhost" }, ( err, response ) =>
+      @GET { path: "/", host: "corsdisabled.api.localhost" }, ( err, response ) =>
         @ok not err
 
-        @isNull response.headers[ "Access-Control-Allow-Origin" ]
-        @isNull response.headers[ "Access-Control-Allow-Credentials" ]
-        @isNull response.headers[ "Access-Control-Allow-Methods" ]
-        @isNull response.headers[ "Access-Control-Allow-Headers" ]
+        @isUndefined response.headers[ "access-control-allow-origin" ]
+        @isUndefined response.headers[ "access-control-allow-credentials" ]
+        @isUndefined response.headers[ "access-control-allow-methods" ]
+        @isUndefined response.headers[ "access-control-allow-headers" ]
+
+        done 4
+
+  "test CORS enabled on API with invalid key": ( done ) ->
+    apiOptions =
+      endPoint: "localhost"
+      corsEnabled: true
+
+    # we create the API
+    @fixtures.createApi "corswitkey", apiOptions, ( err ) =>
+      @ok not err
+
+      keyOptions =
+        forApis: [ "corswitkey" ]
+
+      @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
+        @ok not err
+
+      requestOptions =
+        path: "/some.username?api_key=invalid"
+        host: "corswitkey.api.localhost"
+
+      @stubDns { "corswitkey.api.localhost": "127.0.0.1" }
+      @GET requestOptions, ( err, response ) =>
+        @ok not err
+
+        @equal response.headers[ "access-control-allow-origin" ], "*"
+        @equal response.headers[ "access-control-allow-credentials" ], "true"
+        @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE"
+        @equal response.headers[ "access-control-allow-headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
 
         done 4
