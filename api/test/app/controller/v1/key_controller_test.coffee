@@ -309,7 +309,7 @@ class exports.KeyStatsTest extends ApiaxleTest
 
               # this should no longer error because we've updated the
               # qpd via the API
-              limitModel.apiHit "phil", 200, 100, ( err, [ qpsLeft, qpdLeft ] ) =>
+              limitModel.apiHit "phil", 200, 100, ( err, [ qpdLeft, qpsLeft ] ) =>
                 @ok not err
 
                 @equal qpdLeft, 99

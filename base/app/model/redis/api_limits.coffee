@@ -29,13 +29,13 @@ class exports.ApiLimits extends Redis
   apiHit: ( key, qpsLimit, qpdLimit, cb ) ->
     both = []
 
-    if qpsLimit? and qpsLimit > 0
-      both.push ( innerCb ) =>
-        @qpsHit key, qpsLimit, innerCb
-
     if qpdLimit? and qpdLimit > 0
       both.push ( innerCb ) =>
         @qpdHit key, qpdLimit, innerCb
+
+    if qpsLimit? and qpsLimit > 0
+      both.push ( innerCb ) =>
+        @qpsHit key, qpsLimit, innerCb
 
     async.series both, cb
 
