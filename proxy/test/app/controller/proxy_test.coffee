@@ -87,9 +87,9 @@ class exports.CatchallTest extends ApiaxleTest
 
       # mock out the http call
       scope = nock( "http://#{ api.data.endPoint }" )
-      .get( "/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json" )
-      .once()
-      .reply( 200, "{}" )
+        .get( "/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json" )
+        .once()
+        .reply( 200, "{}" )
 
       requestOptions =
         path: "/genres/drama/scifiandfantasy/schedules/upcoming.json?api_key=phil"
@@ -147,9 +147,9 @@ class exports.CatchallTest extends ApiaxleTest
 
             # mock out the http call
             scope = nock( "http://example.com" )
-            .get( details.expected_path )
-            .once()
-            .reply( 200, "{}" )
+              .get( details.expected_path )
+              .once()
+              .reply( 200, "{}" )
 
             @GET requestOptions, ( err, res ) =>
               @ok scope.isDone(),
@@ -290,9 +290,9 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-        .get( "/some.username" )
-        .once()
-        .reply( 200, data, { "Content-Type": "application/json" } )
+          .get( "/some.username" )
+          .once()
+          .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/some.username?api_key=1234"
@@ -334,9 +334,9 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-        .get( "/some.username" )
-        .once()
-        .reply( 200, data, { "Content-Type": "application/json" } )
+          .get( "/some.username" )
+          .once()
+          .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/some.username?key=1234"
@@ -374,9 +374,9 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-        .get( "/some.username" )
-        .once()
-        .reply( 200, data, { "Content-Type": "application/json" } )
+          .get( "/some.username" )
+          .once()
+          .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/some.username?apiaxle_key=1234&api_key=5678"
@@ -415,9 +415,9 @@ class exports.CatchallTest extends ApiaxleTest
 
         # mock out the http call
         scope = nock( "http://graph.facebook.com" )
-        .get( "/bastard/1234/hello/" )
-        .once()
-        .reply( 200, data, { "Content-Type": "application/json" } )
+          .get( "/bastard/1234/hello/" )
+          .once()
+          .reply( 200, data, { "Content-Type": "application/json" } )
 
         requestOptions =
           path: "/bastard/1234/hello/"
@@ -451,9 +451,9 @@ class exports.CatchallTest extends ApiaxleTest
         host: "facebook.api.localhost"
 
       scope = nock( "http://example.blah" )
-      .delete( "/" )
-      .once()
-      .reply( 200, "{}", { "Content-Type": "application/json" } )
+        .delete( "/" )
+        .once()
+        .reply( 200, "{}", { "Content-Type": "application/json" } )
 
       @DELETE options, ( err, response ) =>
         @ok not err
