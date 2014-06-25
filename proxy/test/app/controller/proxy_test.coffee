@@ -513,3 +513,73 @@ class exports.CatchallTest extends ApiaxleTest
               @ok json
 
               done 9
+
+  "test api with CORS enabled": ( done ) ->
+    apiOptions =
+      endPoint: "localhost"
+      corsEnabled: true
+
+    @fixtures.createApi "corsenabled", apiOptions, ( err ) =>
+      @ok not err
+
+      @stubDns { "corsenabled.api.localhost": "127.0.0.1" }
+
+      @GET { path: "/", host: "corsenabled.api.localhost" }, ( err, response ) =>
+        @ok not err
+
+        @equal response.headers[ "access-control-allow-origin" ], "*"
+        @equal response.headers[ "access-control-allow-credentials" ], "true"
+        @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
+        @equal response.headers[ "access-control-allow-headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
+
+        done 4
+
+  "test api with CORS disabled": ( done ) ->
+    apiOptions =
+      endPoint: "localhost"
+      corsEnabled: false
+
+    @fixtures.createApi "corsdisabled", apiOptions, ( err ) =>
+      @ok not err
+
+      @stubDns { "corsdisabled.api.localhost": "127.0.0.1" }
+
+      @GET { path: "/", host: "corsdisabled.api.localhost" }, ( err, response ) =>
+        @ok not err
+
+        @isUndefined response.headers[ "access-control-allow-origin" ]
+        @isUndefined response.headers[ "access-control-allow-credentials" ]
+        @isUndefined response.headers[ "access-control-allow-methods" ]
+        @isUndefined response.headers[ "access-control-allow-headers" ]
+
+        done 4
+
+  "test CORS enabled on API with invalid key": ( done ) ->
+    apiOptions =
+      endPoint: "localhost"
+      corsEnabled: true
+
+    # we create the API
+    @fixtures.createApi "corswitkey", apiOptions, ( err ) =>
+      @ok not err
+
+      keyOptions =
+        forApis: [ "corswitkey" ]
+
+      @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
+        @ok not err
+
+      requestOptions =
+        path: "/some.username?api_key=invalid"
+        host: "corswitkey.api.localhost"
+
+      @stubDns { "corswitkey.api.localhost": "127.0.0.1" }
+      @GET requestOptions, ( err, response ) =>
+        @ok not err
+
+        @equal response.headers[ "access-control-allow-origin" ], "*"
+        @equal response.headers[ "access-control-allow-credentials" ], "true"
+        @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
+        @equal response.headers[ "access-control-allow-headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
+
+        done 4

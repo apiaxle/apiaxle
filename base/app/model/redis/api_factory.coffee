@@ -137,3 +137,21 @@ class exports.ApiFactory extends Redis
               "on temporary keys that have already been created. However, as " +
               "temprary keys only live for 24 hours, this limit will be " +
               "applied when that period expires."
+      corsEnabled:
+        type: "boolean"
+        optional: true
+        default: false
+        docs: "Whether or not you want to enable CORS (http://www.w3.org/TR/cors/) " +
+              "support. This enables CORS for all origins and is intended to be simple " +
+              "and cover the majority of users. If you need more refined configuration we " +
+              "suggest you use something like varnish or nginx to do this. Note that your " +
+              "API endpoint should support the OPTIONS method which is often used in 'preflight' " +
+              "requests for the XHR object to verify CORS headers. " +
+              "When enabled, the following headers will be returned:
+
+              Access-Control-Allow-Origin: *
+              Access-Control-Allow-Credentials: true
+              Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD
+              Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token
+              Access-Control-Expose-Headers: content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpd-Left
+              "

@@ -342,6 +342,11 @@ class exports.ApiaxleProxy extends AxleApp
       @getApi,
       @setTiming( "end-api-fetched" ),
 
+      # check if CORS are enabled on API and set response headers as needed
+      @setTiming( "start-applying-cors" ),
+      @applyCors,
+      @setTiming( "end-applying-cors" ),
+
       # get the valid key and keyrings. If the key is invalid an error
       # will be thrown.
       @setTiming( "start-key-fetched" ),
@@ -366,6 +371,16 @@ class exports.ApiaxleProxy extends AxleApp
       @setTiming( "start-request" )
     ]
 
+  applyCors: ( req, res, next ) =>
+    # If CORS is not enabled, proceed
+    if req.api.data.corsEnabled
+      res.setHeader "Access-Control-Allow-Origin", "*"
+      res.setHeader "Access-Control-Allow-Credentials", "true"
+      res.setHeader "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
+      res.setHeader "Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
+      res.setHeader "Access-Control-Expose-Headers", "content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpd-Left"
+
+    return next()
 
   run: ( cb ) ->
     # takes the request, a name and a cb. Used to make a suitable
