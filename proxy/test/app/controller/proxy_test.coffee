@@ -529,7 +529,7 @@ class exports.CatchallTest extends ApiaxleTest
 
         @equal response.headers[ "access-control-allow-origin" ], "*"
         @equal response.headers[ "access-control-allow-credentials" ], "true"
-        @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE"
+        @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
         @equal response.headers[ "access-control-allow-headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
 
         done 4
@@ -579,7 +579,7 @@ class exports.CatchallTest extends ApiaxleTest
 
         @equal response.headers[ "access-control-allow-origin" ], "*"
         @equal response.headers[ "access-control-allow-credentials" ], "true"
-        @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE"
+        @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
         @equal response.headers[ "access-control-allow-headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
 
         done 4
