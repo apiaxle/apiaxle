@@ -147,9 +147,11 @@ class exports.ApiFactory extends Redis
               "suggest you use something like varnish or nginx to do this. Note that your " +
               "API endpoint should support the OPTIONS method which is often used in 'preflight' " +
               "requests for the XHR object to verify CORS headers. " +
-              "When enabled, the following headers will be returned: " +
-              "Access-Control-Allow-Origin: * <br />" +
-              "Access-Control-Allow-Credentials: true <br />" +
-              "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD <br />" +
-              "Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token <br />" +
-              "Access-Control-Expose-Headers: content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpd-Left <br />"
+              "When enabled, the following headers will be returned:
+
+              Access-Control-Allow-Origin: *
+              Access-Control-Allow-Credentials: true
+              Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD
+              Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token
+              Access-Control-Expose-Headers: content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpd-Left
+              "
