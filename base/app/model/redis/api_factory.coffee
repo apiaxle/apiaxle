@@ -144,4 +144,12 @@ class exports.ApiFactory extends Redis
         docs: "Whether or not you want to enable CORS (http://www.w3.org/TR/cors/) " +
               "support. This enables CORS for all origins and is intended to be simple " +
               "and cover the majority of users. If you need more refined configuration we " +
-              "suggest you use something like varnish or nginx to do this."
+              "suggest you use something like varnish or nginx to do this. Note that your " +
+              "API endpoint should support the OPTIONS method which is often used in 'preflight' " +
+              "requests for the XHR object to verify CORS headers. " +
+              "When enabled, the following headers will be returned: " +
+              "Access-Control-Allow-Origin: * <br />" +
+              "Access-Control-Allow-Credentials: true <br />" +
+              "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD <br />" +
+              "Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token <br />" +
+              "Access-Control-Expose-Headers: content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpd-Left <br />"
