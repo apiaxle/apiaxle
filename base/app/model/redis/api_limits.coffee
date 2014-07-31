@@ -51,16 +51,16 @@ class exports.ApiLimits extends Redis
 
   qpHit: ( qpKey, qpExpires, qpLimit, QpErrorClass, cb ) ->
     # we're allowed the call
-    console.log( qpLimit )
     @incr qpKey, ( err, newQp ) =>
       return cb err if err
 
+      # make sure it doesn't hang around
       if newQp is null
-        @setInitialQp qpKey, apExpires, 1, ( err ) ->
+        @expires qpKey, apExpires, ( err ) ->
           return cb err if err
-          return cb null, ( qpLimit - 1 )
+          return cb null, qpLimit
 
-      if newQp > ( qpLimit - 1 )
+      if newQp > qpLimit
         return cb new QpErrorClass "Queries exceeded (#{ qpLimit } allowed).", null
 
-      return cb null, ( qpLimit - newQp - 1 )
+      return cb null, qpLimit - newQp
