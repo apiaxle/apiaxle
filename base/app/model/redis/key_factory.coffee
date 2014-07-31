@@ -50,11 +50,6 @@ class Key extends Model
     limits_model.get redis_key_name, ( err, current_qpd ) =>
       return cb err if err
 
-      # if the qpd changes we might need to take note
-      if new_data.qpd and new_data.qpd isnt @data.qpd
-        all_actions.push ( cb ) =>
-          limits_model.updateQpValue redis_key_name, new_data.qpd, cb
-
       # run the original update
       all_actions.push ( cb ) =>
         @constructor.__super__.update.apply @, [ new_data, cb ]
