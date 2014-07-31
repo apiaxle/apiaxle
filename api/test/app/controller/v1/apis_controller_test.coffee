@@ -69,7 +69,7 @@ class exports.ApisControllerTest extends ApiaxleTest
           @ok json.results[ name ]
           @equal json.results[ name ].endPoint, "api_#{i}.com"
 
-        done 24
+        done 18
 
   "test pagination over many pages": ( done ) ->
     # there are 12 items (starting at 0)

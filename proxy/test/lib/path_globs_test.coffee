@@ -120,4 +120,4 @@ class exports.PathGlobTests extends ApiaxleTest
       match = ps.matchPathDefinitions pathname, query, definitions
       @deepEqual match, matching_defs
 
-    done 5
+    done 4

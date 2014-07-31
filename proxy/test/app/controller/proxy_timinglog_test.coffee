@@ -119,4 +119,4 @@ class exports.TimersTest extends ApiaxleTest
     async.series all, ( err ) =>
       @ok not err
 
-      done 12
+      done 13

@@ -51,4 +51,4 @@ class exports.CatchallKeylessTest extends ApiaxleTest
           @equal response.headers["x-apiaxleproxy-qps-left"], 3
           @equal response.headers["x-apiaxleproxy-qpd-left"], 11
 
-          done 6
+          done 9

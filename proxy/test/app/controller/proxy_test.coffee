@@ -532,7 +532,7 @@ class exports.CatchallTest extends ApiaxleTest
         @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
         @equal response.headers[ "access-control-allow-headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
 
-        done 4
+        done 6
 
   "test api with CORS disabled": ( done ) ->
     apiOptions =
@@ -552,7 +552,7 @@ class exports.CatchallTest extends ApiaxleTest
         @isUndefined response.headers[ "access-control-allow-methods" ]
         @isUndefined response.headers[ "access-control-allow-headers" ]
 
-        done 4
+        done 6
 
   "test CORS enabled on API with invalid key": ( done ) ->
     apiOptions =
@@ -582,4 +582,4 @@ class exports.CatchallTest extends ApiaxleTest
         @equal response.headers[ "access-control-allow-methods" ], "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
         @equal response.headers[ "access-control-allow-headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
 
-        done 4
+        done 6

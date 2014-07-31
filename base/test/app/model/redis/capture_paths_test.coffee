@@ -67,4 +67,4 @@ class exports.CountersTest extends FakeAppTest
     async.series all, ( err ) =>
       @ok not err
 
-      done 3
+      done 5

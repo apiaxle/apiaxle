@@ -61,7 +61,7 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
         @ok paths
         @deepEqual paths, [ "/animal/noise" ]
 
-        done 1
+        done 4
 
   "test adding capture paths": ( done ) ->
     @PUT path: "/v1/api/facebook/addcapturepath/%2Fanimal%2Fnoise%2F*", ( err, res ) =>
@@ -294,4 +294,4 @@ class exports.ApiStatsCaptureControllerTest extends ApiaxleTest
       async.parallel all, ( err ) =>
         @ok not err
 
-        done 1
+        done 38
