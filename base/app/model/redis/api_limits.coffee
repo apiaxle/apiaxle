@@ -54,13 +54,15 @@ class exports.ApiLimits extends Redis
     @incr qpKey, ( err, newQp ) =>
       return cb err if err
 
+      extra = []
+
       # make sure it doesn't hang around
-      if newQp is null
-        @expires qpKey, apExpires, ( err ) ->
-          return cb err if err
-          return cb null, qpLimit
+      if newQp is 1
+        extra.push ( cb ) => @expire qpKey, qpExpires, cb
 
-      if newQp > qpLimit
-        return cb new QpErrorClass "Queries exceeded (#{ qpLimit } allowed).", null
+      if newQp > qpLimit or qpLimit is 0
+        return cb new QpErrorClass "Queries exceeded (#{ qpLimit } allowed)."
 
-      return cb null, qpLimit - newQp
+      async.series extra, ( err ) ->
+        return cb err if err
+        return cb null, ( qpLimit - newQp )
