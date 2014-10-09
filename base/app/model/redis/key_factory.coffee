@@ -25,19 +25,30 @@ class Key extends Model
     @supportedApis ( err, api_list ) =>
       return cb err if err
 
-      unlink_from_api = []
-
-      # find each of the apis and unlink ourselves from it
-      for api in api_list
-        do( api ) =>
-          unlink_from_api.push ( cb ) =>
-            @app.model( "apifactory" ).find [ api ], ( err, results ) =>
-              return cb err if err
-              return results[api].unlinkKey @, cb
-
-      async.parallel unlink_from_api, ( err ) =>
+      @supportedKeyrings ( err, keyring_list ) =>
         return cb err if err
-        return Key.__super__.delete.apply @, [ cb ]
+
+        unlinker_fns = []
+
+        # find each of the apis/keyrings and unlink ourselves from it
+        for api in api_list
+          do( api ) =>
+            unlinker_fns.push ( cb ) =>
+              @app.model( "apifactory" ).find [ api ], ( err, results ) =>
+                return cb err if err
+                return results[api].unlinkKey @, cb
+
+        # find each of the apis and unlink ourselves from it
+        for keyring in keyring_list
+          do( keyring ) =>
+            unlinker_fns.push ( cb ) =>
+              @app.model( "keyringfactory" ).find [ keyring ], ( err, results ) =>
+                return cb err if err
+                return results[keyring].unlinkKey @, cb
+
+        async.parallel unlinker_fns, ( err ) =>
+          return cb err if err
+          return Key.__super__.delete.apply @, [ cb ]
 
   update: ( new_data, cb ) ->
     # if someone has upped the qpd then we need to take account as
