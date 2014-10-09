@@ -117,6 +117,38 @@ class exports.KeyTest extends FakeAppTest
 class exports.KeyApiLinkTest extends FakeAppTest
   @empty_db_on_setup = true
 
+  "test deleting keys unlinks them from keyrings": ( done ) ->
+    fixture =
+      api:
+        twitter:
+          endPoint: "example.com"
+      keyring:
+        kr: {}
+      key:
+        phil:
+          forApis: [ "twitter" ]
+
+    @fixtures.create fixture, ( err, [ twitter, kr, phil ] ) =>
+      @ok not err
+
+      kr.linkKey phil.id, ( err ) =>
+        @ok not err
+
+        kr.getKeys 0, 10, ( err, linked ) =>
+          @ok not err
+          @deepEqual linked, [ "phil" ]
+
+          phil.delete ( err ) =>
+            @ok not err
+
+            kr.getKeys 0, 100, ( err, linked ) =>
+              @ok not err
+
+              # facebook should no longer know of phil
+              @deepEqual linked, [ ]
+
+              done 4
+
   "test deleting keys unlinks them from APIs": ( done ) ->
     fixture =
       api:
