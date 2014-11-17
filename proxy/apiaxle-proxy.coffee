@@ -533,7 +533,7 @@ if not module.parent
     q:
       alias: "process-queue"
       default: false
-      describe: "If your willing to take the performance penalty, process " +
+      describe: "If you are willing to take the performance penalty, process " +
                 "each request from this system, rather than using " +
                 "apiaxle-proxy-event-subscriber."
     t:
