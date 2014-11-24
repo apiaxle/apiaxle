@@ -171,6 +171,9 @@ class exports.AxleApp extends Application
       if query and query.format and query.format in [ "xml", "json" ]
         return query.format
 
+    if /application\/xml/.test(req.headers.accept)
+      return "xml"
+
     if req.api?.data.apiFormat is "xml"
       return "xml"
 
