@@ -56,7 +56,9 @@ class exports.ApiLimits extends Redis
 
       extra = []
 
-      # make sure it doesn't hang around
+      # when newQp is 1, redis has created a new key (rather than
+      # incremented an old one). As it's a brand new key, we need to tell
+      # Redis to expire it.
       if newQp is 1
         extra.push ( cb ) => @expire qpKey, qpExpires, cb
 
