@@ -64,7 +64,6 @@ class exports.AxleApp extends Application
   redisConnect: ( client_name, cb ) =>
     # grab the redis config
     { port, host, sentinel, auth } = @config.redis
-    console.log({ port, host, sentinel, auth });
     # are we up for some sentinel fun?
     this[client_name] = null
     if sentinel
