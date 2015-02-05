@@ -63,8 +63,7 @@ class exports.AxleApp extends Application
 
   redisConnect: ( client_name, cb ) =>
     # grab the redis config
-    { port, host, sentinel } = @config.redis
-
+    { port, host, sentinel, auth } = @config.redis
     # are we up for some sentinel fun?
     this[client_name] = null
     if sentinel
@@ -77,7 +76,7 @@ class exports.AxleApp extends Application
       this[client_name].on "failover-end", => @logger.warn "Failover ends."
       this[client_name].on "disconnected", => @logger.warn "Old master disconnected."
     else
-      this[client_name] = Redis.createClient port, host
+      this[client_name] = Redis.createClient port, host, { auth_pass: auth}
 
     this[client_name].on "error", ( err ) => @logger.warn "#{ err }"
     this[client_name].on "ready", cb
@@ -140,6 +139,9 @@ class exports.AxleApp extends Application
             host:
               type: "string"
               default: "localhost"
+            auth:
+              type: "string"
+              default: ""
 
   getRoutingSchema: ->
     {}=
