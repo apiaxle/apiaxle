@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "apiaxle-base": "1.12.35",
-    "libxmljs": "0.7.1",
+    "libxmljs": "0.14.x",
     "lodash": "~2.2.1",
     "sinon": "~1.6.0",
     "twerp": "~1.0.7",

@@ -23,7 +23,7 @@
     "lodash": "~1.2.0",
     "tokenizer": "~0.1.2",
     "apiaxle-base": "1.12.35",
-    "libxmljs": "~0.7.1",
+    "libxmljs": "0.14.x",
     "apiaxle-api": "1.12.35",
     "sinon": "~1.6.0",
     "twerp": "~1.0.7",

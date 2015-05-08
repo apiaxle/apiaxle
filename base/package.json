@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "lodash": "~1.2.0",
-    "js2xml": "0.0.6",
-    "libxmljs": "~0.7.1",
+    "js2xml": "apiaxle/js2xml#v1.0.3",
+    "libxmljs": "0.14.x",
     "date-utils": "~1.2.13",
     "scarf": "0.0.10",
     "request": "~2.20.0",
