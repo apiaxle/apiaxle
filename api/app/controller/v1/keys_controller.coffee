@@ -1,5 +1,6 @@
 # This code is covered by the GPL version 3.
 # Copyright 2011-2013 Philip Jackson.
+async = require "async"
 { StatsController, ListController } = require "../controller"
 
 class exports.KeysCharts extends StatsController
@@ -72,3 +73,50 @@ class exports.ListKeys extends ListController
   modelName: -> "keyfactory"
 
   middleware: -> [ @mwValidateQueryParams() ]
+
+class exports.AllKeyStats extends StatsController
+  @verb = "get"
+
+  path: -> "/v1/keys/all"
+
+  docs: ->
+    {}=
+      verb: "GET"
+      title: "List stats for all available keys."
+      response: """
+        Return stats for all available keys.
+      """
+
+  middleware: -> [ @mwValidateQueryParams() ]
+
+  execute: ( req, res, next ) ->
+    model = @app.model "keyfactory"
+
+    { from, to, granularity } = req.query
+
+    model.nonAnonymousKeys ( err, keys ) =>
+      return next err if err
+
+      statsModel = @app.model "stats"
+
+      types = [ "uncached", "cached", "error" ]
+
+      keyFns = []
+      apiKeysResult = {}
+      for key in keys
+        do( key ) =>
+          keyFns.push ( cb ) =>
+            queryTypeFns = {}
+            for type in types
+              do( type ) =>
+                queryTypeFns[type] = ( cb ) =>
+                  redis_key = ['key', key, type]
+                  statsModel.getAll redis_key, granularity, from, to, cb
+            async.parallel queryTypeFns, ( err, timestampData ) =>
+              return err if err
+              apiKeysResult[key] = timestampData
+              cb null
+
+      return async.series keyFns, ( err ) =>
+        return next err if err
+        return @json res, apiKeysResult
