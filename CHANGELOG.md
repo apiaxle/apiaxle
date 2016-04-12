@@ -4,6 +4,7 @@ changelog
 1.12.36
 --------
 support external hit processors for apiaxle-proxy
+add qpm limits
 
 1.12.35
 --------

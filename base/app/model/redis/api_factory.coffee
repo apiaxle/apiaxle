@@ -118,7 +118,7 @@ class exports.ApiFactory extends Redis
         type: "boolean"
         optional: true
         default: false
-        docs: "If true then allow for keyless access to this API. Also see keylessQps and keylessQpd."
+        docs: "If true then allow for keyless access to this API. Also see keylessQps, keylessQpm, and keylessQpd."
       keylessQps:
         type: "integer"
         optional: false
@@ -126,7 +126,16 @@ class exports.ApiFactory extends Redis
         docs: "How many queries per second an anonymous key should have " +
               "when it's created. Note that changing this will not affect " +
               "on temporary keys that have already been created. However, as " +
-              "temprary keys only live for 24 hours, this limit will be " +
+              "temporary keys only live for 24 hours, this limit will be " +
+              "applied when that period expires."
+      keylessQpm:
+        type: "integer"
+        optional: false
+        default: 120
+        docs: "How many queries per minute an anonymous key should have " +
+              "when it's created. Note that changing this will not affect " +
+              "on temporary keys that have already been created. However, as " +
+              "temporary keys only live for 24 hours, this limit will be " +
               "applied when that period expires."
       keylessQpd:
         type: "integer"
@@ -135,7 +144,7 @@ class exports.ApiFactory extends Redis
         docs: "How many queries per day an anonymous key should have " +
               "when it's created. Note that changing this will not affect " +
               "on temporary keys that have already been created. However, as " +
-              "temprary keys only live for 24 hours, this limit will be " +
+              "temporary keys only live for 24 hours, this limit will be " +
               "applied when that period expires."
       corsEnabled:
         type: "boolean"
@@ -153,5 +162,5 @@ class exports.ApiFactory extends Redis
               Access-Control-Allow-Credentials: true
               Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD
               Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token
-              Access-Control-Expose-Headers: content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpd-Left
+              Access-Control-Expose-Headers: content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpm-Left, X-ApiaxleProxy-Qpd-Left
               "

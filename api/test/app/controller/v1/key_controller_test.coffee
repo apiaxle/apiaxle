@@ -32,6 +32,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @ok not err
 
           @isNumber results.qps
+          @isNumber results.qpm
           @isNumber results.qpd
 
           @deepEqual results.apis, [ "twitter", "facebook" ]
@@ -58,6 +59,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       data: JSON.stringify
         forApis: [ "twitter" ]
         qps: 1
+        qpm: 10
         qpd: 100
 
     @POST options, ( err, res ) =>
@@ -67,6 +69,7 @@ class exports.KeyControllerTest extends ApiaxleTest
         @ok not err
 
         @equal results.qps, 1
+        @equal results.qpm, 10
         @equal results.qpd, 100
 
         # check it went in
@@ -74,6 +77,7 @@ class exports.KeyControllerTest extends ApiaxleTest
           @ok not err
 
           @equal dbKey["1234"].data.qps, 1
+          @equal dbKey["1234"].data.qpm, 10
           @equal dbKey["1234"].data.qpd, 100
           @ok dbKey["1234"].data.createdAt
 
@@ -116,6 +120,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       data: JSON.stringify
         forApis: [ "twitter" ]
         qps: 30
+        qpm: 300
         qpd: 1000
 
     @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>
@@ -129,6 +134,7 @@ class exports.KeyControllerTest extends ApiaxleTest
 
         @app.model( "keyfactory" ).find [ "1234" ], ( err, results ) =>
           @equal results["1234"].data.qps, "30"
+          @equal results["1234"].data.qpm, "300"
           @equal results["1234"].data.qpd, "1000"
 
           done 6
@@ -141,6 +147,7 @@ class exports.KeyControllerTest extends ApiaxleTest
       data: JSON.stringify
         forApis: [ "twitter" ]
         qps: "hi"     # invalid
+        qpm: 300
         qpd: 1000
 
     @fixtures.createKey "1234", forApis: [ "twitter" ], ( err, origKey ) =>

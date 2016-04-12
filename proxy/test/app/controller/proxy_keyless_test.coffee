@@ -15,6 +15,7 @@ class exports.CatchallKeylessTest extends ApiaxleTest
           endPoint: "example.com"
           allowKeylessUse: true
           keylessQps: 4
+          keylessQpm: 8
           keylessQpd: 12
 
     @fixtures.create fixture, ( err, [ @api ] ) -> done()
@@ -46,9 +47,11 @@ class exports.CatchallKeylessTest extends ApiaxleTest
 
           # correct qps, qpd
           @equal dbKey.data.qps, 4
+          @equal dbKey.data.qpm, 8
           @equal dbKey.data.qpd, 12
 
           @equal response.headers["x-apiaxleproxy-qps-left"], 3
+          @equal response.headers["x-apiaxleproxy-qpm-left"], 7
           @equal response.headers["x-apiaxleproxy-qpd-left"], 11
 
-          done 9
+          done 11

@@ -13,7 +13,7 @@ class exports.Key extends Command
 
         To create a Key:
 
-            axle> key "bobskey" create qps=2 qpd=20
+            axle> key "bobskey" create qps=2 qpm=10 qpd=20
 
         To delete a Key:
 
