@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "lodash": "~1.2.0",
-    "js2xml": "apiaxle/js2xml#v1.0.3",
+    "js2xml": "^1.0.4",
     "libxmljs": "0.14.x",
     "date-utils": "~1.2.13",
     "scarf": "0.0.10",
@@ -25,7 +25,7 @@
     "express": "~3.2.6",
     "async": "~0.2.9",
     "redis": "^0.10.3",
-    "hiredis": "^0.1.17"
+    "hiredis": "^0.4.1"
   },
   "devDependencies": {
     "twerp": "~1.0.7",
