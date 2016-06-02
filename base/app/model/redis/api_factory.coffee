@@ -164,3 +164,8 @@ class exports.ApiFactory extends Redis
               Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token
               Access-Control-Expose-Headers: content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpm-Left, X-ApiaxleProxy-Qpd-Left
               "
+      errorMessage:
+        type: "string"
+        optional: true
+        default: null
+        docs: "This gets added as an info property to any errors returned by the proxy for this api."

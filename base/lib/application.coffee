@@ -208,6 +208,7 @@ class exports.AxleApp extends Application
         message: err.message
 
     output.error.details = err.details if err.details
+    output.error.info = req.api.data.errorMessage if req.api && req.api.data && req.api.data.errorMessage
 
     # add the stacktrace if we're debugging
     if @debugOn
