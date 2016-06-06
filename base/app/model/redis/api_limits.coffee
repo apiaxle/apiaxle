@@ -29,12 +29,14 @@ class exports.ApiLimits extends Redis
     both = []
 
     if qpdLimit? and qpdLimit > 0
-      both.push ( innerCb ) =>
-        @qpdHit key, qpdLimit, innerCb
+      both.push ( innerCb ) => @qpdHit key, qpdLimit, innerCb
+    else
+      both.push ( innerCb ) -> innerCb null, -1
 
     if qpsLimit? and qpsLimit > 0
-      both.push ( innerCb ) =>
-        @qpsHit key, qpsLimit, innerCb
+      both.push ( innerCb ) => @qpsHit key, qpsLimit, innerCb
+    else
+      both.push ( innerCb ) -> innerCb null, -1
 
     async.series both, cb
 

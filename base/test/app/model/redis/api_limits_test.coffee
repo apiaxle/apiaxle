@@ -86,3 +86,17 @@ class exports.QpdTest extends FakeAppTest
           @ok err instanceof QpsExceededError
 
           done 13
+
+  "test apiHit returns qpd and qps when qpd is unlimited": ( done ) ->
+    model = @app.model "apilimits"
+
+    # we need to stub the keys because there's a chance we'll tick
+    # over to the next second/day
+    qpsKeyStub = @getStub ApiLimits::, "qpsKey", -> "qpsTestKey"
+    qpdKeyStub = @getStub ApiLimits::, "qpdKey", -> "qpdTestKey"
+
+    model.apiHit "1234", 2, -1, ( err, limits ) =>
+      @ok not err
+      @equal limits.length, 2
+
+      done 2
