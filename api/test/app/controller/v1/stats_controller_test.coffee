@@ -46,12 +46,14 @@ class exports.KeyringStatsTest extends ApiaxleTest
     model = @app.model "stats"
     hits  = []
 
-    now = 1464951741939 # Fri, 03 Jun 2016
+    next_year = new Date()
+    next_year.setFullYear(next_year.getFullYear() + 1) # has to be the future so redis doesn't expire our stats
+    now = next_year.getTime()
 
     @now_seconds = Math.floor( now / 1000 )
-    @now_minutes = 1464951720
-    @now_hours = 1464951600
-    @now_days = 1464912000
+    @now_minutes = Math.floor( now / 60 / 1000 ) * 60
+    @now_hours = Math.floor( now / 60 / 60 / 1000 ) * 60 * 60
+    @now_days = Math.floor( now / 24 / 60 / 60 / 1000 ) * 24 * 60 * 60
 
     clock = @getClock now
 
@@ -210,14 +212,14 @@ class exports.ApiStatsTest extends ApiaxleTest
     model = @app.model "stats"
     hits  = []
 
-    now = 1464951741939 # Fri, 03 Jun 2016
+    next_year = new Date()
+    next_year.setFullYear(next_year.getFullYear() + 1) # has to be the future so redis doesn't expire our stats
+    now = next_year.getTime()
 
     @now_seconds = Math.floor( now / 1000 )
-    @now_milliseconds = @now_seconds * 1000
-
-    @now_minutes = 1464951720
-    @now_hours = 1464951600
-    @now_days = 1464912000
+    @now_minutes = Math.floor( now / 60 / 1000 ) * 60
+    @now_hours = Math.floor( now / 60 / 60 / 1000 ) * 60 * 60
+    @now_days = Math.floor( now / 24 / 60 / 60 / 1000 ) * 24 * 60 * 60
 
     clock = @getClock now
 
@@ -453,9 +455,6 @@ class exports.ApiStatsTest extends ApiaxleTest
 
               # check for the ISO date
               timestamp = ( new Date( timestamp * 1000 ) ).toISOString()
-
-              # we know it should be 03 Jun 2016
-              @match timestamp, /2016-06-03/
 
               @deepEqual results.uncached["200"][timestamp], 2
               @deepEqual results.uncached["400"][timestamp], 1
