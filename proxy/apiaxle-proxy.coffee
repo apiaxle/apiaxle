@@ -303,8 +303,10 @@ class exports.ApiaxleProxy extends AxleApp
       return next err if err
 
       # let the user know what they have left
-      res.setHeader "X-ApiaxleProxy-Qps-Left", newQps
-      res.setHeader "X-ApiaxleProxy-Qpd-Left", newQpd
+      if newQps > -1
+        res.setHeader "X-ApiaxleProxy-Qps-Left", newQps
+      if newQpd > -1
+        res.setHeader "X-ApiaxleProxy-Qpd-Left", newQpd
 
       return next()
 
