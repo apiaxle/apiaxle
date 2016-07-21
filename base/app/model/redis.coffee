@@ -58,7 +58,7 @@ class Redis
         return cb new ValidationError err.message if err
 
         # need to escape the key so that people don't use colons and
-        # trick redis into overwrting other keys
+        # trick redis into overwriting other keys
         id = @escapeId id
 
         multi = @multi()
