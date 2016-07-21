@@ -32,6 +32,9 @@ class Redis
 
       # merge the new and old details
       merged_data = _.extend results[id].data, details
+      # delete any properties that got set to null
+      merged_data = _.omit merged_data, (value) ->
+        return value == null
 
       @create id, merged_data, ( err ) =>
         return cb err if err
@@ -67,6 +70,8 @@ class Redis
         if update
           instance.updatedAt = Date.now()
           instance.createdAt = results[id].data.createdAt
+          # delete key to allow for property removal
+          multi.del id
         else
           instance.createdAt = Date.now()
 
