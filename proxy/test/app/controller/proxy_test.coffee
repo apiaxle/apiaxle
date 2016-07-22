@@ -251,6 +251,67 @@ class exports.CatchallTest extends ApiaxleTest
 
           done 5
 
+  "test GET with allApis key": ( done ) ->
+    fixtures =
+      api:
+        programmes:
+          endPoint: "bbc.co.uk"
+          qpd: 20
+        facebook:
+          endPoint: "graph.facebook.com"
+          qps: 5
+      key:
+        phil:
+          allApis: true
+
+    @fixtures.create fixtures, ( err, [ bbc, facebook, key ] ) =>
+      @ok not err
+
+      @stubDns {
+        "facebook.api.localhost": "127.0.0.1",
+        "programmes.api.localhost": "127.0.0.1"
+      }
+
+      scope = nock( "http://graph.facebook.com" )
+        .get( "/a" )
+        .once()
+        .reply( 200, '{"a":1}', { "Content-Type": "application/json" } )
+
+      requestOptions =
+        path: "/a?api_key=phil"
+        host: "facebook.api.localhost"
+
+      @GET requestOptions, ( err, response ) =>
+        @ok not err
+        @ok scope.isDone()
+        @equal response.contentType, "application/json"
+        @equal response.headers[ "x-apiaxleproxy-qps-left" ], 4
+
+        response.parseJson ( err, json ) =>
+          @ok not err
+          @equal json.a, 1
+
+          scope = nock( "http://bbc.co.uk" )
+            .get( "/a" )
+            .once()
+            .reply( 200, '{"a":2}', { "Content-Type": "application/json" } )
+
+          requestOptions =
+            path: "/a?api_key=phil"
+            host: "programmes.api.localhost"
+
+          @GET requestOptions, ( err, response ) =>
+            @ok not err
+            @ok scope.isDone()
+            @equal response.contentType, "application/json"
+            @equal response.headers[ "x-apiaxleproxy-qpd-left" ], 19
+
+            response.parseJson ( err, json ) =>
+              @ok not err
+              @equal json.a, 2
+
+              done 13
+
   "test key limits fall through correctly": ( done ) ->
     fixtures =
       api:

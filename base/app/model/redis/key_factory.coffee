@@ -90,6 +90,10 @@ class exports.KeyFactory extends Redis
         type: "string"
         docs: 'Custom api-specific limits. JSON encoded: \'{"api1": {"qpd":5, "qps":2}, "api2": {"qpd":2}}\''
         optional: true
+      allApis:
+        type: "boolean"
+        optional: true
+        docs: "Allow this key to work for all APIs"
 
   _verifyApisExist: ( apis, cb ) ->
     if not apis
