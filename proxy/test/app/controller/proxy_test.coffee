@@ -251,6 +251,77 @@ class exports.CatchallTest extends ApiaxleTest
 
           done 5
 
+  "test key limits fall through correctly": ( done ) ->
+    fixtures =
+      api:
+        facebook:
+          endPoint: "graph.facebook.com"
+          qpd: 130
+          qpm: 120
+          qps: 110
+        programmes:
+          endPoint: "bbc.co.uk"
+          qpd: 30
+          qpm: 20
+          qps: 10
+      key:
+        phil:
+          forApis: [ "facebook", "programmes" ]
+          qpm: 40
+          apiLimits: '{"programmes":{"qpd":70},"facebook":{"qpd":90}}'
+
+    @fixtures.create fixtures, ( err, [ bbc, facebook, key ] ) =>
+      @ok not err
+
+      @stubDns {
+        "facebook.api.localhost": "127.0.0.1",
+        "programmes.api.localhost": "127.0.0.1"
+      }
+
+      scope = nock( "http://graph.facebook.com" )
+        .get( "/a" )
+        .once()
+        .reply( 200, '{"a":1}', { "Content-Type": "application/json" } )
+
+      requestOptions =
+        path: "/a?api_key=phil"
+        host: "facebook.api.localhost"
+
+      @GET requestOptions, ( err, response ) =>
+        @ok not err
+        @ok scope.isDone()
+        @equal response.contentType, "application/json"
+        @equal response.headers[ "x-apiaxleproxy-qpd-left" ], 89
+        @equal response.headers[ "x-apiaxleproxy-qpm-left" ], 39
+        @equal response.headers[ "x-apiaxleproxy-qps-left" ], 109
+
+        response.parseJson ( err, json ) =>
+          @ok not err
+          @equal json.a, 1
+
+          scope = nock( "http://bbc.co.uk" )
+            .get( "/a" )
+            .once()
+            .reply( 200, '{"a":2}', { "Content-Type": "application/json" } )
+
+          requestOptions =
+            path: "/a?api_key=phil"
+            host: "programmes.api.localhost"
+
+          @GET requestOptions, ( err, response ) =>
+            @ok not err
+            @ok scope.isDone()
+            @equal response.contentType, "application/json"
+            @equal response.headers[ "x-apiaxleproxy-qpd-left" ], 69
+            @equal response.headers[ "x-apiaxleproxy-qpm-left" ], 39
+            @equal response.headers[ "x-apiaxleproxy-qps-left" ], 9
+
+            response.parseJson ( err, json ) =>
+              @ok not err
+              @equal json.a, 2
+
+              done 17
+
   "test GET with registered domain but invalid key": ( done ) ->
     apiOptions =
       endPoint: "graph.facebook.com"

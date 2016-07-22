@@ -111,7 +111,7 @@ class exports.ApiaxleProxy extends AxleApp
   # checked.
   createKeyBasedOnIp: ( req, cb ) ->
     # try to get the ip address
-    # TODO: I think x-forwarded-for can have many, comma seperated
+    # TODO: x-forwarded-for can have many, comma seperated
     # addresses.
     ip = req.headers["x-forwarded-for"] or
          req.connection.remoteAddress or
@@ -129,9 +129,7 @@ class exports.ApiaxleProxy extends AxleApp
 
       create_link = [
         # create the key
-        ( cb ) ->
-          { keylessQps, keylessQpm, keylessQpd } = req.api.data
-          model.create key_name, { qps: keylessQps, qpm: keylessQpm, qpd: keylessQpd }, cb
+        ( cb ) -> model.create key_name, {}, cb
 
         # now link the key
         ( cb ) -> req.api.linkKey key_name, cb
@@ -292,13 +290,43 @@ class exports.ApiaxleProxy extends AxleApp
     # here's the actual setting
     return endpointUrl
 
+  chooseLimits: ( key, api ) =>
+    # if keyless, use api's keyless limits
+    if key.id.substring(0, 3) == 'ip-'
+      qps = api.data.keylessQps
+      qpm = api.data.keylessQpm
+      qpd = api.data.keylessQpd
+    else
+      # use key's api specific limits if they exist
+      if key.data.apiLimits
+        try
+          keyApiLimits = JSON.parse key.data.apiLimits
+      if keyApiLimits && keyApiLimits[api.id] != undefined
+        qps = keyApiLimits[api.id].qps
+        qpm = keyApiLimits[api.id].qpm
+        qpd = keyApiLimits[api.id].qpd
+
+      # fall back to key limits
+      if qps == undefined
+        qps = key.data.qps
+      if qpm == undefined
+        qpm = key.data.qpm
+      if qpd == undefined
+        qpd = key.data.qpd
+
+      # fall back to api default limits
+      if qps == undefined
+        qps = api.data.qps
+      if qpm == undefined
+        qpm = api.data.qpm
+      if qpd == undefined
+        qpd = api.data.qpd
+
+    return { qpd: qpd, qpm: qpm, qps: qps }
+
   applyLimits: ( req, res, next ) =>
-    args = [
-      req.key.id
-      req.key.data.qps
-      req.key.data.qpm
-      req.key.data.qpd
-    ]
+    { qpd, qpm, qps } = @chooseLimits( req.key, req.api )
+    args = [ req.key.id, req.api_name, qps, qpm, qpd ]
 
     @model( "apilimits" ).apiHit args..., ( err, [ newQpd, newQpm, newQps ] ) ->
       return next err if err

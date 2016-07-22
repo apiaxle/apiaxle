@@ -31,13 +31,9 @@ class exports.KeyControllerTest extends ApiaxleTest
         res.parseJsonSuccess ( err, meta, results ) =>
           @ok not err
 
-          @isNumber results.qps
-          @isNumber results.qpm
-          @isNumber results.qpd
-
           @deepEqual results.apis, [ "twitter", "facebook" ]
 
-          done 7
+          done 5
 
   "test GET a non-existant key": ( done ) ->
     # now try and get it

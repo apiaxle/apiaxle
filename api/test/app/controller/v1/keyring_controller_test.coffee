@@ -206,7 +206,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
             @ok not err
             res.parseJson ( err, json ) =>
               @ok not err
-              @equal json.results.qps, 2
+              @equal json.results.disabled, false
 
               # get all of the keys, check there's just one
               results.ring1.getKeys 0, 100, ( err, keys ) =>
@@ -219,7 +219,7 @@ class exports.KeyringControllerTest extends ApiaxleTest
             @ok not err
             res.parseJson ( err, json ) =>
               @ok not err
-              @equal json.results.qps, 2
+              @equal json.results.disabled, false
 
               # get all of the keys, check there's just one
               results.ring1.getKeys 0, 100, ( err, keys ) =>
