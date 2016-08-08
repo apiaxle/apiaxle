@@ -1,0 +1,34 @@
+version: '2'
+services:
+  api:
+    ports:
+      - 3100:3100
+    build: .
+    volumes:
+      - "./:/app/apiaxle"
+    depends_on:
+      - redis
+    command: ['api', '3100']
+
+  proxy:
+    ports:
+      - 3000:3000
+    build: .
+    volumes:
+      - "./:/app/apiaxle"
+    depends_on:
+      - redis
+    command: ['proxy', '3000']
+
+  repl:
+    build: .
+    volumes:
+      - "./:/app/apiaxle"
+    depends_on:
+      - redis
+    command: ['repl']
+
+  redis:
+    image: redis
+    ports:
+      - "6379"

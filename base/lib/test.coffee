@@ -97,7 +97,9 @@ class exports.AppTest extends TwerpTest
     # exist on everyone's machine
     old = dns.lookup
 
-    @getStub dns, "lookup", ( domain, cb ) ->
+    @getStub dns, "lookup", ( domain, options, cb ) ->
+      if typeof options == 'function'
+        cb = options
       for name, address of mapping
         if domain is name
           return cb null, address, 4

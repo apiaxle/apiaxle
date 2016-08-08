@@ -9,8 +9,7 @@
   "logging": {
     "level": "DEBUG",
     "appenders": [{
-      "type": "file",
-      "filename": "./test.log"
+      "type": "console"
     }]
   }
 }
