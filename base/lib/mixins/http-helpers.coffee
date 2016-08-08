@@ -86,7 +86,7 @@ exports.httpHelpers =
     req.on "error", ( err ) -> cb err, null
 
     # write the body if we're meant to
-    if options.data and options.method not in [ "HEAD", "GET" ]
+    if options.data and options.method not in [ "HEAD", "GET", "DELETE" ]
       req.write options.data
 
     req.end()
