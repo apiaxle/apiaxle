@@ -24,7 +24,7 @@
     "apiaxle-api": "1.14.0",
     "lodash": "~1.2.0",
     "tokenizer": "~0.1.2",
-    "libxmljs": "0.14.x",
+    "libxmljs": "0.18.x",
     "sinon": "~1.6.0",
     "twerp": "~1.0.7",
     "stdin": "0.0.1",
