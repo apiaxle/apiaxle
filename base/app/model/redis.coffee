@@ -94,6 +94,15 @@ class Redis
   range: ( start, stop, cb ) ->
     @lrange "meta:all", start, stop, cb
 
+  all: ( cb ) ->
+    @lrange "meta:all", 0, -1, cb
+
+  nonAnonymousKeys: ( cb ) ->
+    @all ( err, allKeys ) =>
+      return cb err if err
+      nonAnon = allKeys.filter ( key ) => key.indexOf('ip-') != 0
+      cb null, nonAnon
+
   # escape the id so that people can't sneak a colon in and do
   # something like modify metadata
   escapeId: ( id ) =>
