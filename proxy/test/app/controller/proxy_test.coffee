@@ -637,3 +637,33 @@ class exports.CatchallTest extends ApiaxleTest
         @equal response.headers[ "access-control-allow-headers" ], "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
 
         done 6
+
+
+  "test customError": ( done ) ->
+    fixture =
+      api:
+        testapi:
+          endPoint: "localhost"
+          defaultPath: "/testpath"
+          errorMessage: "custom error"
+      key:
+        bob:
+          forApis: [ "testapi" ]
+
+    @fixtures.create fixture, ( err, [ api, key ] ) =>
+      @ok not err
+
+      requestOptions =
+        path: "/badpath?api_key=bob"
+        host: "testapi.api.localhost"
+
+      @stubDns { "testapi.api.localhost": "127.0.0.1" }
+      @GET requestOptions, ( err, response ) =>
+        @ok not err
+        @equal response.statusCode, 502
+
+        response.parseJson ( err, json ) =>
+          @ok error = json.results.error
+          @equal error.info, "custom error"
+
+          done 5
