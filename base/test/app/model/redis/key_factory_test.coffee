@@ -33,6 +33,7 @@ class exports.KeyTest extends FakeAppTest
   "test #create with non-existent api": ( done ) ->
     createObj =
       qps: 1
+      qpm: 2
       qpd: 3
       forApis: [ "twitter" ]
 
@@ -51,6 +52,7 @@ class exports.KeyTest extends FakeAppTest
 
       createObj =
         qps: 1
+        qpm: 2
         qpd: 3
         forApis: [ "twitter" ]
 
@@ -62,6 +64,7 @@ class exports.KeyTest extends FakeAppTest
   "test #updating a key": ( done ) ->
     createObj =
       qps: 1
+      qpm: 2
       qpd: 3
 
     @fixtures.createKey "987654321", createObj, ( err, dbKey ) =>

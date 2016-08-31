@@ -117,6 +117,7 @@ class exports.CatchallTest extends ApiaxleTest
       key:
         phil:
           qps: 20
+          qpm: 25
           qpd: 30
           forApis: [ "programmes", "facebook", "twitter" ]
 
@@ -279,6 +280,9 @@ class exports.CatchallTest extends ApiaxleTest
 
       keyOptions =
         forApis: [ "facebook" ]
+        qpd: 10
+        qpm: 5
+        qps: 1
 
       @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
         @ok not err
@@ -305,6 +309,7 @@ class exports.CatchallTest extends ApiaxleTest
           @equal response.contentType, "application/json"
 
           @ok response.headers[ "x-apiaxleproxy-qps-left" ]
+          @ok response.headers[ "x-apiaxleproxy-qpm-left" ]
           @ok response.headers[ "x-apiaxleproxy-qpd-left" ]
 
           response.parseJson ( err, json ) =>
@@ -325,6 +330,8 @@ class exports.CatchallTest extends ApiaxleTest
       keyOptions =
         forApis: [ "facebook" ]
         qpd: -1
+        qpm: 5
+        qps: 1
 
       @app.model( "keyfactory" ).create "1234", keyOptions, ( err ) =>
         @ok not err
@@ -351,13 +358,14 @@ class exports.CatchallTest extends ApiaxleTest
           @equal response.contentType, "application/json"
 
           @ok response.headers[ "x-apiaxleproxy-qps-left" ]
+          @ok response.headers[ "x-apiaxleproxy-qpm-left" ]
           @equal response.headers[ "x-apiaxleproxy-qpd-left" ], undefined
 
           response.parseJson ( err, json ) =>
             @ok not err
             @equal json.one, 1
 
-            done 9
+            done 10
 
   "test GET with key, rather than api_key": ( done ) ->
     apiOptions =

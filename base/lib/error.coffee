@@ -25,6 +25,13 @@ class exports.QpsExceededError extends exports.AppError
     super
     @message = "Queries per second exceeded: #{ msg }"
 
+class exports.QpmExceededError extends exports.AppError
+  @status = 429
+
+  constructor: ( msg, @options ) ->
+    super
+    @message = "Queries per minute exceeded: #{ msg }"
+
 class exports.QpdExceededError extends exports.AppError
   @status = 429
 

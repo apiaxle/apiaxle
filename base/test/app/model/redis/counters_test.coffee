@@ -133,6 +133,7 @@ class exports.CountersTest extends FakeAppTest
     fixtures.push ( cb ) => @model.apiHit "facebook", "1234", 200, cb
     fixtures.push ( cb ) => @model.apiHit "facebook", "1234", "QpsExceededError", cb
     fixtures.push ( cb ) => @model.apiHit "facebook", "1234", "QpsExceededError", cb
+    fixtures.push ( cb ) => @model.apiHit "facebook", "1234", "QpmExceededError", cb
     fixtures.push ( cb ) => @model.apiHit "facebook", "1234", "QpdExceededError", cb
 
     async.series fixtures, ( err, results ) =>
@@ -141,8 +142,8 @@ class exports.CountersTest extends FakeAppTest
 
       @model.getPossibleResponseTypes "key:1234", ( err, types ) =>
         @ok not err
-        @equal types.length, 3
+        @equal types.length, 4
 
-        @deepEqual types.sort(), [ "200", "QpdExceededError", "QpsExceededError" ]
+        @deepEqual types.sort(), [ "200", "QpdExceededError", "QpmExceededError", "QpsExceededError" ]
 
         done 5

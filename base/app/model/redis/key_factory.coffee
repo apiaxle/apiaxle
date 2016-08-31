@@ -73,6 +73,10 @@ class exports.KeyFactory extends Redis
         type: "integer"
         default: 172800
         docs: "Number of queries that can be called per day. Set to `-1` for no limit."
+      qpm:
+        type: "integer"
+        default: -1
+        docs: "Number of queries that can be called per minute. Set to `-1` for no limit."
       qps:
         type: "integer"
         default: 2
