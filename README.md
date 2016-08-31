@@ -51,3 +51,39 @@ installation instructions.
 
 * master: [![Build Status](https://secure.travis-ci.org/apiaxle/apiaxle.png?branch=master)](http://travis-ci.org/apiaxle/apiaxle)
 * develop: [![Build Status](https://secure.travis-ci.org/apiaxle/apiaxle.png?branch=develop)](http://travis-ci.org/apiaxle/apiaxle)
+
+# Docker
+
+Start services
+```
+docker-compose up -d redis
+docker-compose up -d api
+docker-compose up -d proxy
+```
+
+Run repl
+```
+docker-compose run repl
+```
+
+Run tests
+```
+docker-compose run repl test
+```
+
+Enter container
+```
+docker-compose run --entrypoint sh repl
+```
+
+Example adding an api and key:
+```
+api acme create endPoint='localhost:8000'
+key 1234 create
+api acme linkkey 1234
+```
+
+Example curl:
+```
+curl localhost:3000?api_key=1234 -H 'Host: acme.api.localhost'
+```
