@@ -13,51 +13,51 @@ class exports.ApiLimits extends Redis
   @qpmExpires = 60
   @qpsExpires = 1
 
-  qpsKey: ( key ) ->
+  qpsKey: ( key, api ) ->
     seconds = Math.floor( Date.now() / 1000 )
-    return [ "qps", seconds, key ]
+    return [ "qps", seconds, api, key ]
 
-  qpmKey: ( key ) ->
-    return [ "qpm", @minuteString(), key ]
+  qpmKey: ( key, api ) ->
+    return [ "qpm", @minuteString(), api, key ]
 
-  qpdKey: ( key ) ->
-    return [ "qpd", @dayString(), key ]
+  qpdKey: ( key, api ) ->
+    return [ "qpd", @dayString(), api, key ]
 
   setInitialQp: ( key, expires, qp, cb ) ->
     @setex key, expires, qp, ( err ) =>
       return cb err if err
       return cb null, qp
 
-  apiHit: ( key, qpsLimit, qpmLimit, qpdLimit, cb ) ->
+  apiHit: ( key, api, qpsLimit, qpmLimit, qpdLimit, cb ) ->
     all = []
 
     if qpdLimit? and qpdLimit > 0
-      all.push ( innerCb ) => @qpdHit key, qpdLimit, innerCb
+      all.push ( innerCb ) => @qpdHit key, api, qpdLimit, innerCb
     else
       all.push ( innerCb ) -> innerCb null, -1
 
     if qpmLimit? and qpmLimit > 0
-      all.push ( innerCb ) => @qpmHit key, qpmLimit, innerCb
+      all.push ( innerCb ) => @qpmHit key, api, qpmLimit, innerCb
     else
       all.push ( innerCb ) -> innerCb null, -1
 
     if qpsLimit? and qpsLimit > 0
-      all.push ( innerCb ) => @qpsHit key, qpsLimit, innerCb
+      all.push ( innerCb ) => @qpsHit key, api, qpsLimit, innerCb
     else
       all.push ( innerCb ) -> innerCb null, -1
 
     async.series all, cb
 
-  qpdHit: ( key, qpdLimit, cb ) ->
-    qpdKey = @qpdKey( key )
+  qpdHit: ( key, api, qpdLimit, cb ) ->
+    qpdKey = @qpdKey( key, api )
     @qpHit qpdKey, @constructor.qpdExpires, qpdLimit, QpdExceededError, cb
 
-  qpmHit: ( key, qpmLimit, cb ) ->
-    qpmKey = @qpmKey( key )
+  qpmHit: ( key, api, qpmLimit, cb ) ->
+    qpmKey = @qpmKey( key, api )
     @qpHit qpmKey, @constructor.qpmExpires, qpmLimit, QpmExceededError, cb
 
-  qpsHit: ( key, qpsLimit, cb ) ->
-    qpsKey = @qpsKey( key )
+  qpsHit: ( key, api, qpsLimit, cb ) ->
+    qpsKey = @qpsKey( key, api )
     @qpHit qpsKey, @constructor.qpsExpires, qpsLimit, QpsExceededError, cb
 
   updateQpValue: ( qpKey, value, cb ) ->
