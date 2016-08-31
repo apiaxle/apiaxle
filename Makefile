@@ -3,6 +3,9 @@ SUBS=base api proxy repl
 all:
 	@for sub in $(SUBS); do $(MAKE) -C $$sub $@ || exit 1; done
 
+package:
+	@for sub in $(SUBS); do $(MAKE) -C $$sub $@ || exit 1; done
+
 npminstall:
 	@for sub in $(SUBS); do $(MAKE) -C $$sub $@ || exit 1; done
 

@@ -24,7 +24,7 @@
     "optimist": "~0.5.2",
     "async": "~0.2.9",
     "redis": "^0.10.3",
-    "hiredis": "^0.1.17"
+    "hiredis": "^0.4.1"
   },
   "devDependencies": {
     "coffee-script": "~1.6.2",
