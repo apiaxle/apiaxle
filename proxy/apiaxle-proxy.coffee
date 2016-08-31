@@ -226,6 +226,10 @@ class exports.ApiaxleProxy extends AxleApp
       all.push ( cb ) =>
         @validateToken req.api.data.tokenSkewProtectionCount, providedToken, req.key_name, req.key.data.sharedSecret, cb
 
+    # see if key is valid for all apis
+    if req.key.data.allApis
+      return next()
+
     # check the req.key is for this req.api
     all.push ( cb ) ->
       req.api.supportsKey req.key.id, ( err, supported ) =>
