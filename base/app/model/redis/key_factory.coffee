@@ -50,25 +50,6 @@ class Key extends Model
           return cb err if err
           return Key.__super__.delete.apply @, [ cb ]
 
-  update: ( new_data, cb ) ->
-    # if someone has upped the qpd then we need to take account as
-    # their current qpd counter might be at a value below what they
-    # would now be allowed
-    limits_model = @app.model "apilimits"
-    redis_key_name = limits_model.qpdKey @id
-
-    all_actions = []
-    limits_model.get redis_key_name, ( err, current_qpd ) =>
-      return cb err if err
-
-      # run the original update
-      all_actions.push ( cb ) =>
-        @constructor.__super__.update.apply @, [ new_data, cb ]
-
-      async.parallel all_actions, ( err, [ discard..., res ] ) ->
-        return cb err if err
-        return cb null, res...
-
 class exports.KeyFactory extends Redis
   @instantiateOnStartup = true
   @smallKeyName = "key"
