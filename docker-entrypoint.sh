@@ -11,15 +11,14 @@ if [ $# -gt 1 ]; then
 fi
 
 if [ $app = 'repl' ]; then
-  coffee --watch --compile /app/apiaxle/base/index.coffee /app/apiaxle/base &
   cd /app/apiaxle/repl
-  exec env NODE_ENV=production coffee /app/apiaxle/repl/apiaxle.coffee
+  NODE_ENV=production coffee /app/apiaxle/repl/apiaxle.coffee
 elif [ $app = 'test' ]; then
+  apk add --update make
   cd /app/apiaxle
   make
   make test
 else
-  coffee --watch --compile /app/apiaxle/base/index.coffee /app/apiaxle/base &
   cd /app/apiaxle/$app
-  exec env NODE_ENV=production supervisor --force-watch -x coffee -w "/app/apiaxle/$app,/app/apiaxle/base" -- /app/apiaxle/$app/apiaxle-$app.coffee -h 0.0.0.0 -p $port -f 1
+  NODE_ENV=production coffee /app/apiaxle/$app/apiaxle-$app.coffee -h 0.0.0.0 -p $port -f 1
 fi

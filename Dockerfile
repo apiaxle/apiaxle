@@ -1,5 +1,5 @@
 FROM mhart/alpine-node:4
-RUN npm install -g coffee-script twerp supervisor
+RUN npm install -g coffee-script twerp
 RUN apk add --update alpine-sdk python python-dev
 
 WORKDIR /app
@@ -27,5 +27,4 @@ RUN ln -s /app/node_modules /app/apiaxle/repl/node_modules
 RUN cd /app/apiaxle/repl && npm link /app/apiaxle/api && npm install
 
 RUN apk del --purge alpine-sdk python python-dev
-RUN apk add --update make
 ENTRYPOINT ["/app/apiaxle/docker-entrypoint.sh"]
