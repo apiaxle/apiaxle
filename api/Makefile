@@ -18,6 +18,9 @@ publish: clean README.md $(JS) bin
 package: clean README.md $(JS) bin
 	npm pack
 
+run:
+    coffee -w "lib,app" ./apiaxle-api.coffee
+
 npminstall:
 	npm install
 
