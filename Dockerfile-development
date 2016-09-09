@@ -1,0 +1,22 @@
+FROM mhart/alpine-node:4
+
+ENV NODE_ENV test
+
+RUN npm install -g coffee-script
+RUN apk add --update alpine-sdk python python-dev
+
+WORKDIR /app
+
+COPY ./api/ /app/apiaxle/api/
+COPY ./base/ /app/apiaxle/base/
+COPY ./proxy/ /app/apiaxle/proxy/
+COPY ./repl/ /app/apiaxle/repl/
+COPY ./coffeelint.json /app/apiaxle/
+COPY ./Makefile /app/apiaxle/
+COPY ./apiaxle-config.json /apiaxle-config.json
+COPY ./docker-entrypoint.sh /app/apiaxle/
+COPY ./build-apiaxle.sh /build-apiaxle.sh
+
+RUN /build-apiaxle.sh
+
+ENTRYPOINT ["/app/apiaxle/docker-entrypoint.sh"]
