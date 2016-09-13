@@ -34,8 +34,8 @@ sed -i "s/DEBUG_MODE/${DEBUG_MODE}/" $CONFIG_FILE
 
 if [ $app = 'repl' ]; then
   cd /app/apiaxle/repl
-  if [ $NODE_ENV = 'test' ]; then
-    # When NODE_ENV is 'test', run as coffee for watch and recompile
+  if [ $NODE_ENV != 'production' ]; then
+    # When NODE_ENV isn't 'production', run as coffee for watch and recompile
     coffee --watch /app/apiaxle/base/index.coffee /app/apiaxle/base &
     coffee /app/apiaxle/repl/apiaxle.coffee
   else
@@ -43,21 +43,15 @@ if [ $app = 'repl' ]; then
   fi
 
 elif [ $app = 'test' ]; then
-  apk add --update make
-
-  cd /app/apiaxle/proxy
-  npm install nock
-  npm install -g twerp
-
   cd /app/apiaxle
   make
   make test
 
 else
-  if [ $NODE_ENV = 'test' ]; then
-    # When NODE_ENV is 'test', run as coffee for watch and recompile
+  if [ $NODE_ENV != 'production' ]; then
+    # When NODE_ENV isn't 'production', run as coffee for watch and recompile
     coffee --watch /app/apiaxle/base/index.coffee /app/apiaxle/base &
-    coffee --watch /app/apiaxle/$app/apiaxle-$app.coffee -- -h 0.0.0.0 -p $port -f 1
+    supervisor --force-watch -x coffee -w "/app/apiaxle/$app,/app/apiaxle/base" -- /app/apiaxle/$app/apiaxle-$app.coffee -h 0.0.0.0 -p $port -f 1
   else
     cd /app/apiaxle/$app
     node /app/apiaxle/$app/apiaxle-$app.js -h 0.0.0.0 -p $port -f 1

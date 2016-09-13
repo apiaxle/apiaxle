@@ -1,19 +1,13 @@
 version: '2'
 services:
-  data:
-    image: alpine:3.4
-    volumes:
-      - ./:/app/apiaxle
-    command: ["true"]
-
   api:
     build:
       context: .
       dockerfile: Dockerfile-development
     ports:
       - 3100:3100
-    volumes_from:
-      - data
+    volumes:
+      - ./:/app/apiaxle
     depends_on:
       - redis
     environment:
@@ -28,8 +22,8 @@ services:
       dockerfile: Dockerfile-development
     ports:
       - 3000:3000
-    volumes_from:
-      - data
+    volumes:
+      - ./:/app/apiaxle
     depends_on:
       - redis
     environment:
@@ -42,8 +36,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-development
-    volumes_from:
-      - data
+    volumes:
+      - ./:/app/apiaxle
     depends_on:
       - redis
     environment:
@@ -54,5 +48,6 @@ services:
 
   redis:
     image: redis
+    command: redis-server --appendonly yes
     ports:
       - "6379"
