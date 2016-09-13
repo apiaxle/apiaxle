@@ -1,0 +1,24 @@
+machine:
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+
+  services:
+    - docker
+
+dependencies:
+  cache_directories:
+    - "~/docker"
+  override:
+    - sudo pip install --upgrade docker-compose
+    - docker info
+    - if [[ -e ~/docker/apiaxle.tar ]]; then docker load --input ~/docker/apiaxle.tar; fi
+    - if [[ -e ~/docker/redis.tar ]]; then docker load --input ~/docker/redis.tar; fi
+    - docker-compose build repl
+    - docker-compose build redis
+    - mkdir -p ~/docker
+    - docker save $(docker history -q apiaxle_repl | awk '!/<missing>/') > ~/docker/apiaxle.tar
+    - docker save $(docker history -q redis | awk '!/<missing>/') > ~/docker/redis.tar
+
+test:
+  override:
+    - docker-compose run repl test
