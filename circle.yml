@@ -22,3 +22,4 @@ dependencies:
 test:
   override:
     - docker-compose run repl test
+    # - docker run -e "REDIS_HOST=redis" -e "REDIS_PORT=6379" -e "DEBUG_MODE='true'" --rm apiaxle-api mapzen/apiaxle-development repl test
