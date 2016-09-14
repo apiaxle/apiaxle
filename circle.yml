@@ -1,25 +1,24 @@
 machine:
-  pre:
-    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
-
+  node:
+    version: 4.2.2
+  hosts:
+    redis: 127.0.0.1
   services:
-    - docker
+    - redis
 
 dependencies:
   cache_directories:
-    - "~/docker"
+    - base/node_modules
+    - api/node_modules
+    - proxy/node_modules
+    - repl/node_modules
   override:
-    - sudo pip install --upgrade docker-compose
-    - docker info
-    - if [[ -e ~/docker/apiaxle.tar ]]; then docker load --input ~/docker/apiaxle.tar; fi
-    - if [[ -e ~/docker/redis.tar ]]; then docker load --input ~/docker/redis.tar; fi
-    - docker-compose build repl
-    - docker-compose build redis
-    - mkdir -p ~/docker
-    - docker save $(docker history -q apiaxle_repl | awk '!/<missing>/') > ~/docker/apiaxle.tar
-    - docker save $(docker history -q redis | awk '!/<missing>/') > ~/docker/redis.tar
+    - npm install -g coffee-script twerp
+    - make link
+    - make npminstall
+    - make package
 
 test:
   override:
-    - docker-compose run repl test
-    # - docker run -e "REDIS_HOST=redis" -e "REDIS_PORT=6379" -e "DEBUG_MODE='true'" --rm apiaxle-api mapzen/apiaxle-development repl test
+    - make test:
+        timeout: 120
