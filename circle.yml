@@ -35,7 +35,7 @@ deployment:
   release:
     tag: /^\d+\.\d+\.\d+$/
     commands:
-      - docker login -u $DOCKER_USER -p '$DOCKER_PASS'
+      - docker login -u $DOCKER_USER -p '$DOCKER_PASS' -e $DOCKER_EMAIL
       - docker tag apiaxle mapzen/apiaxle:$CIRCLE_TAG
       - docker push mapzen/apiaxle:latest
       - docker push mapzen/apiaxle:latest:$CIRCLE_TAG
@@ -43,13 +43,13 @@ deployment:
   othertag:
     tag: /^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/
     commands:
-      - docker login -u $DOCKER_USER -p '$DOCKER_PASS'
+      - docker login -u $DOCKER_USER -p '$DOCKER_PASS' -e $DOCKER_EMAIL
       - docker tag apiaxle mapzen/apiaxle:$CIRCLE_TAG
       - docker push mapzen/apiaxle:$CIRCLE_TAG
 
   branch:
     branch: /^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/
     commands:
-      - docker login -u $DOCKER_USER -p '$DOCKER_PASS'
+      - docker login -u $DOCKER_USER -p '$DOCKER_PASS' -e $DOCKER_EMAIL
       - docker tag apiaxle mapzen/apiaxle:$CIRCLE_BRANCH
       - docker push mapzen/apiaxle:$CIRCLE_BRANCH
