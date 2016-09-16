@@ -19,7 +19,7 @@ package: clean README.md $(JS) bin
 	npm pack
 
 run:
-	supervisor coffee -w "lib,app" ./apiaxle-api.coffee
+	coffee -w "lib,app" ./apiaxle-api.coffee
 
 npminstall:
 	npm install
