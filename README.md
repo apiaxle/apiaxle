@@ -69,7 +69,7 @@ Environment variables can be used to configure `NODE_ENV`, `REDIS_HOST`,
 `REDIS_PORT`, and `DEBUG_MODE`. Below are defaults for production:
 
  - `NODE_ENV` = `production`
- - `REDiS_HOST` = `redis`
+ - `REDIS_HOST` = `redis`
  - `REDIS_PORT` = `6379`
  - `DEBUG_MODE` = `false`
 
