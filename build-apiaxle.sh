@@ -20,6 +20,6 @@ mv node_modules $BASEDIR/repl/ && \
 cd $BASEDIR/repl && \
 npm install && \
 echo "#!/usr/bin/env node" > apiaxle && cat ./apiaxle.js >> apiaxle && \
-chmod a+x apiaxle && ln -s $BASEDIR/repl/apiaxle /usr/local/bin/apiaxle && \
+chmod a+x apiaxle && mv apiaxle $BASEDIR/ && \
 
 mv node_modules $BASEDIR/
