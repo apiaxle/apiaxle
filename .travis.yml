@@ -4,6 +4,13 @@ before_script:
   - "./build-apiaxle.sh"
 script: "make test"
 node_js:
+  - "node"
+  - "iojs"
+  - "6"
+  - "5"
+  - "4"
+  - "0.12"
+  - "0.11"
   - "0.10"
 services:
   - redis-server
