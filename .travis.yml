@@ -1,9 +1,7 @@
 env: "NODE_ENV=test"
 language: "node_js"
 before_script:
-  - "npm install -g coffee twerp"
-  - "echo $PATH"
-  - "which coffee"
+  - "npm install -g coffee-script twerp"
   - "./build-apiaxle.sh"
 script: "make test"
 node_js:
