@@ -142,6 +142,9 @@ class exports.AxleApp extends Application
             auth:
               type: "string"
               default: ""
+        apiNameRegex:
+          type: "string"
+          default: "^(.+?)\\.api\\."
 
   getRoutingSchema: ->
     {}=

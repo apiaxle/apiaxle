@@ -42,6 +42,8 @@ You then get a prompt where you can type `help` to find out more.
 
 This is a set of libraries which is required for the above components.
 
+---
+
 # Installation
 
 Check the [main site](http://apiaxle.com) for more detailed
@@ -66,11 +68,12 @@ below for examples.
 
 ## Environment Variables
 Environment variables can be used to configure `NODE_ENV`, `REDIS_HOST`,
-`REDIS_PORT`, and `DEBUG_MODE`. Below are defaults for production:
+`REDIS_PORT`, `API_NAME_REGEX` and `DEBUG_MODE`. Below are defaults for production:
 
  - `NODE_ENV` = `production`
- - `REDiS_HOST` = `redis`
+ - `REDIS_HOST` = `redis`
  - `REDIS_PORT` = `6379`
+ - `API_NAME_REGEX` = `^(.+?)\\.api\\.` _(extra backslash required for JSON)_
  - `DEBUG_MODE` = `false`
 
 ## Start services
@@ -94,6 +97,8 @@ docker-compose run repl test
 ```
 docker-compose run --entrypoint sh repl
 ```
+
+---
 
 ### Example adding an api and key:
 ```

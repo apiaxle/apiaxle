@@ -23,6 +23,9 @@ fi
 if [ -z $DEBUG_MODE ]; then
   DEBUG_MODE=false
 fi
+if [ -z $API_NAME_REGEX ]; then
+  API_NAME_REGEX="^(.+?)\\.api\\."
+fi
 
 # Update config file with env values
 mkdir -p /etc/apiaxle
@@ -31,6 +34,7 @@ cp /apiaxle-config.json $CONFIG_FILE
 sed -i "s/REDIS_HOST/${REDIS_HOST}/" $CONFIG_FILE
 sed -i "s/REDIS_PORT/${REDIS_PORT}/" $CONFIG_FILE
 sed -i "s/DEBUG_MODE/${DEBUG_MODE}/" $CONFIG_FILE
+sed -i "s/API_NAME_REGEX/${API_NAME_REGEX}/" $CONFIG_FILE
 
 if [ $app = 'repl' ]; then
   cd /app/apiaxle/repl
