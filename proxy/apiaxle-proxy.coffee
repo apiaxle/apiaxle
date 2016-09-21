@@ -411,11 +411,20 @@ class exports.ApiaxleProxy extends AxleApp
   applyCors: ( req, res, next ) =>
     # If CORS is not enabled, proceed
     if req.api.data.corsEnabled
-      res.setHeader "Access-Control-Allow-Origin", "*"
-      res.setHeader "Access-Control-Allow-Credentials", "true"
-      res.setHeader "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
-      res.setHeader "Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
-      res.setHeader "Access-Control-Expose-Headers", "content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpm-Left, X-ApiaxleProxy-Qpd-Left"
+      if not req.headers["access-control-allow-origin"]
+        res.setHeader "access-control-allow-origin", "*"
+
+      if not req.headers["access-control-allow-credentials"]
+        res.setHeader "access-control-allow-credentials", "true"
+
+      if not req.headers["access-control-allow-methods"]
+        res.setHeader "access-control-allow-methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
+
+      if not req.headers["access-control-allow-headers"]
+        res.setHeader "access-control-allow-headers", "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
+
+      if not req.headers["access-control-expose-headers"]
+        res.setHeader "access-control-expose-headers", "content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpd-Left"
 
     return next()
 
