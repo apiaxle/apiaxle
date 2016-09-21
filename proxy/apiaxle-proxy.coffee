@@ -63,7 +63,7 @@ class exports.ApiaxleProxy extends AxleApp
     if req.api_name = @hostname_caches[host]
       return next()
 
-    if parts = /^(.+?)\.api\./.exec host
+    if parts = (new RegExp @config.apiNameRegex).exec host
       @hostname_caches[host] = req.api_name = parts[1]
       return next()
 
@@ -111,7 +111,7 @@ class exports.ApiaxleProxy extends AxleApp
   # checked.
   createKeyBasedOnIp: ( req, cb ) ->
     # try to get the ip address
-    # TODO: I think x-forwarded-for can have many, comma seperated
+    # TODO: x-forwarded-for can have many, comma seperated
     # addresses.
     ip = req.headers["x-forwarded-for"] or
          req.connection.remoteAddress or
@@ -129,9 +129,7 @@ class exports.ApiaxleProxy extends AxleApp
 
       create_link = [
         # create the key
-        ( cb ) ->
-          { keylessQps, keylessQpd } = req.api.data
-          model.create key_name, { qps: keylessQps, qpd: keylessQpd }, cb
+        ( cb ) -> model.create key_name, {}, cb
 
         # now link the key
         ( cb ) -> req.api.linkKey key_name, cb
@@ -228,6 +226,10 @@ class exports.ApiaxleProxy extends AxleApp
       all.push ( cb ) =>
         @validateToken req.api.data.tokenSkewProtectionCount, providedToken, req.key_name, req.key.data.sharedSecret, cb
 
+    # see if key is valid for all apis
+    if req.key.data.allApis
+      return next()
+
     # check the req.key is for this req.api
     all.push ( cb ) ->
       req.api.supportsKey req.key.id, ( err, supported ) =>
@@ -292,19 +294,54 @@ class exports.ApiaxleProxy extends AxleApp
     # here's the actual setting
     return endpointUrl
 
-  applyLimits: ( req, res, next ) =>
-    args = [
-      req.key.id
-      req.key.data.qps
-      req.key.data.qpd
-    ]
+  chooseLimits: ( key, api ) =>
+    # if keyless, use api's keyless limits
+    if key.id.substring(0, 3) == 'ip-'
+      qps = api.data.keylessQps
+      qpm = api.data.keylessQpm
+      qpd = api.data.keylessQpd
+    else
+      # use key's api specific limits if they exist
+      if key.data.apiLimits
+        try
+          keyApiLimits = JSON.parse key.data.apiLimits
+      if keyApiLimits && keyApiLimits[api.id] != undefined
+        qps = keyApiLimits[api.id].qps
+        qpm = keyApiLimits[api.id].qpm
+        qpd = keyApiLimits[api.id].qpd
 
-    @model( "apilimits" ).apiHit args..., ( err, [ newQpd, newQps ] ) ->
+      # fall back to key limits
+      if qps == undefined
+        qps = key.data.qps
+      if qpm == undefined
+        qpm = key.data.qpm
+      if qpd == undefined
+        qpd = key.data.qpd
+
+      # fall back to api default limits
+      if qps == undefined
+        qps = api.data.qps
+      if qpm == undefined
+        qpm = api.data.qpm
+      if qpd == undefined
+        qpd = api.data.qpd
+
+    return { qpd: qpd, qpm: qpm, qps: qps }
+
+  applyLimits: ( req, res, next ) =>
+    { qpd, qpm, qps } = @chooseLimits( req.key, req.api )
+    args = [ req.key.id, req.api_name, qps, qpm, qpd ]
+
+    @model( "apilimits" ).apiHit args..., ( err, [ newQpd, newQpm, newQps ] ) ->
       return next err if err
 
       # let the user know what they have left
-      res.setHeader "X-ApiaxleProxy-Qps-Left", newQps
-      res.setHeader "X-ApiaxleProxy-Qpd-Left", newQpd
+      if newQps > -1
+        res.setHeader "X-ApiaxleProxy-Qps-Left", newQps
+      if newQpd > -1
+        res.setHeader "X-ApiaxleProxy-Qpd-Left", newQpd
+      if newQpm > -1
+        res.setHeader "X-ApiaxleProxy-Qpm-Left", newQpm
 
       return next()
 
@@ -378,7 +415,7 @@ class exports.ApiaxleProxy extends AxleApp
       res.setHeader "Access-Control-Allow-Credentials", "true"
       res.setHeader "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD"
       res.setHeader "Access-Control-Allow-Headers", "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token"
-      res.setHeader "Access-Control-Expose-Headers", "content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpd-Left"
+      res.setHeader "Access-Control-Expose-Headers", "content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpm-Left, X-ApiaxleProxy-Qpd-Left"
 
     return next()
 

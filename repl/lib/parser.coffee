@@ -10,6 +10,9 @@ module.exports = ( str ) ->
   buildCommandStruct = ( token, type ) ->
     return if type in [ "seperator" ]
 
+    if type is "null"
+      all.push null
+
     if type is "boolean"
       all.push ( token is "true" )
 
@@ -35,6 +38,9 @@ module.exports = ( str ) ->
 
   t = new Tokenizer()
   t.on "token", buildCommandStruct
+
+  # null
+  t.addRule(/null/, "null")
 
   # bools
   t.addRule(/(true|false)/, "boolean")

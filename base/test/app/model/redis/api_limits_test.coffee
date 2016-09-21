@@ -4,7 +4,7 @@ async = require "async"
 
 { FakeAppTest } = require "../../../apiaxle_base"
 { ApiLimits }   = require "../../../../app/model/redis/api_limits"
-{ QpsExceededError, QpdExceededError } = require "../../../../lib/error"
+{ QpsExceededError, QpmExceededError, QpdExceededError } = require "../../../../lib/error"
 
 class exports.QpdTest extends FakeAppTest
   @empty_db_on_setup = true
@@ -22,12 +22,13 @@ class exports.QpdTest extends FakeAppTest
   "test first apiHit": ( done ) ->
     model = @app.model "apilimits"
 
-    model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
+    model.apiHit "1234", "api", 2, 10, 20, ( err, [ currentQpd, currentQpm, currentQps ] ) =>
       @ok not err
       @equal currentQps, 1
+      @equal currentQpm, 9
       @equal currentQpd, 19
 
-      done 3
+      done 4
 
   "test second apiHit": ( done ) ->
     model = @app.model "apilimits"
@@ -35,25 +36,30 @@ class exports.QpdTest extends FakeAppTest
     # we need to stub the keys because there's a chance we'll tick
     # over to the next second/day
     qpsKeyStub = @getStub ApiLimits::, "qpsKey", -> "qpsTestKey"
+    qpmKeyStub = @getStub ApiLimits::, "qpmKey", -> "qpmTestKey"
     qpdKeyStub = @getStub ApiLimits::, "qpdKey", -> "qpdTestKey"
 
-    model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
+    model.apiHit "1234", "api", 2, 10, 20, ( err, [ currentQpd, currentQpm, currentQps ] ) =>
       @ok not err
       @equal currentQps, 1
+      @equal currentQpm, 9
       @equal currentQpd, 19
 
       @ok qpsKeyStub.called
+      @ok qpmKeyStub.called
       @ok qpdKeyStub.called
 
-      model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
+      model.apiHit "1234", "api", 2, 10, 20, ( err, [ currentQpd, currentQpm, currentQps ] ) =>
         @ok not err
         @equal currentQps, 0
+        @equal currentQpm, 8
         @equal currentQpd, 18
 
         @ok qpsKeyStub.called
+        @ok qpmKeyStub.called
         @ok qpdKeyStub.called
 
-        done 10
+        done 14
 
   "test third and errornous apiHit": ( done ) ->
     model = @app.model "apilimits"
@@ -61,28 +67,49 @@ class exports.QpdTest extends FakeAppTest
     # we need to stub the keys because there's a chance we'll tick
     # over to the next second/day
     qpsKeyStub = @getStub ApiLimits::, "qpsKey", -> "qpsTestKey"
+    qpmKeyStub = @getStub ApiLimits::, "qpmKey", -> "qpmTestKey"
     qpdKeyStub = @getStub ApiLimits::, "qpdKey", -> "qpdTestKey"
 
-    model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
+    model.apiHit "1234", "api", 2, 10, 20, ( err, [ currentQpd, currentQpm, currentQps ] ) =>
       @ok not err
       @equal currentQps, 1
+      @equal currentQpm, 9
       @equal currentQpd, 19
 
       @ok qpsKeyStub.called
+      @ok qpmKeyStub.called
       @ok qpdKeyStub.called
 
-      model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
+      model.apiHit "1234", "api", 2, 10, 20, ( err, [ currentQpd, currentQpm, currentQps ] ) =>
         @ok not err
         @equal currentQps, 0
+        @equal currentQpm, 8
         @equal currentQpd, 18
 
         @ok qpsKeyStub.called
+        @ok qpmKeyStub.called
         @ok qpdKeyStub.called
 
-        model.apiHit "1234", 2, 20, ( err, [ currentQpd, currentQps ] ) =>
+        model.apiHit "1234", "api", 2, 10, 20, ( err, [ currentQpd, currentQpm, currentQps ] ) =>
           @ok qpsKeyStub.called
+          @ok qpmKeyStub.called
           @ok qpdKeyStub.called
 
           @ok err instanceof QpsExceededError
 
-          done 13
+          done 18
+
+  "test apiHit returns qpd and qps when qpd is unlimited": ( done ) ->
+    model = @app.model "apilimits"
+
+    # we need to stub the keys because there's a chance we'll tick
+    # over to the next second/day
+    qpsKeyStub = @getStub ApiLimits::, "qpsKey", -> "qpsTestKey"
+    qpmKeyStub = @getStub ApiLimits::, "qpmKey", -> "qpmTestKey"
+    qpdKeyStub = @getStub ApiLimits::, "qpdKey", -> "qpdTestKey"
+
+    model.apiHit "1234", "api", 2, 10, -1, ( err, limits ) =>
+      @ok not err
+      @equal limits.length, 3
+
+      done 2

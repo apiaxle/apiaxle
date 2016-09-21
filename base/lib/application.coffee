@@ -142,6 +142,9 @@ class exports.AxleApp extends Application
             auth:
               type: "string"
               default: ""
+        apiNameRegex:
+          type: "string"
+          default: "^(.+?)\\.api\\."
 
   getRoutingSchema: ->
     {}=
@@ -156,11 +159,29 @@ class exports.AxleApp extends Application
               type: "object"
               additionalProperties: true
 
+  getHitProcessorsSchema: ->
+    {}=
+      type: "object"
+      additionalProperties: false
+      properties:
+        hit_processors:
+          type: "array"
+          items:
+            type: "object"
+            additionalProperties: false
+            properties:
+              path:
+                type: "string"
+              args:
+                type: "object"
+                additionalProperties: true
+
   getConfigurationSchema: ->
     _.merge @getAppConfigSchema(),
             @getLoggingConfigSchema(),
             @getApiaxleConfigSchema(),
-            @getRoutingSchema()
+            @getRoutingSchema(),
+            @getHitProcessorsSchema()
 
   controller: ( name ) ->
     return @plugins.controllers[name]
@@ -190,6 +211,7 @@ class exports.AxleApp extends Application
         message: err.message
 
     output.error.details = err.details if err.details
+    output.error.info = req.api.data.errorMessage if req.api && req.api.data && req.api.data.errorMessage
 
     # add the stacktrace if we're debugging
     if @debugOn

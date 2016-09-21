@@ -118,25 +118,34 @@ class exports.ApiFactory extends Redis
         type: "boolean"
         optional: true
         default: false
-        docs: "If true then allow for keyless access to this API. Also see keylessQps and keylessQpd."
+        docs: "If true then allow for keyless access to this API. Also see keylessQps, keylessQpm, and keylessQpd."
       keylessQps:
         type: "integer"
         optional: false
         default: 2
-        docs: "How many queries per second an anonymous key should have " +
-              "when it's created. Note that changing this will not affect " +
-              "on temporary keys that have already been created. However, as " +
-              "temprary keys only live for 24 hours, this limit will be " +
-              "applied when that period expires."
+        docs: "How many queries per second an anonymous key should have."
+      keylessQpm:
+        type: "integer"
+        optional: false
+        default: 120
+        docs: "How many queries per minute an anonymous key should have."
       keylessQpd:
         type: "integer"
         optional: false
         default: 172800
-        docs: "How many queries per day an anonymous key should have " +
-              "when it's created. Note that changing this will not affect " +
-              "on temporary keys that have already been created. However, as " +
-              "temprary keys only live for 24 hours, this limit will be " +
-              "applied when that period expires."
+        docs: "How many queries per day an anonymous key should have."
+      qps:
+        type: "integer"
+        default: 2
+        docs: "Number of queries that can be called per second. Set to `-1` for no limit."
+      qpm:
+        type: "integer"
+        default: -1
+        docs: "Number of queries that can be called per minute. Set to `-1` for no limit."
+      qpd:
+        type: "integer"
+        default: 172800
+        docs: "Number of queries that can be called per day. Set to `-1` for no limit."
       corsEnabled:
         type: "boolean"
         optional: true
@@ -153,5 +162,10 @@ class exports.ApiFactory extends Redis
               Access-Control-Allow-Credentials: true
               Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD
               Access-Control-Allow-Headers: Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token
-              Access-Control-Expose-Headers: content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpd-Left
+              Access-Control-Expose-Headers: content-type, content-length, X-ApiaxleProxy-Qps-Left, X-ApiaxleProxy-Qpm-Left, X-ApiaxleProxy-Qpd-Left
               "
+      errorMessage:
+        type: "string"
+        optional: true
+        default: null
+        docs: "This gets added as an info property to any errors returned by the proxy for this api."

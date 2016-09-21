@@ -1,0 +1,9 @@
+*/node_modules
+.git
+.idea
+sentinel-tests
+thirdparty-conf
+release
+bin
+.travis.yml
+

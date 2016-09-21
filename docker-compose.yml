@@ -1,0 +1,53 @@
+version: '2'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile-development
+    ports:
+      - 3100:3100
+    volumes:
+      - ./:/app/apiaxle
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DEBUG_MODE: 'true'
+    command: ['api', '3100']
+
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile-development
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app/apiaxle
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DEBUG_MODE: 'true'
+    command: ['proxy', '3000']
+
+  repl:
+    build:
+      context: .
+      dockerfile: Dockerfile-development
+    volumes:
+      - ./:/app/apiaxle
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DEBUG_MODE: 'true'
+    command: ['repl']
+
+  redis:
+    image: redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379"

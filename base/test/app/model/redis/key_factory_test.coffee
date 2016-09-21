@@ -33,6 +33,7 @@ class exports.KeyTest extends FakeAppTest
   "test #create with non-existent api": ( done ) ->
     createObj =
       qps: 1
+      qpm: 2
       qpd: 3
       forApis: [ "twitter" ]
 
@@ -51,6 +52,7 @@ class exports.KeyTest extends FakeAppTest
 
       createObj =
         qps: 1
+        qpm: 2
         qpd: 3
         forApis: [ "twitter" ]
 
@@ -62,6 +64,7 @@ class exports.KeyTest extends FakeAppTest
   "test #updating a key": ( done ) ->
     createObj =
       qps: 1
+      qpm: 2
       qpd: 3
 
     @fixtures.createKey "987654321", createObj, ( err, dbKey ) =>
@@ -173,3 +176,76 @@ class exports.KeyApiLinkTest extends FakeAppTest
           @ok "phil" not in key_list
 
           done 4
+
+  "test #create with apiLimits": ( done ) ->
+    fixture =
+      api:
+        a:
+          endPoint: "example.com"
+      key:
+        testkey:
+          apiLimits: '{"a":{"qpd":5}}'
+          forApis: ["a"]
+
+    @fixtures.create fixture, ( err, [ a, testkey ] ) =>
+      @ok not err
+      @equal testkey.data.apiLimits, JSON.stringify({"a":{"qpd":5}})
+      done 2
+
+  "test #create with apiLimits with invalid api": ( done ) ->
+    createObj =
+      apiLimits: '{"a": {"qpd":5}}'
+
+    @fixtures.createKey "testkey", createObj, ( err ) =>
+      @ok err
+      @equal err.message, "API 'a' doesn't exist."
+
+      done 2
+
+  "test #create with apiLimits with invalid limit type": ( done ) ->
+    fixture =
+      api:
+        a:
+          endPoint: "example.com"
+      key:
+        testkey:
+          apiLimits: '{"a":{"qpz":5}}'
+          forApis: ["a"]
+
+    @fixtures.create fixture, ( err ) =>
+      @ok err
+      @equal err.message, "Unsupported limit type 'qpz'"
+
+      done 2
+
+  "test #create with apiLimits with float limit": ( done ) ->
+    fixture =
+      api:
+        a:
+          endPoint: "example.com"
+      key:
+        testkey:
+          apiLimits: '{"a":{"qpd":5.5}}'
+          forApis: ["a"]
+
+    @fixtures.create fixture, ( err ) =>
+      @ok err
+      @equal err.message, "apiLimits['a']['qpd'] must be an integer"
+
+      done 2
+
+  "test #create with apiLimits with string limit": ( done ) ->
+    fixture =
+      api:
+        a:
+          endPoint: "example.com"
+      key:
+        testkey:
+          apiLimits: '{"a":{"qpd":"5"}}'
+          forApis: ["a"]
+
+    @fixtures.create fixture, ( err ) =>
+      @ok err
+      @equal err.message, "apiLimits['a']['qpd'] must be an integer"
+
+      done 2

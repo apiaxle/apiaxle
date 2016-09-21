@@ -19,6 +19,7 @@ class exports.ApiTest extends FakeAppTest
         1234:
           forApis: [ "facebook" ]
           qpd: 13
+          qpm: 15
           qps: 14
         5678:
           forApis: [ "twitter" ]

@@ -41,6 +41,7 @@ class exports.KeysControllerTest extends ApiaxleTest
         fixtures.push ( cb ) =>
           options =
             qps: 20
+            qpm: 25
             qpd: 30
 
           model.create "key_#{i}", options, cb
@@ -59,6 +60,7 @@ class exports.KeysControllerTest extends ApiaxleTest
 
             @ok results[ name ]
             @equal results[ name ].qpd, 30
+            @equal results[ name ].qpm, 25
             @equal results[ name ].qps, 20
 
-          done 33
+          done 43

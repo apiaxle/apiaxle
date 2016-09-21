@@ -70,12 +70,16 @@ class exports.ApiControllerTest extends ApiaxleTest
       key:
         1234:
           forApis: [ "twitter" ]
+          qpd: 15
         5678:
           forApis: [ "twitter" ]
+          qpd: 15
         9876:
           forApis: [ "facebook" ]
+          qpd: 15
         hello:
           forApis: [ "facebook", "twitter" ]
+          qpd: 15
 
     @fixtures.create fixture, ( err ) =>
       @ok not err
@@ -99,9 +103,9 @@ class exports.ApiControllerTest extends ApiaxleTest
           @ok not err
 
           res.parseJson ( err, json ) =>
-            @equal json.results[ "1234" ].qpd, 172800
-            @equal json.results[ "5678" ].qpd, 172800
-            @equal json.results[ "hello" ].qpd, 172800
+            @equal json.results[ "1234" ].qpd, 15
+            @equal json.results[ "5678" ].qpd, 15
+            @equal json.results[ "hello" ].qpd, 15
 
             cb()
 
