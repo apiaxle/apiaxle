@@ -63,7 +63,7 @@ class exports.ApiaxleProxy extends AxleApp
     if req.api_name = @hostname_caches[host]
       return next()
 
-    if parts = /^(.+?)\.api\./.exec host
+    if parts = (new RegExp @config.apiNameRegex).exec host
       @hostname_caches[host] = req.api_name = parts[1]
       return next()
 
