@@ -9,6 +9,8 @@ addons:
     packages:
     - gcc-4.8
     - g++-4.8
+  hosts:
+    - redis
 before_script:
   - "npm install -g coffee-script twerp"
   - "./build-apiaxle.sh"
