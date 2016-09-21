@@ -1,5 +1,6 @@
 COFFEE=$(shell find . -name node_modules -and -type d -prune -or -name '*.coffee' -print)
 JS=$(patsubst %.coffee,%.js,$(COFFEE))
+TGZ=$(shell find . -name '*.tgz' -print)
 
 TWERP=`which twerp`
 
@@ -13,6 +14,9 @@ README.md: ../README.md
 
 publish: clean README.md $(JS)
 	npm publish
+
+package: clean README.md $(JS)
+	npm pack
 
 npminstall:
 	npm install
@@ -28,6 +32,6 @@ coverage: $(JS)
 	istanbul cover $(TWERP) `find test -name '*_test.js'`
 
 clean:
-	@rm -vfr $(JS) coverage
+	@rm -vfr $(JS) coverage $(TGZ)
 
-.PHONY: clean test coverage dev
+.PHONY: clean test coverage dev publish package

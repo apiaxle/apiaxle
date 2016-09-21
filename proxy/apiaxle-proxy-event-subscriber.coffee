@@ -19,6 +19,17 @@ class exports.ApiaxleQueueProcessor extends AxleApp
     super @options
     @path_globs = new PathGlobs()
 
+  loadHitProcessors: ( cb ) ->
+    @hitProcessors = @config.hit_processors
+                            .filter( (processor_config) -> processor_config.path )
+                            .map( (processor_config) ->
+      processor = new (require(processor_config.path))(processor_config.args)
+      return processor.processHit.bind(processor) )
+    if @config.hit_processors.length > 0
+      @logger.debug("Loaded #{@config.hit_processors.length} external processors")
+    @hitProcessors.push(@processHit.bind(this));
+    return cb null
+
   processHit: ( options, cb ) ->
     { error,
       status_code,
@@ -107,11 +118,17 @@ class exports.ApiaxleQueueProcessor extends AxleApp
 
   run: ->
     queue = @model( "queue" )
-
     p = =>
       queue.brpop "queue", 2000, ( err, message ) =>
-        @processHit JSON.parse( message[1] ), =>
-          setTimeout p, 1
+        parsedMessage = JSON.parse( message[1] )
+        # swallow any errors a processor returns in the callback
+        # so they don't block the rest from running
+        runProcessor = ( f, cb ) =>
+          f parsedMessage, ( ferr ) =>
+            @logger.warn "#{ ferr.stack }" if ferr
+            cb(null)
+        async.each @hitProcessors, runProcessor, =>
+          process.nextTick p
 
     p()
 
@@ -150,6 +167,7 @@ if not module.parent
     all.push ( cb ) -> api.redisConnect "redisClient", cb
     all.push ( cb ) -> api.redisConnect "redisSubscribeClient", cb
     all.push ( cb ) -> api.loadAndInstansiatePlugins cb
+    all.push ( cb ) -> api.loadHitProcessors cb
     all.push ( cb ) -> api.run cb
 
     async.series all, ( err ) ->

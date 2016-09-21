@@ -63,8 +63,7 @@ class exports.AxleApp extends Application
 
   redisConnect: ( client_name, cb ) =>
     # grab the redis config
-    { port, host, sentinel } = @config.redis
-
+    { port, host, sentinel, auth } = @config.redis
     # are we up for some sentinel fun?
     this[client_name] = null
     if sentinel
@@ -77,7 +76,7 @@ class exports.AxleApp extends Application
       this[client_name].on "failover-end", => @logger.warn "Failover ends."
       this[client_name].on "disconnected", => @logger.warn "Old master disconnected."
     else
-      this[client_name] = Redis.createClient port, host
+      this[client_name] = Redis.createClient port, host, { auth_pass: auth}
 
     this[client_name].on "error", ( err ) => @logger.warn "#{ err }"
     this[client_name].on "ready", cb
@@ -140,6 +139,12 @@ class exports.AxleApp extends Application
             host:
               type: "string"
               default: "localhost"
+            auth:
+              type: "string"
+              default: ""
+        apiNameRegex:
+          type: "string"
+          default: "^(.+?)\\.api\\."
 
   getRoutingSchema: ->
     {}=
@@ -154,11 +159,29 @@ class exports.AxleApp extends Application
               type: "object"
               additionalProperties: true
 
+  getHitProcessorsSchema: ->
+    {}=
+      type: "object"
+      additionalProperties: false
+      properties:
+        hit_processors:
+          type: "array"
+          items:
+            type: "object"
+            additionalProperties: false
+            properties:
+              path:
+                type: "string"
+              args:
+                type: "object"
+                additionalProperties: true
+
   getConfigurationSchema: ->
     _.merge @getAppConfigSchema(),
             @getLoggingConfigSchema(),
             @getApiaxleConfigSchema(),
-            @getRoutingSchema()
+            @getRoutingSchema(),
+            @getHitProcessorsSchema()
 
   controller: ( name ) ->
     return @plugins.controllers[name]
@@ -170,6 +193,9 @@ class exports.AxleApp extends Application
     if query = req.parsed_url?.query
       if query and query.format and query.format in [ "xml", "json" ]
         return query.format
+
+    if /application\/xml/.test(req.headers.accept)
+      return "xml"
 
     if req.api?.data.apiFormat is "xml"
       return "xml"
@@ -185,6 +211,7 @@ class exports.AxleApp extends Application
         message: err.message
 
     output.error.details = err.details if err.details
+    output.error.info = req.api.data.errorMessage if req.api && req.api.data && req.api.data.errorMessage
 
     # add the stacktrace if we're debugging
     if @debugOn

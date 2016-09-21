@@ -1,0 +1,18 @@
+{
+  "redis": {
+    "host": "REDIS_HOST",
+    "port": REDIS_PORT
+  },
+  "apiNameRegex": "API_NAME_REGEX",
+  "application": {
+    "debug": DEBUG_MODE
+  },
+  "logging": {
+    "level": "DEBUG",
+    "appenders": [
+      {
+        "type": "console"
+      }
+    ]
+  }
+}

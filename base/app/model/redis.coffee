@@ -32,6 +32,9 @@ class Redis
 
       # merge the new and old details
       merged_data = _.extend results[id].data, details
+      # delete any properties that got set to null
+      merged_data = _.omit merged_data, (value) ->
+        return value == null
 
       @create id, merged_data, ( err ) =>
         return cb err if err
@@ -56,9 +59,8 @@ class Redis
 
       @validate details, ( err, instance ) =>
         return cb new ValidationError err.message if err
-
         # need to escape the key so that people don't use colons and
-        # trick redis into overwrting other keys
+        # trick redis into overwriting other keys
         id = @escapeId id
 
         multi = @multi()
@@ -67,6 +69,8 @@ class Redis
         if update
           instance.updatedAt = Date.now()
           instance.createdAt = results[id].data.createdAt
+          # delete key to allow for property removal
+          multi.del id
         else
           instance.createdAt = Date.now()
 
@@ -93,6 +97,15 @@ class Redis
 
   range: ( start, stop, cb ) ->
     @lrange "meta:all", start, stop, cb
+
+  all: ( cb ) ->
+    @lrange "meta:all", 0, -1, cb
+
+  nonAnonymousKeys: ( cb ) ->
+    @all ( err, allKeys ) =>
+      return cb err if err
+      nonAnon = allKeys.filter ( key ) => key.indexOf('ip-') != 0
+      cb null, nonAnon
 
   # escape the id so that people can't sneak a colon in and do
   # something like modify metadata

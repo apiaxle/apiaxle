@@ -23,6 +23,7 @@ class exports.CaptureTest extends ApiaxleTest
         phil:
           forApis: [ "programmes" ]
           qps: 100
+          qpm: 100
           qpd: 100
 
     @captures = [

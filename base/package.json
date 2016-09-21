@@ -10,22 +10,22 @@
   ],
   "description": "Shared core functionality for apiaxle.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "1.12.33",
+  "version": "1.14.0",
   "main": "index",
   "scripts": {
     "test": "make test"
   },
   "dependencies": {
     "lodash": "~1.2.0",
-    "js2xml": "0.0.6",
-    "libxmljs": "~0.7.1",
+    "js2xml": "^1.0.4",
+    "libxmljs": "0.14.x",
     "date-utils": "~1.2.13",
     "scarf": "0.0.10",
     "request": "~2.20.0",
     "express": "~3.2.6",
     "async": "~0.2.9",
     "redis": "^0.10.3",
-    "hiredis": "^0.1.17"
+    "hiredis": "^0.4.1"
   },
   "devDependencies": {
     "twerp": "~1.0.7",

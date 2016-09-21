@@ -1,11 +1,22 @@
-env: "NODE_ENV=test"
+env:
+  - NODE_ENV=test CXX=g++-4.8
 language: "node_js"
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.8
+    - g++-4.8
+  hosts:
+    - redis
 before_script:
-  - "make npminstall"
-  - "make all"
-  - "make link"
+  - "npm install -g coffee-script twerp"
+  - "./build-apiaxle.sh"
 script: "make test"
 node_js:
+  - "4"
+  - "0.12"
   - "0.10"
 services:
   - redis-server
