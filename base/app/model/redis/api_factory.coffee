@@ -169,3 +169,10 @@ class exports.ApiFactory extends Redis
         optional: true
         default: null
         docs: "This gets added as an info property to any errors returned by the proxy for this api."
+      additionalHeaders:
+        type: "string"
+        optional: true
+        default: null;
+        docs: "Comma-separated list of headers and values to be added, as
+               headers, to the endpoint call, 
+               e.g., X-SPECIAL=1234,X-VENDOR-TYPE=abc,UNIQUE-VALUE=2js3j"

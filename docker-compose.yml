@@ -13,7 +13,7 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DEBUG_MODE: 'true'
+      DEBUG_MODE: 'false'
     command: ['api', '3100']
 
   proxy:
@@ -29,7 +29,7 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DEBUG_MODE: 'true'
+      DEBUG_MODE: 'false'
     command: ['proxy', '3000']
 
   repl:
