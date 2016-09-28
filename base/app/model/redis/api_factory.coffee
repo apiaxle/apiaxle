@@ -173,6 +173,6 @@ class exports.ApiFactory extends Redis
         type: "string"
         optional: true
         default: null;
-        docs: "Comma-separated list of headers and values to be added, as
-               headers, to the endpoint call, 
-               e.g., X-SPECIAL=1234,X-VENDOR-TYPE=abc,UNIQUE-VALUE=2js3j"
+        docs: "URL encoded list of headers and values to be transformed into
+               headers on the endpoint call,
+               e.g., X-SPECIAL=1234&X-VENDOR-TYPE=abc&UNIQUE-VALUE=2js3j%3Dasd"
