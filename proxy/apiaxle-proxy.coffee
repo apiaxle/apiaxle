@@ -300,10 +300,10 @@ class exports.ApiaxleProxy extends AxleApp
   addAdditionalHeaders: ( req, currentHeaders ) ->
     if req.api.data.additionalHeaders
       # expected format of additionalHeaders string:
-      #     X-SPECIAL=1234,X-VENDOR-TYPE=abc,UNIQUE-VALUE=2js3j
-      for headerAndValue in req.api.data.additionalHeaders.split ','
-        [ header, value ] = headerAndValue.split '='
-        currentHeaders[header] = value
+      #     X-SPECIAL=1234&X-VENDOR-TYPE=abc&UNIQUE-VALUE=2js3j%3Dasd
+      for headerAndEncodedValue in req.api.data.additionalHeaders.split '&'
+        [ header, encodedValue ] = headerAndEncodedValue.split '='
+        currentHeaders[header] = decodeURIComponent encodedValue
 
   chooseLimits: ( key, api ) =>
     # if keyless, use api's keyless limits
