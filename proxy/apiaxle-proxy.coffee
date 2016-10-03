@@ -111,9 +111,7 @@ class exports.ApiaxleProxy extends AxleApp
   # checked.
   createKeyBasedOnIp: ( req, cb ) ->
     # try to get the ip address
-    # TODO: x-forwarded-for can have many, comma seperated
-    # addresses.
-    ip = req.headers["x-forwarded-for"] or
+    ip = req.headers["x-forwarded-for"]?.split(',')[0] or
          req.connection.remoteAddress or
          req.socket.remoteAddress or
          req.connection.socket.remoteAddress
