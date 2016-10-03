@@ -51,6 +51,12 @@ elif [ $app = 'test' ]; then
   make
   make test
 
+elif [ $app = 'docs' ]; then
+  cd /app/apiaxle
+  make > /dev/null
+  cd /app/apiaxle/api
+  bin/generate-docs.coffee
+
 else
   if [ $NODE_ENV != 'production' ]; then
     # When NODE_ENV isn't 'production', run as coffee for watch and recompile
