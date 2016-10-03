@@ -261,7 +261,10 @@ class exports.ApiaxleProxy extends AxleApp
     options.path = @buildPath req
 
     delete req.headers.host
+
     options.headers = req.headers
+    @addAdditionalHeaders req, options.headers
+
     options.method = req.method
 
     return options
@@ -293,6 +296,14 @@ class exports.ApiaxleProxy extends AxleApp
 
     # here's the actual setting
     return endpointUrl
+
+  addAdditionalHeaders: ( req, currentHeaders ) ->
+    if req.api.data.additionalHeaders
+      # expected format of additionalHeaders string:
+      #     X-SPECIAL=1234&X-VENDOR-TYPE=abc&UNIQUE-VALUE=2js3j%3Dasd
+      for headerAndEncodedValue in req.api.data.additionalHeaders.split '&'
+        [ header, encodedValue ] = headerAndEncodedValue.split '='
+        currentHeaders[header] = decodeURIComponent encodedValue
 
   chooseLimits: ( key, api ) =>
     # if keyless, use api's keyless limits
