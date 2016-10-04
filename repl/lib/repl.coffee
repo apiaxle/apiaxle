@@ -73,11 +73,13 @@ class exports.ReplHelper
     command = commands.shift()
 
     # quit/exit are slightly magic
-    return if command in [ "quit", "exit" ]
+    return process.exit() if command in [ "quit", "exit" ]
 
     if command is "help"
       if subcommand = commands.shift()
-        # init the class
+        if not @constructor.all_commands[ subcommand ]?
+          return cb new Error "Help not available for '#{ subcommand }'."
+
         command_object = new @constructor.all_commands[ subcommand ]( @app )
         return command_object.help cb
 

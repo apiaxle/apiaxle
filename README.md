@@ -58,7 +58,7 @@ installation instructions.
 
 ## Docker image
 This repository is auto-built and published as
-[mapzen/apiaxle](https://hub.docker.com/r/mapzen/apiaxle/).
+[apiaxle/apiaxle](https://hub.docker.com/r/apiaxle/apiaxle/).
 
 ## Dockerfiles
 This project uses two `Dockerfile`s, one for production usage named `Dockerfile`,
