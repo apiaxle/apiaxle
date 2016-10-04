@@ -1,23 +1,28 @@
 changelog
 =========
 
+1.14.0
+------
+- production ready docker
+- api name regex
+
 1.13.1
 ------
-all apis keys
+- all apis keys
 
 1.13.0
 -------
-cascading limits
+- cascading limits
 
 1.12.38
 -------
-error message customization
+- error message customization
 
 1.12.36
 -------
-support external hit processors for apiaxle-proxy
-add qpm limits
+- support external hit processors for apiaxle-proxy
+- add qpm limits
 
 1.12.35
 -------
-add batch endpoint to apiaxle-api
+- add batch endpoint to apiaxle-api
