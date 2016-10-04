@@ -73,7 +73,7 @@ class exports.ReplHelper
     command = commands.shift()
 
     # quit/exit are slightly magic
-    return if command in [ "quit", "exit" ]
+    return process.exit() if command in [ "quit", "exit" ]
 
     if command is "help"
       if subcommand = commands.shift()
