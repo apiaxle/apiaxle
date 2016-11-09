@@ -2,6 +2,7 @@
 
 port=3000
 app='api'
+extra_flags=''
 
 # app can be passed as first parameter
 if [ $# -gt 0 ]; then
@@ -11,6 +12,11 @@ fi
 # port can be passed as second parameter
 if [ $# -gt 1 ]; then
   port=$2
+fi
+
+# extra flags can be passed as third parameter
+if [ $# -gt 2 ]; then
+  extra_flags=$3
 fi
 
 # Set default values if env vars are not present
@@ -61,9 +67,9 @@ else
   if [ $NODE_ENV != 'production' ]; then
     # When NODE_ENV isn't 'production', run as coffee for watch and recompile
     coffee --watch /app/apiaxle/base/index.coffee /app/apiaxle/base &
-    supervisor --force-watch -x coffee -w "/app/apiaxle/$app,/app/apiaxle/base" -- /app/apiaxle/$app/apiaxle-$app.coffee -h 0.0.0.0 -p $port -f 1
+    supervisor --force-watch -x coffee -w "/app/apiaxle/$app,/app/apiaxle/base" -- /app/apiaxle/$app/apiaxle-$app.coffee -h 0.0.0.0 -p $port -f 1 $extra_flags
   else
     cd /app/apiaxle/$app
-    node /app/apiaxle/$app/apiaxle-$app.js -h 0.0.0.0 -p $port -f 1
+    node /app/apiaxle/$app/apiaxle-$app.js -h 0.0.0.0 -p $port -f 1 $extra_flags
   fi
 fi
