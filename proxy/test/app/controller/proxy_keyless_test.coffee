@@ -50,3 +50,39 @@ class exports.CatchallKeylessTest extends ApiaxleTest
           @equal response.headers["x-apiaxleproxy-qpd-left"], 11
 
           done 8
+
+class exports.XForwardedForTest extends ApiaxleTest
+  @start_webserver = true
+  @empty_db_on_setup = true
+
+  "setup API": ( done ) ->
+    fixture =
+      api:
+        facebook:
+          endPoint: "example.com"
+          allowKeylessUse: true
+
+    @fixtures.create fixture, ( err, [ @api ] ) -> done()
+
+  "test a keyless hit with x-forwarded-for": ( done ) ->
+    requestOptions =
+      path: "/"
+      host: "facebook.api.localhost"
+      headers:
+        'x-forwarded-for':
+          '1.0.0.1, 1.0.0.2'
+
+    @stubDns { "facebook.api.localhost": "127.0.0.1" }
+    scope1 = nock( "http://example.com" )
+      .get( "/" )
+      .once()
+      .reply( 200, "{}" )
+
+    @GET requestOptions, ( err, response ) =>
+        model = @app.model( "keyfactory" )
+        key_name = "ip-facebook-1.0.0.1"
+        model.find [ key_name ], ( err, results ) =>
+          @ok not err
+          @ok dbKey = results[key_name]
+
+          done 2

@@ -1,22 +1,25 @@
 env:
   - NODE_ENV=test CXX=g++-4.8
-language: "node_js"
+language: node_js
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
+      - ubuntu-toolchain-r-test
     packages:
-    - gcc-4.8
-    - g++-4.8
+      - gcc-4.8
+      - g++-4.8
   hosts:
     - redis
 before_script:
-  - "npm install -g coffee-script twerp"
+  - npm install -g coffee-script twerp
   - "./build-apiaxle.sh"
-script: "make test"
+script: make test
 node_js:
-  - "4"
-  - "0.12"
-  - "0.10"
+  - '4'
+  - '0.12'
+  - '0.10'
 services:
   - redis-server
+notifications:
+  slack:
+    secure: K1WlgCHTGH4itdSfUUMNRS7zGOinTeytPhCrsFH88WJBCmswBwetJC+BneSpC83ccqLsc+QBHR7o6DTsWzP5wti1lUuqkNITYT7E5O1fOPF1g/Cj4LsexgwGv27tODxb+Wjuww5PmadL0NKUHLw5yahs/NxWxyQqTnqEahKEXk4=

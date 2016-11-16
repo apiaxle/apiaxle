@@ -7,13 +7,14 @@ services:
     ports:
       - 3100:3100
     volumes:
-      - ./:/app/apiaxle
+      - ./api:/app/apiaxle/api
+      - ./base:/app/apiaxle/base
     depends_on:
       - redis
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DEBUG_MODE: 'true'
+      DEBUG_MODE: 'false'
     command: ['api', '3100']
 
   proxy:
@@ -23,13 +24,14 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./:/app/apiaxle
+      - ./proxy:/app/apiaxle/proxy
+      - ./base:/app/apiaxle/base
     depends_on:
       - redis
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      DEBUG_MODE: 'true'
+      DEBUG_MODE: 'false'
     command: ['proxy', '3000']
 
   repl:
@@ -37,7 +39,11 @@ services:
       context: .
       dockerfile: Dockerfile-development
     volumes:
-      - ./:/app/apiaxle
+      - ./repl:/app/apiaxle/repl
+      - ./api:/app/apiaxle/api
+      - ./proxy:/app/apiaxle/proxy
+      - ./base:/app/apiaxle/base
+      - ./.git:/app/apiaxle/.git
     depends_on:
       - redis
     environment:

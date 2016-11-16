@@ -12,7 +12,7 @@
   ],
   "description": "ApiAxle's commandline interface.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "scripts": {
     "test": "cake test"
   },
@@ -20,8 +20,8 @@
     "apiaxle": "./apiaxle.js"
   },
   "dependencies": {
-    "apiaxle-base": "1.14.0",
-    "apiaxle-api": "1.14.0",
+    "apiaxle-base": "1.15.0",
+    "apiaxle-api": "1.15.0",
     "lodash": "~1.2.0",
     "tokenizer": "~0.1.2",
     "libxmljs": "0.14.x",
