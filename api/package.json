@@ -10,7 +10,7 @@
   ],
   "description": "ApiAxle's own API. Provision keys and APIs.",
   "bugs": "https://github.com/apiaxle/apiaxle/issues",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "main": "index",
   "scripts": {
     "test": "cake test"
