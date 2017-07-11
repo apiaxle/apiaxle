@@ -111,9 +111,7 @@ class exports.ApiaxleProxy extends AxleApp
   # checked.
   createKeyBasedOnIp: ( req, cb ) ->
     # try to get the ip address
-    # TODO: x-forwarded-for can have many, comma seperated
-    # addresses.
-    ip = req.headers["x-forwarded-for"] or
+    ip = req.headers["x-forwarded-for"]?.split(',')[0] or
          req.connection.remoteAddress or
          req.socket.remoteAddress or
          req.connection.socket.remoteAddress
@@ -127,16 +125,16 @@ class exports.ApiaxleProxy extends AxleApp
       # we've a hit, return the key
       return cb null, results[key_name] if results[key_name]
 
-      create_link = [
+      create_temp_key = [
         # create the key
         ( cb ) -> model.create key_name, {}, cb
 
-        # now link the key
-        ( cb ) -> req.api.linkKey key_name, cb
+        # expire the key in 24 hours
+        ( cb ) -> model.expire key_name, 86400, cb
       ]
 
       # return the new key
-      async.series create_link, ( err, [ new_key ] ) -> cb err, new_key
+      async.series create_temp_key, ( err, [ new_key ] ) -> cb err, new_key
 
   getKeyName: ( req, res, next ) =>
     { apiaxle_key, api_key, key } = req.parsed_url.query
@@ -227,8 +225,10 @@ class exports.ApiaxleProxy extends AxleApp
         @validateToken req.api.data.tokenSkewProtectionCount, providedToken, req.key_name, req.key.data.sharedSecret, cb
 
     # see if key is valid for all apis
-    if req.key.data.allApis
-      return next()
+    return next() if req.key.data.allApis
+
+    # check for keyless access
+    return next() if req.is_keyless
 
     # check the req.key is for this req.api
     all.push ( cb ) ->

@@ -18,3 +18,4 @@ npm-debug.log
 *#
 .idea
 *.tgz
+*.orig

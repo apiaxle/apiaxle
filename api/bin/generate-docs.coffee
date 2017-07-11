@@ -134,7 +134,7 @@ genExample = ( controller ) ->
 outputExample = ( controller ) ->
   print "<p><pre>#{ genExample controller }</pre></p>"
 
-exec "git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
+exec "GIT_DISCOVERY_ACROSS_FILESYSTEM=1 git rev-parse --abbrev-ref HEAD", ( err, stdout ) ->
   console.error( err ) if err
 
   branch = stdout.replace /\n/g, ""
