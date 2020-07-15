@@ -22,7 +22,7 @@
   "dependencies": {
     "apiaxle-base": "1.15.1",
     "apiaxle-api": "1.15.1",
-    "lodash": "~1.2.0",
+    "lodash": "~4.17.19",
     "tokenizer": "~0.1.2",
     "libxmljs": "0.18.x",
     "sinon": "~1.6.0",
