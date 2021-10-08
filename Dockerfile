@@ -14,10 +14,12 @@ COPY ./apiaxle-config.json /apiaxle-config.json
 
 WORKDIR /app/apiaxle
 
-RUN apk add --update alpine-sdk python python-dev && \
+RUN apk add --update alpine-sdk ca-certificates python python-dev && \
     npm install -g coffee-script && \
     /app/build-apiaxle.sh && \
     apk del --purge alpine-sdk python python-dev && \
     npm uninstall -g coffee-script
+
+ENV NODE_EXTRA_CA_CERTS /etc/ssl/certs/ca-certificates.crt
 
 ENTRYPOINT ["/app/apiaxle/docker-entrypoint.sh"]
