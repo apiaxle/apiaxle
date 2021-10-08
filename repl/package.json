@@ -22,15 +22,15 @@
   "dependencies": {
     "apiaxle-base": "1.15.1",
     "apiaxle-api": "1.15.1",
-    "lodash": "~1.2.0",
-    "tokenizer": "~0.1.2",
-    "libxmljs": "0.18.x",
-    "sinon": "~1.6.0",
-    "twerp": "~1.0.7",
+    "lodash": "1.2.1",
+    "tokenizer": "0.1.4",
+    "libxmljs": "0.14.3",
+    "sinon": "1.6.0",
+    "twerp": "1.0.10",
     "stdin": "0.0.1",
-    "async": "~0.2.9"
+    "async": "0.2.10"
   },
   "devDependencies": {
-    "coffee-script": "~1.6.2"
+    "coffee-script": "1.6.2"
   }
 }

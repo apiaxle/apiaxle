@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:4
+FROM mhart/alpine-node:4.6.2
 
 ENV NODE_ENV production
 
