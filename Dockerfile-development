@@ -1,9 +1,9 @@
-FROM mhart/alpine-node:4
+FROM mhart/alpine-node:4.8.0
 
 ENV NODE_ENV development
 
 RUN npm install -g coffee-script twerp supervisor
-RUN apk add --update alpine-sdk python python-dev
+RUN apk add --update alpine-sdk ca-certificates python python-dev
 
 WORKDIR /app/apiaxle
 
@@ -18,5 +18,7 @@ COPY ./docker-entrypoint.sh /app/apiaxle/
 COPY ./build-apiaxle.sh /app/build-apiaxle.sh
 
 RUN /app/build-apiaxle.sh
+
+ENV NODE_EXTRA_CA_CERTS /etc/ssl/certs/ca-certificates.crt
 
 ENTRYPOINT ["/app/apiaxle/docker-entrypoint.sh"]
