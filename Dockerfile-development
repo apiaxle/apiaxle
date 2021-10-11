@@ -2,7 +2,7 @@ FROM mhart/alpine-node:4.8.0
 
 ENV NODE_ENV development
 
-RUN npm install -g coffee-script twerp supervisor
+RUN npm install -g coffee-script@1.6 twerp@1.0 supervisor
 RUN apk add --update alpine-sdk ca-certificates python python-dev
 
 WORKDIR /app/apiaxle

@@ -15,10 +15,10 @@ COPY ./apiaxle-config.json /apiaxle-config.json
 WORKDIR /app/apiaxle
 
 RUN apk add --update alpine-sdk ca-certificates python python-dev && \
-    npm install -g coffee-script && \
+    npm install -g coffee-script@1.6 && \
     /app/build-apiaxle.sh && \
     apk del --purge alpine-sdk python python-dev && \
-    npm uninstall -g coffee-script
+    npm uninstall -g coffee-script@1.6
 
 ENV NODE_EXTRA_CA_CERTS /etc/ssl/certs/ca-certificates.crt
 

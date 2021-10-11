@@ -11,7 +11,7 @@ addons:
   hosts:
     - redis
 before_script:
-  - npm install -g coffee-script twerp
+  - npm install -g coffee-script@1.6 twerp@1.0
   - "./build-apiaxle.sh"
 script: make test
 node_js:
